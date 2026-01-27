@@ -1,4 +1,3 @@
-import {Col, Container, Row} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import {useSiteContext} from "./Site";
 import {usePageContext} from "./Page";
