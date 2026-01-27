@@ -105,7 +105,7 @@ export default function Site(props) {
     // load site outline
     Sites.getSiteOutline().then((data) => {
       console.debug(`Loaded site outline.`);
-      setOutlineData(data);
+      setOutlineData(buildOutline(data));
     }).catch(err => console.error(`Error loading outline.`, err));
   }, []);
 
@@ -259,7 +259,7 @@ export default function Site(props) {
           NavTitle: page.NavTitle,
           OutlineSeq: page.OutlineSeq,
           LinkToURL: page.LinkToURL,
-          HasChildren: page.HasChildren,
+          HasChildren: false, // will be reset to true if children are found
           PageRoute: page.PageRoute,
           Modified: page.Modified,
           OutlineLevel: level,
@@ -269,6 +269,7 @@ export default function Site(props) {
         result = result.concat(buildOutline(pages, child.PageID, level + 1, child));
       }
     })
+    if (result.length > 0 && parent) parent.HasChildren = true;
     result.sort((a, b) => a.OutlineSort.localeCompare(b.OutlineSort));
     return result;
   }
@@ -278,7 +279,8 @@ export default function Site(props) {
     return str.substring(0, index) + chr + str.substring(index + 1);
   }
 
-  const siteElements = (
+  // set up routes (or catchall if outline is not yet loaded)
+  const content = outlineData ? (
     <Routes>
       <Route
         path="/login"
@@ -340,7 +342,14 @@ export default function Site(props) {
       )}</>
       {props.children}
     </Routes>
-
+  ) : (
+    <Routes>
+      <Route
+        path={'*'}
+        element={<></>}
+      />
+      {props.children}
+    </Routes>
   )
 
   const siteContext = {
@@ -365,7 +374,7 @@ export default function Site(props) {
       <SiteContext value={siteContext}>
         <SiteEditor>
           <div className="Site" data-testid="Site">
-            {siteElements}
+            {content}
           </div>
         </SiteEditor>
       </SiteContext>
@@ -374,7 +383,7 @@ export default function Site(props) {
     return (
       <SiteContext value={siteContext}>
         <div className="Site" data-testid="Site">
-          {siteElements}
+          {content}
         </div>
       </SiteContext>
     );

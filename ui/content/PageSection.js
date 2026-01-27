@@ -18,7 +18,7 @@ function PageSection({pageSectionData}) {
 
   const {PageSections} = useRestApi();
   const {canEdit} = useEdit();
-  const {sectionData, setSectionData, updatePageSection, refreshPage, addExtraModal, extras} = usePageContext();
+  const {sectionData, setSectionData, updatePageSection, addExtraModal, extras} = usePageContext();
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingText, setEditingText] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -46,7 +46,7 @@ function PageSection({pageSectionData}) {
         .catch(error => console.error(`Error updating section title.`, error));
     }
     setEditingTitle(false);
-  };
+  }
 
   const sectionTextRef = useRef(null);
   const sectionText = (

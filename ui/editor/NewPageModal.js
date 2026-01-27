@@ -62,17 +62,17 @@ export default function NewPageModal({show, setShow}) {
       PageRoute: edits.PageRoute,
       PageHidden: edits.PageHidden,
     })
-      .then((result) => {
+      .then((newPage) => {
         console.debug(`Page inserted.`);
         PageSections.insertOrUpdatePageSection({
-          PageID: result.PageID,
+          PageID: newPage.PageID,
           ParentID: 0
-        }).then((result) => {
+        }).then((newSection) => {
           console.debug(`Page section inserted.`);
           setShow?.(false);
           FormData.revert();
-          Outline.addPage(result);
-          navigate(result.PageRoute);
+          Outline.addPage(newPage);
+          navigate(newPage.PageRoute);
         }).catch(e => console.error(`Error inserting new page section.`, e));
       }).catch(e => console.error(`Error inserting new page.`, e));
   }

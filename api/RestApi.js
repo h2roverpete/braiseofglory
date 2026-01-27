@@ -1,6 +1,6 @@
 import React, {useRef} from 'react';
 import {useCookies} from "react-cookie";
-import {useContext, useMemo} from "react";
+import {useContext} from "react";
 import axios from "axios";
 
 export const RestApiContext = React.createContext({});
@@ -217,7 +217,7 @@ export default function RestApi(props) {
     return response.data;
   }
 
-  async function insertOrUpdateExtra(data, file) {
+  async function insertOrUpdateExtra(data) {
     return await adminApiCall(() => {
       return async () => {
         const formData = new FormData();
