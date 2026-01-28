@@ -109,7 +109,7 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
         ...prevValue,
         [name]: value
       }
-      console.log(`Guest data updated: ${JSON.stringify(newValue)}`);
+      console.debug(`Guest data updated: ${JSON.stringify(newValue)}`);
       return newValue;
     });
   }
@@ -130,7 +130,7 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
         // remove empty string properties
         delete newValue[name];
       }
-      console.log(`Feedback data updated: ${JSON.stringify(newValue)}`);
+      console.debug(`Feedback data updated: ${JSON.stringify(newValue)}`);
       return newValue;
     });
   }

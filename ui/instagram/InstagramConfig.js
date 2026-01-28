@@ -25,7 +25,7 @@ export default function InstagramConfig({extraData, setExtraData}) {
   }
 
   function onUpdate() {
-    console.log(`Updating instagram extra.`);
+    console.debug(`Updating instagram extra.`);
     Extras.insertOrUpdateExtra(edits)
       .then((result) => {
         setExtraData(result);

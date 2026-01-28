@@ -13,6 +13,17 @@ import React from "react";
  * @constructor
  */
 export default function FrameworkApp(props) {
+  // replace console functions to disable non-error logging on production
+  if (process.env.NODE_ENV === 'production') {
+    console.warn = () => {
+    }
+    console.info = () => {
+    }
+    console.log = () => {
+    }
+    console.debug = () => {
+    }
+  }
   return (
     <CookiesProvider>
       <RestApiProvider>

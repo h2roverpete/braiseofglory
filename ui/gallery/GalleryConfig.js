@@ -27,7 +27,7 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId}
   }
 
   function onUpdate() {
-    console.log(`Updating gallery.`);
+    console.debug(`Updating gallery.`);
     Galleries.insertOrUpdateGallery(edits)
       .then((result) => {
         FormData?.update(result);

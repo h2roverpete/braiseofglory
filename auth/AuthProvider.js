@@ -43,7 +43,7 @@ export default function AuthProvider(props) {
    * @returns {Promise<boolean>}
    */
   async function hasPermission(permission) {
-    console.log(`Check permission '${permission}' for current user.`);
+    console.debug(`Check permission '${permission}' for current user.`);
     if (scope) {
       return checkScopes(scope, `${document.location.host}:${permission}`);
     } else {

@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import {useSiteContext} from "./Site";
 import {usePageContext} from "./Page";
+import {Link} from "react-router";
 
 export default function PageNavigation() {
 
@@ -33,19 +34,19 @@ export default function PageNavigation() {
     <div className="PageNavigation d-flex justify-content-end" style={{flex: 0}}>
       {prev && (
         <div className={'d-flex align-items-center justify-content-start text-nowrap'}>
-          <a href={prev.PageRoute}>
+          <Link to={prev.PageRoute}>
             <>&nbsp;&laquo;&nbsp;</>
             {prev.NavTitle ? prev.NavTitle : prev.PageTitle}
-          </a>
+          </Link>
         </div>
       )}
       <div style={{flex: 1}}></div>
       {next && (
         <div className={'d-flex align-items-center justify-content-end text-nowrap'} style={{flex: 0}}>
-          <a href={next.PageRoute}>
+          <Link to={next.PageRoute}>
             {next.NavTitle ? next.NavTitle : next.PageTitle}
             <>&nbsp;&raquo;&nbsp;</>
-          </a>
+          </Link>
         </div>
       )}
     </div>

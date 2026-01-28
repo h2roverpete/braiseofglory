@@ -49,7 +49,7 @@ function PageSection({pageSectionData}) {
       pageSectionData.SectionTitle = textContent;
       pageSectionData.TitleAlign = textAlign;
       PageSections.insertOrUpdatePageSection(pageSectionData)
-        .then(() => console.log(`Updated section title.`))
+        .then(() => console.debug(`Updated section title.`))
         .catch(error => console.error(`Error updating section title.`, error));
     }
     setEditingTitle(false);
@@ -71,7 +71,7 @@ function PageSection({pageSectionData}) {
       pageSectionData.SectionText = textContent;
       pageSectionData.TextAlign = textAlign;
       PageSections.insertOrUpdatePageSection(pageSectionData)
-        .then(() => console.log(`Updated section text.`))
+        .then(() => console.debug(`Updated section text.`))
         .catch(error => console.error(`Error updating section text.`, error));
     }
     setEditingText(false);
@@ -81,7 +81,7 @@ function PageSection({pageSectionData}) {
     if (pageSectionData) {
       PageSections.deletePageSection(pageSectionData.PageID, pageSectionData.PageSectionID)
         .then(() => {
-          console.log(`Page section deleted.`)
+          console.debug(`Page section deleted.`)
           removePageSection(pageSectionData.PageSectionID)
         })
         .catch(error => {
@@ -256,7 +256,7 @@ function PageSection({pageSectionData}) {
 
   function fileSelectedHandler(e) {
     const files = [...e.target.files];
-    console.log(`${files.length} file(s) selected.`);
+    console.debug(`${files.length} file(s) selected.`);
     if (files.length === 1) {
       uploadFile(files[0]);
     }
@@ -288,7 +288,7 @@ function PageSection({pageSectionData}) {
     const files = [...e.dataTransfer.items]
       .map((item) => item.getAsFile())
       .filter((file) => file);
-    console.log(`${files.length} file(s) dropped.`);
+    console.debug(`${files.length} file(s) dropped.`);
     if (files.length === 1) {
       uploadFile(files[0]);
     }
@@ -302,7 +302,7 @@ function PageSection({pageSectionData}) {
     setUploadPrompt(DropState.UPLOADING);
     PageSections.uploadSectionImage(pageSectionData.PageID, pageSectionData.PageSectionID, file)
       .then((result) => {
-        console.log(`Image uploaded successfully.`);
+        console.debug(`Image uploaded successfully.`);
         if (dropFileRef.current) {
           dropFileRef.current.hidden = true;
         }
@@ -316,7 +316,7 @@ function PageSection({pageSectionData}) {
   }
 
   function dragLeaveHandler(e) {
-    console.log(`Image drag leave...`);
+    console.debug(`Image drag leave...`);
     if (dropFileRef.current) {
       dropFileRef.current.hidden = true;
     }

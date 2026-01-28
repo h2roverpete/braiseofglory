@@ -304,7 +304,7 @@ describe('Site component', () => {
     MockPage = jest.fn().mockImplementation(() => {
       const siteContext = useContext(SiteContext);
       useEffect(() => {
-        console.log('Reporting error.');
+        console.debug('Reporting error.');
         siteContext.setError({
           title: `Server Error`,
           description: `Site data could not be loaded.`

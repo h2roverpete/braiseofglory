@@ -25,9 +25,9 @@ export default function ExtraConfig({extraData}) {
   return (
     <EditorPanel
       onUpdate={() => {
-        console.log(`Updating extra.`);
+        console.debug(`Updating extra.`);
         Extras.insertOrUpdateExtra(edits).then((extra) => {
-          console.log(`Extra updated.`);
+          console.debug(`Extra updated.`);
           FormData?.update(extra);
           updateExtra(extra);
         }).catch((err) => {
@@ -35,9 +35,9 @@ export default function ExtraConfig({extraData}) {
         });
       }}
       onDelete={() => {
-        console.log(`Deleting extra.`);
+        console.debug(`Deleting extra.`);
         Extras.deleteExtra(extraData.ExtraID).then(() => {
-          console.log(`Extra deleted.`);
+          console.debug(`Extra deleted.`);
           removeExtraFromPage(extraData.ExtraID);
         }).catch((err) => {
           console.error(`Error deleting extra.`, err);

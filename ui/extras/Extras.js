@@ -16,7 +16,7 @@ export default function Extras() {
   // extras to show
   const {sectionExtras} = usePageSectionContext();
   useEffect(() => {
-    console.log(`Section extras changed: ${JSON.stringify(sectionExtras)}`);
+    console.debug(`Section extras changed: ${JSON.stringify(sectionExtras)}`);
   }, [sectionExtras]);
 
   return (<>
