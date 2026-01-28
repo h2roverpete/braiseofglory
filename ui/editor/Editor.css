@@ -1,12 +1,15 @@
 /* Admin form elements */
-.col-form-label-sm,
-div.form-control-sm,
-div.form-control-sm label,
-input.form-control-sm,
-select.form-select-sm,
-textarea.form-control-sm,
-.btn-sm {
+.Editor .col-form-label-sm,
+.Editor div.form-control-sm,
+.Editor div.form-control-sm label,
+.Editor input.form-control-sm,
+.Editor select.form-select-sm,
+.Editor textarea.form-control-sm,
+.Editor .btn-sm {
   font-size: 10pt;
+}
+
+.Editor .btn-sm {
 }
 
 /* Editing drop down menus */
@@ -27,4 +30,6 @@ textarea.form-control-sm,
 .Editor {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 10pt;
+  font-weight: normal;
+  color:black;
 }
