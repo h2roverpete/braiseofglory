@@ -10,7 +10,7 @@ export default function ExtraConfig({extraData}) {
 
   const {canEdit} = useEdit();
   const {Extras} = useRestApi();
-  const {refreshPage} = usePageContext();
+  const {updateExtra, removeExtraFromPage} = usePageContext();
   const {edits, FormData} = useFormEditor();
   useEffect(() => {
     FormData?.update(extraData);
@@ -26,10 +26,10 @@ export default function ExtraConfig({extraData}) {
     <EditorPanel
       onUpdate={() => {
         console.log(`Updating extra.`);
-        Extras.insertOrUpdateExtra(edits).then((result) => {
+        Extras.insertOrUpdateExtra(edits).then((extra) => {
           console.log(`Extra updated.`);
-          FormData?.update(result);
-          refreshPage();
+          FormData?.update(extra);
+          updateExtra(extra);
         }).catch((err) => {
           console.error(`Error updating extra.`, err);
         });
@@ -38,7 +38,7 @@ export default function ExtraConfig({extraData}) {
         console.log(`Deleting extra.`);
         Extras.deleteExtra(extraData.ExtraID).then(() => {
           console.log(`Extra deleted.`);
-          refreshPage();
+          removeExtraFromPage(extraData.ExtraID);
         }).catch((err) => {
           console.error(`Error deleting extra.`, err);
         });

@@ -41,7 +41,7 @@ export default function PageSections(props) {
         <Login/>
       </>) : (<>
         {pageData && sectionData && (<>
-          {sectionData.map(section => (<Fragment key={section.PageSectionID}>
+          {sectionData.map(section => (<Fragment key={`${section.PageSectionID}-${section.PageSectionSeq}`}>
             <PageSection
               pageSectionData={section}
               data-testid={`PageSection-section.PageSectionID`}/>

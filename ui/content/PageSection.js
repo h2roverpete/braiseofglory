@@ -18,7 +18,14 @@ function PageSection({pageSectionData}) {
 
   const {PageSections} = useRestApi();
   const {canEdit} = useEdit();
-  const {sectionData, setSectionData, updatePageSection, refreshPage, addExtraModal, extras} = usePageContext();
+  const {
+    sectionData,
+    setSectionData,
+    removePageSection,
+    updatePageSection,
+    addExtraModal,
+    pageExtras
+  } = usePageContext();
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingText, setEditingText] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -46,7 +53,7 @@ function PageSection({pageSectionData}) {
         .catch(error => console.error(`Error updating section title.`, error));
     }
     setEditingTitle(false);
-  };
+  }
 
   const sectionTextRef = useRef(null);
   const sectionText = (
@@ -73,15 +80,9 @@ function PageSection({pageSectionData}) {
   function deleteSection() {
     if (pageSectionData) {
       PageSections.deletePageSection(pageSectionData.PageID, pageSectionData.PageSectionID)
-        .then(result => {
+        .then(() => {
           console.log(`Page section deleted.`)
-          let newSections = [];
-          for (const section of sectionData) {
-            if (section.PageSectionID !== result.PageSectionID) {
-              newSections.push(section)
-            }
-          }
-          setSectionData(newSections);
+          removePageSection(pageSectionData.PageSectionID)
         })
         .catch(error => {
           console.error(`Error deleting page section.`, error)
@@ -105,15 +106,14 @@ function PageSection({pageSectionData}) {
         let seq = current.PageSectionSeq;
         current.PageSectionSeq = before.PageSectionSeq;
         before.PageSectionSeq = seq;
-        const newSectionData = [...sectionData];
-        newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
         console.debug(`Moving section up...`);
+        updatePageSection(current);
+        updatePageSection(before);
         PageSections.insertOrUpdatePageSection(before)
           .then(() => {
             PageSections.insertOrUpdatePageSection(current)
               .then(() => {
                 console.debug(`Section moved up.`);
-                setSectionData(newSectionData);
               })
               .catch(error => console.error(`Error moving page section up.`, error));
           })
@@ -140,15 +140,14 @@ function PageSection({pageSectionData}) {
         let seq = current.PageSectionSeq;
         current.PageSectionSeq = next.PageSectionSeq;
         next.PageSectionSeq = seq;
-        const newSectionData = [...sectionData];
-        newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
         console.debug(`Moving section down...`);
+        updatePageSection(next);
+        updatePageSection(current);
         PageSections.insertOrUpdatePageSection(next)
           .then(() => {
             PageSections.insertOrUpdatePageSection(current)
               .then(() => {
                 console.debug(`Section moved down.`);
-                setSectionData(newSectionData);
               })
               .catch(error => console.error(`Error moving page section down.`, error));
           })
@@ -165,20 +164,19 @@ function PageSection({pageSectionData}) {
       PageSections.insertOrUpdatePageSection({
         PageID: pageSectionData.PageID,
         PageSectionSeq: pageSectionData.PageSectionSeq,
-      }).then((result) => {
+      }).then((newSection) => {
         console.debug(`Added page section.`);
-        const newSectionData = [...sectionData, result];
         let toUpdate = 0;
         let updated = 0;
-        for (const section of newSectionData) {
-          if (section.PageSectionID !== result.PageSectionID && section.PageSectionSeq >= result.PageSectionSeq) {
+        for (const section of sectionData) {
+          if (section.PageSectionSeq >= newSection.PageSectionSeq) {
             console.debug(`Updating section sequence.`);
-            toUpdate++;
             section.PageSectionSeq++;
-            PageSections.insertOrUpdatePageSection(section).then(() => {
-              console.debug(`Updated section sequence.`);
+            ++toUpdate;
+            PageSections.insertOrUpdatePageSection(section).then((result) => {
+              console.debug(`Updated section ${result.PageSectionID} sequence.`);
               if (++updated === toUpdate) {
-                // all updated
+                const newSectionData = [...sectionData, newSection]
                 newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
                 setSectionData(newSectionData);
               }
@@ -194,21 +192,20 @@ function PageSection({pageSectionData}) {
       console.debug(`Adding page section below...`);
       PageSections.insertOrUpdatePageSection({
         PageID: pageSectionData.PageID,
-        PageSectionSeq: pageSectionData.PageSectionSeq+1,
-      }).then((result) => {
+        PageSectionSeq: pageSectionData.PageSectionSeq + 1,
+      }).then((newSection) => {
         console.debug(`Added page section.`);
-        const newSectionData = [...sectionData, result];
         let toUpdate = 0;
         let updated = 0;
-        for (const section of newSectionData) {
-          if (section.PageSectionID !== result.PageSectionID && section.PageSectionSeq > result.PageSectionSeq) {
+        for (const section of sectionData) {
+          if (section.PageSectionSeq > newSection.PageSectionSeq) {
             console.debug(`Updating section sequence.`);
-            toUpdate++;
             section.PageSectionSeq++;
-            PageSections.insertOrUpdatePageSection(section).then(() => {
-              console.debug(`Updated section sequence.`);
+            ++toUpdate;
+            PageSections.insertOrUpdatePageSection(section).then((result) => {
+              console.debug(`Updated section ${result.PageSectionID} sequence.`);
               if (++updated === toUpdate) {
-                // all updated
+                const newSectionData = [...sectionData, newSection]
                 newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
                 setSectionData(newSectionData);
               }
@@ -239,16 +236,16 @@ function PageSection({pageSectionData}) {
   }, [sectionImageRef, canEdit]);
 
   useEffect(() => {
-    if (extras && pageSectionData) {
+    if (pageExtras && pageSectionData) {
       const list = [];
-      for (const extra of extras) {
+      for (const extra of pageExtras) {
         if (extra.PageSectionID === pageSectionData.PageSectionID) {
           list.push(extra);
         }
       }
       setSectionExtras(list);
     }
-  }, [extras, pageSectionData]);
+  }, [pageExtras, pageSectionData]);
 
   function selectImageFile() {
     if (fileInputRef.current && canEdit) {
@@ -328,7 +325,8 @@ function PageSection({pageSectionData}) {
 
   return (
     <PageSectionContext value={{
-      pageSectionData: pageSectionData
+      pageSectionData: pageSectionData,
+      sectionExtras: sectionExtras
     }}>
       <div
         className={`PageSection`}
@@ -375,7 +373,7 @@ function PageSection({pageSectionData}) {
           {!editingText && !editingTitle && (
             <div
               className="dropdown"
-              style={{position: 'absolute', top: '2px', right: '2px', zIndex: 100}}
+              style={{position: 'absolute', top: '2px', right: '2px', zIndex: sectionData.PageSectionSeq}}
             >
               <Button
                 variant="secondary"
@@ -395,10 +393,10 @@ function PageSection({pageSectionData}) {
                       onClick={selectImageFile}>{`${pageSectionData?.SectionImage?.length > 0 ? 'Update' : 'Add'} Section Image`}</span>
                 <span className="dropdown-item"
                       onClick={() => addExtraModal({pageSectionId: pageSectionData.PageSectionID})}>Add Extra</span>
-                {pageSectionData.PageSectionSeq > 1 && (
+                {pageSectionData.PageSectionID !== sectionData[0].PageSectionID && (
                   <span className="dropdown-item" onClick={onMoveUp}>Move Up</span>
                 )}
-                {pageSectionData.PageSectionSeq < sectionData.length && (
+                {pageSectionData.PageSectionID !== sectionData[sectionData.length-1].PageSectionID && (
                   <span className="dropdown-item" style={{marginLeft: '0'}} onClick={onMoveDown}>Move
                   Down</span>
                 )}

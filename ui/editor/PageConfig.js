@@ -17,7 +17,7 @@ export default function PageConfig() {
 
   const {Pages, PageSections} = useRestApi();
   const {canEdit} = useEdit();
-  const {pageData, setPageData, refreshPage, addExtraModal} = usePageContext();
+  const {pageData, setPageData, addPageSection} = usePageContext();
   const {Outline, outlineData} = useSiteContext()
 
   const {edits, FormData} = useFormEditor();
@@ -71,8 +71,8 @@ export default function PageConfig() {
       }
       console.debug(`Adding page section...`);
       PageSections.insertOrUpdatePageSection(data)
-        .then(() => {
-          refreshPage();
+        .then((section) => {
+          addPageSection(section);
         }).catch((error) => {
         console.error(`Error adding page section.`, error);
       })

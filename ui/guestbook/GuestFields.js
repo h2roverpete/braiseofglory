@@ -20,9 +20,9 @@ function GuestFields({guestBookConfig, guestData, onChange, labelCols}) {
     <>
       {guestBookConfig?.ShowName && (<>
         <Row>
-          <Form.Label htmlFor="FirstName" className={'required text-nowrap'} column={true} sm={labelCols}>First
-            Name</Form.Label>
           <Col sm={6}>
+            <Form.Label htmlFor="FirstName" className={'required text-nowrap'} column={true} sm={labelCols}>First
+              Name</Form.Label>
             <Form.Control
               isValid={guestData.FirstName != null && guestData.FirstName?.length > 0}
               isInvalid={guestData.FirstName?.length === 0}
@@ -39,10 +39,9 @@ function GuestFields({guestBookConfig, guestData, onChange, labelCols}) {
               })}
             />
           </Col>
-        </Row>
-        <Row className={'mt-2'}>
-          <Form.Label htmlFor="LastName" className={'required text-nowrap'} sm={labelCols} column={true}>Last Name</Form.Label>
           <Col sm={6}>
+            <Form.Label htmlFor="LastName" className={'required text-nowrap'} sm={labelCols} column={true}>Last
+              Name</Form.Label>
             <Form.Control
               isValid={guestData.LastName != null && guestData.LastName?.length > 0}
               isInvalid={guestData.LastName?.length === 0}
@@ -71,8 +70,8 @@ function GuestFields({guestBookConfig, guestData, onChange, labelCols}) {
       )}
       {guestBookConfig?.ShowDayPhone && (
         <Row className={"mt-2"}>
-          <Form.Label htmlFor="DayPhone" column={true} sm={labelCols}>Phone</Form.Label>
           <Col sm={6}>
+            <Form.Label htmlFor="DayPhone" column={true} sm={labelCols}>Phone</Form.Label>
             <PhoneNumberField
               name="DayPhone"
               id="DayPhone"
@@ -84,8 +83,8 @@ function GuestFields({guestBookConfig, guestData, onChange, labelCols}) {
       )}
       {guestBookConfig?.ShowEveningPhone && (
         <Row className={"mt-2"}>
-          <Form.Label htmlFor="EveningPhone" column={true} sm={labelCols}>Mobile Phone</Form.Label>
           <Col sm={6}>
+            <Form.Label htmlFor="EveningPhone" column={true} sm={labelCols}>Mobile Phone</Form.Label>
             <PhoneNumberField
               name="EveningPhone"
               id="EveningPhone"
@@ -97,8 +96,8 @@ function GuestFields({guestBookConfig, guestData, onChange, labelCols}) {
       )}
       {guestBookConfig?.ShowFax && (
         <Row className={"mt-2"}>
-          <Form.Label htmlFor="Fax" column={true} sm={labelCols}>Alternate</Form.Label>
           <Col sm={6}>
+            <Form.Label htmlFor="Fax" column={true} sm={labelCols}>Alternate</Form.Label>
             <PhoneNumberField
               name="Fax"
               id="Fax"
@@ -110,8 +109,8 @@ function GuestFields({guestBookConfig, guestData, onChange, labelCols}) {
       )}
       {guestBookConfig?.ShowEmail && (
         <Row className={"mt-2"}>
-          <Form.Label className="required" column={true} sm={labelCols}>Email</Form.Label>
           <Col sm={6}>
+            <Form.Label className="required" column={true}>Email</Form.Label>
             <EmailField
               name="Email"
               id="Email"
@@ -127,24 +126,23 @@ function GuestFields({guestBookConfig, guestData, onChange, labelCols}) {
       )}
       {guestBookConfig?.ShowContactInfo && (<>
         <Row className={"mt-2"}>
-          <Form.Label htmlFor="ContactMethod" column={true} sm={labelCols}>Contact By</Form.Label>
-          <Col sm={'auto'}>
-            <Form.Select
-              id="ContactMethod"
-              value={guestData?.ContactMethod || ''}
-              onChange={(e) => onChange({name: 'ContactMethod', value: e.target.value})}
-            >
-              {guestBookConfig?.ShowEmail && (<option>Email</option>)}
-              {guestBookConfig?.ShowDayPhone && (<option>Phone</option>)}
-              {guestBookConfig?.ShowEveningPhone && (<option>Mobile</option>)}
-              {guestBookConfig?.ShowFax && (<option>Alternate</option>)}
-            </Form.Select>
-          </Col>
+            <Form.Label htmlFor="ContactMethod" column={true} sm={'auto'}>Contact By</Form.Label>
+            <Col sm={3}>
+              <Form.Select
+                id="ContactMethod"
+                value={guestData?.ContactMethod || ''}
+                onChange={(e) => onChange({name: 'ContactMethod', value: e.target.value})}
+              >
+                {guestBookConfig?.ShowEmail && (<option>Email</option>)}
+                {guestBookConfig?.ShowDayPhone && (<option>Phone</option>)}
+                {guestBookConfig?.ShowEveningPhone && (<option>Mobile</option>)}
+                {guestBookConfig?.ShowFax && (<option>Alternate</option>)}
+              </Form.Select>
+            </Col>
         </Row>
       </>)}
       {guestBookConfig?.ShowMailingList && (
         <Row className={"mt-2"}>
-          <Col sm={labelCols}></Col>
           <Col>
             <Form.Check
               name="MailingList"
