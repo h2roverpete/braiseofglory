@@ -1,5 +1,4 @@
 import GuestBook from "../guestbook/GuestBook";
-import {usePageContext} from "../content/Page";
 import Gallery from "../gallery/Gallery";
 import React, {useEffect} from 'react'
 import Instagram from "../instagram/Instagram";
