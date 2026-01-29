@@ -297,7 +297,7 @@ export default function NavBar(props) {
           id="NavbarToggle"
           ref={togglerRef}
         />
-        <Navbar.Collapse id="MainNavigation">
+        <Navbar.Collapse id="MainNavigation" style={{position: 'relative'}}>
           <Nav>
             {getChildren(0).map((item) => (
               <React.Fragment
@@ -352,13 +352,13 @@ export default function NavBar(props) {
               style={{
                 border: 'none',
                 boxShadow: 'none',
-                margin: '0 20px 0 20px',
+                margin: 0,
                 padding: '2px 3px',
                 zIndex: 200,
                 position: 'absolute',
                 top: 0,
                 right: 0,
-                transform: 'translate(200%,50%)',
+                transform: 'translate(150%,20%)',
               }}
               className={`AddPageButton border border-secondary btn-light`}
               type="button"
