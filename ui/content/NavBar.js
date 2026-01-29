@@ -80,7 +80,7 @@ export default function NavBar(props) {
           onDrop={(e) => dropHandler(e, props.pageData, 'vertical')}
           key={props.pageData.PageID}
           onClick={() => navigateTo(props.pageData.PageRoute)}
-          className={`text-nowrap${isInCurrentPath(props.pageData.PageID) ? ' active' : ''}`}
+          className={`NavbarDropdownItem text-nowrap${isInCurrentPath(props.pageData.PageID) ? ' active' : ''}`}
           data-testid={`NavItem-${props.pageData.PageID}`}
         >
           {props.pageData.NavTitle ? props.pageData.NavTitle : props.pageData.PageTitle}
@@ -88,6 +88,7 @@ export default function NavBar(props) {
       ) : (
         // at least one child, render a dropdown
         <NavDropdown
+          className="NavbarDropdown"
           draggable={canEdit}
           onMouseMove={(e) => mouseMoveHandler(e)}
           onDragStart={(e) => dragStartHandler(e, props.pageData)}
@@ -112,7 +113,7 @@ export default function NavBar(props) {
                 onDragOver={(e) => dragOverHandler(e, item, 'vertical')}
                 onDragLeave={(e) => dragLeaveHandler(e)}
                 onDrop={(e) => dropHandler(e, item, 'vertical')}
-                className={`text-nowrap${pageData?.PageID === item.PageID ? ' active' : ''}`}
+                className={`NavbarDropdownItem text-nowrap${pageData?.PageID === item.PageID ? ' active' : ''}`}
                 key={item.PageID}
                 onClick={() => navigateTo(item.PageRoute)}
                 data-testid={`NavItem-${item.PageID}`}
@@ -310,9 +311,14 @@ export default function NavBar(props) {
         <Navbar.Toggle
           aria-controls="basic-navbar-nav"
           id="NavbarToggle"
+          className="NavbarToggle"
           ref={togglerRef}
         />
-        <Navbar.Collapse id="MainNavigation" style={{position: 'relative'}}>
+        <Navbar.Collapse
+          className="NavbarCollapse"
+          id="MainNavigation"
+          style={{position: 'relative'}}
+        >
           <Nav>
             {getChildren(0).map((item) => (
               <React.Fragment
@@ -330,7 +336,7 @@ export default function NavBar(props) {
                     onDragLeave={(e) => dragLeaveHandler(e)}
                     onDrop={(e) => dropHandler(e, item, 'horizontal')}
                     onClick={() => navigateTo(item.PageRoute)}
-                    className={`NavItem text-nowrap${isInCurrentPath(item.PageID) ? ' active' : ''}`}
+                    className={`NavLink text-nowrap${isInCurrentPath(item.PageID) ? ' active' : ''}`}
                     key={item.PageID}
                     data-testid={`NavItem-${item.PageID}`}
                   >
@@ -364,7 +370,7 @@ export default function NavBar(props) {
           </Nav>
           {canEdit && (
             <div
-              className="AddPageButton Editor dropleft"
+              className="AddPageButton Editor dropdown"
               style={{
                 zIndex: 3000,
               }}
@@ -384,11 +390,7 @@ export default function NavBar(props) {
                 <BsPlus/>
               </Button>
               <div
-                className="dropdown-menu Editor border-secondary"
-                style={{
-                  cursor: 'pointer',
-                  backgroundColor: 'white'
-                }}
+                className="dropdown-menu Editor border-secondary border-opacity-25"
               >
               <span
                 className="dropdown-item"

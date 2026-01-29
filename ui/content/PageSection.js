@@ -362,7 +362,7 @@ function PageSection({pageSectionData}) {
           <input type="file" ref={fileInputRef} hidden={true}/>
           {!editingText && !editingTitle && (
             <div
-              className="dropdown"
+              className="Editor dropdown"
               style={{position: 'absolute', top: '2px', right: '2px', zIndex: sectionData.PageSectionSeq}}
             >
               <Button

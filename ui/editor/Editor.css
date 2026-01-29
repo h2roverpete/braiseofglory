@@ -15,6 +15,18 @@
 /* Editing drop down menus */
 .Editor .dropdown-item {
   font-size: 12pt;
+  color: black;
+}
+
+div.dropdown-menu.Editor {
+  background-color: white;
+  padding: 10px 0;
+  cursor: pointer;
+  line-height:200%;
+}
+
+.Editor .dropdown-item:hover {
+  background-color: lightgray;
 }
 
 /* Headings in edit panels */

@@ -15,7 +15,7 @@ import {BsChevronDown, BsChevronUp} from "react-icons/bs";
  */
 export default function PageConfig() {
 
-  const {Pages, PageSections} = useRestApi();
+  const {Pages} = useRestApi();
   const {canEdit} = useEdit();
   const {pageData, setPageData, addPageSection} = usePageContext();
   const {Outline, outlineData} = useSiteContext()
@@ -85,7 +85,13 @@ export default function PageConfig() {
     buttonRef.current?.click();
   }
 
-  return (<>
+  return (<div
+    className="PageEditor Editor dropleft"
+    style={{
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  }}>
     <Button
       variant=""
       onClick={() => setExpanded(!expanded)}
@@ -248,13 +254,13 @@ export default function PageConfig() {
               >
                 Add Section
               </Button>
-                <Button
-                  size={'sm'}
-                  variant="danger"
-                  onClick={onDelete}
-                >
-                  Delete
-                </Button>
+              <Button
+                size={'sm'}
+                variant="danger"
+                onClick={onDelete}
+              >
+                Delete
+              </Button>
             </Col>
           </Row>
         </div>
@@ -271,5 +277,5 @@ export default function PageConfig() {
         }}>Delete</Button>
       </Modal.Footer>
     </Modal>
-  </>);
+  </div>);
 }
