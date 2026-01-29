@@ -1,7 +1,6 @@
 import GuestBook from "../guestbook/GuestBook";
-import {usePageContext} from "../content/Page";
 import Gallery from "../gallery/Gallery";
-import React from 'react'
+import React, {useEffect} from 'react'
 import Instagram from "../instagram/Instagram";
 import FileExtra from "./FileExtra";
 import {usePageSectionContext} from "../content/PageSection";
@@ -14,25 +13,25 @@ import {usePageSectionContext} from "../content/PageSection";
 export default function Extras() {
 
   // extras to show
-  const {extras} = usePageContext();
-  const {pageSectionData} = usePageSectionContext();
+  const {sectionExtras} = usePageSectionContext();
+  useEffect(() => {
+    console.debug(`Section extras changed: ${JSON.stringify(sectionExtras)}`);
+  }, [sectionExtras]);
 
   return (<>
-    {extras.map((extra) => (<React.Fragment key={extra.ExtraID}>
-      {extra.PageSectionID > 0 && extra.PageSectionID === pageSectionData?.PageSectionID && <>
-        {extra.ExtraType === 'guestbook' && (
-          <GuestBook guestBookId={extra.GuestBookID} extraId={extra.ExtraID}/>
-        )}
-        {extra.ExtraType === 'gallery' && (
-          <Gallery galleryId={extra.GalleryID} extraId={extra.ExtraID}/>
-        )}
-        {extra.ExtraType === 'instagram' && (
-          <Instagram extraData={extra}/>
-        )}
-        {extra.ExtraType === 'file' && (
-          <FileExtra extraData={extra}/>
-        )}
-      </>}
+    {sectionExtras.map((extra) => (<React.Fragment key={extra.ExtraID}>
+      {extra.ExtraType === 'guestbook' && (
+        <GuestBook guestBookId={extra.GuestBookID} extraId={extra.ExtraID}/>
+      )}
+      {extra.ExtraType === 'gallery' && (
+        <Gallery galleryId={extra.GalleryID} extraId={extra.ExtraID}/>
+      )}
+      {extra.ExtraType === 'instagram' && (
+        <Instagram extraData  ={extra}/>
+      )}
+      {extra.ExtraType === 'file' && (
+        <FileExtra extraData={extra}/>
+      )}
     </React.Fragment>))}
   </>)
 }

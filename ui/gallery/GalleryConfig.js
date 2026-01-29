@@ -11,7 +11,7 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId}
 
   const {canEdit} = useEdit();
   const {Galleries, Extras} = useRestApi();
-  const {refreshPage} = usePageContext();
+  const {removeExtraFromPage} = usePageContext();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const {edits, FormData} = useFormEditor();
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId}
   }
 
   function onUpdate() {
-    console.log(`Updating gallery.`);
+    console.debug(`Updating gallery.`);
     Galleries.insertOrUpdateGallery(edits)
       .then((result) => {
         FormData?.update(result);
@@ -40,7 +40,7 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId}
 
   function onRemoveFromPage() {
     Extras.deleteExtra(extraId).then(() => {
-      refreshPage();
+      removeExtraFromPage(extraId);
     })
   }
 
@@ -52,7 +52,7 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId}
       if (extraId) {
         Extras.deleteExtra(extraId).then(() => {
           console.debug(`Gallery extra deleted.`);
-          refreshPage();
+          removeExtraFromPage(extraId);
         }).catch(err => console.error(`Error deleting gallery extra.`, err));
       }
     }).catch(err => console.error(`Error deleting gallery.`, err));

@@ -14,7 +14,7 @@ export default function GuestBookConfig({extraId}) {
   const {guestBookConfig, setGuestBookConfig} = useGuestBook();
   const {canEdit} = useEdit();
   const {GuestBooks, Extras} = useRestApi();
-  const {refreshPage} = usePageContext();
+  const {removeExtraFromPage} = usePageContext();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const buttonRef = useRef(null);
   const {edits, FormData} = useFormEditor();
@@ -58,7 +58,7 @@ export default function GuestBookConfig({extraId}) {
       console.debug(`Deleting extra ${extraId} from page.`);
       Extras.deleteExtra(extraId).then(() => {
         console.debug(`Extra deleted.`);
-        refreshPage();
+        removeExtraFromPage(extraId);
       }).catch(error => {
         console.error(`Error deleting extra.`, error);
       })
@@ -304,6 +304,8 @@ export default function GuestBookConfig({extraId}) {
             <option value={'2'}>2 Columns</option>
             <option value={'3'}>3 Columns</option>
             <option value={'4'}>4 Columns</option>
+            <option value={'5'}>5 Columns</option>
+            <option value={'6'}>6 Columns</option>
           </Form.Select>
         </Col>
       </Row>
@@ -408,7 +410,7 @@ export default function GuestBookConfig({extraId}) {
               Extras.deleteExtra(extraId).then(() => {
                 console.debug('Guest book extra deleted.');
                 setShowDeleteConfirmation(false);
-                refreshPage();
+                removeExtraFromPage(extraId);
               }).catch(err => console.error('Guest book extra delete error.', err));
             }
           }).catch(err => {

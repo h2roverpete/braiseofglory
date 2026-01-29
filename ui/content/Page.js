@@ -66,7 +66,7 @@ export default function Page(props) {
       })
       // load extras
       Extras.getPageExtras(pageData.PageID).then((data) => {
-        console.debug(`Loaded page ${pageData.PageID} extras.`);
+        console.debug(`Loaded page ${pageData.PageID} extras: ${JSON.stringify(data)}`);
         setExtras(data); // update state
       })
     }
@@ -79,26 +79,62 @@ export default function Page(props) {
     }
   }, [pageData, outlineData])
 
-  /**
-   * Update a page section that has been edited.
-   * @param newData {PageSectionData} Data for section that was updated.
-   */
-  function updatePageSection(newData) {
-    for (let i = 0; i < sectionData.length; i++) {
-      if (sectionData[i].PageSectionID === newData.PageSectionID) {
-        console.debug(`Updating data for page section ${newData.PageSectionID}.`);
-        const newSectionData = [...sectionData];
-        newSectionData[i] = newData;
-        newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
-        setSectionData(newSectionData);
-        break;
-      }
-    }
+  function addPageSection(newData) {
+    const newSectionData = [...sectionData, newData]
+    newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
+    setSectionData(newSectionData);
   }
 
-  function refreshPage() {
-    console.debug(`Refresh page.`);
-    setPageData({...pageData})
+  function removePageSection(pageSectionId) {
+    const newSections = [];
+    for (const section of sectionData) {
+      if (section.PageSectionID !== pageSectionId) {
+        newSections.push(section);
+      }
+    }
+    setSectionData(newSections);
+  }
+
+  function updatePageSection(newData) {
+    const newSections = [];
+    for (const section of sectionData) {
+      if (section.PageSectionID === newData.PageSectionID) {
+        newSections.push(newData);
+      } else {
+        newSections.push(section);
+      }
+    }
+    newSections.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
+    setSectionData(newSections);
+  }
+
+  function addExtraToPage(data) {
+    setExtras([
+      ...extras,
+      data
+    ]);
+  }
+
+  function removeExtraFromPage(extraId) {
+    const newExtras = [];
+    for (const extra of extras) {
+      if (extra.ExtraID !== extraId) {
+        newExtras.push(extra);
+      }
+    }
+    setExtras(newExtras);
+  }
+
+  function updateExtra(data) {
+    const newExtras = [];
+    for (const extra of extras) {
+      if (extra.ExtraID === data.ExtraID) {
+        newExtras.push(data);
+      } else {
+        newExtras.push(extra);
+      }
+    }
+    setExtras(newExtras);
   }
 
   function addExtraModal({pageSectionId}) {
@@ -113,15 +149,19 @@ export default function Page(props) {
         value={{
           pageData: pageData,
           sectionData: sectionData,
+          pageExtras: extras,
           breadcrumbs: breadcrumbs,
           login: props.login === true,
           error: errorData,
           setPageData: setPageData,
           setSectionData: setSectionData,
           updatePageSection: updatePageSection,
-          refreshPage: refreshPage,
+          addPageSection: addPageSection,
+          removePageSection: removePageSection,
           addExtraModal: addExtraModal,
-          extras: extras,
+          addExtraToPage: addExtraToPage,
+          removeExtraFromPage: removeExtraFromPage,
+          updateExtra: updateExtra,
         }}
       >
         <FormEditor>

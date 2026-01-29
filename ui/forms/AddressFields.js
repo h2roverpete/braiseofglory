@@ -31,6 +31,7 @@ function AddressFields({address, onChange}) {
     <>
       <Row className="mt-2">
         <Col sm={8}>
+          <Form.Label column={true} htmlFor={'Address1'}>Address</Form.Label>
           <Form.Control
             type="text"
             id="Address1"

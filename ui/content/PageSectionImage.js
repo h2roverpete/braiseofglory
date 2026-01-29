@@ -87,9 +87,9 @@ export default function PageSectionImage({pageSectionData, imageRef, dropTargetR
    */
   function getImageWidth() {
     if (pageSectionData) {
-      return pageSectionData.ImageWidth > 0 ? pageSectionData.ImageWidth : pageSectionData.ImagePosition === 'beside' ? 7 : 12;
+      return pageSectionData.ImageWidth > 0 ? pageSectionData.ImageWidth : pageSectionData.ImagePosition === 'beside' ? 7 : 'auto';
     } else {
-      return 0;
+      return 'auto';
     }
   }
 
@@ -114,7 +114,7 @@ export default function PageSectionImage({pageSectionData, imageRef, dropTargetR
     imageDivStyle.display = 'flex'
     imageDivStyle.flexDirection = 'column'
     imageDivStyle.alignItems = pageSectionData.ImageAlign === 'right' ? 'flex-end' : pageSectionData.ImageAlign === 'left' ? 'flex-start' : 'center';
-    imageClassName += ` col-sm-${getImageWidth()}`;
+    imageClassName += getImageWidth() > 0 ? ` col-sm-${getImageWidth()}` : '';
   }
   if (pageSectionData.HideImageFrame) {
     // hide frame for this instance of the image

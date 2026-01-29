@@ -25,7 +25,7 @@ import {useFormEditor} from "../editor/FormEditor";
 export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) {
 
   const {siteData} = useSiteContext();
-  const {pageData, refreshPage} = usePageContext();
+  const {pageData, addExtraToPage} = usePageContext();
   const {GuestBooks, Galleries, Extras} = useRestApi();
   const {canEdit} = useEdit();
 
@@ -74,9 +74,9 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
             PageID: pageData.PageID,
             PageSectionID: pageSectionId,
             GalleryID: edits.GalleryID
-          }).then(() => {
+          }).then((extra) => {
             console.debug(`Extra added.`);
-            onExtraAdded();
+            onExtraAdded(extra);
           }).catch((err) => {
             console.error(`Error adding extra.`, err);
           });
@@ -92,9 +92,9 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
               PageID: pageData.PageID,
               PageSectionID: pageSectionId,
               GalleryID: result.GalleryID
-            }).then(() => {
+            }).then((extra) => {
               console.debug(`Extra added.`);
-              onExtraAdded();
+              onExtraAdded(extra);
             }).catch((err) => {
               console.error(`Error adding extra.`, err);
             });
@@ -121,9 +121,9 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
               PageID: pageData.PageID,
               PageSectionID: pageSectionId,
               GuestBookID: result.GuestBookID
-            }).then(() => {
+            }).then((extra) => {
               console.debug(`Extra added.`);
-              onExtraAdded();
+              onExtraAdded(extra);
             }).catch((err) => {
               console.error(`Error adding extra.`, err);
             });
@@ -138,9 +138,9 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
             PageID: pageData.PageID,
             PageSectionID: pageSectionId,
             GuestBookID: edits.GuestBookID
-          }).then(() => {
+          }).then((extra) => {
             console.debug(`Extra added.`);
-            onExtraAdded();
+            onExtraAdded(extra);
           }).catch((err) => {
             console.error(`Error adding extra.`, err);
           });
@@ -154,9 +154,9 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
           PageID: pageData.PageID,
           PageSectionID: pageSectionId,
           InstagramHandle: edits.InstagramHandle
-        }).then(() => {
+        }).then((extra) => {
           console.debug(`Extra added.`);
-          onExtraAdded();
+          onExtraAdded(extra);
         }).catch((err) => console.error(`Error adding instagram.`, err));
         break;
       case 'file':
@@ -168,9 +168,9 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
           PageSectionID: pageSectionId,
           ExtraFile: edits.ExtraFile,
           ExtraFilePrompt: edits.ExtraFilePrompt,
-        }).then(() => {
+        }).then((extra) => {
           console.debug(`Extra added.`);
-          onExtraAdded();
+          onExtraAdded(extra);
         }).catch((err) => console.error(`Error adding file.`, err));
         break;
       default:
@@ -181,9 +181,9 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
   /**
    * Called after an Extra is successfully added.
    */
-  function onExtraAdded() {
+  function onExtraAdded(extra) {
     FormData.revert();
-    refreshPage();
+    addExtraToPage(extra);
     onHide?.();
     onSubmit?.();
   }

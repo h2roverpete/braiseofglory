@@ -115,7 +115,7 @@ const Login = (props) => {
             <Form.Label className={'required'} htmlFor="username" column={true} sm={3}>
               Login
             </Form.Label>
-            <Col sm={4}>
+            <Col sm={6}>
               <Form.Control
                 name="username"
                 id="username"
@@ -130,7 +130,7 @@ const Login = (props) => {
             <Form.Label className={'required'} htmlFor="password" column={true} sm={3}>
               Password
             </Form.Label>
-            <Col sm={4}>
+            <Col sm={6}>
               <PasswordField
                 name={"password"}
                 id={"password"}

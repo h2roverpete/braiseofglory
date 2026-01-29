@@ -297,7 +297,7 @@ export default function NavBar(props) {
           id="NavbarToggle"
           ref={togglerRef}
         />
-        <Navbar.Collapse id="MainNavigation">
+        <Navbar.Collapse id="MainNavigation" style={{position: 'relative'}}>
           <Nav>
             {getChildren(0).map((item) => (
               <React.Fragment
@@ -345,35 +345,30 @@ export default function NavBar(props) {
                 </Nav.Link>
               )}</>
             )}</>
-            {canEdit && (<>
-              <Button
-                style={{
-                  border: 'none',
-                  boxShadow: 'none',
-                  margin: '0 20px 0 0',
-                  padding: '2px 3px',
-                  zIndex: 200,
-                  position: 'absolute',
-                  right:0,
-                  top:'50%',
-                  transform: 'translate(-50%, -50%)',
-                }}
-                className={`border border-secondary btn-light`}
-                type="button"
-                variant={'secondary'}
-                size={'sm'}
-                aria-expanded="false"
-                onClick={() => {
-                  setShowNewPage(true);
-                }}
-              >
-                <BsPlus/>
-              </Button>
-              <FormEditor>
-                <NewPageModal show={showNewPage} setShow={setShowNewPage}/>
-              </FormEditor>
-            </>)}
+
           </Nav>
+          {canEdit && (<>
+            <Button
+              style={{
+                margin: 0,
+                padding: '0 3px',
+                zIndex: 200
+              }}
+              className={`AddPageButton border border-secondary btn-light`}
+              type="button"
+              variant={'secondary'}
+              size={'sm'}
+              aria-expanded="false"
+              onClick={() => {
+                setShowNewPage(true);
+              }}
+            >
+              <BsPlus/>
+            </Button>
+            <FormEditor>
+              <NewPageModal show={showNewPage} setShow={setShowNewPage}/>
+            </FormEditor>
+          </>)}
         </Navbar.Collapse>
       </div>
     </Navbar>

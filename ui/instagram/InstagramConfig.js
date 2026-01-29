@@ -10,7 +10,7 @@ export default function InstagramConfig({extraData, setExtraData}) {
 
   const {canEdit} = useEdit();
   const {Extras} = useRestApi();
-  const {refreshPage} = usePageContext();
+  const {removeExtraFromPage} = usePageContext();
   const {edits, FormData} = useFormEditor();
   useEffect(() => {
     FormData?.update(extraData);
@@ -25,7 +25,7 @@ export default function InstagramConfig({extraData, setExtraData}) {
   }
 
   function onUpdate() {
-    console.log(`Updating instagram extra.`);
+    console.debug(`Updating instagram extra.`);
     Extras.insertOrUpdateExtra(edits)
       .then((result) => {
         setExtraData(result);
@@ -39,7 +39,7 @@ export default function InstagramConfig({extraData, setExtraData}) {
     console.debug(`Delete extra....`);
     Extras.deleteExtra(extraData.ExtraID).then(() => {
       console.debug(`Extra deleted.`);
-      refreshPage();
+      removeExtraFromPage(extraData.ExtraID);
     }).catch((e) => console.error(`Error deleting extra.`, e));
   }
 
