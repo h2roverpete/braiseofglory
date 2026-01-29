@@ -350,15 +350,9 @@ export default function NavBar(props) {
           {canEdit && (<>
             <Button
               style={{
-                border: 'none',
-                boxShadow: 'none',
                 margin: 0,
-                padding: '2px 3px',
-                zIndex: 200,
-                position: 'absolute',
-                top: 0,
-                right: 0,
-                transform: 'translate(150%,20%)',
+                padding: '0 3px',
+                zIndex: 200
               }}
               className={`AddPageButton border border-secondary btn-light`}
               type="button"
