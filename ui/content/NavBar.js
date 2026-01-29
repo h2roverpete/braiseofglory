@@ -33,12 +33,12 @@ import NewPageModal from "../editor/NewPageModal";
 export default function NavBar(props) {
 
   const {siteData, getChildren, Outline} = useSiteContext();
-  const {pageData, breadcrumbs} = usePageContext();
+  const {pageData, breadcrumbs, addPageSection} = usePageContext();
   const navigate = useNavigate();
   const togglerRef = useRef(null);
   const {token} = useAuth();
   const {canEdit} = useEdit();
-  const {Pages} = useRestApi();
+  const {Pages, PageSections} = useRestApi();
 
   const [showNewPage, setShowNewPage] = useState(false);
 
@@ -246,6 +246,21 @@ export default function NavBar(props) {
     }
   }
 
+  function onAddSection() {
+    if (pageData) {
+      const data = {
+        PageID: pageData.PageID
+      }
+      console.debug(`Adding page section...`);
+      PageSections.insertOrUpdatePageSection(data)
+        .then((section) => {
+          addPageSection(section);
+        }).catch((error) => {
+        console.error(`Error adding page section.`, error);
+      })
+    }
+  }
+
   return (
     <Navbar
       expand={props.expand ? props.expand : 'sm'}
@@ -347,28 +362,52 @@ export default function NavBar(props) {
             )}</>
 
           </Nav>
-          {canEdit && (<>
-            <Button
+          {canEdit && (
+            <div
+              className="AddPageButton Editor dropleft"
               style={{
-                margin: 0,
-                padding: '0 3px',
-                zIndex: 200
-              }}
-              className={`AddPageButton border border-secondary btn-light`}
-              type="button"
-              variant={'secondary'}
-              size={'sm'}
-              aria-expanded="false"
-              onClick={() => {
-                setShowNewPage(true);
+                zIndex: 3000,
               }}
             >
-              <BsPlus/>
-            </Button>
-            <FormEditor>
-              <NewPageModal show={showNewPage} setShow={setShowNewPage}/>
-            </FormEditor>
-          </>)}
+              <Button
+                style={{
+                  margin: 0,
+                  padding: '0 3px'
+                }}
+                className={`border border-secondary btn-light`}
+                type="button"
+                variant={'secondary'}
+                size={'sm'}
+                aria-expanded="false"
+                data-bs-toggle="dropdown"
+              >
+                <BsPlus/>
+              </Button>
+              <div
+                className="dropdown-menu Editor border-secondary"
+                style={{
+                  cursor: 'pointer',
+                  backgroundColor: 'white'
+                }}
+              >
+              <span
+                className="dropdown-item"
+                onClick={() => setShowNewPage(true)}
+              >
+                New Page
+              </span>
+                <span
+                  className="dropdown-item"
+                  onClick={() => onAddSection()}
+                >
+                New Section
+              </span>
+              </div>
+              <FormEditor>
+                <NewPageModal show={showNewPage} setShow={setShowNewPage}/>
+              </FormEditor>
+            </div>
+          )}
         </Navbar.Collapse>
       </div>
     </Navbar>

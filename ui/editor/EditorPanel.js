@@ -62,12 +62,12 @@ export default function EditorPanel(
             padding: '0 8px 0 0',
             top: '0',
             left: '0',
-            border: 'none',
             background: 'transparent',
             boxShadow: 'none',
             ...buttonStyle,
           }}
           ref={buttonRef}
+          className="EditorToggle"
           onClick={() => setActiveKey(activeKey === 'config' ? '' : 'config')}
         />
         <Accordion.Body

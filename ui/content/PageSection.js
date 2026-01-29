@@ -79,10 +79,10 @@ function PageSection({pageSectionData}) {
 
   function deleteSection() {
     if (pageSectionData) {
+      removePageSection(pageSectionData.PageSectionID)
       PageSections.deletePageSection(pageSectionData.PageID, pageSectionData.PageSectionID)
         .then(() => {
           console.debug(`Page section deleted.`)
-          removePageSection(pageSectionData.PageSectionID)
         })
         .catch(error => {
           console.error(`Error deleting page section.`, error)
@@ -166,23 +166,18 @@ function PageSection({pageSectionData}) {
         PageSectionSeq: pageSectionData.PageSectionSeq,
       }).then((newSection) => {
         console.debug(`Added page section.`);
-        let toUpdate = 0;
-        let updated = 0;
         for (const section of sectionData) {
           if (section.PageSectionSeq >= newSection.PageSectionSeq) {
             console.debug(`Updating section sequence.`);
             section.PageSectionSeq++;
-            ++toUpdate;
             PageSections.insertOrUpdatePageSection(section).then((result) => {
               console.debug(`Updated section ${result.PageSectionID} sequence.`);
-              if (++updated === toUpdate) {
-                const newSectionData = [...sectionData, newSection]
-                newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
-                setSectionData(newSectionData);
-              }
             }).catch(error => console.error(`Error updating section sequence.`, error));
           }
         }
+        const newSectionData = [...sectionData, newSection]
+        newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
+        setSectionData(newSectionData);
       }).catch(error => console.error(`Error adding section.`, error));
     }
   }
@@ -195,23 +190,18 @@ function PageSection({pageSectionData}) {
         PageSectionSeq: pageSectionData.PageSectionSeq + 1,
       }).then((newSection) => {
         console.debug(`Added page section.`);
-        let toUpdate = 0;
-        let updated = 0;
         for (const section of sectionData) {
-          if (section.PageSectionSeq > newSection.PageSectionSeq) {
+          if (section.PageSectionSeq >= newSection.PageSectionSeq) {
             console.debug(`Updating section sequence.`);
             section.PageSectionSeq++;
-            ++toUpdate;
             PageSections.insertOrUpdatePageSection(section).then((result) => {
               console.debug(`Updated section ${result.PageSectionID} sequence.`);
-              if (++updated === toUpdate) {
-                const newSectionData = [...sectionData, newSection]
-                newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
-                setSectionData(newSectionData);
-              }
             }).catch(error => console.error(`Error updating section sequence.`, error));
           }
         }
+        const newSectionData = [...sectionData, newSection]
+        newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
+        setSectionData(newSectionData);
       }).catch(error => console.error(`Error adding section.`, error));
     }
   }

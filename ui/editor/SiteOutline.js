@@ -76,7 +76,7 @@ export default function SiteOutline(props) {
           onDrop={(e) => onDrop(e, page)}
           draggable={true}
         >
-          {page.PageTitle}
+          {page.NavTitle ? page.NavTitle : page.PageTitle}
         </div>
       ))}
     </div>

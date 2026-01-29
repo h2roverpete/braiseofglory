@@ -19,16 +19,18 @@ export default function SiteEditor({children}) {
       }}
     >
       <Button
+        variant=""
         onClick={() => setExpanded(!expanded)}
-        className={`EditorToggle ${expanded ? 'expanded' : ''} bg-transparent btn-light border-0`}
+        className={`EditorToggle ${expanded ? '' : 'collapsed'}`}
         style={{
+          background: 'transparent',
+          border: 'none',
           padding: '21px 0 0 2px',
           height: '100vh',
           display: 'flex',
           flexDirection: 'column',
           position: 'fixed',
-          zIndex: '1032',
-          color: 'black'
+          zIndex: '1032'
         }}
       >
         {expanded ? (<BsChevronLeft size={'20'}/>) : ((<BsChevronRight size={'20'}/>))}
