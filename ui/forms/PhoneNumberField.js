@@ -22,10 +22,14 @@ function PhoneNumberField({name, id, value, onChange}) {
         name: name,
         required: false
       }}
+      id={id}
       value={value}
       country={'us'}
       onChange={(value, country, e, formattedValue) => {
-        onChange(formattedValue)
+        onChange({
+          name: name,
+          value: formattedValue
+        })
       }}
       dropdownClass={'dropdown'}
       inputClass={'phone'}

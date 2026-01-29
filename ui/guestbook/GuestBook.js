@@ -1,30 +1,47 @@
-import {useEffect, useState, memo, useContext} from "react";
+import {useEffect, useState, memo, useContext, createContext} from "react";
 import GuestFields from "./GuestFields";
 import GuestFeedbackFields from "./GuestFeedbackFields";
-import {SiteContext} from "../content/Site";
-import {PageContext} from "../content/Page";
-import './GuestBook.css'
+import '../forms/Forms.css'
+import {useRestApi} from "../../api/RestApi";
+import {Button} from "react-bootstrap";
+import GuestBookConfig from "./GuestBookConfig";
+import {isValidEmail} from "../forms/EmailField";
+import FormEditor from "../editor/FormEditor";
+
+
+export const GuestBookContext = createContext({
+  guestBookConfig: null
+});
+
+export function useGuestBook() {
+  return useContext(GuestBookContext);
+}
 
 /**
- * @typedef GuestBookProps
- *
- * @property {number} guestBookId         Guest book ID.
- * @property {number} pageId              Page ID to display the guest book on.
- * @property {number} guestId             Guest ID to populate fields with.
- * @property {number} guestFeedbackId     Guest Feedback ID to populate fields with.
- * @property {DataCallback} [onChange]    Receives notification that guest ID or guest feedback ID was updated
+ * @callback DataChange
+ * @param {String} name
+ * @param {any} value
+ */
+
+
+/**
+ * @callback DataChangedCallback
+ * @param {DataChange} changeInfo
  */
 
 /**
  * Guest Book component
- * @param props {GuestBookProps}
+ * @property {number} guestBookId         Guest book ID.
+ * @property {number} extraId             Extra that this guest book is linked to.
+ * @property {number} guestId             Guest ID to populate fields with.
+ * @property {number} guestFeedbackId     Guest Feedback ID to populate fields with.
+ * @property {DataCallback} [onChange]    Receives notification that guest ID or guest feedback ID was updated
  * @returns {JSX.Element}
  * @constructor
  */
-function GuestBook(props) {
+function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
 
-  const {pageData} = useContext(PageContext);
-  const {restApi} = useContext(SiteContext);
+  const {GuestBooks} = useRestApi();
 
   // guest book configuration
   const [guestBookConfig, setGuestBookConfig] = useState(null);
@@ -38,18 +55,21 @@ function GuestBook(props) {
 
   // load guest book configuration when initialized
   useEffect(() => {
-    if (props.guestBookId) {
-      restApi?.getGuestBook(props.guestBookId).then(data => {
+    if (guestBookId) {
+      GuestBooks.getGuestBook(guestBookId).then(data => {
+        if (!data.LabelCols) {
+          data.LabelCols = 2;
+        }
         setGuestBookConfig(data);
       }).catch(error => {
         console.error(`Error loading guest book: ${error}`);
       });
     }
-  }, [props.guestBookId, restApi])
+  }, [GuestBooks, guestBookId, GuestBooks.getGuestBook]);
 
   useEffect(() => {
-    if (props.guestId) {
-      restApi?.getGuest(props.guestId).then(data => {
+    if (guestId) {
+      GuestBooks.getGuest(guestId).then(data => {
         setGuestData(prevData => {
           return {
             ...prevData,
@@ -60,11 +80,11 @@ function GuestBook(props) {
         console.error(`Error getting guest data: ${error}`);
       });
     }
-  }, [props.guestId, props.guestBookId, restApi])
+  }, [GuestBooks, guestId, guestBookId, GuestBooks.getGuest])
 
   useEffect(() => {
-    if (props.guestFeedbackId) {
-      restApi.getGuestFeedback(props.guestFeedbackId).then(data => {
+    if (guestFeedbackId) {
+      GuestBooks.getGuestFeedback(guestFeedbackId).then(data => {
         setGuestFeedbackData(prevData => {
           return {
             ...prevData,
@@ -75,7 +95,7 @@ function GuestBook(props) {
         console.error(`Error getting feedback data: ${error}`);
       });
     }
-  }, [props.guestFeedbackId, restApi])
+  }, [GuestBooks, guestFeedbackId, GuestBooks.getGuestFeedback])
 
   /**
    * Handle changes in response to data entry.
@@ -89,11 +109,7 @@ function GuestBook(props) {
         ...prevValue,
         [name]: value
       }
-      if (typeof value === 'string' && value.trim().length === 0) {
-        // remove empty string properties
-        delete newValue[name];
-      }
-      console.log(`Guest data updated: ${JSON.stringify(newValue)}`);
+      console.debug(`Guest data updated: ${JSON.stringify(newValue)}`);
       return newValue;
     });
   }
@@ -114,7 +130,7 @@ function GuestBook(props) {
         // remove empty string properties
         delete newValue[name];
       }
-      console.log(`Feedback data updated: ${JSON.stringify(newValue)}`);
+      console.debug(`Feedback data updated: ${JSON.stringify(newValue)}`);
       return newValue;
     });
   }
@@ -126,63 +142,106 @@ function GuestBook(props) {
   function handleSubmit(e) {
     e.preventDefault();
     console.debug(`Updating guest. data=${JSON.stringify(guestData)}`);
-    restApi.insertOrUpdateGuest(props.guestBookId, guestData).then(data => {
+    GuestBooks.insertOrUpdateGuest(guestBookId, guestData).then(data => {
       console.debug(`Guest update result: ${JSON.stringify(data)}`);
-      setSubmitted(true)
-      props.onChange?.({name: 'guestId', value: data.GuestID});
-      restApi.insertOrUpdateGuestFeedback(data.GuestID, guestFeedbackData).then(data => {
+      setSubmitted(true);
+      setGuestData(data);
+      GuestBooks.insertOrUpdateGuestFeedback(data.GuestID, guestFeedbackData).then(data => {
         console.debug(`Guest feedback update result: ${JSON.stringify(data)}`);
       })
     })
   }
 
+  function isDataValid() {
+    return (
+      guestData?.FirstName?.length > 0 &&
+      guestData?.LastName?.length > 0 &&
+      (guestData?.Email?.length > 0 && isValidEmail(guestData?.Email)) &&
+      (guestBookConfig?.ShowLodgingFields ?
+          guestFeedbackData?.ArrivalDate?.length > 0 &&
+          guestFeedbackData?.DepartureDate?.length > 0 &&
+          guestFeedbackData?.NumberOfGuests?.length > 0 :
+          true
+      ) &&
+      areCustomFieldsValid()
+    )
+  }
+
+  function areCustomFieldsValid() {
+    for (let i = 1; i <= 8; i++) {
+      if (guestBookConfig?.[`Custom${i}Type`]?.length > 0
+        && guestBookConfig?.[`Custom${i}Required`] === true
+        && !guestFeedbackData?.[`Custom${i}`]?.length
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   return (
-    <> {props.pageId === pageData?.PageID && guestBookConfig && (
-      <div className="guestbook">
-        {submitted ? (
-          <>
-            <p dangerouslySetInnerHTML={{__html: guestBookConfig.DoneMessage}}/>
-            <button
-              className="btn btn-primary"
-              onClick={() => {
-                // clear submit flag and feedback ID to submit again
-                setSubmitted(false);
-                props.onChange?.({guestFeedbackId: 0});
-              }}>
-              {guestBookConfig.AgainMessage}
-            </button>
-          </>
-        ) : (
-          <>
-            <p dangerouslySetInnerHTML={{__html: guestBookConfig.GuestBookMessage}}/>
-            <form
-              encType="multipart/form-data"
-              onSubmit={(e) => {
-                handleSubmit(e);
-              }}
-              className="needs-validation"
-              id="GuestBookForm"
-            >
-              <GuestFields
-                guestBookConfig={guestBookConfig}
-                guestData={guestData}
-                onChange={handleGuestChange}
-              />
-              <GuestFeedbackFields
-                guestBookConfig={guestBookConfig}
-                guestFeedbackData={guestFeedbackData}
-                onChange={handleFeedbackChange}
-              />
-              <div className="form-errors" id="FormErrors"></div>
-              <div className="form-group mt-4">
-                <input type="submit" value={guestBookConfig.SubmitButtonName}
-                       className="btn btn-primary"/>
-              </div>
-            </form>
-          </>
-        )}
-      </div>
-    )} </>
+    <GuestBookContext value={
+      {
+        guestBookConfig: guestBookConfig,
+        setGuestBookConfig: setGuestBookConfig,
+      }
+    }>
+      {guestBookConfig && (<>
+        <div className="GuestBook SectionText" key={guestBookId} style={{width: '100%'}}>
+          {submitted ? (
+            <>
+              <p
+                dangerouslySetInnerHTML={{__html: guestBookConfig.DoneMessage ? guestBookConfig.DoneMessage : 'Your information has been submitted.'}}/>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  // clear submit flag and feedback ID to submit again
+                  setSubmitted(false);
+                  onChange?.({guestFeedbackId: 0});
+                }}>
+                {guestBookConfig.AgainMessage ? guestBookConfig.AgainMessage : 'Submit Again'}
+              </Button>
+            </>
+          ) : (
+            <>
+              <p
+                dangerouslySetInnerHTML={{__html: guestBookConfig.GuestBookMessage ? guestBookConfig.GuestBookMessage : 'Please enter your information below.'}}/>
+              <form
+                encType="multipart/form-data"
+                className="needs-validation"
+                id="GuestBookForm"
+              >
+                <GuestFields
+                  guestBookConfig={guestBookConfig}
+                  guestData={guestData}
+                  onChange={handleGuestChange}
+                  labelCols={guestBookConfig.LabelCols}
+                />
+                <GuestFeedbackFields
+                  guestBookConfig={guestBookConfig}
+                  guestFeedbackData={guestFeedbackData}
+                  onChange={handleFeedbackChange}
+                  labelCols={guestBookConfig.LabelCols}
+                />
+                <div className="form-errors" id="FormErrors"></div>
+                <div className="form-group mt-4">
+                  <Button
+                    variant={'primary'}
+                    disabled={!isDataValid()}
+                    onClick={(e) => handleSubmit(e)}
+                  >
+                    {guestBookConfig.SubmitButtonName ? guestBookConfig.SubmitButtonName : 'Submit'}
+                  </Button>
+                </div>
+              </form>
+            </>
+          )}
+        </div>
+        <FormEditor>
+          <GuestBookConfig extraId={extraId}/>
+        </FormEditor>
+      </>)}
+    </GuestBookContext>
   )
 }
 

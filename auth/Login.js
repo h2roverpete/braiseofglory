@@ -1,0 +1,172 @@
+import {useContext, useEffect, useRef, useState} from "react";
+import '../ui/forms/Forms.css'
+import PasswordField from "../ui/forms/PasswordField";
+import {useSearchParams} from 'react-router';
+import {SiteContext} from "../ui/content/Site";
+import {useNavigate} from "react-router";
+import {Permission, useAuth} from "./AuthProvider";
+import {useCookies} from "react-cookie";
+import {useRestApi} from "../api/RestApi";
+import {Button, Col, Form, Row} from "react-bootstrap";
+
+/**
+ * @typedef LoginProps
+ * @property {Permission | [Permission]} [permission]   Permissions to request
+ */
+
+/**
+ * Login UI component.
+ *
+ * @param {LoginProps} props
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const Login = (props) => {
+
+  const [email, setEmail] = useState(null);
+  const [password, setPassword] = useState(null);
+
+  const permissions = [];
+  if (!props.permission) {
+    // default permission to request is admin
+    permissions.push(Permission.ADMIN);
+  } else if (typeof props.permission === "string") {
+    // one permission provided
+    permissions.push(props.permission);
+  } else if (Array.isArray(props.permission)) {
+    // multiple permissions provided
+    for (const permission of props.permission) {
+      permissions.push(permission);
+    }
+  }
+  // prefix all permissions with host name
+  for (let i = 0; i < permissions.length; i++) {
+    permissions[i] = window.location.host + ":" + permissions[i];
+  }
+  const scope = permissions.join(",")
+
+  const {Auth} = useRestApi();
+  const {setError} = useContext(SiteContext);
+  const [searchParams] = useSearchParams();
+  const {token, setToken} = useAuth();
+  const navigate = useNavigate();
+  const [cookies, setCookie] = useCookies();
+
+  if (!cookies.loginState) {
+    setCookie("loginState", generateState());
+  }
+
+  useEffect(() => {
+    if (token) {
+      // token already set
+      navigate('/');
+    }
+  }, [token, navigate])
+
+  const loginResponse = searchParams.get('state') && searchParams.get('code');
+  const fetchingToken = useRef(false); // prevent double fetch of token
+  useEffect(() => {
+    // process login response
+    if (loginResponse && !token && !fetchingToken.current) {
+      fetchingToken.current = true;
+      // check received state against state originally sent
+      if (cookies.loginState !== searchParams.get('state')) {
+        setError({
+          title: 'Invalid login state',
+          description: "Couldn't verify login state.",
+        })
+      } else {
+        Auth.getAuthToken(
+          window.location.host,
+          `${window.location.protocol}//${window.location.host}/login`,
+          searchParams.get('code')
+        ).then((token) => {
+            // successful token retrieval
+            setToken(token);
+            navigate('/');
+          }
+        ).catch((error) => {
+            setError({
+              title: `${error.status} Login Error`,
+              description: `Couldn't retrieve token. Code=${error.code}`
+            });
+          }
+        );
+      }
+    }
+  });
+
+  return (
+    <>{loginResponse ? (
+      // process login response
+      <div>Processing login...</div>
+    ) : (
+      // display login form
+      <div className="container-fluid">
+        <title>Log In</title>
+        <form method="POST" action={`${process.env.REACT_APP_BACKEND_HOST}/oauth/login`}>
+          <input type="hidden" name="response_type" value="code"/>
+          <input type="hidden" name="client_id" value={window.location.host}/>
+          <input type="hidden" name="redirect_uri"
+                 value={`${window.location.protocol}//${window.location.host}/login`}/>
+          <input type="hidden" name="state" value={cookies.loginState}/>
+          <input type="hidden" name="scope" value={scope}/>
+          <Row className="mt-4">
+            <Form.Label className={'required'} htmlFor="username" column={true} sm={3}>
+              Login
+            </Form.Label>
+            <Col sm={6}>
+              <Form.Control
+                name="username"
+                id="username"
+                autoComplete="username"
+                isValid={email?.length > 0}
+                value={email || ''}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Col>
+          </Row>
+          <Row className={'mt-2'}>
+            <Form.Label className={'required'} htmlFor="password" column={true} sm={3}>
+              Password
+            </Form.Label>
+            <Col sm={6}>
+              <PasswordField
+                name={"password"}
+                id={"password"}
+                value={password || ''}
+                isValid={password?.length > 0}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Col>
+          </Row>
+
+          <div className="form-group mt-4">
+            <Button type="submit" variant="primary" disabled={!email || !password}>Log In</Button>
+          </div>
+        </form>
+      </div>
+    )}
+    </>
+  )
+    ;
+}
+
+export default Login;
+
+/**
+ * Generate a random state string.
+ * @returns {string}
+ */
+function generateState() {
+  const randomBytes = new Uint8Array(128); // 32 bytes for a strong verifier
+  crypto.getRandomValues(randomBytes);
+  return base64UrlEncode(randomBytes);
+}
+
+function base64UrlEncode(buffer) {
+  return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}

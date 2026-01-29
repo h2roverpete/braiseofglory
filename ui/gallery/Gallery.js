@@ -1,50 +1,46 @@
-import {useContext, useEffect, useState} from "react";
-import {PageContext} from "../content/Page";
-import {SiteContext} from "../content/Site";
+import {useEffect, useState} from "react";
 import "react-image-gallery/styles/css/image-gallery.css";
 import ImageGallery from "react-image-gallery";
-
-/**
- * @typedef GalleryProps
- * @property {number} galleryId
- * @property {number} pageId
- */
+import {useRestApi} from "../../api/RestApi";
+import GalleryConfig from "./GalleryConfig";
+import FormEditor from "../editor/FormEditor";
+import './Gallery.css';
 
 /**
  * Display a photo gallery
  *
- * @param props {GalleryProps}
+ * @property {number} galleryId
+ * @property {number} extraId
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Gallery(props) {
+export default function Gallery({galleryId, extraId}) {
 
-  const {pageData} = useContext(PageContext);
-  const {restApi} = useContext(SiteContext);
   const [galleryConfig, setGalleryConfig] = useState(null);
   const [galleryPhotos, setGalleryPhotos] = useState(null);
+  const {Galleries} = useRestApi();
 
   useEffect(() => {
-    if (restApi && props.galleryId && pageData?.PageID === props.pageId && !galleryConfig) {
-      restApi.getGallery(props.galleryId).then((data) => {
-        console.debug(`Loaded gallery ${props.galleryId}.`);
+    if (galleryId && !galleryConfig) {
+      Galleries.getGallery(galleryId).then((data) => {
+        console.debug(`Loaded gallery ${galleryId}.`);
         setGalleryConfig(data);
       }).catch(error => {
-        console.error(`Error loading gallery ${props.galleryId}: ${error}`);
+        console.error(`Error loading gallery ${galleryId}: ${error}`);
       })
     }
-  }, [restApi, props.galleryId, props.pageId, pageData?.PageID, galleryConfig]);
+  }, [Galleries, galleryId, galleryConfig]);
 
   useEffect(() => {
-    if (restApi && props.galleryId && pageData?.PageID === props.pageId && !galleryPhotos) {
-      restApi.getPhotos(props.galleryId).then((data) => {
-        console.debug(`Loaded ${data.length} photos for gallery ${props.galleryId}.`);
+    if (galleryId && !galleryPhotos) {
+      Galleries.getPhotos(galleryId).then((data) => {
+        console.debug(`Loaded ${data.length} photos for gallery ${galleryId}.`);
         setGalleryPhotos(data);
       }).catch(error => {
-        console.error(`Error loading photos for gallery ${props.galleryId}: ${error}`);
+        console.error(`Error loading photos for gallery ${galleryId}: ${error}`);
       })
     }
-  }, [restApi, props.galleryId, props.pageId, pageData?.PageID, galleryPhotos]);
+  }, [Galleries, galleryId, galleryPhotos]);
 
   const images = [];
   if (galleryPhotos) {
@@ -56,11 +52,16 @@ export default function Gallery(props) {
     }
   }
 
-  return (
-    <>{pageData?.PageID === props.pageId && images.length > 0 && (
-      <div className="Gallery">
-        <ImageGallery items={images}/>
-      </div>
-    )}</>
-  )
+  return (<>
+    <div className="Gallery mt-4">
+      <ImageGallery items={images}/>
+    </div>
+    <FormEditor>
+      <GalleryConfig
+        galleryConfig={galleryConfig}
+        setGalleryConfig={setGalleryConfig}
+        extraId={extraId}
+      />
+    </FormEditor>
+  </>)
 }

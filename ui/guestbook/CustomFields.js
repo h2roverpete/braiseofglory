@@ -1,101 +1,125 @@
 import DatePicker from "react-datepicker";
-import SelectField from "../forms/SelectField";
+import {Col, Form, Row} from "react-bootstrap";
 
 /**
  * Guest Book custom fields.
  *
- * @param guestBookConfig{GuestBookConfig}
- * @param feedbackData{GuestFeedbackData}
- * @param onChange{DataCallback}
+ * @param guestBookConfig {GuestBookConfig}
+ * @param feedbackData {GuestFeedbackData}
+ * @param onChange {DataCallback}
+ * @param labelCols {Number}
  * @returns {JSX.Element}
  * @constructor
  */
-function CustomFields({guestBookConfig, feedbackData, onChange}) {
-
-  // build custom field information
+function CustomFields({guestBookConfig, feedbackData, onChange, labelCols}) {
+  if (!labelCols) {
+    labelCols = 2;
+  }
   const customFields = [];
   if (guestBookConfig) {
-    for (let i = 0; i <= 8; i++) {
-      if (guestBookConfig[`Custom${i}Label`] && guestBookConfig[`Custom${i}Type`]) {
-        let options;
-        if (guestBookConfig[`Custom${i}Options`]) {
-          options = []
-          const optionValues = guestBookConfig[`Custom${i}Options`].split(",");
-          optionValues.map((option) => {
-            options.push({
-              value: option,
-              label: option
-            })
-            return option;
-          })
-        }
-        customFields.push({
-          seq: i,
-          label: guestBookConfig[`Custom${i}Label`],
-          type: guestBookConfig[`Custom${i}Type`],
-          userEditable: guestBookConfig[`Custom${i}UserEditable`],
-          required: guestBookConfig[`Custom${i}Required`],
-          options: options,
-          emptyLabel: guestBookConfig[`Custom${i}EmptyLabel`],
-          value: feedbackData?.[`Custom${i}`]
-        })
+    for (let i = 1; i <= 8; i++) {
+      if (guestBookConfig[`Custom${i}Type`]?.length > 0) {
+        customFields.push((
+          <Row className="mt-2" key={`${i}`}>
+            <Col sm={labelCols}>
+              <Form.Label
+                htmlFor={`Custom${i}`}
+                className={guestBookConfig[`Custom${i}Required`] === true ? 'required' : ''}
+                column={true}
+              >
+                {guestBookConfig[`Custom${i}Label`]}
+              </Form.Label>
+            </Col>
+            <Col sm={'auto'}>
+              {((guestBookConfig[`Custom${i}Type`] === "text" && guestBookConfig[`Custom${i}Options`]?.length > 0) || guestBookConfig[`Custom${i}Type`] === "popup") && (
+                <Form.Select
+                  id={`Custom${i}`}
+                  onChange={(e) => {
+                    onChange({name: `Custom${i}`, value: e.target.value})
+                  }}
+                  value={feedbackData?.[`Custom${i}`] || ''}
+                >
+                  {guestBookConfig[`Custom${i}EmptyLabel`]?.length > 0 && (
+                    <option value={''}>{guestBookConfig[`Custom${i}EmptyLabel`]}</option>
+                  )}
+                  {guestBookConfig[`Custom${i}Options`].split(',').map((option) => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </Form.Select>
+              )}
+              {(guestBookConfig[`Custom${i}Type`] === 'text' && !guestBookConfig[`Custom${i}Options`]) && (
+                <Form.Control
+                  name={`Custom${i}`}
+                  onChange={(e) => {
+                    onChange({name: `Custom${i}`, value: e.target.value})
+                  }}
+                  value={feedbackData?.[`Custom${i}`] || ''}
+                />
+              )}
+              {guestBookConfig[`Custom${i}Type`] === 'date' && (
+                <DatePicker
+                  selected={feedbackData?.[`Custom${i}`]}
+                  onChange={(date) => {
+                    onChange?.({
+                      name: `Custom${i}`,
+                      value: date.toISOString()
+                    })
+                  }}
+                  showMonthYearDropdown
+                  id={`Custom${i}`}
+                  name={`Custom${i}`}
+                  className="form-control"
+                  minDate={new Date()}
+                  placeholderText={`(select a date)`}
+                />
+              )}
+              {guestBookConfig[`Custom${i}Type`] === 'radio' && (<>
+                {guestBookConfig[`Custom${i}Options`].split(',').map((option) => (
+                  <Form.Check
+                    type={'radio'}
+                    name={`Custom${i}`}
+                    label={option.trim()}
+                    value={option.trim()}
+                    checked={feedbackData?.[`Custom${i}`] === option.trim()}
+                    onChange={() => {
+                      onChange({name: `Custom${i}`, value: option.trim()})
+                    }}
+                    inline
+                  />
+                ))}
+              </>)}
+              {guestBookConfig[`Custom${i}Type`] === 'check' && guestBookConfig[`Custom${i}Options`]?.length > 0 && (<>
+                {guestBookConfig[`Custom${i}Options`].split(',').map((option) => (
+                  <Form.Check
+                    name={`Custom${i}`}
+                    label={option.trim()}
+                    value={option.trim()}
+                    checked={feedbackData?.[`Custom${i}`]?.split(',').includes(option.trim())}
+                    onChange={(e) => {
+                      const value = feedbackData?.[`Custom${i}`]?.length > 0 ? feedbackData[`Custom${i}`].split(',') : [];
+                      if (e.target.checked && !value.includes(option.trim())) {
+                        value.push(option.trim());
+                      } else if (!e.target.checked && value.includes(option.trim())) {
+                        value.splice(value.indexOf(option.trim()), 1);
+                      }
+                      onChange({name: `Custom${i}`, value: value.toString()})
+                    }}
+                    inline
+                  />
+                ))}
+              </>)}
+            </Col>
+          </Row>
+        ))
       }
     }
   }
 
   return (
     <>
-      {customFields.map(field => (
-        <div key={field.seq} className={'form-group col-xs-12 col-sm-6' + (field.seq === 1 ? " mt-4" : " mt-2")}>
-          <label
-            className={"form-label" + (field.required ? ' required' : '')}
-            htmlFor={`Custom${field.seq}`}
-            style={{marginRight: "10px"}}
-          >
-            {field.label}
-          </label>
-          {field.type === "text" && field.options && (
-            <SelectField
-              required={field.required}
-              name={`Custom${field.seq}`}
-              onChange={onChange}
-              value={feedbackData[`Custom${field.seq}`]}
-              options={field.options}
-              prompt={field.emptyLabel}
-            />
-          )}
-          {field.type === 'text' && !field.options && (
-            <input
-              type="text"
-              name={`Custom${field.seq}`}
-              className="form-control"
-              onChange={e => onChange?.(e.target)}
-              required={field.required}
-            />
-          )}
-          {field.type === 'date' && (
-            <DatePicker
-              selected={feedbackData[`Custom${field.seq}`]}
-              onChange={(date) => {
-                onChange?.({
-                  name: `Custom${field.seq}`,
-                  value: date.toISOString()
-                })
-              }}
-              showMonthYearDropdown
-              id={`Custom${field.seq}`}
-              name={`Custom${field.seq}`}
-              className="form-control"
-              minDate={new Date()}
-              placeholderText={`Select a date.`}
-              required={field.required}
-            />
-          )}
-        </div>
-      ))}
+      {customFields}
     </>
   )
-
 }
 
 export default CustomFields;

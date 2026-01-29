@@ -6,6 +6,7 @@ import Site, {SiteContext} from './Site';
 import ReactGA from 'react-ga4';
 import RestAPI from "../../api/api.mjs";
 import {MemoryRouter} from "react-router";
+import {RestApiContext} from "../../api/RestApi";
 
 describe('Site component', () => {
 
@@ -28,15 +29,20 @@ describe('Site component', () => {
 
   it('should render Site', async () => {
     // given
-    jest.spyOn(RestAPI.prototype, 'getSite').mockResolvedValue(mockSiteData)
-    jest.spyOn(RestAPI.prototype, 'getSiteOutline').mockResolvedValue(mockOutlineData);
+    const getSite = jest.fn().mockResolvedValue(mockSiteData)
+    const getSiteOutline = jest.fn().mockResolvedValue(mockOutlineData);
 
     // when
     await act(async () => {
       render(
-        <MemoryRouter initialEntries={['/']}>
-          <Site pageElement={MockPage}/>
-        </MemoryRouter>
+        <RestApiContext value={{
+          getSite: getSite,
+          getSiteOutline: getSiteOutline,
+        }}>
+          <MemoryRouter initialEntries={['/']}>
+            <Site pageElement={MockPage}/>
+          </MemoryRouter>
+        </RestApiContext>
       );
     })
 
@@ -47,15 +53,20 @@ describe('Site component', () => {
 
   it('should render default Page', async () => {
     // given
-    jest.spyOn(RestAPI.prototype, 'getSite').mockResolvedValue(mockSiteData)
-    jest.spyOn(RestAPI.prototype, 'getSiteOutline').mockResolvedValue(mockOutlineData);
+    const getSite = jest.fn().mockResolvedValue(mockSiteData)
+    const getSiteOutline = jest.fn().mockResolvedValue(mockOutlineData);
 
     // when
     await act(async () => {
       render(
-        <MemoryRouter initialEntries={['/']}>
-          <Site pageElement={MockPage}/>
-        </MemoryRouter>
+        <RestApiContext value={{
+          getSite: getSite,
+          getSiteOutline: getSiteOutline,
+        }}>
+          <MemoryRouter initialEntries={['/']}>
+            <Site pageElement={MockPage}/>
+          </MemoryRouter>
+        </RestApiContext>
       );
     })
 
@@ -68,15 +79,20 @@ describe('Site component', () => {
 
   it('should render second Page', async () => {
     // given
-    jest.spyOn(RestAPI.prototype, 'getSite').mockResolvedValue(mockSiteData)
-    jest.spyOn(RestAPI.prototype, 'getSiteOutline').mockResolvedValue(mockOutlineData);
+    const getSite = jest.fn().mockResolvedValue(mockSiteData)
+    const getSiteOutline = jest.fn().mockResolvedValue(mockOutlineData);
 
     // when
     await act(async () => {
       render(
-        <MemoryRouter initialEntries={['/secondpage']}>
-          <Site pageElement={MockPage}/>
-        </MemoryRouter>
+        <RestApiContext value={{
+          getSite: getSite,
+          getSiteOutline: getSiteOutline,
+        }}>
+          <MemoryRouter initialEntries={['/secondpage']}>
+            <Site pageElement={MockPage}/>
+          </MemoryRouter>
+        </RestApiContext>
       );
     })
 
@@ -89,8 +105,8 @@ describe('Site component', () => {
 
   it('should render page.cfm by page ID', async () => {
     // given
-    jest.spyOn(RestAPI.prototype, 'getSite').mockResolvedValue(mockSiteData)
-    jest.spyOn(RestAPI.prototype, 'getSiteOutline').mockResolvedValue(mockOutlineData);
+    const getSite = jest.fn().mockResolvedValue(mockSiteData)
+    const getSiteOutline = jest.fn().mockResolvedValue(mockOutlineData);
     const originalLocation = window.location; // Store original location
     Object.defineProperty(window, 'location', {
       configurable: true,
@@ -106,9 +122,14 @@ describe('Site component', () => {
     // when
     await act(async () => {
       render(
-        <MemoryRouter initialEntries={['/page.cfm']}>
-          <Site pageElement={MockPage}/>
-        </MemoryRouter>
+        <RestApiContext value={{
+          getSite: getSite,
+          getSiteOutline: getSiteOutline,
+        }}>
+          <MemoryRouter initialEntries={['/page.cfm']}>
+            <Site pageElement={MockPage}/>
+          </MemoryRouter>
+        </RestApiContext>
       );
     })
 
@@ -121,8 +142,8 @@ describe('Site component', () => {
 
   it('should redirect pages for alternate domains', async () => {
     // given
-    jest.spyOn(RestAPI.prototype, 'getSite').mockResolvedValue(mockSiteData)
-    jest.spyOn(RestAPI.prototype, 'getSiteOutline').mockResolvedValue(mockOutlineData);
+    const getSite = jest.fn().mockResolvedValue(mockSiteData)
+    const getSiteOutline = jest.fn().mockResolvedValue(mockOutlineData);
     const originalLocation = window.location; // Store original location
     Object.defineProperty(window, 'location', {
       configurable: true,
@@ -139,9 +160,14 @@ describe('Site component', () => {
     // when
     await act(async () => {
       render(
-        <MemoryRouter initialEntries={['/']}>
-          <Site pageElement={MockPage} redirects={[{hostname: 'www.alternatedomain.com', pageId: 51}]}/>
-        </MemoryRouter>
+        <RestApiContext value={{
+          getSite: getSite,
+          getSiteOutline: getSiteOutline,
+        }}>
+          <MemoryRouter initialEntries={['/']}>
+            <Site pageElement={MockPage} redirects={[{hostname: 'www.alternatedomain.com', pageId: 51}]}/>
+          </MemoryRouter>
+        </RestApiContext>
       );
     })
 
@@ -154,17 +180,22 @@ describe('Site component', () => {
 
   it('should initialize Google Analytics', async () => {
     // given
-    jest.spyOn(RestAPI.prototype, 'getSite').mockResolvedValue(mockSiteData)
-    jest.spyOn(RestAPI.prototype, 'getSiteOutline').mockResolvedValue(mockOutlineData);
+    const getSite = jest.fn().mockResolvedValue(mockSiteData)
+    const getSiteOutline = jest.fn().mockResolvedValue(mockOutlineData);
     jest.spyOn(ReactGA, 'initialize');
     const gid = 'MyGoogleID'
 
     // when
     await act(async () => {
       render(
-        <MemoryRouter initialEntries={['/']}>
-          <Site googleId={gid} pageElement={MockPage}/>
-        </MemoryRouter>
+        <RestApiContext value={{
+          getSite: getSite,
+          getSiteOutline: getSiteOutline,
+        }}>
+          <MemoryRouter initialEntries={['/']}>
+            <Site googleId={gid} pageElement={MockPage}/>
+          </MemoryRouter>
+        </RestApiContext>
       );
     })
 
@@ -174,15 +205,20 @@ describe('Site component', () => {
 
   it('should send 404 error to Page', async () => {
     // given
-    jest.spyOn(RestAPI.prototype, 'getSite').mockResolvedValue(mockSiteData)
-    jest.spyOn(RestAPI.prototype, 'getSiteOutline').mockResolvedValue(mockOutlineData);
+    const getSite = jest.fn().mockResolvedValue(mockSiteData)
+    const getSiteOutline = jest.fn().mockResolvedValue(mockOutlineData);
 
     // when
     await act(async () => {
       render(
-        <MemoryRouter initialEntries={['/badPath']}>
-          <Site pageElement={MockPage}/>
-        </MemoryRouter>
+        <RestApiContext value={{
+          getSite: getSite,
+          getSiteOutline: getSiteOutline,
+        }}>
+          <MemoryRouter initialEntries={['/badPath']}>
+            <Site pageElement={MockPage}/>
+          </MemoryRouter>
+        </RestApiContext>
       );
     })
 
@@ -200,15 +236,20 @@ describe('Site component', () => {
 
   it('should send outline loading error to Page', async () => {
     // given
-    jest.spyOn(RestAPI.prototype, 'getSite').mockResolvedValue(mockSiteData)
-    jest.spyOn(RestAPI.prototype, 'getSiteOutline').mockRejectedValue({code: "ERRCODE", status: 400});
+    const getSite = jest.fn().mockResolvedValue(mockSiteData)
+    const getSiteOutline = jest.fn().mockRejectedValue({code: "ERRCODE", status: 400});
 
     // when
     await act(async () => {
       render(
-        <MemoryRouter initialEntries={['/']}>
-          <Site pageElement={MockPage}/>
-        </MemoryRouter>
+        <RestApiContext value={{
+          getSite: getSite,
+          getSiteOutline: getSiteOutline,
+        }}>
+          <MemoryRouter initialEntries={['/']}>
+            <Site pageElement={MockPage}/>
+          </MemoryRouter>
+        </RestApiContext>
       );
     })
 
@@ -226,15 +267,20 @@ describe('Site component', () => {
 
   it('should send site loading error to Page', async () => {
     // given
-    jest.spyOn(RestAPI.prototype, 'getSite').mockRejectedValue({code: "ERRCODE", status: 400})
-    jest.spyOn(RestAPI.prototype, 'getSiteOutline').mockResolvedValue(mockOutlineData);
+    const getSite = jest.fn().mockRejectedValue({code: "ERRCODE", status: 400})
+    const getSiteOutline = jest.fn().mockResolvedValue(mockOutlineData);
 
     // when
     await act(async () => {
       render(
-        <MemoryRouter initialEntries={['/']}>
-          <Site pageElement={MockPage}/>
-        </MemoryRouter>
+        <RestApiContext value={{
+          getSite: getSite,
+          getSiteOutline: getSiteOutline,
+        }}>
+          <MemoryRouter initialEntries={['/']}>
+            <Site pageElement={MockPage}/>
+          </MemoryRouter>
+        </RestApiContext>
       );
     })
 
@@ -242,7 +288,7 @@ describe('Site component', () => {
     const pageElement = screen.getByTestId(/MockPage/i);
     expect(pageElement).toBeInTheDocument();
     expect(MockPage).toBeCalledTimes(2); // one successful load, one error
-    expect(MockPage).toBeCalledWith({pageId:50}, undefined);
+    expect(MockPage).toBeCalledWith({pageId: 50}, undefined);
     expect(MockPage).toBeCalledWith({
       "error": {
         "description": "Site data could not be loaded.<br>Code: ERRCODE",
@@ -253,12 +299,12 @@ describe('Site component', () => {
 
   it('should report errors from Page', async () => {
     // given
-    jest.spyOn(RestAPI.prototype, 'getSite').mockResolvedValue({mockSiteData})
-    jest.spyOn(RestAPI.prototype, 'getSiteOutline').mockResolvedValue(mockOutlineData);
+    const getSite = jest.fn().mockResolvedValue(mockSiteData)
+    const getSiteOutline = jest.fn().mockResolvedValue(mockOutlineData);
     MockPage = jest.fn().mockImplementation(() => {
       const siteContext = useContext(SiteContext);
       useEffect(() => {
-        console.log('Reporting error.');
+        console.debug('Reporting error.');
         siteContext.setError({
           title: `Server Error`,
           description: `Site data could not be loaded.`
@@ -270,9 +316,14 @@ describe('Site component', () => {
     // when
     await act(async () => {
       render(
-        <MemoryRouter initialEntries={['/']}>
-          <Site pageElement={MockPage}/>
-        </MemoryRouter>
+        <RestApiContext value={{
+          getSite: getSite,
+          getSiteOutline: getSiteOutline,
+        }}>
+          <MemoryRouter initialEntries={['/']}>
+            <Site pageElement={MockPage}/>
+          </MemoryRouter>
+        </RestApiContext>
       );
     })
 
@@ -280,7 +331,7 @@ describe('Site component', () => {
     const pageElement = screen.getByTestId(/MockPage/i);
     expect(pageElement).toBeInTheDocument();
     expect(MockPage).toBeCalledTimes(3); // two successful loads, then error
-    expect(MockPage).toBeCalledWith({pageId:50}, undefined);
+    expect(MockPage).toBeCalledWith({pageId: 50}, undefined);
     expect(MockPage).toBeCalledWith({
       "error": {
         "description": "Site data could not be loaded.",
@@ -291,8 +342,8 @@ describe('Site component', () => {
 
   it('should forward errors from props', async () => {
     // given
-    jest.spyOn(RestAPI.prototype, 'getSite').mockResolvedValue({mockSiteData})
-    jest.spyOn(RestAPI.prototype, 'getSiteOutline').mockResolvedValue(mockOutlineData);
+    const getSite = jest.fn().mockResolvedValue(mockSiteData)
+    const getSiteOutline = jest.fn().mockResolvedValue(mockOutlineData);
     MockPage = jest.fn().mockImplementation(() => {
       const {error} = useContext(SiteContext);
       errorReceiver(error);
@@ -302,14 +353,19 @@ describe('Site component', () => {
       title: "Error Title",
       description: "Error Description",
     }
-    const errorReceiver=jest.fn();
+    const errorReceiver = jest.fn();
 
     // when
     await act(async () => {
       render(
-        <MemoryRouter initialEntries={['/']}>
-          <Site pageElement={MockPage} error={mockError}/>
-        </MemoryRouter>
+        <RestApiContext value={{
+          getSite: getSite,
+          getSiteOutline: getSiteOutline,
+        }}>
+          <MemoryRouter initialEntries={['/']}>
+            <Site pageElement={MockPage} error={mockError}/>
+          </MemoryRouter>
+        </RestApiContext>
       );
     })
 
@@ -322,8 +378,8 @@ describe('Site component', () => {
 
   it('should provide children to Pages', async () => {
     // given
-    jest.spyOn(RestAPI.prototype, 'getSite').mockResolvedValue({mockSiteData})
-    jest.spyOn(RestAPI.prototype, 'getSiteOutline').mockResolvedValue(mockOutlineData);
+    const getSite = jest.fn().mockResolvedValue(mockSiteData)
+    const getSiteOutline = jest.fn().mockResolvedValue(mockOutlineData);
     const reportChildren = jest.fn();
     MockPage = jest.fn().mockImplementation(() => {
       const siteContext = useContext(SiteContext);
@@ -336,9 +392,14 @@ describe('Site component', () => {
     // when
     await act(async () => {
       render(
-        <MemoryRouter initialEntries={['/']}>
-          <Site pageElement={MockPage}/>
-        </MemoryRouter>
+        <RestApiContext value={{
+          getSite: getSite,
+          getSiteOutline: getSiteOutline,
+        }}>
+          <MemoryRouter initialEntries={['/']}>
+            <Site pageElement={MockPage}/>
+          </MemoryRouter>
+        </RestApiContext>
       );
     })
 
@@ -346,7 +407,7 @@ describe('Site component', () => {
     const pageElement = screen.getByTestId(/MockPage/i);
     expect(pageElement).toBeInTheDocument();
     expect(MockPage).toBeCalledTimes(1); // two successful loads, then error
-    expect(MockPage).toBeCalledWith({pageId:50}, undefined);
+    expect(MockPage).toBeCalledWith({pageId: 50}, undefined);
     expect(reportChildren).toBeCalledTimes(1);
     expect(reportChildren).toBeCalledWith(mockOutlineData);
   });

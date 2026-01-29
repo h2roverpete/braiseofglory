@@ -1,13 +1,5 @@
 import stateList from 'states-us';
-import SelectField from "./SelectField";
-
-const options = [];
-for (const data of stateList) {
-  options.push({
-    value: data.abbreviation,
-    label: data.name
-  })
-}
+import Form from 'react-bootstrap/Form';
 
 /**
  * @typedef StateFieldProps
@@ -29,15 +21,14 @@ for (const data of stateList) {
  */
 function StateField(props) {
   return (
-    <SelectField
-      name={props.name}
-      value={props.value}
-      className={props.className}
-      required={props.required}
-      prompt={props.prompt}
-      onChange={props.onChange}
-      options={options}
-    />
+    <Form.Select
+      {...props}
+    >
+      <option key={'-'}>(Select)</option>
+      {stateList.map(elem => (
+        <option id={elem.abbreviation} value={elem.abbreviation} key={elem.abbreviation}>{elem.name}</option>
+      ))}
+    </Form.Select>
   )
 }
 
