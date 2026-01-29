@@ -355,6 +355,10 @@ export default function NavBar(props) {
                 margin: '0 20px 0 20px',
                 padding: '2px 3px',
                 zIndex: 200,
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                transform: 'translate(200%,50%)',
               }}
               className={`AddPageButton border border-secondary btn-light`}
               type="button"
