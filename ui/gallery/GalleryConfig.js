@@ -114,53 +114,6 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId}
           />
         </Col>
       </Row>
-      <Row className="mt-2">
-        <Form.Label
-          column={'sm'}
-          sm={labelCols}
-          htmlFor={'GalleryDescription'}>Short Description</Form.Label>
-        <Col>
-          <Form.Control
-            as={'textarea'}
-            size={'sm'}
-            id={'GalleryDescription'}
-            rows={1}
-            value={edits?.GalleryDescription}
-            onChange={(e) => FormData?.onDataChanged({name: 'GalleryDescription', value: e.target.value})}
-          />
-        </Col>
-      </Row>
-      <Row className="mt-2">
-        <Form.Label
-          column={'sm'}
-          sm={labelCols}
-          htmlFor={'GalleryLongDescription'}>Long Description</Form.Label>
-        <Col>
-          <Form.Control
-            as={'textarea'}
-            size={'sm'}
-            id={'GalleryLongDescription'}
-            rows={3}
-            value={edits?.GalleryLongDescription}
-            onChange={(e) => FormData?.onDataChanged({name: 'GalleryLongDescription', value: e.target.value})}
-          />
-        </Col>
-      </Row>
-      <Row className="mt-2">
-        <Form.Label
-          column={'sm'}
-          sm={labelCols}
-          htmlFor={'GalleryDate'}>Gallery Date</Form.Label>
-        <Col>
-          <DateField
-            name={'GalleryDate'}
-            size={'sm'}
-            id={'GalleryDate'}
-            value={edits?.GalleryDate}
-            onChange={FormData?.onDataChanged}
-          />
-        </Col>
-      </Row>
     </EditorPanel>
   </>)
 }

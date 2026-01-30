@@ -29,7 +29,7 @@ function PageSection({pageSectionData}) {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingText, setEditingText] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [uploadPrompt, setUploadPrompt] = useState(pageSectionData.SectionImage ? DropState.REPLACE : DropState.INSERT);
+  const [dropState, setDropState] = useState(DropState.HIDDEN);
   const [sectionExtras, setSectionExtras] = useState([]);
 
   const sectionTitleRef = useRef(null);
@@ -206,7 +206,6 @@ function PageSection({pageSectionData}) {
     }
   }
 
-  const dropFileRef = useRef(null);
   const fileInputRef = useRef(null);
   const sectionImageRef = useRef(null);
   const sectionRef = useRef(null);
@@ -254,9 +253,7 @@ function PageSection({pageSectionData}) {
   }
 
   function dragEnterHandler(e) {
-    if (dropFileRef.current) {
-      dropFileRef.current.hidden = false;
-    }
+    setDropState(pageSectionData.SectionImage ? DropState.REPLACE : DropState.INSERT);
     e.preventDefault();
   }
 
@@ -286,30 +283,22 @@ function PageSection({pageSectionData}) {
   }
 
   function uploadFile(file) {
-    if (dropFileRef.current) {
-      dropFileRef.current.hidden = false;
-    }
-    setUploadPrompt(DropState.UPLOADING);
+    setDropState(DropState.UPLOADING);
     PageSections.uploadSectionImage(pageSectionData.PageID, pageSectionData.PageSectionID, file)
       .then((result) => {
         console.debug(`Image uploaded successfully.`);
-        if (dropFileRef.current) {
-          dropFileRef.current.hidden = true;
-        }
-        setUploadPrompt(pageSectionData.SectionImage ? DropState.REPLACE : DropState.INSERT);
+        setDropState(DropState.HIDDEN);
         updatePageSection(result);
       })
       .catch(e => {
         console.error(`Error uploading image.`, e);
-        dropFileRef.current.hidden = true;
+        setDropState(DropState.HIDDEN);
       });
   }
 
   function dragLeaveHandler(e) {
     console.debug(`Image drag leave...`);
-    if (dropFileRef.current) {
-      dropFileRef.current.hidden = true;
-    }
+    setDropState(DropState.HIDDEN);
     e.preventDefault();
   }
 
@@ -327,7 +316,7 @@ function PageSection({pageSectionData}) {
             && !pageSectionData.SectionText
             && !pageSectionData.SectionTitle
             && sectionExtras.length === 0
-              ? '40px' : 0,
+              ? '50px' : 0,
           margin: pageSectionData.SectionText
           || pageSectionData.SectionTitle
           || sectionExtras.length ? undefined : 0
@@ -347,8 +336,7 @@ function PageSection({pageSectionData}) {
           <PageSectionImage
             pageSectionData={pageSectionData}
             imageRef={sectionImageRef}
-            dropTargetRef={dropFileRef}
-            dropTargetState={uploadPrompt}
+            dropTargetState={dropState}
           />
           <EditableField
             field={sectionText}
@@ -386,7 +374,7 @@ function PageSection({pageSectionData}) {
                 {pageSectionData.PageSectionID !== sectionData[0].PageSectionID && (
                   <span className="dropdown-item" onClick={onMoveUp}>Move Up</span>
                 )}
-                {pageSectionData.PageSectionID !== sectionData[sectionData.length-1].PageSectionID && (
+                {pageSectionData.PageSectionID !== sectionData[sectionData.length - 1].PageSectionID && (
                   <span className="dropdown-item" style={{marginLeft: '0'}} onClick={onMoveDown}>Move
                   Down</span>
                 )}
@@ -399,7 +387,7 @@ function PageSection({pageSectionData}) {
             </div>
           )}
           {!pageSectionData.SectionImage && (
-            <FileDropTarget state={uploadPrompt} ref={dropFileRef}/>
+            <FileDropTarget state={dropState}/>
           )}
           <Modal
             show={showDeleteConfirmation}

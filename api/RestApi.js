@@ -180,7 +180,7 @@ export default function RestApi(props) {
   }
 
   async function getGallery(galleryId) {
-    const response = await axios.get(`${host}/api/v1/gallery/${galleryId}`);
+    const response = await axios.get(`${host}/api/v1/galleries/${galleryId}`);
     return response.data;
   }
 
@@ -208,8 +208,19 @@ export default function RestApi(props) {
   }
 
   async function getPhotos(galleryId) {
-    const response = await axios.get(`${host}/api/v1/gallery/${galleryId}/photos`);
+    const response = await axios.get(`${host}/api/v1/galleries/${galleryId}/photos`);
     return response.data;
+  }
+
+  async function uploadPhoto(galleryId, file) {
+    return await adminApiCall(() => {
+      return async () => {
+        const formData = new FormData();
+        formData.append('PhotoFile', file);
+        const response = await axios.post(`${host}/api/v1/galleries/${galleryId}/photos`, formData);
+        return response.data;
+      }
+    });
   }
 
   async function getPageExtras(pageId) {
@@ -349,6 +360,7 @@ export default function RestApi(props) {
         getPhotos: getPhotos,
         insertOrUpdateGallery: insertOrUpdateGallery,
         deleteGallery: deleteGallery,
+        uploadPhoto: uploadPhoto,
       },
       Extras: {
         getPageExtras: getPageExtras,

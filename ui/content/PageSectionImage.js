@@ -13,12 +13,11 @@ import {Button} from "react-bootstrap";
  *
  * @param pageSectionData {PageSectionData} Database record for page section.
  * @param imageRef {RefObject} Receives a reference to the section image
- * @param dropTargetRef {RefObject} Receives a reference to the drop target <div>
  * @param dropTargetState {DropState} State to display the drop target.
  * @returns {JSX.Element}
  * @constructor
  */
-export default function PageSectionImage({pageSectionData, imageRef, dropTargetRef, dropTargetState}) {
+export default function PageSectionImage({pageSectionData, imageRef, dropTargetState}) {
 
   const {PageSections} = useRestApi();
   const {sectionData, setSectionData} = usePageContext();
@@ -139,7 +138,7 @@ export default function PageSectionImage({pageSectionData, imageRef, dropTargetR
         />
         {canEdit && (
           <>
-            <FileDropTarget ref={dropTargetRef} state={dropTargetState}/>
+            <FileDropTarget state={dropTargetState}/>
             <div
               className="dropdown"
               style={{position: 'absolute', bottom: '0', right: '2px', zIndex: 100}}

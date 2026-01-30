@@ -18,6 +18,11 @@
   color: black;
 }
 
+.Editor.DropFile {
+  font-size:14pt;
+  z-index: 1300;
+}
+
 div.dropdown-menu.Editor {
   background-color: white;
   padding: 10px 0;
