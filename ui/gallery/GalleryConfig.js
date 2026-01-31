@@ -3,7 +3,6 @@ import {Row, Form, Col, Button, Modal} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
 import {usePageContext} from "../content/Page";
-import DateField from "../forms/DateField";
 import EditorPanel from "../editor/EditorPanel";
 import {useFormEditor} from "../editor/FormEditor";
 
