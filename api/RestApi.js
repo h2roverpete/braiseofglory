@@ -223,6 +223,15 @@ export default function RestApi(props) {
     });
   }
 
+  async function deletePhoto(galleryId, photoId) {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.delete(`${host}/api/v1/galleries/${galleryId}/photos/${photoId}`);
+        return response.data;
+      }
+    });
+  }
+
   async function getPageExtras(pageId) {
     const response = await axios.get(`${host}/api/v1/content/pages/${pageId}/extras`);
     return response.data;
@@ -361,6 +370,7 @@ export default function RestApi(props) {
         insertOrUpdateGallery: insertOrUpdateGallery,
         deleteGallery: deleteGallery,
         uploadPhoto: uploadPhoto,
+        deletePhoto: deletePhoto,
       },
       Extras: {
         getPageExtras: getPageExtras,

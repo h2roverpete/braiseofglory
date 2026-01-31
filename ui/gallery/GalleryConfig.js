@@ -109,8 +109,18 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId}
             id={'GalleryName'}
             isValid={FormData?.isTouched('GalleryName') && edits?.GalleryName.length > 0}
             isInvalid={FormData?.isTouched('GalleryName') && edits?.GalleryName.length === 0}
-            value={edits?.GalleryName}
+            value={edits?.GalleryName || ''}
             onChange={(e) => FormData?.onDataChanged({name: 'GalleryName', value: e.target.value})}
+          />
+        </Col>
+      </Row>
+      <Row className={'mt-2'}>
+        <Col sm={labelCols}></Col>
+        <Col>
+          <Form.Check
+            checked={edits?.RandomizeOrder === true}
+            label="Randomize display order"
+            onChange={(e) => FormData?.onDataChanged({name: 'RandomizeOrder', value: e.target.checked})}
           />
         </Col>
       </Row>

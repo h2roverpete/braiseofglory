@@ -85,7 +85,7 @@ export default function Page(props) {
     setSectionData(newSectionData);
   }
 
-  function removePageSection(pageSectionId) {
+  function deletePageSection(pageSectionId) {
     const newSections = [];
     for (const section of sectionData) {
       if (section.PageSectionID !== pageSectionId) {
@@ -157,7 +157,7 @@ export default function Page(props) {
           setSectionData: setSectionData,
           updatePageSection: updatePageSection,
           addPageSection: addPageSection,
-          removePageSection: removePageSection,
+          deletePageSection: deletePageSection,
           addExtraModal: addExtraModal,
           addExtraToPage: addExtraToPage,
           removeExtraFromPage: removeExtraFromPage,

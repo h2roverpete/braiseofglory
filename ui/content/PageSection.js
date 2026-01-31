@@ -8,6 +8,7 @@ import {usePageContext} from "./Page";
 import PageSectionImage from "./PageSectionImage";
 import {DropState, FileDropTarget} from "../editor/FileDropTarget";
 import Extras from "../extras/Extras";
+import {useSiteContext} from "./Site";
 
 /**
  * Generate a page section
@@ -21,17 +22,17 @@ function PageSection({pageSectionData}) {
   const {
     sectionData,
     setSectionData,
-    removePageSection,
+    deletePageSection,
     updatePageSection,
     addExtraModal,
     pageExtras
   } = usePageContext();
+  const {showErrorAlert} = useSiteContext();
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingText, setEditingText] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [dropState, setDropState] = useState(DropState.HIDDEN);
   const [sectionExtras, setSectionExtras] = useState([]);
-
+  const dropRef = useRef(null);
   const sectionTitleRef = useRef(null);
   const sectionTitle = (
     <h2
@@ -48,9 +49,10 @@ function PageSection({pageSectionData}) {
       console.debug(`Update section title...`);
       pageSectionData.SectionTitle = textContent;
       pageSectionData.TitleAlign = textAlign;
+      updatePageSection(pageSectionData);
       PageSections.insertOrUpdatePageSection(pageSectionData)
         .then(() => console.debug(`Updated section title.`))
-        .catch(error => console.error(`Error updating section title.`, error));
+        .catch(error => showErrorAlert(`Error updating section title.`, error));
     }
     setEditingTitle(false);
   }
@@ -70,22 +72,23 @@ function PageSection({pageSectionData}) {
       console.debug(`Update section text...`);
       pageSectionData.SectionText = textContent;
       pageSectionData.TextAlign = textAlign;
+      updatePageSection(pageSectionData);
       PageSections.insertOrUpdatePageSection(pageSectionData)
         .then(() => console.debug(`Updated section text.`))
-        .catch(error => console.error(`Error updating section text.`, error));
+        .catch(error => showErrorAlert(`Error updating section text.`, error));
     }
     setEditingText(false);
   }
 
   function deleteSection() {
     if (pageSectionData) {
-      removePageSection(pageSectionData.PageSectionID)
       PageSections.deletePageSection(pageSectionData.PageID, pageSectionData.PageSectionID)
-        .then(() => {
+        .then((result) => {
           console.debug(`Page section deleted.`)
+          deletePageSection(result.PageSectionID);
         })
         .catch(error => {
-          console.error(`Error deleting page section.`, error)
+          showErrorAlert(`Error deleting page section.`, error)
         });
     }
   }
@@ -115,11 +118,11 @@ function PageSection({pageSectionData}) {
               .then(() => {
                 console.debug(`Section moved up.`);
               })
-              .catch(error => console.error(`Error moving page section up.`, error));
+              .catch(error => showErrorAlert(`Error moving page section up.`, error));
           })
-          .catch(error => console.error(`Error moving page section up.`, error));
+          .catch(error => showErrorAlert(`Error moving page section up.`, error));
       } else {
-        console.error(`Section sequence error, can't move up.`);
+        showErrorAlert(`Section sequence error, can't move up.`);
       }
     }
   }
@@ -149,11 +152,11 @@ function PageSection({pageSectionData}) {
               .then(() => {
                 console.debug(`Section moved down.`);
               })
-              .catch(error => console.error(`Error moving page section down.`, error));
+              .catch(error => showErrorAlert(`Error moving page section down.`, error));
           })
-          .catch(error => console.error(`Error moving page section down.`, error));
+          .catch(error => showErrorAlert(`Error moving page section down.`, error));
       } else {
-        console.error(`Section sequence error, can't move down.`);
+        showErrorAlert(`Section sequence error, can't move down.`);
       }
     }
   }
@@ -172,13 +175,13 @@ function PageSection({pageSectionData}) {
             section.PageSectionSeq++;
             PageSections.insertOrUpdatePageSection(section).then((result) => {
               console.debug(`Updated section ${result.PageSectionID} sequence.`);
-            }).catch(error => console.error(`Error updating section sequence.`, error));
+            }).catch(error => showErrorAlert(`Error updating section sequence.`, error));
           }
         }
         const newSectionData = [...sectionData, newSection]
         newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
         setSectionData(newSectionData);
-      }).catch(error => console.error(`Error adding section.`, error));
+      }).catch(error => showErrorAlert(`Error adding section.`, error));
     }
   }
 
@@ -196,33 +199,18 @@ function PageSection({pageSectionData}) {
             section.PageSectionSeq++;
             PageSections.insertOrUpdatePageSection(section).then((result) => {
               console.debug(`Updated section ${result.PageSectionID} sequence.`);
-            }).catch(error => console.error(`Error updating section sequence.`, error));
+            }).catch(error => showErrorAlert(`Error updating section sequence.`, error));
           }
         }
         const newSectionData = [...sectionData, newSection]
         newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
         setSectionData(newSectionData);
-      }).catch(error => console.error(`Error adding section.`, error));
+      }).catch(error => showErrorAlert(`Error adding section.`, error));
     }
   }
 
-  const fileInputRef = useRef(null);
   const sectionImageRef = useRef(null);
   const sectionRef = useRef(null);
-
-  useEffect(() => {
-    if (sectionImageRef.current && canEdit) {
-      sectionImageRef.current.addEventListener('dragenter', dragEnterHandler);
-      sectionImageRef.current.addEventListener('dragleave', dragLeaveHandler);
-      sectionImageRef.current.addEventListener('dragover', dragOverHandler);
-      sectionImageRef.current.addEventListener('drop', dropHandler);
-    } else if (canEdit) {
-      sectionRef.current.addEventListener('dragenter', dragEnterHandler);
-      sectionRef.current.addEventListener('dragleave', dragLeaveHandler);
-      sectionRef.current.addEventListener('dragover', dragOverHandler);
-      sectionRef.current.addEventListener('drop', dropHandler);
-    }
-  }, [sectionImageRef, canEdit]);
 
   useEffect(() => {
     if (pageExtras && pageSectionData) {
@@ -236,71 +224,34 @@ function PageSection({pageSectionData}) {
     }
   }, [pageExtras, pageSectionData]);
 
-  function selectImageFile() {
-    if (fileInputRef.current && canEdit) {
-      fileInputRef.current.addEventListener('change', fileSelectedHandler);
-      fileInputRef.current.click();
-    }
-  }
-
-  function fileSelectedHandler(e) {
-    const files = [...e.target.files];
-    console.debug(`${files.length} file(s) selected.`);
-    if (files.length === 1) {
-      uploadFile(files[0]);
-    }
-    e.preventDefault();
-  }
-
-  function dragEnterHandler(e) {
-    setDropState(pageSectionData.SectionImage ? DropState.REPLACE : DropState.INSERT);
-    e.preventDefault();
-  }
-
-  function dragOverHandler(e) {
-    const fileItems = [...e.dataTransfer.items].filter(
-      (item) => item.kind === "file",
-    );
-    if (fileItems.length > 0) {
-      e.preventDefault();
-      if (fileItems.some((item) => item.type.startsWith("image/"))) {
-        e.dataTransfer.dropEffect = "copy";
-      } else {
-        e.dataTransfer.dropEffect = "none";
-      }
-    }
-  }
-
-  function dropHandler(e) {
-    const files = [...e.dataTransfer.items]
-      .map((item) => item.getAsFile())
-      .filter((file) => file);
-    console.debug(`${files.length} file(s) dropped.`);
-    if (files.length === 1) {
-      uploadFile(files[0]);
-    }
-    e.preventDefault();
-  }
-
   function uploadFile(file) {
-    setDropState(DropState.UPLOADING);
+    dropRef.current.setDropState(DropState.UPLOADING);
     PageSections.uploadSectionImage(pageSectionData.PageID, pageSectionData.PageSectionID, file)
       .then((result) => {
         console.debug(`Image uploaded successfully.`);
-        setDropState(DropState.HIDDEN);
+        dropRef.current.setDropState(DropState.HIDDEN);
         updatePageSection(result);
       })
       .catch(e => {
-        console.error(`Error uploading image.`, e);
-        setDropState(DropState.HIDDEN);
+        showErrorAlert(`Error uploading image.`, e);
+        dropRef.current.setDropState(DropState.HIDDEN);
       });
   }
 
-  function dragLeaveHandler(e) {
-    console.debug(`Image drag leave...`);
-    setDropState(DropState.HIDDEN);
-    e.preventDefault();
-  }
+  useEffect(() => {
+    // manage drag scripts
+    if (pageSectionData.SectionImage && sectionImageRef.current && dropRef.current) {
+      sectionImageRef.current.ondragenter = dropRef.current.onDragEnter;
+      if (sectionRef.current) {
+        sectionRef.current.ondragenter = undefined;
+      }
+    } else if (!pageSectionData.SectionImage && sectionRef.current && dropRef.current) {
+      sectionRef.current.ondragenter = dropRef.current.onDragEnter;
+      if (sectionImageRef.current) {
+        sectionImageRef.current.ondragenter = undefined;
+      }
+    }
+  }, [sectionImageRef, pageSectionData, dropRef])
 
   return (
     <PageSectionContext value={{
@@ -336,7 +287,8 @@ function PageSection({pageSectionData}) {
           <PageSectionImage
             pageSectionData={pageSectionData}
             imageRef={sectionImageRef}
-            dropTargetState={dropState}
+            dropRef={dropRef}
+            onFileSelected={uploadFile}
           />
           <EditableField
             field={sectionText}
@@ -347,28 +299,30 @@ function PageSection({pageSectionData}) {
             allowEnterKey={true}
             editing={editingText}
           />
-          <input type="file" ref={fileInputRef} hidden={true}/>
+          {!pageSectionData.SectionImage && (
+            <FileDropTarget ref={dropRef} onFileSelected={uploadFile}/>
+          )}
           {!editingText && !editingTitle && (
             <div
               className="Editor dropdown"
-              style={{position: 'absolute', top: '2px', right: '2px', zIndex: sectionData.PageSectionSeq}}
+              style={{position: 'absolute', top: '2px', right: '2px', zIndex: 100 + sectionData.PageSectionSeq}}
             >
               <Button
                 variant="secondary"
                 size="sm"
-                style={{border: 'none', boxShadow: 'none', margin: '2px', padding: '2px 5px', zIndex: 200}}
+                style={{border: 'none', boxShadow: 'none', margin: '2px', padding: '2px 5px'}}
                 className={`border btn-light`}
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               ><BsPencil/></Button>
-              <div className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 300}}>
+              <div className="dropdown-menu Editor" style={{cursor: 'pointer'}}>
               <span className="dropdown-item"
                     onClick={() => setEditingTitle(true)}>{`${pageSectionData?.SectionTitle?.length > 0 ? 'Edit' : 'Add'} Section Title`}</span>
                 <span className="dropdown-item"
                       onClick={() => setEditingText(true)}>{`${pageSectionData?.SectionText?.length > 0 ? 'Edit' : 'Add'} Section Text`}</span>
                 <span className="dropdown-item"
-                      onClick={selectImageFile}>{`${pageSectionData?.SectionImage?.length > 0 ? 'Update' : 'Add'} Section Image`}</span>
+                      onClick={() => dropRef.current?.selectFile()}>{`${pageSectionData?.SectionImage?.length > 0 ? 'Update' : 'Add'} Section Image`}</span>
                 <span className="dropdown-item"
                       onClick={() => addExtraModal({pageSectionId: pageSectionData.PageSectionID})}>Add Extra</span>
                 {pageSectionData.PageSectionID !== sectionData[0].PageSectionID && (
@@ -385,9 +339,6 @@ function PageSection({pageSectionData}) {
                 <span className="dropdown-item" onClick={() => setShowDeleteConfirmation(true)}> Delete Section</span>
               </div>
             </div>
-          )}
-          {!pageSectionData.SectionImage && (
-            <FileDropTarget state={dropState}/>
           )}
           <Modal
             show={showDeleteConfirmation}

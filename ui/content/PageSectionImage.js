@@ -11,18 +11,15 @@ import {Button} from "react-bootstrap";
  * Should be inserted before section text if position is "above",
  * otherwise it should be inserted after the section text.
  *
- * @param pageSectionData {PageSectionData} Database record for page section.
- * @param imageRef {RefObject} Receives a reference to the section image
- * @param dropTargetState {DropState} State to display the drop target.
  * @returns {JSX.Element}
  * @constructor
  */
-export default function PageSectionImage({pageSectionData, imageRef, dropTargetState}) {
+export default function PageSectionImage({pageSectionData, imageRef, dropRef, onFileSelected, onFilesSelected}) {
 
   const {PageSections} = useRestApi();
-  const {sectionData, setSectionData} = usePageContext();
+  const {updatePageSection} = usePageContext();
   const {canEdit} = useEdit();
-  const {siteData} = useSiteContext();
+  const {siteData, showErrorAlert} = useSiteContext();
 
   if (!pageSectionData.SectionImage) {
     return <></>;
@@ -32,9 +29,11 @@ export default function PageSectionImage({pageSectionData, imageRef, dropTargetS
     pageSectionData.ImageAlign = align;
     console.debug(`Updating image alignment...`);
     PageSections.insertOrUpdatePageSection(pageSectionData)
-      .then(() => console.debug(`Updated image alignment.`))
-      .catch(error => console.error(`Error updating image alignment.`, error));
-    setSectionData([...sectionData]);
+      .then(() => {
+        console.debug(`Updated image alignment.`)
+        updatePageSection(pageSectionData);
+      })
+      .catch(error => showErrorAlert(`Error updating image alignment.`, error));
   }
 
   function setImagePosition(position) {
@@ -45,18 +44,23 @@ export default function PageSectionImage({pageSectionData, imageRef, dropTargetS
     }
     console.debug(`Updating image position...`);
     PageSections.insertOrUpdatePageSection(pageSectionData)
-      .then(() => console.debug(`Updated image position.`))
-      .catch(error => console.error(`Error updating image position.`, error));
-    setSectionData([...sectionData]);
+      .then(() => {
+        console.debug(`Updated image position.`)
+        updatePageSection(pageSectionData);
+      })
+      .catch(error => showErrorAlert(`Error updating image position.`, error));
+
   }
 
   function hideImageFrame(hide) {
     pageSectionData.HideImageFrame = hide;
     console.debug(`Updating image frame...`);
     PageSections.insertOrUpdatePageSection(pageSectionData)
-      .then(() => console.debug(`Updated image frame.`))
-      .catch(error => console.error(`Error updating image frame.`, error));
-    setSectionData([...sectionData]);
+      .then(() => {
+        console.debug(`Updated image frame.`)
+        updatePageSection(pageSectionData);
+      })
+      .catch(error => showErrorAlert(`Error updating image frame.`, error));
   }
 
   function deleteImage() {
@@ -65,24 +69,25 @@ export default function PageSectionImage({pageSectionData, imageRef, dropTargetS
       .then(() => {
         console.debug(`Deleted section image.`)
         pageSectionData.SectionImage = null;
-        setSectionData([...sectionData]);
+        updatePageSection(pageSectionData);
       })
-      .catch(error => console.error(`Error deleting section image.`, error));
+      .catch(error => showErrorAlert(`Error deleting section image.`, error));
   }
 
   function setImageWidth(width) {
     console.debug(`Setting image width to ${width}...`);
     pageSectionData.ImageWidth = width;
     PageSections.insertOrUpdatePageSection(pageSectionData)
-      .then(() => console.debug(`Updated image width.`))
-      .catch(error => console.error(`Error updating image width.`, error));
-    setSectionData([...sectionData]);
+      .then(() => {
+        console.debug(`Updated image width.`)
+        updatePageSection(pageSectionData);
+      }).catch(error => showErrorAlert(`Error updating image width.`, error));
   }
 
   /**
    * Get image display width.
    *
-   * @returns {number|Number|number} Image width in Bootstrap columns, or 0 if data is undefined.
+   * @returns {number|string} Image width in Bootstrap columns, or 0 if data is undefined.
    */
   function getImageWidth() {
     if (pageSectionData) {
@@ -138,7 +143,7 @@ export default function PageSectionImage({pageSectionData, imageRef, dropTargetS
         />
         {canEdit && (
           <>
-            <FileDropTarget state={dropTargetState}/>
+            <FileDropTarget ref={dropRef} onFileSelected={onFileSelected} onFilesSelected={onFilesSelected}/>
             <div
               className="dropdown"
               style={{position: 'absolute', bottom: '0', right: '2px', zIndex: 100}}

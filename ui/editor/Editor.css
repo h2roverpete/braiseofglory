@@ -20,7 +20,17 @@
 
 .Editor.DropFile {
   font-size:14pt;
-  z-index: 1300;
+}
+
+.Editor div.form-check {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.Editor div.form-check .form-check-input {
+  transform: translateY(2px);
 }
 
 div.dropdown-menu.Editor {

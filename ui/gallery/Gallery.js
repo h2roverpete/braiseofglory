@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import "react-image-gallery/styles/css/image-gallery.css";
 import ImageGallery from "react-image-gallery";
 import {useRestApi} from "../../api/RestApi";
@@ -8,6 +8,8 @@ import './Gallery.css';
 import {useEdit} from "../editor/EditProvider";
 import FileDropTarget, {DropState} from "../editor/FileDropTarget";
 import {useSiteContext} from "../content/Site";
+import {Button} from "react-bootstrap";
+import {BsPencil} from "react-icons/bs";
 
 /**
  * Display a photo gallery
@@ -21,12 +23,11 @@ export default function Gallery({galleryId, extraId}) {
 
   const [galleryConfig, setGalleryConfig] = useState(null);
   const [galleryPhotos, setGalleryPhotos] = useState([]);
+  const [currentPhoto, setCurrentPhoto] = useState(null);
   const {canEdit} = useEdit();
   const {Galleries} = useRestApi();
-  const {siteData} = useSiteContext();
-
-  // drag n drop
-  const [dropState, setDropState] = useState(DropState.HIDDEN);
+  const {siteData, showErrorAlert} = useSiteContext();
+  const fileDropRef = useRef(null);
 
   useEffect(() => {
     if (galleryId && !galleryConfig) {
@@ -34,7 +35,7 @@ export default function Gallery({galleryId, extraId}) {
         console.debug(`Loaded gallery ${galleryId}.`);
         setGalleryConfig(data);
       }).catch(error => {
-        console.error(`Error loading gallery ${galleryId}: ${error}`);
+        showErrorAlert(`Error loading gallery ${galleryId}: ${error}`);
       })
     }
   }, []);
@@ -43,78 +44,138 @@ export default function Gallery({galleryId, extraId}) {
     Galleries.getPhotos(galleryId).then((data) => {
       console.debug(`Loaded ${data.length} photos for gallery ${galleryId}.`);
       if (data.length === 0) {
-        setDropState(DropState.DROP_HERE);
+        fileDropRef.current?.setDropState(DropState.DROP_HERE);
       } else {
-        setDropState(DropState.HIDDEN);
+        if (galleryConfig?.RandomizeOrder) {
+          data.sort(() => Math.random() - 0.5);
+        }
+        fileDropRef.current?.setDropState(DropState.HIDDEN);
+      }
+      if (data.length > 0) {
+        setCurrentPhoto(data[0]);
       }
       setGalleryPhotos(data);
     }).catch(error => {
-      console.error(`Error loading photos for gallery ${galleryId}: ${error}`);
+      showErrorAlert(`Error loading photos for gallery ${galleryId}: ${error}`);
     })
-  }, []);
-
-  function dragEnterHandler(e) {
-    setDropState(DropState.ADD);
-    e.preventDefault();
-  }
-
-  function dragOverHandler(e) {
-    const fileItems = [...e.dataTransfer.items].filter(
-      (item) => item.kind === "file",
-    );
-    if (fileItems.length > 0) {
-      e.preventDefault();
-      if (fileItems.some((item) => item.type.startsWith("image/"))) {
-        e.dataTransfer.dropEffect = "copy";
-      } else {
-        e.dataTransfer.dropEffect = "none";
-      }
-    }
-  }
-
-  function dropHandler(e) {
-    const files = [...e.dataTransfer.items]
-      .map((item) => item.getAsFile())
-      .filter((file) => file);
-    console.debug(`${files.length} file(s) dropped.`);
-    if (files.length === 1) {
-      uploadFile(files[0]);
-    }
-    e.preventDefault();
-  }
+  }, [galleryConfig]);
 
   function uploadFile(file) {
-    setDropState(DropState.UPLOADING);
+    console.debug(`Uploading photo...`);
+    fileDropRef.current?.setDropState(DropState.UPLOADING);
     Galleries.uploadPhoto(galleryId, file)
       .then((result) => {
         console.debug(`Photo uploaded successfully.`);
-        setDropState(DropState.HIDDEN);
+        fileDropRef.current?.setDropState(DropState.HIDDEN);
         setGalleryPhotos(galleryPhotos => [...galleryPhotos, result]);
+        if (!currentPhoto) {
+          setCurrentPhoto(result);
+        }
       })
       .catch(e => {
-        console.error(`Error uploading photo.`, e);
+        fileDropRef.current?.setDropState(DropState.HIDDEN);
+        showErrorAlert(`Error uploading photo.`, e);
       });
   }
 
-  function dragLeaveHandler(e) {
-    console.debug(`Image drag leave...`);
-    setDropState(DropState.HIDDEN);
-    e.preventDefault();
+  function uploadFiles(files) {
+    fileDropRef.current?.setDropState(DropState.UPLOADING_MULTIPLE);
+    const progress = {
+      min: 0,
+      max: files.length,
+      now: 1
+    };
+    console.debug(`Uploading ${files.length} photos...`);
+    fileDropRef.current?.setProgress(progress);
+    const promises = [];
+    for (const file of files) {
+      promises.push(
+        new Promise((resolve, reject) => {
+            Galleries.uploadPhoto(galleryId, file)
+              .then((result) => {
+                console.debug(`Photo uploaded successfully.`);
+                progress.now++;
+                fileDropRef.current?.setProgress({...progress});
+                resolve(result);
+              }).catch(reject);
+          }
+        )
+      )
+    }
+    runSequentialFunctions(promises).then((newPhotos) => {
+      setGalleryPhotos([...galleryPhotos, ...newPhotos]);
+      fileDropRef.current?.setDropState(DropState.HIDDEN);
+    }).catch(e => showErrorAlert(`Error uploading photos.`, e));
   }
 
-  const images = [];
-  for (const photo of galleryPhotos) {
-    if (photo.PhotoFile) {
-      // new format upload
-      images.push({
-        original: `${siteData.SiteRootUrl}/${photo.PhotoFile}`,
-        thumbnail: `${siteData.SiteRootUrl}/${photo.PhotoFile}`,
-      })
-    } else {
-      images.push({
-        original: `${process.env.PUBLIC_URL}/images/gallery/${photo.SubDirectory.toString().padStart(3, '0')}/${photo.PhotoLarge}`,
-        thumbnail: `${process.env.PUBLIC_URL}/images/gallery/${photo.SubDirectory.toString().padStart(3, '0')}/${photo.PhotoSmall}`,
-      })
+  const [images, setImages] = useState([]);
+  useEffect(() => {
+    // build list of images for gallery
+    console.debug(`Rebuild list of images for gallery control...`);
+    const list = [];
+    for (const photo of galleryPhotos) {
+      if (photo.PhotoFile && siteData) {
+        // new format upload
+        list.push({
+          original: `${siteData.SiteRootUrl}/${photo.PhotoFile}`,
+          thumbnail: `${siteData.SiteRootUrl}/${photo.PhotoFile}`,
+        })
+      } else if (photo.PhotoSmall && photo.PhotoLarge) {
+        list.push({
+          original: `${process.env.PUBLIC_URL}/images/gallery/${photo.SubDirectory.toString().padStart(3, '0')}/${photo.PhotoLarge}`,
+          thumbnail: `${process.env.PUBLIC_URL}/images/gallery/${photo.SubDirectory.toString().padStart(3, '0')}/${photo.PhotoSmall}`,
+        })
+      }
+    }
+    console.debug(`Rebuilt list of ${list.length} images.`);
+    setImages(list);
+  }, [galleryPhotos]);
+
+  useEffect(() => {
+    // keep current photo in sync with gallery display
+    console.debug(`Checking current photo.`);
+    if (!currentPhoto && galleryPhotos.length > 0) {
+      console.debug(`Setting current photo to first.`);
+      setCurrentPhoto(galleryPhotos[0]);
+    } else if (currentPhoto && galleryPhotos.length === 0) {
+      console.debug(`Setting current photo to null.`);
+      setCurrentPhoto(null);
+    } else if (currentPhoto && galleryPhotos.length > 0) {
+      const index = galleryRef.current?.getCurrentIndex();
+      if (index >= 0 && currentPhoto.PhotoID !== galleryPhotos[index].PhotoID) {
+        for (let i = 0; i < galleryPhotos.length; i++) {
+          if (galleryPhotos[i].PhotoID === currentPhoto.PhotoID) {
+            console.debug(`Sliding to current photo.`);
+            galleryRef.current?.slideToIndex(i)
+          }
+        }
+      }
+    }
+  }, [galleryPhotos, currentPhoto]);
+
+  const galleryRef = useRef(null);
+
+  function onSlide(currentIndex) {
+    setCurrentPhoto(galleryPhotos[currentIndex]);
+  }
+
+  function onDeletePhoto() {
+    if (currentPhoto) {
+      console.debug(`Delete photo ${currentPhoto.PhotoID}`);
+      Galleries.deletePhoto(galleryId, currentPhoto.PhotoID).then((result) => {
+        console.debug(`Photo deleted.`);
+        const newPhotos = [];
+        for (const photo of galleryPhotos) {
+          if (photo.PhotoID !== result.PhotoID) {
+            newPhotos.push(photo);
+          }
+        }
+        if (newPhotos.length === 0) {
+          fileDropRef.current?.setDropState(DropState.DROP_HERE);
+        }
+        setGalleryPhotos(newPhotos);
+        setCurrentPhoto(null);
+      }).catch(error => showErrorAlert(`Error deleting photo.`, error));
     }
   }
 
@@ -122,24 +183,85 @@ export default function Gallery({galleryId, extraId}) {
     <div
       className="Gallery mt-4"
       style={{minHeight: '200px', position: 'relative'}}
-      onDragLeave={dragLeaveHandler}
-      onDragEnter={dragEnterHandler}
-      onDragOver={dragOverHandler}
-      onDrop={dropHandler}
+      onDragEnter={(e) => {
+        fileDropRef.current?.onDragEnter(e, DropState.ADD, [
+          'image/jpeg',
+          'image/png',
+          'image/gif'
+        ]);
+      }}
     >
-      {images.length > 0 && (
-        <ImageGallery items={images}/>
+      {images?.length > 0 && (
+        <ImageGallery items={images} ref={galleryRef} onSlide={onSlide}/>
       )}
-      {canEdit && (
-        <FileDropTarget state={dropState}/>
-      )}
+      {canEdit && (<>
+        <FileDropTarget
+          ref={fileDropRef}
+          onFileSelected={uploadFile}
+          onFilesSelected={uploadFiles}
+        />
+        <div
+          className="EditGalleryPhoto Editor dropdown"
+          style={{
+            zIndex: 300,
+            position: 'absolute',
+            top: 0,
+            right: '5px',
+          }}
+        >
+          <Button
+            style={{
+              margin: 0,
+              padding: '3px'
+            }}
+            className={`btn-light`}
+            type="button"
+            variant={'secondary'}
+            size={'sm'}
+            aria-expanded="false"
+            data-bs-toggle="dropdown"
+          >
+            <BsPencil/>
+          </Button>
+          <div className="dropdown-menu Editor border-secondary border-opacity-25">
+            {currentPhoto && (<span className="dropdown-item" onClick={onDeletePhoto}>
+                Delete Photo
+              </span>)}
+            <span className="dropdown-item" onClick={fileDropRef.current?.selectFile}>
+                Upload a Photo
+              </span>
+          </div>
+        </div>
+      </>)}
     </div>
-    <FormEditor>
-      <GalleryConfig
-        galleryConfig={galleryConfig}
-        setGalleryConfig={setGalleryConfig}
-        extraId={extraId}
-      />
-    </FormEditor>
+    {canEdit && (
+      <FormEditor>
+        <GalleryConfig
+          galleryConfig={galleryConfig}
+          setGalleryConfig={setGalleryConfig}
+          extraId={extraId}
+        />
+      </FormEditor>
+    )}
   </>)
+}
+
+/**
+ * Utility to run an Iterable of Promises serially.
+ * Like Promise.all() but not concurrent.
+ * Returns an array of all the resolved values.
+ *
+ * @param promiseFunctions {[Promise<any>]}
+ * @returns {[any]}
+ */
+function runSequentialFunctions(promiseFunctions) {
+  return promiseFunctions.reduce((promiseChain, currentFunction) => {
+    return promiseChain.then(resultsSoFar => {
+      // Execute the current promise-returning function
+      return currentFunction.then(currentResult => {
+        // Concatenate the new result to the existing array of results
+        return [...resultsSoFar, currentResult];
+      });
+    });
+  }, Promise.resolve([])); // Start with a promise that resolves to an empty array
 }

@@ -7,6 +7,7 @@ import {useRestApi} from "../../api/RestApi";
 import Logout from '../../auth/Logout';
 import {useEdit} from "../editor/EditProvider";
 import SiteEditor from "../editor/SiteEditor";
+import {Alert} from "react-bootstrap";
 
 /**
  * @typedef ErrorData
@@ -47,6 +48,7 @@ export default function Site(props) {
   const [siteData, setSiteData] = useState(null);
   const [outlineData, setOutlineData] = useState(null);
   const [error, __setError__] = useState(null); // use public setter, not __setError__
+  const [alert, setAlert] = useState(null);
   const navigate = useNavigate();
   const {Sites} = useRestApi();
   const {canEdit} = useEdit();
@@ -65,6 +67,35 @@ export default function Site(props) {
       }
     }
   }, [navigate, error]);
+
+  /**
+   * Display an error alert.
+   * @param {ErrorData} errorData
+   */
+  const showErrorAlert = useCallback((text, error) => {
+    // use stringify for deep compare
+    if (alert !== text) {
+      setAlert(`${text} ${error?.message}`);
+    }
+  }, []);
+
+  function onAlertClose() {
+    setAlert(null);
+  }
+
+  const alertElement = alert ?
+    <Alert
+      dismissible={true}
+      onClose={onAlertClose}
+      variant="danger"
+      style={{
+        position: 'fixed',
+        bottom: 0,
+      }}
+    >
+      {alert}
+    </Alert>
+    : <></>;
 
   // set error from props if defined
   useEffect(() => {
@@ -366,6 +397,7 @@ export default function Site(props) {
     outlineData: outlineData,
     error: error,
     setError: setError,
+    showErrorAlert: showErrorAlert,
     getChildren: getChildren
   };
 
@@ -375,6 +407,7 @@ export default function Site(props) {
         <SiteEditor>
           <div className="Site" data-testid="Site">
             {content}
+            {alertElement}
           </div>
         </SiteEditor>
       </SiteContext>
@@ -384,6 +417,7 @@ export default function Site(props) {
       <SiteContext value={siteContext}>
         <div className="Site" data-testid="Site">
           {content}
+          {alertElement}
         </div>
       </SiteContext>
     );
