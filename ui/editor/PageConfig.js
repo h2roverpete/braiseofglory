@@ -17,7 +17,7 @@ export default function PageConfig() {
 
   const {Pages} = useRestApi();
   const {canEdit} = useEdit();
-  const {pageData, setPageData, addPageSection} = usePageContext();
+  const {pageData, setPageData} = usePageContext();
   const {Outline, outlineData} = useSiteContext()
   const [expanded, setExpanded] = useState(false);
 
@@ -248,16 +248,8 @@ export default function PageConfig() {
             <Col style={{textAlign: 'end'}} className={'ps-0'}>
               <Button
                 size={'sm'}
-                className="me-2"
-                variant="secondary"
-                onClick={addPageSection}
-              >
-                Add Section
-              </Button>
-              <Button
-                size={'sm'}
                 variant="danger"
-                onClick={onDelete}
+                onClick={()=>setShowDeleteConfirmation(true)}
               >
                 Delete
               </Button>

@@ -371,9 +371,6 @@ export default function NavBar(props) {
           {canEdit && (
             <div
               className="AddPageButton Editor dropdown"
-              style={{
-                zIndex: 3000,
-              }}
             >
               <Button
                 style={{
@@ -391,6 +388,9 @@ export default function NavBar(props) {
               </Button>
               <div
                 className="dropdown-menu Editor border-secondary border-opacity-25"
+                style={{
+                  zIndex: 100,
+                }}
               >
               <span
                 className="dropdown-item"

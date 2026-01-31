@@ -146,18 +146,18 @@ export default function PageSectionImage({pageSectionData, imageRef, dropRef, on
             <FileDropTarget ref={dropRef} onFileSelected={onFileSelected} onFilesSelected={onFilesSelected}/>
             <div
               className="dropdown"
-              style={{position: 'absolute', bottom: '0', right: '2px', zIndex: 100}}
+              style={{position: 'absolute', bottom: '0', right: '2px'}}
             >
               <Button
                 variant="secondary"
                 size="sm"
-                style={{zIndex: 200, border: 'none', boxShadow: 'none', margin: '2px', padding: '2px 5px'}}
+                style={{border: 'none', boxShadow: 'none', margin: '2px', padding: '2px 5px'}}
                 className={`border btn-light`}
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               ><BsArrowsMove/></Button>
-              <div className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 300}}>
+              <div className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
                 {pageSectionData.ImageAlign !== 'left' && (
                   <span className="dropdown-item" onClick={() => setImageAlign('left')}>Align Left</span>)}
                 {pageSectionData.ImageAlign !== 'center' && pageSectionData.ImagePosition === 'above' && (

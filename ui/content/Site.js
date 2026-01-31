@@ -77,7 +77,7 @@ export default function Site(props) {
     if (alert !== text) {
       setAlert(`${text} ${error?.message}`);
     }
-  }, []);
+  }, [alert]);
 
   function onAlertClose() {
     setAlert(null);
@@ -299,6 +299,7 @@ export default function Site(props) {
         result.push(child);
         result = result.concat(buildOutline(pages, child.PageID, level + 1, child));
       }
+      return true; // make eslint happy
     })
     if (result.length > 0 && parent) parent.HasChildren = true;
     result.sort((a, b) => a.OutlineSort.localeCompare(b.OutlineSort));

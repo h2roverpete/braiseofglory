@@ -203,7 +203,6 @@ export default function Gallery({galleryId, extraId}) {
         <div
           className="EditGalleryPhoto Editor dropdown"
           style={{
-            zIndex: 300,
             position: 'absolute',
             top: 0,
             right: '5px',
@@ -223,7 +222,10 @@ export default function Gallery({galleryId, extraId}) {
           >
             <BsPencil/>
           </Button>
-          <div className="dropdown-menu Editor border-secondary border-opacity-25">
+          <div
+            className="dropdown-menu Editor border-secondary border-opacity-25"
+            style={{zIndex: 100}}
+          >
             {currentPhoto && (<span className="dropdown-item" onClick={onDeletePhoto}>
                 Delete Photo
               </span>)}

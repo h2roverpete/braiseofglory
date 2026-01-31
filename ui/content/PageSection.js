@@ -305,7 +305,7 @@ function PageSection({pageSectionData}) {
           {!editingText && !editingTitle && (
             <div
               className="Editor dropdown"
-              style={{position: 'absolute', top: '2px', right: '2px', zIndex: 100 + sectionData.PageSectionSeq}}
+              style={{position: 'absolute', top: '2px', right: '2px'}}
             >
               <Button
                 variant="secondary"
@@ -316,7 +316,7 @@ function PageSection({pageSectionData}) {
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               ><BsPencil/></Button>
-              <div className="dropdown-menu Editor" style={{cursor: 'pointer'}}>
+              <div className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
               <span className="dropdown-item"
                     onClick={() => setEditingTitle(true)}>{`${pageSectionData?.SectionTitle?.length > 0 ? 'Edit' : 'Add'} Section Title`}</span>
                 <span className="dropdown-item"

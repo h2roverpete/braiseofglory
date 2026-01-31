@@ -3,7 +3,7 @@ import './Editor.css';
 
 export const FormEditContext = createContext(null);
 
-export default function FormEditor({children}) {
+export default function FormEditor({ref, children}) {
 
   const [originalData, setOriginalData] = useState(null);
   const [edits, setEdits] = useState({});
@@ -59,17 +59,24 @@ export default function FormEditor({children}) {
     setTouched([]);
   }
 
-  return (
-    <FormEditContext.Provider value={{
+  const context = {
+    edits: edits,
+    FormData: {
+      isTouched: isTouched,
+      isDataChanged: isDataChanged,
+      revert: revert,
+      update: update,
+      onDataChanged: onDataChanged,
       edits: edits,
-      FormData: {
-        isTouched: isTouched,
-        isDataChanged: isDataChanged,
-        revert: revert,
-        update: update,
-        onDataChanged: onDataChanged
-      }
-    }}>
+    }
+  }
+
+  if (ref) {
+    ref.current = context.FormData;
+  }
+
+  return (
+    <FormEditContext.Provider value={context}>
       {children}
     </FormEditContext.Provider>
   )
