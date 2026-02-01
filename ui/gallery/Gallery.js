@@ -30,7 +30,7 @@ export default function Gallery({galleryId, extraId}) {
   const fileDropRef = useRef(null);
 
   useEffect(() => {
-    if (galleryId && !galleryConfig) {
+    if (galleryId) {
       Galleries.getGallery(galleryId).then((data) => {
         console.debug(`Loaded gallery ${galleryId}.`);
         setGalleryConfig(data);
@@ -38,7 +38,7 @@ export default function Gallery({galleryId, extraId}) {
         showErrorAlert(`Error loading gallery ${galleryId}: ${error}`);
       })
     }
-  }, []);
+  }, [galleryId, showErrorAlert]);
 
   useEffect(() => {
     Galleries.getPhotos(galleryId).then((data) => {
@@ -53,7 +53,7 @@ export default function Gallery({galleryId, extraId}) {
     }).catch(error => {
       showErrorAlert(`Error loading photos for gallery ${galleryId}: ${error}`);
     })
-  }, [galleryConfig]);
+  }, [galleryId, galleryConfig, showErrorAlert]);
 
   function uploadFile(file) {
     console.debug(`Uploading photo...`);
@@ -129,7 +129,7 @@ export default function Gallery({galleryId, extraId}) {
     }
     console.debug(`Rebuilt list of ${list.length} images.`);
     setImages(list);
-  }, [galleryPhotos]);
+  }, [galleryPhotos, siteData]);
 
   useEffect(() => {
     // keep current photo in sync with gallery display
