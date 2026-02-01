@@ -2,6 +2,15 @@ import {ProgressBar, Spinner} from "react-bootstrap";
 import './FileDropTarget.css';
 import {useRef, useState} from "react";
 
+// Lambda payload size limit
+const SIZE_LIMIT_BYTES = 1024 * 1024 * 6;
+
+const IMAGE_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+]
+
 /**
  * Drop target component for uploading files.
  * Meant to cover an image or another valid drop area.
@@ -36,19 +45,23 @@ import {useRef, useState} from "react";
 /**
  * Insert a div as a file drop target.
  *
- * @param state Current state to display from DropState
  * @param ref  Reference to functions
- * @param onFileSelected Callback to receive selected file after uploadFile() is called.
- * @param onFilesSelected  Callback to receive multiple selected files after uploadFile() is called.
+ * @param onFileSelected {function(File)} Callback to receive selected file after uploadFile() is called.
+ * @param onFilesSelected  {function([File])} Callback to receive multiple selected files after uploadFile() is called.
+ * @param onError  {function(Error)} Callback to receive drag and drop errors.
+ * @param [mimeTypes] {[String]} List of MIME types that can be dropped. (Default is standard web image formats.)
+ * @param [multiple]  {Boolean} Allow multiple file select/drop. (When true, implement both onFileSelected and onFilesSelected callbacks)
  * @returns {JSX.Element}
  * @constructor
  */
-export function FileDropTarget({ref, onFileSelected, onFilesSelected}) {
+export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, mimeTypes, multiple}) {
 
   const [dropState, setDropState] = useState(DropState.HIDDEN);
-  const [savedDropState, setSavedDropState] = useState(DropState.HIDDEN);
-  const [allowedMimeTypes, setAllowedMimeTypes] = useState([]);
   const [progress, setProgress] = useState({min: 0, max: 100, now: 0});
+
+  if (!mimeTypes) {
+    mimeTypes = IMAGE_MIME_TYPES;
+  }
 
   function renderContent() {
     switch (dropState) {
@@ -71,7 +84,7 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected}) {
         return (
           <span>
             Uploading...<br/>
-            <ProgressBar min={progress.min} max={progress.max} now={progress.now} />
+            <ProgressBar min={progress.min} max={progress.max} now={progress.now}/>
           </span>
         );
       case DropState.UNDEFINED:
@@ -82,50 +95,62 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected}) {
 
   /**
    * Process a dragenter event on the trigger component.
-   * @param e {Event} Original drag enter event.
+   * @param e {DragEvent} Original drag enter event.
    * @param [state] {DropState} State to display in UI.
-   * @param [mimeTypes] {[{String}]} List of allowed MIME types to drop.
    */
-  function onDragEnter(e, state, mimeTypes) {
+  function onDragEnter(e, state) {
     console.log(`DropTarget onDragEnter.`);
-    if (mimeTypes) {
-      setAllowedMimeTypes(allowedMimeTypes);
+    const files = filterDragItems(e.dataTransfer.items)
+    if ((multiple === true && files.length > 0) || (!multiple && files.length === 1)) {
+      setDropState(state ? state : DropState.ADD);
+      e.preventDefault();
     }
-    setSavedDropState(dropState);
-    setDropState(state ? state : DropState.ADD);
-    e.preventDefault();
   }
+
+  let previousDropState;
 
   function onDragLeave(e) {
     console.log(`DropTarget onDragLeave.`);
-    setDropState(savedDropState);
+    // this work because dropState is frozen at the time of drag enter
+    setDropState(DropState.HIDDEN);
     e.preventDefault();
   }
 
   function onDragOver(e) {
     console.log(`DropTarget onDragOver.`);
-    const fileItems = [...e.dataTransfer.items].filter(
-      (item) => item.kind === "file",
-    );
-    if (fileItems.length > 0) {
+    const files = filterDragItems(e.dataTransfer.items)
+    if ((multiple === true && files.length > 0) || (!multiple && files.length === 1)) {
+      e.dataTransfer.dropEffect = "copy";
       e.preventDefault();
-      if (fileItems.some((item) => allowedMimeTypes.includes(item.type) || allowedMimeTypes.length === 0)) {
-        // allowed mime type, or no tye list provided
-        e.dataTransfer.dropEffect = "copy";
-      } else {
-        e.dataTransfer.dropEffect = "none";
-      }
+    } else {
+      e.dataTransfer.dropEffect = "none"
     }
   }
 
+  /**
+   * Filter dragged items by type, MIME type and file size.
+   * @param dataTransferItems {DataTransferItemList}
+   * @returns {File[]} A list of valid droppable items.
+   */
+  function filterDragItems(dataTransferItems) {
+    let files = [...dataTransferItems].filter((item) => item.kind === 'file');
+    return [...files].filter(
+      (item) => {
+        return mimeTypes.includes(item.type)
+      },
+    );
+  }
+
   function onDrop(e) {
-    const files = [...e.dataTransfer.items]
-      .map((item) => item.getAsFile());
-    console.debug(`DropTarget onDrop: ${files.length} file(s) dropped.`);
-    if (files.length === 1) {
+    let files = filterDragItems(e.dataTransfer.items);
+    files = [...files].map((item) => item.getAsFile())
+    files = [...files].filter((item) => item.size < SIZE_LIMIT_BYTES);
+    if (multiple === true && files.length > 1) {
+      onFilesSelected(files);
+    } else if (files.length === 1) {
       onFileSelected(files[0]);
     } else {
-      onFilesSelected(files);
+      onError?.(new Error('No valid files were dropped.'));
     }
     e.preventDefault();
   }
@@ -143,7 +168,8 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected}) {
   }
 
   function selectFile() {
-    fileInputRef.current?.click();
+    fileInputRef.current.accept = mimeTypes.join(',');
+    fileInputRef.current.click();
   }
 
   function fileSelectedHandler(e) {
@@ -168,7 +194,13 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected}) {
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
     >
-      <input type="file" ref={fileInputRef} hidden={true} onChange={fileSelectedHandler}/>
+      <input
+        type="file"
+        ref={fileInputRef}
+        hidden={true}
+        onChange={fileSelectedHandler}
+        multiple={multiple}
+      />
       <div
         style={{pointerEvents: 'none', paddingLeft: '20px', paddingRight: '20px'}}
       >

@@ -241,12 +241,12 @@ function PageSection({pageSectionData}) {
   useEffect(() => {
     // manage drag scripts
     if (pageSectionData.SectionImage && sectionImageRef.current && dropRef.current) {
-      sectionImageRef.current.ondragenter = dropRef.current.onDragEnter;
+      sectionImageRef.current.ondragenter = (e) => dropRef.current.onDragEnter(e, DropState.REPLACE);
       if (sectionRef.current) {
         sectionRef.current.ondragenter = undefined;
       }
     } else if (!pageSectionData.SectionImage && sectionRef.current && dropRef.current) {
-      sectionRef.current.ondragenter = dropRef.current.onDragEnter;
+      sectionRef.current.ondragenter = (e) => dropRef.current.onDragEnter(e, DropState.ADD);
       if (sectionImageRef.current) {
         sectionImageRef.current.ondragenter = undefined;
       }
@@ -264,10 +264,16 @@ function PageSection({pageSectionData}) {
           position: 'relative',
           minHeight:
             canEdit
+            && !sectionExtras.length
             && !pageSectionData.SectionText
             && !pageSectionData.SectionTitle
-            && sectionExtras.length === 0
-              ? '50px' : 0,
+            && !pageSectionData.SectionImage ? 100 : 0,
+          border:
+            canEdit
+            && !sectionExtras.length
+            && !pageSectionData.SectionText
+            && !pageSectionData.SectionTitle
+            && !pageSectionData.SectionImage ? '1px dotted gray' : 'none',
           margin: pageSectionData.SectionText
           || pageSectionData.SectionTitle
           || sectionExtras.length ? undefined : 0
@@ -275,6 +281,14 @@ function PageSection({pageSectionData}) {
         data-testid={`PageSection-${pageSectionData.PageSectionID}`}
         ref={sectionRef}
       >
+        {canEdit
+          && !sectionExtras.length
+          && !pageSectionData.SectionImage
+          && !pageSectionData.SectionTitle
+          && !pageSectionData.SectionText
+          && (
+            <div className={'Editor EmptyElement'}>(Empty Section)</div>
+          )}
         {canEdit ? (<>
           <EditableField
             field={sectionTitle}
@@ -300,7 +314,7 @@ function PageSection({pageSectionData}) {
             editing={editingText}
           />
           {!pageSectionData.SectionImage && (
-            <FileDropTarget ref={dropRef} onFileSelected={uploadFile}/>
+            <FileDropTarget ref={dropRef} onFileSelected={uploadFile} onError={(err) => showErrorAlert(err)}/>
           )}
           {!editingText && !editingTitle && (
             <div

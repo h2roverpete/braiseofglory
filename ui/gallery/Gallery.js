@@ -43,13 +43,8 @@ export default function Gallery({galleryId, extraId}) {
   useEffect(() => {
     Galleries.getPhotos(galleryId).then((data) => {
       console.debug(`Loaded ${data.length} photos for gallery ${galleryId}.`);
-      if (data.length === 0) {
-        fileDropRef.current?.setDropState(DropState.DROP_HERE);
-      } else {
-        if (galleryConfig?.RandomizeOrder) {
-          data.sort(() => Math.random() - 0.5);
-        }
-        fileDropRef.current?.setDropState(DropState.HIDDEN);
+      if (galleryConfig?.RandomizeOrder) {
+        data.sort(() => Math.random() - 0.5);
       }
       if (data.length > 0) {
         setCurrentPhoto(data[0]);
@@ -106,6 +101,11 @@ export default function Gallery({galleryId, extraId}) {
       setGalleryPhotos([...galleryPhotos, ...newPhotos]);
       fileDropRef.current?.setDropState(DropState.HIDDEN);
     }).catch(e => showErrorAlert(`Error uploading photos.`, e));
+  }
+
+  function onDropError(error) {
+    fileDropRef.current?.setDropState(DropState.HIDDEN);
+    showErrorAlert(error);
   }
 
   const [images, setImages] = useState([]);
@@ -170,9 +170,6 @@ export default function Gallery({galleryId, extraId}) {
             newPhotos.push(photo);
           }
         }
-        if (newPhotos.length === 0) {
-          fileDropRef.current?.setDropState(DropState.DROP_HERE);
-        }
         setGalleryPhotos(newPhotos);
         setCurrentPhoto(null);
       }).catch(error => showErrorAlert(`Error deleting photo.`, error));
@@ -182,23 +179,29 @@ export default function Gallery({galleryId, extraId}) {
   return (<>
     <div
       className="Gallery mt-4"
-      style={{minHeight: '200px', position: 'relative'}}
+      style={{
+        minHeight: '100px',
+        position: 'relative',
+        border: images?.length === 0 ? '1px dotted gray' : 'none'
+    }}
       onDragEnter={(e) => {
-        fileDropRef.current?.onDragEnter(e, DropState.ADD, [
-          'image/jpeg',
-          'image/png',
-          'image/gif'
-        ]);
+        fileDropRef.current?.onDragEnter(e, DropState.ADD);
       }}
     >
+
       {images?.length > 0 && (
         <ImageGallery items={images} ref={galleryRef} onSlide={onSlide}/>
       )}
       {canEdit && (<>
+        {images?.length === 0 && (
+          <div className={'Editor EmptyElement'}>(Empty Gallery)</div>
+        )}
         <FileDropTarget
           ref={fileDropRef}
           onFileSelected={uploadFile}
           onFilesSelected={uploadFiles}
+          onError={onDropError}
+          multiple={true}
         />
         <div
           className="EditGalleryPhoto Editor dropdown"

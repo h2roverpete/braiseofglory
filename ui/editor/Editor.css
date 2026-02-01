@@ -22,6 +22,19 @@
   font-size:14pt;
 }
 
+.Editor.EmptyElement {
+  width:100%;
+  height:100%;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  color: gray;
+  font-size: 12pt;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 .Editor div.form-check {
   display: flex;
   flex-direction: row;

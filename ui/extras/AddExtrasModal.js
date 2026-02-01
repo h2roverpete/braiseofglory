@@ -261,7 +261,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
         {edits.ExtraType === 'guestbook' && (<>
           <Row className="mt-2">
             <Col sm={labelCols}></Col>
-            <Col hidden={guestBookList?.length > 0}>
+            <Col hidden={guestBookList?.length === 0}>
               <Form.Check
                 type='radio'
                 name={'NewGuestBook'}
