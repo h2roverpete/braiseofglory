@@ -1,4 +1,4 @@
-import {useRef, useState} from "react";
+import {lazy, Suspense, useRef, useState} from "react";
 import {useSiteContext} from "./Site";
 import {usePageContext} from "./Page";
 import Navbar from 'react-bootstrap/Navbar';
@@ -10,7 +10,8 @@ import {BsPlus} from "react-icons/bs";
 import {useRestApi} from "../../api/RestApi";
 import React from 'react';
 import FormEditor from "../editor/FormEditor";
-import NewPageModal from "../editor/NewPageModal";
+
+const NewPageModal = lazy(() => import("../editor/NewPageModal"));
 
 /**
  * @typedef NavBarProps
@@ -374,10 +375,11 @@ export default function NavBar(props) {
             >
               <Button
                 style={{
-                  margin: 0,
-                  padding: '0 3px'
+                  margin: '0 0 0 5px',
+                  padding: '2px 5px',
+                  fontSize: '10pt'
                 }}
-                className={`border border-secondary btn-light`}
+                className={`border btn-light`}
                 type="button"
                 variant={'secondary'}
                 size={'sm'}
@@ -389,9 +391,9 @@ export default function NavBar(props) {
               <div
                 className="dropdown-menu Editor border-secondary border-opacity-25"
                 style={{
+                  position: 'absolute',
                   zIndex: 100,
-                }}
-              >
+                }}>
               <span
                 className="dropdown-item"
                 onClick={() => setShowNewPage(true)}
@@ -405,9 +407,13 @@ export default function NavBar(props) {
                 New Section
               </span>
               </div>
-              <FormEditor>
-                <NewPageModal show={showNewPage} setShow={setShowNewPage}/>
-              </FormEditor>
+              {showNewPage && (
+                <Suspense fallback={<></>}>
+                  <FormEditor>
+                    <NewPageModal show={showNewPage} setShow={setShowNewPage}/>
+                  </FormEditor>
+                </Suspense>
+              )}
             </div>
           )}
         </Navbar.Collapse>

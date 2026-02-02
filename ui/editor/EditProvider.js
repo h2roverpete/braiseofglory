@@ -11,17 +11,17 @@ export default function EditProvider(props) {
   const [canEdit, setCanEdit] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated && !canEdit) {
+    if (isAuthenticated) {
       // check admin permissions with auth layer
       console.debug(`Checking admin permission...`);
       hasPermission(Permission.ADMIN).then((res) => {
         console.debug(`Admin permission: ${res}.`);
         setCanEdit(res);
       });
-    } else if (!isAuthenticated) {
+    } else {
       setCanEdit(false);
     }
-  }, [hasPermission, setCanEdit, isAuthenticated, canEdit]);
+  }, [hasPermission, setCanEdit, isAuthenticated]);
 
   return (
     <EditContext value={{

@@ -1,37 +1,23 @@
-import {useEdit} from "./EditProvider";
-import {Button, Col, Form, Modal, Row, Collapse} from "react-bootstrap";
-import {useEffect, useRef, useState} from "react";
-import {usePageContext} from "../content/Page";
-import {useRestApi} from "../../api/RestApi";
-import {useSiteContext} from "../content/Site";
-import {useNavigate} from "react-router";
+import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import {useFormEditor} from "./FormEditor";
-import {BsChevronDown, BsChevronUp} from "react-icons/bs";
+import {useEffect, useState} from "react";
+import {useSiteContext} from "../content/Site";
+import {useRestApi} from "../../api/RestApi";
+import {usePageContext} from "../content/Page";
 
-/**
- * Edit page metadata fields.
- * @returns {JSX.Element}
- * @constructor
- */
-export default function PageConfig() {
+export default function PageConfig({onPageUpdated, onPageDeleted}) {
 
   const {Pages} = useRestApi();
-  const {canEdit} = useEdit();
-  const {pageData, setPageData} = usePageContext();
   const {Outline, outlineData} = useSiteContext()
-  const [expanded, setExpanded] = useState(false);
-
+  const {pageData, setPageData} = usePageContext();
   const {edits, FormData} = useFormEditor();
+
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [routes, setRoutes] = useState([]);
+
   useEffect(() => {
     FormData.update(pageData);
   }, [pageData])
-
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-
-  const navigate = useNavigate();
-
-  const buttonRef = useRef(null);
-  const [routes, setRoutes] = useState([]);
   useEffect(() => {
     if (outlineData && pageData) {
       const routeList = [];
@@ -43,10 +29,6 @@ export default function PageConfig() {
       setRoutes(routeList);
     }
   }, [outlineData, pageData]);
-
-  if (!canEdit) {
-    return <></>;
-  }
 
   function isDataValid() {
     return isValidRoute(edits?.PageRoute)
@@ -62,7 +44,7 @@ export default function PageConfig() {
     }).catch((error) => {
       console.error(`Error updating page.`, error);
     });
-    collapsePanel();
+    onPageUpdated?.();
   }
 
   function onDelete() {
@@ -71,193 +53,142 @@ export default function PageConfig() {
       .then(() => {
         console.debug(`Deleted page.`);
         Outline.deletePage(pageData.PageID);
-        navigate('/');
-        collapsePanel();
+
       })
       .catch(e => console.error(`Error deleting page.`, e));
+    onPageDeleted?.();
   }
 
   function isValidRoute(route) {
     return route?.match(/^\/[a-z0-9]+/) && !routes.includes(route);
   }
 
-  function collapsePanel() {
-    buttonRef.current?.click();
-  }
+  return (<>
+    <Row><Col><h5>Page Properties</h5></Col></Row>
+    <Row>
+      <Col sm={4}>
+        <Form.Label
+          htmlFor={'NavTitle'}
+          column={'sm'}
+        >
+          Navigation Title
+        </Form.Label>
+        <Form.Control
+          size={'sm'}
+          id={'NavTitle'}
+          name={'NavTitle'}
+          value={edits?.NavTitle || ''}
+          onChange={(e) => FormData?.onDataChanged({name: 'NavTitle', value: e.target.value})}
+        />
+      </Col>
 
-  return (<div
-    className="PageEditor Editor dropleft"
-    style={{
-    position: 'absolute',
-    top: 0,
-    left: 0,
-  }}>
-    <Button
-      variant=""
-      onClick={() => setExpanded(!expanded)}
-      className={`EditorToggle ${expanded ? '' : 'collapsed'}`}
-      style={{
-        background: 'transparent',
-        border: 'none',
-        padding: '5px 21px 0 0',
-        width: '100vw',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'end',
-        position: 'fixed',
-        zIndex: '1034'
-      }}
-    >
-      {expanded ? (<BsChevronUp size={'20'}/>) : ((<BsChevronDown size={'20'}/>))}
-    </Button>
-
-    <Collapse
-      in={expanded}
-      dimension={'height'}
-      className={'Editor'}
-    >
-      <div style={{
-        backgroundColor: '#e0e0e0f0',
-        position: 'fixed',
-        left: '0px',
-        zIndex: '1033',
-        borderBottom: '1px solid #00000040',
-      }}>
-        <div style={{
-          width: '100vw',
-          padding: '10px 10px 20px 10px',
-          display: 'flex',
-          flexDirection: 'column',
-        }}>
-          <Row><Col><h5>Page Properties</h5></Col></Row>
-          <Row>
-            <Col sm={4}>
-              <Form.Label
-                htmlFor={'NavTitle'}
-                column={'sm'}
-              >
-                Navigation Title
-              </Form.Label>
-              <Form.Control
-                size={'sm'}
-                id={'NavTitle'}
-                name={'NavTitle'}
-                value={edits?.NavTitle || ''}
-                onChange={(e) => FormData?.onDataChanged({name: 'NavTitle', value: e.target.value})}
-              />
-            </Col>
-
-            <Col sm={3}>
-              <Form.Label
-                htmlFor={'PageRoute'}
-                column={'sm'}
-              >
-                Page Route
-              </Form.Label>
-              <Form.Control
-                size={'sm'}
-                id={'PageRoute'}
-                name={'PageRoute'}
-                isValid={FormData?.isTouched('PageRoute') && isValidRoute(edits?.PageRoute)}
-                isInvalid={FormData?.isTouched('PageRoute') && !isValidRoute(edits?.PageRoute)}
-                value={edits?.PageRoute || ''}
-                onChange={(e) => FormData?.onDataChanged({name: 'PageRoute', value: e.target.value})}
-              />
-            </Col>
-            <Col>
-              <Form.Label
-                column={'sm'}
-                htmlFor={'PageMetaTitle'}
-              >
-                Meta Title
-              </Form.Label>
-              <Form.Control
-                size={'sm'}
-                id={'PageMetaTitle'}
-                value={edits?.PageMetaTitle || ''}
-                onChange={(e) => FormData?.onDataChanged({name: 'PageMetaTitle', value: e.target.value})}
-              />
-            </Col>
-          </Row>
-          <Row>
-            <Col sm={6}>
-              <Form.Label
-                column={'sm'}
-                htmlFor={'PageMetaDescription'}
-              >
-                Meta Description
-              </Form.Label>
-              <Form.Control
-                size={'sm'}
-                id={'PageMetaDescription'}
-                value={edits?.PageMetaDescription || ''}
-                onChange={(e) => FormData?.onDataChanged({name: 'PageMetaDescription', value: e.target.value})}
-              />
-            </Col>
-            <Col sm={6}>
-              <Form.Label
-                column={'sm'}
-                htmlFor={'PageMetaKeywords'}
-              >
-                Meta Keywords
-              </Form.Label>
-              <Form.Control
-                size={'sm'}
-                id={'PageMetaKeywords'}
-                value={edits?.PageMetaKeywords || ''}
-                onChange={(e) => FormData?.onDataChanged({name: 'PageMetaKeywords', value: e.target.value})}
-              />
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Form.Check
-                className={'form-control-sm mt-2'}
-                checked={edits?.PageHidden || false}
-                id={'PageHidden'}
-                label={'Hide page from site navigation'}
-                onChange={(e) => FormData?.onDataChanged({name: 'PageHidden', value: e.target.checked})}
-              />
-            </Col>
-          </Row>
-          <Row className={'mt-4'}>
-            <Col xs={'auto'} className={'pe-0'}>
-              {onUpdate && isDataValid && (
-                <Button
-                  className="me-2"
-                  size={'sm'}
-                  variant="primary"
-                  onClick={() => {
-                    setExpanded(false);
-                    onUpdate?.();
-                  }}
-                  disabled={!isDataValid() || !FormData?.isDataChanged()}
-                >
-                  Update
-                </Button>
-              )}
-              <Button
-                size={'sm'}
-                variant="secondary"
-                onClick={() => FormData?.revert()}
-                disabled={!FormData?.isDataChanged()}
-              >
-                Revert
-              </Button>
-            </Col>
-            <Col style={{textAlign: 'end'}} className={'ps-0'}>
-              <Button
-                size={'sm'}
-                variant="danger"
-                onClick={()=>setShowDeleteConfirmation(true)}
-              >
-                Delete
-              </Button>
-            </Col>
-          </Row>
-        </div>
-      </div>
-    </Collapse>
+      <Col sm={3}>
+        <Form.Label
+          htmlFor={'PageRoute'}
+          column={'sm'}
+        >
+          Page Route
+        </Form.Label>
+        <Form.Control
+          size={'sm'}
+          id={'PageRoute'}
+          name={'PageRoute'}
+          isValid={FormData?.isTouched('PageRoute') && isValidRoute(edits?.PageRoute)}
+          isInvalid={FormData?.isTouched('PageRoute') && !isValidRoute(edits?.PageRoute)}
+          value={edits?.PageRoute || ''}
+          onChange={(e) => FormData?.onDataChanged({name: 'PageRoute', value: e.target.value})}
+        />
+      </Col>
+      <Col>
+        <Form.Label
+          column={'sm'}
+          htmlFor={'PageMetaTitle'}
+        >
+          Meta Title
+        </Form.Label>
+        <Form.Control
+          size={'sm'}
+          id={'PageMetaTitle'}
+          value={edits?.PageMetaTitle || ''}
+          onChange={(e) => FormData?.onDataChanged({name: 'PageMetaTitle', value: e.target.value})}
+        />
+      </Col>
+    </Row>
+    <Row>
+      <Col sm={6}>
+        <Form.Label
+          column={'sm'}
+          htmlFor={'PageMetaDescription'}
+        >
+          Meta Description
+        </Form.Label>
+        <Form.Control
+          size={'sm'}
+          id={'PageMetaDescription'}
+          value={edits?.PageMetaDescription || ''}
+          onChange={(e) => FormData?.onDataChanged({name: 'PageMetaDescription', value: e.target.value})}
+        />
+      </Col>
+      <Col sm={6}>
+        <Form.Label
+          column={'sm'}
+          htmlFor={'PageMetaKeywords'}
+        >
+          Meta Keywords
+        </Form.Label>
+        <Form.Control
+          size={'sm'}
+          id={'PageMetaKeywords'}
+          value={edits?.PageMetaKeywords || ''}
+          onChange={(e) => FormData?.onDataChanged({name: 'PageMetaKeywords', value: e.target.value})}
+        />
+      </Col>
+    </Row>
+    <Row>
+      <Col>
+        <Form.Check
+          className={'form-control-sm'}
+          checked={edits?.PageHidden || false}
+          id={'PageHidden'}
+          label={'Hide page from site navigation'}
+          onChange={(e) => FormData?.onDataChanged({name: 'PageHidden', value: e.target.checked})}
+        />
+      </Col>
+    </Row>
+    <Row className={'mt-2'}>
+      <Col xs={'auto'} className={'pe-0'}>
+        {onUpdate && isDataValid && (
+          <Button
+            className="me-2"
+            size={'sm'}
+            variant="primary"
+            onClick={() => {
+              onUpdate?.();
+            }}
+            disabled={!isDataValid() || !FormData?.isDataChanged()}
+          >
+            Update
+          </Button>
+        )}
+        <Button
+          size={'sm'}
+          variant="secondary"
+          onClick={() => FormData?.revert()}
+          disabled={!FormData?.isDataChanged()}
+        >
+          Revert
+        </Button>
+      </Col>
+      <Col style={{textAlign: 'end'}} className={'ps-0'}>
+        <Button
+          size={'sm'}
+          variant="danger"
+          onClick={() => setShowDeleteConfirmation(true)}
+        >
+          Delete
+        </Button>
+      </Col>
+    </Row>
     <Modal show={showDeleteConfirmation} onHide={() => setShowDeleteConfirmation(false)} style={{zIndex: 2020}}>
       <Modal.Header><h5>Delete Page</h5></Modal.Header>
       <Modal.Body>Are you sure you want to delete this page? This action can't be undone.</Modal.Body>
@@ -269,5 +200,5 @@ export default function PageConfig() {
         }}>Delete</Button>
       </Modal.Footer>
     </Modal>
-  </div>);
+  </>);
 }

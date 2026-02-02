@@ -9,7 +9,7 @@ import {useEdit} from "../editor/EditProvider";
 import FileDropTarget, {DropState} from "../editor/FileDropTarget";
 import {useSiteContext} from "../content/Site";
 import {Button} from "react-bootstrap";
-import {BsPencil} from "react-icons/bs";
+import {BsThreeDotsVertical} from "react-icons/bs";
 
 /**
  * Display a photo gallery
@@ -30,7 +30,7 @@ export default function Gallery({galleryId, extraId}) {
   const fileDropRef = useRef(null);
 
   useEffect(() => {
-    if (galleryId && !galleryConfig) {
+    if (galleryId) {
       Galleries.getGallery(galleryId).then((data) => {
         console.debug(`Loaded gallery ${galleryId}.`);
         setGalleryConfig(data);
@@ -38,7 +38,7 @@ export default function Gallery({galleryId, extraId}) {
         showErrorAlert(`Error loading gallery ${galleryId}: ${error}`);
       })
     }
-  }, []);
+  }, [galleryId, showErrorAlert, Galleries]);
 
   useEffect(() => {
     Galleries.getPhotos(galleryId).then((data) => {
@@ -53,7 +53,7 @@ export default function Gallery({galleryId, extraId}) {
     }).catch(error => {
       showErrorAlert(`Error loading photos for gallery ${galleryId}: ${error}`);
     })
-  }, [galleryConfig]);
+  }, [galleryId, galleryConfig, showErrorAlert, Galleries]);
 
   function uploadFile(file) {
     console.debug(`Uploading photo...`);
@@ -129,7 +129,7 @@ export default function Gallery({galleryId, extraId}) {
     }
     console.debug(`Rebuilt list of ${list.length} images.`);
     setImages(list);
-  }, [galleryPhotos]);
+  }, [galleryPhotos, siteData]);
 
   useEffect(() => {
     // keep current photo in sync with gallery display
@@ -213,8 +213,9 @@ export default function Gallery({galleryId, extraId}) {
         >
           <Button
             style={{
-              margin: 0,
-              padding: '3px'
+              fontSize: '10pt',
+              margin: '5px',
+              padding: '2px 5px'
             }}
             className={`btn-light`}
             type="button"
@@ -223,7 +224,7 @@ export default function Gallery({galleryId, extraId}) {
             aria-expanded="false"
             data-bs-toggle="dropdown"
           >
-            <BsPencil/>
+            <BsThreeDotsVertical/>
           </Button>
           <div
             className="dropdown-menu Editor border-secondary border-opacity-25"

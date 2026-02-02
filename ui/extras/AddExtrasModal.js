@@ -51,7 +51,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
         console.error(`Error getting gallery list.`, err);
       })
     }
-  }, [canEdit, siteData]);
+  }, [canEdit, siteData, Galleries]);
 
   useEffect(() => {
     if (canEdit && siteData) {
@@ -69,7 +69,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
         console.error(`Error getting guest book list.`, err);
       })
     }
-  }, [canEdit, siteData]);
+  }, [canEdit, siteData, GuestBooks]);
 
   if (!canEdit) {
     return <></>;

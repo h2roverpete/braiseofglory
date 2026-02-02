@@ -37,7 +37,7 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId}
       })
   }
 
-  function onRemoveFromPage() {
+  function onRemoveFromSection() {
     Extras.deleteExtra(extraId).then(() => {
       removeExtraFromPage(extraId);
     })
@@ -81,10 +81,10 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId}
             className="me-2"
             size={'sm'}
             variant="secondary"
-            onClick={onRemoveFromPage}
+            onClick={onRemoveFromSection}
           >
-            <span className={'d-none d-sm-block'}>Remove from Page</span>
-            <span className={'d-block d-sm-none'}>-Page</span>
+            <span className={'d-none d-sm-block'}>Remove from Section</span>
+            <span className={'d-block d-smnotes-none'}>-Section</span>
           </Button>
         )}</>
       }

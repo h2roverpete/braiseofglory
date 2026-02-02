@@ -1,5 +1,4 @@
 import {ProgressBar, Spinner} from "react-bootstrap";
-import './FileDropTarget.css';
 import {useRef, useState} from "react";
 
 // Lambda payload size limit
@@ -106,8 +105,6 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
       e.preventDefault();
     }
   }
-
-  let previousDropState;
 
   function onDragLeave(e) {
     console.log(`DropTarget onDragLeave.`);
