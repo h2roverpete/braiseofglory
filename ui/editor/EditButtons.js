@@ -1,5 +1,5 @@
 import {Button} from "react-bootstrap";
-import {BsCheck, BsPencil, BsX} from "react-icons/bs";
+import {BsCheck, BsCursorText, BsPencil, BsPencilSquare, BsTextCenter, BsX} from "react-icons/bs";
 
 /**
  * @typedef EditButtonProps
@@ -43,7 +43,7 @@ export default function EditButtons(props) {
               size={'sm'}
               style={{border: 'none', boxShadow: 'none', margin: '2px', padding: '3px 5px'}}
               className={`border btn-light`}
-            ><BsPencil/></Button>
+            ><BsCursorText/></Button>
           )}
         </div>
       )}

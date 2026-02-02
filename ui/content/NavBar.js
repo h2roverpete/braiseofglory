@@ -375,10 +375,11 @@ export default function NavBar(props) {
             >
               <Button
                 style={{
-                  margin: 0,
-                  padding: '0 3px'
+                  margin: '0 0 0 5px',
+                  padding: '2px 5px',
+                  fontSize: '10pt'
                 }}
-                className={`border border-secondary btn-light`}
+                className={`border btn-light`}
                 type="button"
                 variant={'secondary'}
                 size={'sm'}

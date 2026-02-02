@@ -15,7 +15,7 @@ export default function SiteEditor({children}) {
         flexDirection: 'row',
         width: '100vw',
         minHeight: '100vh',
-        height: '100%'
+        height: '100%',
       }}
     >
       <Button
@@ -25,12 +25,14 @@ export default function SiteEditor({children}) {
         style={{
           background: 'transparent',
           border: 'none',
-          padding: '21px 0 0 2px',
+          borderRadius: 0,
+          padding: '22px 0 0 0',
           height: '100vh',
           display: 'flex',
           flexDirection: 'column',
           position: 'fixed',
-          zIndex: '1032'
+          zIndex: '1032',
+          backgroundColor: '#e0e0e0f0'
         }}
       >
         {expanded ? (<BsChevronLeft size={'20'}/>) : ((<BsChevronRight size={'20'}/>))}

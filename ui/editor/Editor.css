@@ -12,6 +12,11 @@
 .Editor .btn-sm {
 }
 
+/** Preserve active links when editing */
+.SectionText a {
+  pointer-events: auto;
+}
+
 /* Editing drop down menus */
 .Editor .dropdown-item {
   font-size: 12pt;

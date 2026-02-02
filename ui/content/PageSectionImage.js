@@ -153,7 +153,12 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
               <Button
                 variant="secondary"
                 size="sm"
-                style={{border: 'none', boxShadow: 'none', margin: '2px', padding: '2px 5px'}}
+                style={{
+                  border: 'none',
+                  boxShadow: 'none',
+                  margin: '2px',
+                  padding: '2px 5px'
+                }}
                 className={`border btn-light`}
                 type="button"
                 data-bs-toggle="dropdown"

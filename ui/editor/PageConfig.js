@@ -53,9 +53,10 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
       .then(() => {
         console.debug(`Deleted page.`);
         Outline.deletePage(pageData.PageID);
-        onPageDeleted?.();
+
       })
       .catch(e => console.error(`Error deleting page.`, e));
+    onPageDeleted?.();
   }
 
   function isValidRoute(route) {

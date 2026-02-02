@@ -2,13 +2,14 @@ import EditableField from "../editor/EditableField";
 import {createContext, useCallback, useContext, useEffect, useRef, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
 import {useEdit} from "../editor/EditProvider";
-import {BsPencil} from "react-icons/bs";
+import {BsCaretDown} from "react-icons/bs";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "react-bootstrap";
 import {usePageContext} from "./Page";
 import PageSectionImage from "./PageSectionImage";
 import {DropState, FileDropTarget} from "../editor/FileDropTarget";
 import Extras from "../extras/Extras";
 import {useSiteContext} from "./Site";
+import {loremIpsum} from "lorem-ipsum";
 
 /**
  * Generate a page section
@@ -142,6 +143,22 @@ function PageSection({pageSectionData}) {
     </PageSectionContext>
   }
 
+  function onInsertLoremIpsum() {
+    const textContent = loremIpsum(
+      {
+        format: 'html',
+        count: 4,
+        units: 'paragraphs'
+      });
+    console.debug(`Update section text...`);
+    pageSectionData.SectionText = textContent;
+    pageSectionData.TextAlign = 'left';
+    updatePageSection(pageSectionData);
+    PageSections.insertOrUpdatePageSection(pageSectionData)
+      .then(() => console.debug(`Updated section text.`))
+      .catch(error => showErrorAlert(`Error updating section text.`, error));
+  }
+
   function onDeleteSection() {
     if (pageSectionData) {
       PageSections.deletePageSection(pageSectionData.PageID, pageSectionData.PageSectionID)
@@ -271,6 +288,18 @@ function PageSection({pageSectionData}) {
     }
   }
 
+  function onEditTitle() {
+    setEditingTitle(true);
+    // defer focus until field is visible
+    setTimeout(() => sectionTitleRef.current?.focus(), 10);
+  }
+
+  function onEditText() {
+    setEditingText(true);
+    // defer focus until field is visible
+    setTimeout(() => sectionTextRef.current?.focus(), 10);
+  }
+
   return (
     <PageSectionContext value={{
       pageSectionData: pageSectionData,
@@ -282,51 +311,55 @@ function PageSection({pageSectionData}) {
           position: 'relative',
           minHeight:
             !sectionExtras.length
+            && pageSectionData.PageSectionID
             && !pageSectionData.SectionText
             && !pageSectionData.SectionTitle
             && !pageSectionData.SectionImage ? 100 : 0,
           border:
             !sectionExtras.length
+            && pageSectionData.PageSectionID
             && !pageSectionData.SectionText
             && !pageSectionData.SectionTitle
             && !pageSectionData.SectionImage ? '1px dotted gray' : 'none',
-          margin: pageSectionData.SectionText
-          || pageSectionData.SectionTitle
-          || sectionExtras.length ? undefined : 0
         }}
         data-testid={`PageSection-${pageSectionData.PageSectionID}`}
         ref={sectionRef}
       >
         {!sectionExtras.length
+          && pageSectionData.PageSectionID
           && !pageSectionData.SectionImage
           && !pageSectionData.SectionTitle
           && !pageSectionData.SectionText
           && (
             <div className={'Editor EmptyElement'}>(Empty Section)</div>
           )}
-        <EditableField
-          field={sectionTitle}
-          fieldRef={sectionTitleRef}
-          textContent={pageSectionData.SectionTitle}
-          textAlign={pageSectionData.TitleAlign}
-          callback={onTitleChanged}
-          editing={editingTitle}
-        />
+        {(pageSectionData.SectionTitle || editingTitle) && (
+          <EditableField
+            field={sectionTitle}
+            fieldRef={sectionTitleRef}
+            textContent={pageSectionData.SectionTitle}
+            textAlign={pageSectionData.TitleAlign}
+            callback={onTitleChanged}
+            editing={editingTitle}
+          />
+        )}
         <PageSectionImage
           pageSectionData={pageSectionData}
           imageRef={sectionImageRef}
           dropRef={dropRef}
           onFileSelected={onUploadFile}
         />
-        <EditableField
-          field={sectionText}
-          fieldRef={sectionTextRef}
-          textContent={pageSectionData.SectionText}
-          textAlign={pageSectionData.TextAlign}
-          callback={onTextChanged}
-          allowEnterKey={true}
-          editing={editingText}
-        />
+        {(pageSectionData.SectionText || editingText) && (
+          <EditableField
+            field={sectionText}
+            fieldRef={sectionTextRef}
+            textContent={pageSectionData.SectionText}
+            textAlign={pageSectionData.TextAlign}
+            callback={onTextChanged}
+            allowEnterKey={true}
+            editing={editingText}
+          />
+        )}
         {!pageSectionData.SectionImage && (
           <FileDropTarget ref={dropRef} onFileSelected={onUploadFile} onError={(err) => showErrorAlert(err)}/>
         )}
@@ -343,12 +376,16 @@ function PageSection({pageSectionData}) {
               type="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
-            ><BsPencil/></Button>
+            ><BsCaretDown/></Button>
             <div className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
               <span className="dropdown-item"
-                    onClick={() => setEditingTitle(true)}>{`${pageSectionData?.SectionTitle?.length > 0 ? 'Edit' : 'Add'} Section Title`}</span>
+                    onClick={onEditTitle}>{`${pageSectionData?.SectionTitle?.length > 0 ? 'Edit' : 'Add'} Section Title`}</span>
               <span className="dropdown-item"
-                    onClick={() => setEditingText(true)}>{`${pageSectionData?.SectionText?.length > 0 ? 'Edit' : 'Add'} Section Text`}</span>
+                    onClick={onEditText}>{`${pageSectionData?.SectionText?.length > 0 ? 'Edit' : 'Add'} Section Text`}</span>
+              {!pageSectionData.SectionText && (
+                <span className="dropdown-item"
+                      onClick={() => onInsertLoremIpsum()}>Add Placeholder Text</span>
+              )}
               <span className="dropdown-item"
                     onClick={() => dropRef.current?.selectFile()}>{`${pageSectionData?.SectionImage?.length > 0 ? 'Update' : 'Add'} Section Image`}</span>
               <span className="dropdown-item"

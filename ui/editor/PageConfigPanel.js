@@ -1,5 +1,5 @@
 import {Button, Collapse} from "react-bootstrap";
-import {lazy, useRef, useState} from "react";
+import {useRef, useState} from "react";
 import {useNavigate} from "react-router";
 import {BsChevronDown, BsChevronUp} from "react-icons/bs";
 import PageConfig from "./PageConfig";
@@ -36,13 +36,14 @@ export default function PageConfigPanel() {
       left: 0,
     }}>
     <Button
-      variant=""
+      ref={buttonRef}
       onClick={() => setExpanded(!expanded)}
       className={`EditorToggle ${expanded ? '' : 'collapsed'}`}
       style={{
         background: 'transparent',
         border: 'none',
-        padding: '5px 21px 0 0',
+        borderRadius: 0,
+        padding: '2px 10px 0 0',
         width: '100vw',
         display: 'flex',
         flexDirection: 'row',

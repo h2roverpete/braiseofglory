@@ -86,7 +86,7 @@ export default function EditableField(props) {
   const divRef = useRef(null);
   const startEditing = useCallback(() => {
     // enable pointer events if they were disabled for drag and drop
-    divRef.current.style.pointerEvents = 'auto';
+    props.fieldRef.current.style.pointerEvents = 'auto';
     // set editing flag
     setEditing(true);
     // transform text from display HTML to source
@@ -94,6 +94,8 @@ export default function EditableField(props) {
   }, [props.fieldRef]);
 
   function cancelEditing() {
+    // prevent field from blocking pointer events
+    props.fieldRef.current.style.pointerEvents = 'none';
     // revert title value and alignment
     props.fieldRef.current.innerHTML = originalContent ? originalContent : '';
     props.fieldRef.current.style.textAlign = originalAlign ? originalAlign : '';
@@ -171,6 +173,7 @@ export default function EditableField(props) {
       } else {
         delete props.fieldRef.current.style.minHeight;
       }
+      props.fieldRef.current.style.pointerEvents = 'none';
     } else {
       // show border around editable item while editing
       props.fieldRef.current.classList.add('border');
@@ -178,36 +181,22 @@ export default function EditableField(props) {
       props.fieldRef.current.onkeydown = (evt) => onKeyDown(evt);
       props.fieldRef.current.style.minHeight = '39px';
       props.fieldRef.current.style.verticalAlign = 'middle';
+      props.fieldRef.current.style.pointerEvents = 'auto';
     }
   }
 
   return (
     <>{canEdit ? (
       <>
-        <Modal
-          show={showConfirmation}
-          onHide={onHideConfirmation}
-          className={'Editor'}
-        >
-          <ModalHeader>
-            <h5>Leaving Edit Mode</h5>
-          </ModalHeader>
-          <ModalBody>Do you want to save your changes?</ModalBody>
-          <ModalFooter>
-            <Button size={'sm'} variant="secondary" onClick={() => cancelEditing()}>Cancel</Button>
-            <Button size={'sm'} variant="primary" onClick={() => commitEdits()}>Save</Button>
-          </ModalFooter>
-        </Modal>
-
         <div
-          style={{position: 'relative', width: '100%', pointerEvents: 'auto'}}
-          onDragEnter={(e) => {
-            e.currentTarget.style.pointerEvents = 'none'
+          style={{
+            position: 'relative',
+            width: '100%',
+            pointerEvents: isEditing || props.showEditButton ? 'auto' : 'none',
           }}
           ref={divRef}
         >
-          <div className={isEditing || props.textContent?.length > 0 || props.alwaysShow ? 'd-block' : 'd-none'}
-               style={{width: '100%'}}>{props.field}</div>
+          {props.field}
           <AlignButtons
             callback={editCallback}
             editable={canEdit}
@@ -223,6 +212,20 @@ export default function EditableField(props) {
             style={{position: 'absolute', right: '2px', top: '2px'}}
           />
         </div>
+        <Modal
+          show={showConfirmation}
+          onHide={onHideConfirmation}
+          className={'Editor'}
+        >
+          <ModalHeader>
+            <h5>Leaving Edit Mode</h5>
+          </ModalHeader>
+          <ModalBody>Do you want to save your changes?</ModalBody>
+          <ModalFooter>
+            <Button size={'sm'} variant="secondary" onClick={() => cancelEditing()}>Cancel</Button>
+            <Button size={'sm'} variant="primary" onClick={() => commitEdits()}>Save</Button>
+          </ModalFooter>
+        </Modal>
       </>
     ) : (
       <>{(props.textContent?.length > 0 || props.alwaysShow) && (
