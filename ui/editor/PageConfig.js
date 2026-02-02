@@ -63,146 +63,131 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
   }
 
   return (<>
-    <div style={{
-      backgroundColor: '#e0e0e0f0',
-      position: 'fixed',
-      left: '0px',
-      zIndex: '1033',
-      borderBottom: '1px solid #00000040',
-    }}>
-      <div style={{
-        width: '100vw',
-        padding: '10px 10px 20px 10px',
-        display: 'flex',
-        flexDirection: 'column',
-      }}>
-        <Row><Col><h5>Page Properties</h5></Col></Row>
-        <Row>
-          <Col sm={4}>
-            <Form.Label
-              htmlFor={'NavTitle'}
-              column={'sm'}
-            >
-              Navigation Title
-            </Form.Label>
-            <Form.Control
-              size={'sm'}
-              id={'NavTitle'}
-              name={'NavTitle'}
-              value={edits?.NavTitle || ''}
-              onChange={(e) => FormData?.onDataChanged({name: 'NavTitle', value: e.target.value})}
-            />
-          </Col>
+    <Row><Col><h5>Page Properties</h5></Col></Row>
+    <Row>
+      <Col sm={4}>
+        <Form.Label
+          htmlFor={'NavTitle'}
+          column={'sm'}
+        >
+          Navigation Title
+        </Form.Label>
+        <Form.Control
+          size={'sm'}
+          id={'NavTitle'}
+          name={'NavTitle'}
+          value={edits?.NavTitle || ''}
+          onChange={(e) => FormData?.onDataChanged({name: 'NavTitle', value: e.target.value})}
+        />
+      </Col>
 
-          <Col sm={3}>
-            <Form.Label
-              htmlFor={'PageRoute'}
-              column={'sm'}
-            >
-              Page Route
-            </Form.Label>
-            <Form.Control
-              size={'sm'}
-              id={'PageRoute'}
-              name={'PageRoute'}
-              isValid={FormData?.isTouched('PageRoute') && isValidRoute(edits?.PageRoute)}
-              isInvalid={FormData?.isTouched('PageRoute') && !isValidRoute(edits?.PageRoute)}
-              value={edits?.PageRoute || ''}
-              onChange={(e) => FormData?.onDataChanged({name: 'PageRoute', value: e.target.value})}
-            />
-          </Col>
-          <Col>
-            <Form.Label
-              column={'sm'}
-              htmlFor={'PageMetaTitle'}
-            >
-              Meta Title
-            </Form.Label>
-            <Form.Control
-              size={'sm'}
-              id={'PageMetaTitle'}
-              value={edits?.PageMetaTitle || ''}
-              onChange={(e) => FormData?.onDataChanged({name: 'PageMetaTitle', value: e.target.value})}
-            />
-          </Col>
-        </Row>
-        <Row>
-          <Col sm={6}>
-            <Form.Label
-              column={'sm'}
-              htmlFor={'PageMetaDescription'}
-            >
-              Meta Description
-            </Form.Label>
-            <Form.Control
-              size={'sm'}
-              id={'PageMetaDescription'}
-              value={edits?.PageMetaDescription || ''}
-              onChange={(e) => FormData?.onDataChanged({name: 'PageMetaDescription', value: e.target.value})}
-            />
-          </Col>
-          <Col sm={6}>
-            <Form.Label
-              column={'sm'}
-              htmlFor={'PageMetaKeywords'}
-            >
-              Meta Keywords
-            </Form.Label>
-            <Form.Control
-              size={'sm'}
-              id={'PageMetaKeywords'}
-              value={edits?.PageMetaKeywords || ''}
-              onChange={(e) => FormData?.onDataChanged({name: 'PageMetaKeywords', value: e.target.value})}
-            />
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Check
-              className={'form-control-sm mt-2'}
-              checked={edits?.PageHidden || false}
-              id={'PageHidden'}
-              label={'Hide page from site navigation'}
-              onChange={(e) => FormData?.onDataChanged({name: 'PageHidden', value: e.target.checked})}
-            />
-          </Col>
-        </Row>
-        <Row className={'mt-4'}>
-          <Col xs={'auto'} className={'pe-0'}>
-            {onUpdate && isDataValid && (
-              <Button
-                className="me-2"
-                size={'sm'}
-                variant="primary"
-                onClick={() => {
-                  onUpdate?.();
-                }}
-                disabled={!isDataValid() || !FormData?.isDataChanged()}
-              >
-                Update
-              </Button>
-            )}
-            <Button
-              size={'sm'}
-              variant="secondary"
-              onClick={() => FormData?.revert()}
-              disabled={!FormData?.isDataChanged()}
-            >
-              Revert
-            </Button>
-          </Col>
-          <Col style={{textAlign: 'end'}} className={'ps-0'}>
-            <Button
-              size={'sm'}
-              variant="danger"
-              onClick={() => setShowDeleteConfirmation(true)}
-            >
-              Delete
-            </Button>
-          </Col>
-        </Row>
-      </div>
-    </div>
+      <Col sm={3}>
+        <Form.Label
+          htmlFor={'PageRoute'}
+          column={'sm'}
+        >
+          Page Route
+        </Form.Label>
+        <Form.Control
+          size={'sm'}
+          id={'PageRoute'}
+          name={'PageRoute'}
+          isValid={FormData?.isTouched('PageRoute') && isValidRoute(edits?.PageRoute)}
+          isInvalid={FormData?.isTouched('PageRoute') && !isValidRoute(edits?.PageRoute)}
+          value={edits?.PageRoute || ''}
+          onChange={(e) => FormData?.onDataChanged({name: 'PageRoute', value: e.target.value})}
+        />
+      </Col>
+      <Col>
+        <Form.Label
+          column={'sm'}
+          htmlFor={'PageMetaTitle'}
+        >
+          Meta Title
+        </Form.Label>
+        <Form.Control
+          size={'sm'}
+          id={'PageMetaTitle'}
+          value={edits?.PageMetaTitle || ''}
+          onChange={(e) => FormData?.onDataChanged({name: 'PageMetaTitle', value: e.target.value})}
+        />
+      </Col>
+    </Row>
+    <Row>
+      <Col sm={6}>
+        <Form.Label
+          column={'sm'}
+          htmlFor={'PageMetaDescription'}
+        >
+          Meta Description
+        </Form.Label>
+        <Form.Control
+          size={'sm'}
+          id={'PageMetaDescription'}
+          value={edits?.PageMetaDescription || ''}
+          onChange={(e) => FormData?.onDataChanged({name: 'PageMetaDescription', value: e.target.value})}
+        />
+      </Col>
+      <Col sm={6}>
+        <Form.Label
+          column={'sm'}
+          htmlFor={'PageMetaKeywords'}
+        >
+          Meta Keywords
+        </Form.Label>
+        <Form.Control
+          size={'sm'}
+          id={'PageMetaKeywords'}
+          value={edits?.PageMetaKeywords || ''}
+          onChange={(e) => FormData?.onDataChanged({name: 'PageMetaKeywords', value: e.target.value})}
+        />
+      </Col>
+    </Row>
+    <Row>
+      <Col>
+        <Form.Check
+          className={'form-control-sm mt-2'}
+          checked={edits?.PageHidden || false}
+          id={'PageHidden'}
+          label={'Hide page from site navigation'}
+          onChange={(e) => FormData?.onDataChanged({name: 'PageHidden', value: e.target.checked})}
+        />
+      </Col>
+    </Row>
+    <Row className={'mt-4'}>
+      <Col xs={'auto'} className={'pe-0'}>
+        {onUpdate && isDataValid && (
+          <Button
+            className="me-2"
+            size={'sm'}
+            variant="primary"
+            onClick={() => {
+              onUpdate?.();
+            }}
+            disabled={!isDataValid() || !FormData?.isDataChanged()}
+          >
+            Update
+          </Button>
+        )}
+        <Button
+          size={'sm'}
+          variant="secondary"
+          onClick={() => FormData?.revert()}
+          disabled={!FormData?.isDataChanged()}
+        >
+          Revert
+        </Button>
+      </Col>
+      <Col style={{textAlign: 'end'}} className={'ps-0'}>
+        <Button
+          size={'sm'}
+          variant="danger"
+          onClick={() => setShowDeleteConfirmation(true)}
+        >
+          Delete
+        </Button>
+      </Col>
+    </Row>
     <Modal show={showDeleteConfirmation} onHide={() => setShowDeleteConfirmation(false)} style={{zIndex: 2020}}>
       <Modal.Header><h5>Delete Page</h5></Modal.Header>
       <Modal.Body>Are you sure you want to delete this page? This action can't be undone.</Modal.Body>

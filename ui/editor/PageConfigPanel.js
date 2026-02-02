@@ -1,9 +1,8 @@
 import {Button, Collapse} from "react-bootstrap";
-import {lazy, Suspense, useRef, useState} from "react";
+import {lazy, useRef, useState} from "react";
 import {useNavigate} from "react-router";
 import {BsChevronDown, BsChevronUp} from "react-icons/bs";
-
-const PageConfig = lazy(() => import("./PageConfig"));
+import PageConfig from "./PageConfig";
 
 /**
  * Edit page metadata fields.
@@ -55,16 +54,25 @@ export default function PageConfigPanel() {
       {expanded ? (<BsChevronUp size={'20'}/>) : ((<BsChevronDown size={'20'}/>))}
     </Button>
     <Collapse
-      in={true}
+      in={expanded}
       dimension={'height'}
       className={'Editor'}
     >
-      <div>
-        {expanded && (
-          <Suspense fallback={<></>}>
-            <PageConfig onPageUpdated={onPageUpdated} onPageDeleted={onPageDeleted}/>
-          </Suspense>
-        )}
+      <div style={{
+        backgroundColor: '#e0e0e0f0',
+        position: 'fixed',
+        left: '0px',
+        zIndex: '1033',
+        borderBottom: '1px solid #00000040',
+      }}>
+        <div style={{
+          width: '100vw',
+          padding: '10px 10px 20px 10px',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+          <PageConfig onPageUpdated={onPageUpdated} onPageDeleted={onPageDeleted}/>
+        </div>
       </div>
     </Collapse>
   </div>);
