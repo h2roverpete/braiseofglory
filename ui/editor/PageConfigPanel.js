@@ -1,8 +1,9 @@
 import {Button, Collapse} from "react-bootstrap";
 import {useRef, useState} from "react";
 import {useNavigate} from "react-router";
-import {BsChevronDown, BsChevronUp} from "react-icons/bs";
+import {BsChevronCompactDown, BsChevronCompactUp} from "react-icons/bs";
 import PageConfig from "./PageConfig";
+import FormEditor from "./FormEditor";
 
 /**
  * Edit page metadata fields.
@@ -31,28 +32,29 @@ export default function PageConfigPanel() {
   return (<div
     className="PageEditor Editor dropleft"
     style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
     }}>
     <Button
       ref={buttonRef}
       onClick={() => setExpanded(!expanded)}
       className={`EditorToggle ${expanded ? '' : 'collapsed'}`}
       style={{
-        background: 'transparent',
         border: 'none',
         borderRadius: 0,
-        padding: '2px 10px 0 0',
-        width: '100vw',
+        padding: '0 10px 5px 0',
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'end',
+        justifyContent: 'center',
         position: 'fixed',
-        zIndex: '1034'
+        top: '-5px',
+        left: 0,
+        zIndex: 1000,
+        width: '100%',
       }}
     >
-      {expanded ? (<BsChevronUp size={'20'}/>) : ((<BsChevronDown size={'20'}/>))}
+      {expanded ? (<BsChevronCompactUp size={'25'}/>) : ((<BsChevronCompactDown size={'25'}/>))}
     </Button>
     <Collapse
       in={expanded}
@@ -61,19 +63,16 @@ export default function PageConfigPanel() {
     >
       <div style={{
         backgroundColor: '#e0e0e0f0',
-        position: 'fixed',
-        left: '0px',
-        zIndex: '1033',
         borderBottom: '1px solid #00000040',
+        position: 'fixed',
+        zIndex: 999,
+        width: '100%',
+        padding: '10px 10px 10px 10px',
+
       }}>
-        <div style={{
-          width: '100vw',
-          padding: '10px 10px 20px 10px',
-          display: 'flex',
-          flexDirection: 'column',
-        }}>
+        <FormEditor>
           <PageConfig onPageUpdated={onPageUpdated} onPageDeleted={onPageDeleted}/>
-        </div>
+        </FormEditor>
       </div>
     </Collapse>
   </div>);

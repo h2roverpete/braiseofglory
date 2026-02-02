@@ -1,5 +1,4 @@
 import {ProgressBar, Spinner} from "react-bootstrap";
-import './FileDropTarget.css';
 import {useRef, useState} from "react";
 
 // Lambda payload size limit

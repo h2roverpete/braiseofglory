@@ -40,6 +40,7 @@ export default function EditableField(props) {
 
   const {canEdit} = useEdit();
   const [isEditing, setEditing] = useState(props.editing);
+  const [savedPadding, setSavedPadding] = useState('0');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [originalContent, setOriginalContent] = useState(null);
   useEffect(() => {
@@ -69,7 +70,7 @@ export default function EditableField(props) {
     }
     if (evt.key === 'Tab') {
       if (
-        props.fieldRef.current.textContent !== props.textContent
+        props.fieldRef.current.innerText !== props.textContent
         || props.fieldRef.current.style.textAlign !== props.textAlign
       ) {
         // tab out after content has changed
@@ -87,15 +88,20 @@ export default function EditableField(props) {
   const startEditing = useCallback(() => {
     // enable pointer events if they were disabled for drag and drop
     props.fieldRef.current.style.pointerEvents = 'auto';
+    props.fieldRef.current.style.whiteSpace = 'pre-wrap';
+    setSavedPadding(props.fieldRef.current.style.padding);
+    props.fieldRef.current.style.padding = '2px';
     // set editing flag
     setEditing(true);
     // transform text from display HTML to source
-    props.fieldRef.current.textContent = props.fieldRef.current.innerHTML
+    props.fieldRef.current.innerText = props.fieldRef.current.innerHTML
   }, [props.fieldRef]);
 
   function cancelEditing() {
     // prevent field from blocking pointer events
     props.fieldRef.current.style.pointerEvents = 'none';
+    props.fieldRef.current.style.whiteSpace = 'normal';
+    props.fieldRef.current.style.padding = savedPadding;
     // revert title value and alignment
     props.fieldRef.current.innerHTML = originalContent ? originalContent : '';
     props.fieldRef.current.style.textAlign = originalAlign ? originalAlign : '';
@@ -113,12 +119,15 @@ export default function EditableField(props) {
   function commitEdits() {
     console.debug(`Committing edits...`);
     props.callback({
-      textContent: props.fieldRef.current.textContent,
+      textContent: props.fieldRef.current.innerText,
       textAlign: props.fieldRef.current.style.textAlign,
     });
 
     // transform text from HTML source to display HTML
-    props.fieldRef.current.innerHTML = props.fieldRef.current.textContent;
+    props.fieldRef.current.innerHTML = props.fieldRef.current.innerText;
+    props.fieldRef.current.style.pointerEvents = 'none';
+    props.fieldRef.current.style.whiteSpace = 'normal';
+    props.fieldRef.current.style.padding = savedPadding;
     setShowConfirmation(false);
     setEditing(false);
   }
@@ -168,7 +177,7 @@ export default function EditableField(props) {
       props.fieldRef.current.classList.remove('border');
       props.fieldRef.current.classList.remove('rounded-2');
       props.fieldRef.current.onkeydown = undefined;
-      if (!props.fieldRef.current.textContent) {
+      if (!props.fieldRef.current.innerText) {
         props.fieldRef.current.style.minHeight = '39px';
       } else {
         delete props.fieldRef.current.style.minHeight;
@@ -196,7 +205,12 @@ export default function EditableField(props) {
           }}
           ref={divRef}
         >
-          {props.field}
+          {isEditing ? (<>
+            {props.field}
+          </>) : (<>
+            {props.field}
+          </>)}
+
           <AlignButtons
             callback={editCallback}
             editable={canEdit}

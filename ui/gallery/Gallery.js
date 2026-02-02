@@ -9,7 +9,7 @@ import {useEdit} from "../editor/EditProvider";
 import FileDropTarget, {DropState} from "../editor/FileDropTarget";
 import {useSiteContext} from "../content/Site";
 import {Button} from "react-bootstrap";
-import {BsCaretDown} from "react-icons/bs";
+import {BsThreeDotsVertical} from "react-icons/bs";
 
 /**
  * Display a photo gallery
@@ -224,7 +224,7 @@ export default function Gallery({galleryId, extraId}) {
             aria-expanded="false"
             data-bs-toggle="dropdown"
           >
-            <BsCaretDown/>
+            <BsThreeDotsVertical/>
           </Button>
           <div
             className="dropdown-menu Editor border-secondary border-opacity-25"

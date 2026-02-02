@@ -149,45 +149,43 @@ export default function Page(props) {
 
   // provide context to children
   return (
-    <div className="Page" data-testid="Page">
-      <PageContext
-        value={{
-          pageData: pageData,
-          sectionData: sectionData,
-          pageExtras: extras,
-          breadcrumbs: breadcrumbs,
-          login: props.login === true,
-          error: errorData,
-          setPageData: setPageData,
-          setSectionData: setSectionData,
-          updatePageSection: updatePageSection,
-          addPageSection: addPageSection,
-          deletePageSection: deletePageSection,
-          addExtraModal: addExtraModal,
-          addExtraToPage: addExtraToPage,
-          removeExtraFromPage: removeExtraFromPage,
-          updateExtra: updateExtra,
-        }}
-      >
-        {canEdit && showAddExtraModal && (
-          <FormEditor>
-            <Suspense fallback={<></>}>
-              <AddExtrasModal
-                show={showAddExtraModal}
-                onHide={() => setShowAddExtraModal(false)}
-                pageSectionId={extraPageSectionId}
-              />
-            </Suspense>
-          </FormEditor>
-        )}
-        {canEdit && (
-          <FormEditor>
-            <PageConfigPanel/>
-          </FormEditor>
-        )}
+    <PageContext
+      value={{
+        pageData: pageData,
+        sectionData: sectionData,
+        pageExtras: extras,
+        breadcrumbs: breadcrumbs,
+        login: props.login === true,
+        error: errorData,
+        setPageData: setPageData,
+        setSectionData: setSectionData,
+        updatePageSection: updatePageSection,
+        addPageSection: addPageSection,
+        deletePageSection: deletePageSection,
+        addExtraModal: addExtraModal,
+        addExtraToPage: addExtraToPage,
+        removeExtraFromPage: removeExtraFromPage,
+        updateExtra: updateExtra,
+      }}
+    >
+      {canEdit && showAddExtraModal && (
+        <FormEditor>
+          <Suspense fallback={<></>}>
+            <AddExtrasModal
+              show={showAddExtraModal}
+              onHide={() => setShowAddExtraModal(false)}
+              pageSectionId={extraPageSectionId}
+            />
+          </Suspense>
+        </FormEditor>
+      )}
+      {canEdit && (
+        <PageConfigPanel/>
+      )}
+      <div className="Page" data-testid="Page">
         {props.children}
-      </PageContext>
-    </div>
+      </div>
+    </PageContext>
   );
 }
 

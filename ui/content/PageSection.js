@@ -2,7 +2,7 @@ import EditableField from "../editor/EditableField";
 import {createContext, useCallback, useContext, useEffect, useRef, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
 import {useEdit} from "../editor/EditProvider";
-import {BsCaretDown} from "react-icons/bs";
+import {BsThreeDotsVertical} from "react-icons/bs";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "react-bootstrap";
 import {usePageContext} from "./Page";
 import PageSectionImage from "./PageSectionImage";
@@ -40,6 +40,7 @@ function PageSection({pageSectionData}) {
   const sectionRef = useRef(null);
 
   const onTitleChanged = useCallback(({textContent, textAlign}) => {
+    // commit title edits
     if (textContent != null) {
       console.debug(`Update section title...`);
       pageSectionData.SectionTitle = textContent;
@@ -53,6 +54,7 @@ function PageSection({pageSectionData}) {
   }, [pageSectionData, updatePageSection, PageSections, showErrorAlert]);
 
   const onTextChanged = useCallback(({textContent, textAlign}) => {
+    // commit text edits
     if (textContent != null) {
       console.debug(`Update section text...`);
       pageSectionData.SectionText = textContent;
@@ -66,6 +68,7 @@ function PageSection({pageSectionData}) {
   }, [pageSectionData, updatePageSection, PageSections, showErrorAlert]);
 
   useEffect(() => {
+    // manage extras
     if (pageExtras && pageSectionData) {
       const list = [];
       for (const extra of pageExtras) {
@@ -376,7 +379,7 @@ function PageSection({pageSectionData}) {
               type="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
-            ><BsCaretDown/></Button>
+            ><BsThreeDotsVertical/></Button>
             <div className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
               <span className="dropdown-item"
                     onClick={onEditTitle}>{`${pageSectionData?.SectionTitle?.length > 0 ? 'Edit' : 'Add'} Section Title`}</span>

@@ -74,10 +74,26 @@ div.dropdown-menu.Editor {
   font-weight: normal;
 }
 
+button.EditorToggle.btn:active,
 button.EditorToggle.btn {
   color: black;
+  background: transparent;
+  border: none;
+  border-radius: 0;
 }
 
 .Editor {
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.Editor.DropFile {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  align-content: center;
+  justify-content: center;
+  background-color: #ffffff88;
+  text-align: center;
 }

@@ -147,7 +147,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
     <Row>
       <Col>
         <Form.Check
-          className={'form-control-sm mt-2'}
+          className={'form-control-sm'}
           checked={edits?.PageHidden || false}
           id={'PageHidden'}
           label={'Hide page from site navigation'}
@@ -155,7 +155,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
         />
       </Col>
     </Row>
-    <Row className={'mt-4'}>
+    <Row className={'mt-2'}>
       <Col xs={'auto'} className={'pe-0'}>
         {onUpdate && isDataValid && (
           <Button
