@@ -30,7 +30,7 @@ export default function PageConfigPanel() {
   }
 
   return (<div
-    className="PageEditor Editor dropleft"
+    className="PageEditor Editor"
     style={{
       display: 'flex',
       flexDirection: 'column',

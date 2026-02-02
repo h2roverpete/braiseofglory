@@ -391,9 +391,9 @@ export default function NavBar(props) {
               <div
                 className="dropdown-menu Editor border-secondary border-opacity-25"
                 style={{
+                  position: 'absolute',
                   zIndex: 100,
-                }}
-              >
+                }}>
               <span
                 className="dropdown-item"
                 onClick={() => setShowNewPage(true)}

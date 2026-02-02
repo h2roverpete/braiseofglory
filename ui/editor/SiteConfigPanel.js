@@ -7,11 +7,14 @@ import SiteConfig from "./SiteConfig";
 
 export default function SiteConfigPanel() {
   const [expanded, setExpanded] = useState(false);
-  return (<div style={{
-    display: 'flex',
-    flexDirection: 'row',
-    height: '100%',
-  }}>
+  return (<div
+    className={'Editor SiteEditor'}
+    style={{
+      display: 'flex',
+      flexDirection: 'row',
+      height: '100%',
+    }}
+  >
     <Button
       variant=""
       onClick={() => setExpanded(!expanded)}
@@ -55,8 +58,7 @@ export default function SiteConfigPanel() {
           }}>
             <SiteOutline style={{maxHeight: '60vh'}} className={'overflow-auto'}/>
           </div>
-          <div style={{
-          }}>
+          <div style={{}}>
             <FormEditor>
               <SiteConfig/>
             </FormEditor>
