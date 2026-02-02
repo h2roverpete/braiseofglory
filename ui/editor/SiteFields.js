@@ -11,7 +11,7 @@ export default function SiteFields(props) {
 
   const {edits, FormData} = useFormEditor();
   useEffect(() => {
-    FormData?.update(siteData);
+    FormData.update(siteData);
   },[siteData])
 
   function onSubmit() {

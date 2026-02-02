@@ -38,7 +38,7 @@ export default function Gallery({galleryId, extraId}) {
         showErrorAlert(`Error loading gallery ${galleryId}: ${error}`);
       })
     }
-  }, [galleryId, showErrorAlert]);
+  }, [galleryId, showErrorAlert, Galleries]);
 
   useEffect(() => {
     Galleries.getPhotos(galleryId).then((data) => {
@@ -53,7 +53,7 @@ export default function Gallery({galleryId, extraId}) {
     }).catch(error => {
       showErrorAlert(`Error loading photos for gallery ${galleryId}: ${error}`);
     })
-  }, [galleryId, galleryConfig, showErrorAlert]);
+  }, [galleryId, galleryConfig, showErrorAlert, Galleries]);
 
   function uploadFile(file) {
     console.debug(`Uploading photo...`);

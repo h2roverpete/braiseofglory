@@ -1,4 +1,4 @@
-import {useRef, useState} from "react";
+import {lazy, Suspense, useRef, useState} from "react";
 import {useSiteContext} from "./Site";
 import {usePageContext} from "./Page";
 import Navbar from 'react-bootstrap/Navbar';
@@ -10,7 +10,8 @@ import {BsPlus} from "react-icons/bs";
 import {useRestApi} from "../../api/RestApi";
 import React from 'react';
 import FormEditor from "../editor/FormEditor";
-import NewPageModal from "../editor/NewPageModal";
+
+const NewPageModal = lazy(() => import("../editor/NewPageModal"));
 
 /**
  * @typedef NavBarProps
@@ -405,9 +406,13 @@ export default function NavBar(props) {
                 New Section
               </span>
               </div>
-              <FormEditor>
-                <NewPageModal show={showNewPage} setShow={setShowNewPage}/>
-              </FormEditor>
+              {showNewPage && (
+                <Suspense fallback={<></>}>
+                  <FormEditor>
+                    <NewPageModal show={showNewPage} setShow={setShowNewPage}/>
+                  </FormEditor>
+                </Suspense>
+              )}
             </div>
           )}
         </Navbar.Collapse>

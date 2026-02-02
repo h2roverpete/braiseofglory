@@ -5,6 +5,7 @@ import {useEdit} from "../editor/EditProvider";
 import {useSiteContext} from "./Site";
 import FileDropTarget from "../editor/FileDropTarget";
 import {Button} from "react-bootstrap";
+import {usePageSectionContext} from "./PageSection";
 
 /**
  * Insert an editable page section image.
@@ -14,10 +15,11 @@ import {Button} from "react-bootstrap";
  * @returns {JSX.Element}
  * @constructor
  */
-export default function PageSectionImage({pageSectionData, imageRef, dropRef, onFileSelected, onFilesSelected}) {
+export default function PageSectionImage({imageRef, dropRef, onFileSelected, onFilesSelected}) {
 
   const {PageSections} = useRestApi();
   const {updatePageSection} = usePageContext();
+  const {pageSectionData} = usePageSectionContext();
   const {canEdit} = useEdit();
   const {siteData, showErrorAlert} = useSiteContext();
 

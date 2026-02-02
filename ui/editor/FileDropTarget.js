@@ -107,8 +107,6 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
     }
   }
 
-  let previousDropState;
-
   function onDragLeave(e) {
     console.log(`DropTarget onDragLeave.`);
     // this work because dropState is frozen at the time of drag enter

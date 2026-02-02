@@ -70,6 +70,8 @@ import axios from "axios";
  * @property {Number} OutlineSeq
  * @property {String} PageTitle
  * @property {Boolean} DisplayTitle
+ * @property {Boolean} PageHidden
+ * @property {String} Modified
  * @property {String} NavTitle
  * @property {String} LinkToURL
  * @property {Boolean} HasChildren

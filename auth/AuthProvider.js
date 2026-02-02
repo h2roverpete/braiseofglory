@@ -1,10 +1,9 @@
-import {useContext, createContext, useState, useEffect, useImperativeHandle} from "react";
+import {useContext, createContext, useState, useEffect, useImperativeHandle, useCallback} from "react";
 import {useCookies} from 'react-cookie';
 import {useRestApi} from "../api/RestApi";
 import EditProvider from "../ui/editor/EditProvider";
 
-export const AuthContext = createContext({
-});
+export const AuthContext = createContext({});
 
 /**
  * Site permissions.
@@ -42,31 +41,36 @@ export default function AuthProvider(props) {
    * @param permission
    * @returns {Promise<boolean>}
    */
-  async function hasPermission(permission) {
+  const hasPermission = useCallback(async (permission) => {
     console.debug(`Check permission '${permission}' for current user.`);
     if (scope) {
       return checkScopes(scope, `${document.location.host}:${permission}`);
     } else {
       return false;
     }
-  }
+  }, [scope]);
 
-  function setToken(newToken) {
+  const setToken = useCallback((newToken) => {
     console.debug(`Set token: ${JSON.stringify(newToken)}`);
     // update token value
     setCookie('token', newToken);
     // clear username and scope
     setUsername(null);
     setScope(null);
-  }
+  }, [setCookie, setUsername, setScope]);
 
-  useEffect(() => {
-    if (cookies.token && !isAuthenticated) {
-      validateToken().then();
+  const refreshAuthToken = useCallback(async () => {
+    if (cookies.token?.refresh_token) {
+      console.debug(`Refreshing auth token...`);
+      const newToken = await Auth.refreshToken(cookies.token.refresh_token, window.location.host);
+      setToken(newToken);
+      return newToken;
+    } else {
+      return null;
     }
-  })
+  }, [Auth, setToken, cookies.token?.refresh_token]);
 
-  async function validateToken() {
+  const validateToken = useCallback(async () => {
     try {
       console.debug(`Validating token...`);
       const decoded = await Auth.checkToken();
@@ -85,14 +89,14 @@ export default function AuthProvider(props) {
         console.error(`Unknown error checking token: ${JSON.stringify(error)}`);
       }
     }
-  }
+  }, [Auth, setUsername, setScope, refreshAuthToken]);
 
-  async function refreshAuthToken() {
-    console.debug(`Refreshing auth token...`);
-    const newToken = await Auth.refreshToken(cookies.token.refresh_token, window.location.host);
-    setToken(newToken);
-    return newToken;
-  }
+  useEffect(() => {
+    if (cookies.token) {
+      validateToken().then();
+    }
+  }, [cookies.token, validateToken]);
+
 
   return (
     <AuthContext
