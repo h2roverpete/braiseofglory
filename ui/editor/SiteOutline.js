@@ -4,7 +4,7 @@ import {onMouseMove, onDragOver, onDragStart, onDragLeave, getCursorPercent} fro
 import {useRestApi} from "../../api/RestApi";
 
 export default function SiteOutline(props) {
-  const {Outline,outlineData} = useSiteContext();
+  const {Outline, outlineData} = useSiteContext();
   const navigate = useNavigate();
   const location = useLocation();
   const {Pages} = useRestApi();
@@ -57,6 +57,7 @@ export default function SiteOutline(props) {
 
   return (
     <div {...props}>
+      <h5>Site Outline</h5>
       {outlineData?.map((page) => (
         <div
           key={page.PageID}
@@ -76,7 +77,7 @@ export default function SiteOutline(props) {
           onDrop={(e) => onDrop(e, page)}
           draggable={true}
         >
-          {page.PageTitle}
+          {page.NavTitle ? page.NavTitle : page.PageTitle}
         </div>
       ))}
     </div>

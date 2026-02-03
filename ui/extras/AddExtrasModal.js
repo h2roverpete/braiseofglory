@@ -36,28 +36,40 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
   const [galleryList, setGalleryList] = useState([]);
 
   useEffect(() => {
-    if (canEdit) {
+    if (canEdit && siteData) {
       // load list of existing galleries
       Galleries.getGalleries().then((result) => {
-        console.debug(`List of ${result.length} galleries loaded.`);
-        setGalleryList(result);
+        const siteGalleries = [];
+        for (const gallery of result) {
+          if (!gallery.SiteID || gallery.SiteID === siteData.SiteID) {
+            siteGalleries.push(gallery);
+          }
+        }
+        console.debug(`List of ${siteGalleries.length} galleries loaded.`);
+        setGalleryList(siteGalleries);
       }).catch((err) => {
         console.error(`Error getting gallery list.`, err);
       })
     }
-  }, [Galleries, canEdit]);
+  }, [canEdit, siteData, Galleries]);
 
   useEffect(() => {
-    if (canEdit) {
+    if (canEdit && siteData) {
       // load list of existing guest books
       GuestBooks.getGuestBooks().then((result) => {
-        console.debug(`List of ${result.length} guest books loaded.`);
-        setGuestBookList(result);
+        const siteGuestBooks = [];
+        for (const guestBook of result) {
+          if (!guestBook.SiteID || guestBook.SiteID === siteData.SiteID) {
+            siteGuestBooks.push(guestBook);
+          }
+        }
+        console.debug(`List of ${siteGuestBooks.length} guest books loaded.`);
+        setGuestBookList(siteGuestBooks);
       }).catch((err) => {
         console.error(`Error getting guest book list.`, err);
       })
     }
-  }, [GuestBooks, canEdit]);
+  }, [canEdit, siteData, GuestBooks]);
 
   if (!canEdit) {
     return <></>;
@@ -83,7 +95,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
         } else {
           Galleries.insertOrUpdateGallery({
             SiteID: siteData.SiteID,
-            GalleryName: siteData.SiteName
+            GalleryName: edits.GalleryName,
           }).then((result) => {
             console.debug(`Gallery added.`);
             Extras.insertOrUpdateExtra({
@@ -197,7 +209,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
           return edits.GuestBookID > 0;
         }
       case 'gallery':
-        return edits.GalleryID === undefined || edits.GalleryID > 0;
+        return ((!edits.GalleryID && edits.GalleryName?.length > 0) || edits.GalleryID > 0);
       case 'instagram':
         return isValidInstagramHandle(edits.InstagramHandle);
       case 'file':
@@ -249,7 +261,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
         {edits.ExtraType === 'guestbook' && (<>
           <Row className="mt-2">
             <Col sm={labelCols}></Col>
-            <Col>
+            <Col hidden={guestBookList?.length === 0}>
               <Form.Check
                 type='radio'
                 name={'NewGuestBook'}
@@ -331,7 +343,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
         {edits.ExtraType === 'gallery' && (<>
           <Row className="mt-2">
             <Col sm={labelCols}></Col>
-            <Col>
+            <Col hidden={galleryList?.length === 0}>
               <Form.Check
                 type='radio'
                 name={'NewGallery'}
@@ -355,7 +367,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
               />
             </Col>
           </Row>
-          {edits.GalleryID !== undefined && (
+          {edits.GalleryID !== undefined ? (
             <Row className="mt-2">
               <Form.Label
                 className='required'
@@ -376,6 +388,22 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
                     <option key={gallery.GalleryID} value={gallery.GalleryID}>{gallery.GalleryName}</option>
                   ))}
                 </Form.Select>
+              </Col>
+            </Row>
+          ) : (
+            <Row className="mt-2">
+              <Form.Label className='required' column={'sm'} htmlFor={'GalleryName'} sm={labelCols}>
+                Gallery Name</Form.Label>
+              <Col>
+                <Form.Control
+                  id="GalleryName"
+                  name="GalleryName"
+                  size="sm"
+                  isValid={FormData.isTouched('GalleryName') && edits.GalleryName.length > 0}
+                  isInvalid={FormData.isTouched('GalleryName') && edits.GalleryName.length === 0}
+                  onChange={(e) => FormData.onDataChanged({name: 'GalleryName', value: e.target.value})}
+                  value={edits.GalleryName || ''}
+                />
               </Col>
             </Row>
           )}

@@ -5,25 +5,23 @@ import {useEdit} from "../editor/EditProvider";
 import {useSiteContext} from "./Site";
 import FileDropTarget from "../editor/FileDropTarget";
 import {Button} from "react-bootstrap";
+import {usePageSectionContext} from "./PageSection";
 
 /**
  * Insert an editable page section image.
  * Should be inserted before section text if position is "above",
  * otherwise it should be inserted after the section text.
  *
- * @param pageSectionData {PageSectionData} Database record for page section.
- * @param imageRef {RefObject} Receives a reference to the section image
- * @param dropTargetRef {RefObject} Receives a reference to the drop target <div>
- * @param dropTargetState {DropState} State to display the drop target.
  * @returns {JSX.Element}
  * @constructor
  */
-export default function PageSectionImage({pageSectionData, imageRef, dropTargetRef, dropTargetState}) {
+export default function PageSectionImage({imageRef, dropRef, onFileSelected, onFilesSelected}) {
 
   const {PageSections} = useRestApi();
-  const {sectionData, setSectionData} = usePageContext();
+  const {updatePageSection} = usePageContext();
+  const {pageSectionData} = usePageSectionContext();
   const {canEdit} = useEdit();
-  const {siteData} = useSiteContext();
+  const {siteData, showErrorAlert} = useSiteContext();
 
   if (!pageSectionData.SectionImage) {
     return <></>;
@@ -33,9 +31,11 @@ export default function PageSectionImage({pageSectionData, imageRef, dropTargetR
     pageSectionData.ImageAlign = align;
     console.debug(`Updating image alignment...`);
     PageSections.insertOrUpdatePageSection(pageSectionData)
-      .then(() => console.debug(`Updated image alignment.`))
-      .catch(error => console.error(`Error updating image alignment.`, error));
-    setSectionData([...sectionData]);
+      .then(() => {
+        console.debug(`Updated image alignment.`)
+        updatePageSection(pageSectionData);
+      })
+      .catch(error => showErrorAlert(`Error updating image alignment.`, error));
   }
 
   function setImagePosition(position) {
@@ -46,18 +46,23 @@ export default function PageSectionImage({pageSectionData, imageRef, dropTargetR
     }
     console.debug(`Updating image position...`);
     PageSections.insertOrUpdatePageSection(pageSectionData)
-      .then(() => console.debug(`Updated image position.`))
-      .catch(error => console.error(`Error updating image position.`, error));
-    setSectionData([...sectionData]);
+      .then(() => {
+        console.debug(`Updated image position.`)
+        updatePageSection(pageSectionData);
+      })
+      .catch(error => showErrorAlert(`Error updating image position.`, error));
+
   }
 
   function hideImageFrame(hide) {
     pageSectionData.HideImageFrame = hide;
     console.debug(`Updating image frame...`);
     PageSections.insertOrUpdatePageSection(pageSectionData)
-      .then(() => console.debug(`Updated image frame.`))
-      .catch(error => console.error(`Error updating image frame.`, error));
-    setSectionData([...sectionData]);
+      .then(() => {
+        console.debug(`Updated image frame.`)
+        updatePageSection(pageSectionData);
+      })
+      .catch(error => showErrorAlert(`Error updating image frame.`, error));
   }
 
   function deleteImage() {
@@ -66,24 +71,25 @@ export default function PageSectionImage({pageSectionData, imageRef, dropTargetR
       .then(() => {
         console.debug(`Deleted section image.`)
         pageSectionData.SectionImage = null;
-        setSectionData([...sectionData]);
+        updatePageSection(pageSectionData);
       })
-      .catch(error => console.error(`Error deleting section image.`, error));
+      .catch(error => showErrorAlert(`Error deleting section image.`, error));
   }
 
   function setImageWidth(width) {
     console.debug(`Setting image width to ${width}...`);
     pageSectionData.ImageWidth = width;
     PageSections.insertOrUpdatePageSection(pageSectionData)
-      .then(() => console.debug(`Updated image width.`))
-      .catch(error => console.error(`Error updating image width.`, error));
-    setSectionData([...sectionData]);
+      .then(() => {
+        console.debug(`Updated image width.`)
+        updatePageSection(pageSectionData);
+      }).catch(error => showErrorAlert(`Error updating image width.`, error));
   }
 
   /**
    * Get image display width.
    *
-   * @returns {number|Number|number} Image width in Bootstrap columns, or 0 if data is undefined.
+   * @returns {number|string} Image width in Bootstrap columns, or 0 if data is undefined.
    */
   function getImageWidth() {
     if (pageSectionData) {
@@ -94,20 +100,30 @@ export default function PageSectionImage({pageSectionData, imageRef, dropTargetR
   }
 
   const imageDivStyle = {position: 'relative'};
-  let imageDivClassName = 'SectionImage mb-3 col-12';
+  let imageDivClassName = 'SectionImage';
   const imageStyle = {};
   let imageClassName = 'img-fluid';
   if (pageSectionData.ImagePosition === 'beside') {
     // align image left or right beside text
-    imageDivClassName += ` col-sm-${getImageWidth()}`;
+    const w = getImageWidth();
+    if (w < 3) {
+      imageDivClassName += ` mb-0 col-${w*3} col-sm${w}`;
+      if (pageSectionData.ImageAlign === 'right') {
+        imageDivClassName += ' ms-3';
+      } else if (pageSectionData.ImageAlign === 'left') {
+        imageDivClassName += ' me-3';
+      }
+    } else {
+      imageDivClassName += ` mb-3 col-12 col-sm-${w}`;
+      if (pageSectionData.ImageAlign === 'right') {
+        imageDivClassName += ' ms-sm-3';
+      } else if (pageSectionData.ImageAlign === 'left') {
+        imageDivClassName += ' me-sm-4';
+      }
+    }
     imageDivStyle.position = 'relative';
     imageDivStyle.float = pageSectionData.ImageAlign;
     imageDivStyle.textAlign = 'center';
-    if (pageSectionData.ImageAlign === 'right') {
-      imageDivClassName += ' ms-sm-3';
-    } else if (pageSectionData.ImageAlign === 'left') {
-      imageDivClassName += ' me-sm-4';
-    }
   } else {
     // center image
     imageDivClassName += ` col-sm-12`;
@@ -139,21 +155,26 @@ export default function PageSectionImage({pageSectionData, imageRef, dropTargetR
         />
         {canEdit && (
           <>
-            <FileDropTarget ref={dropTargetRef} state={dropTargetState}/>
+            <FileDropTarget ref={dropRef} onFileSelected={onFileSelected} onFilesSelected={onFilesSelected}/>
             <div
               className="dropdown"
-              style={{position: 'absolute', bottom: '0', right: '2px', zIndex: 100}}
+              style={{position: 'absolute', bottom: '0', right: '2px'}}
             >
               <Button
                 variant="secondary"
                 size="sm"
-                style={{zIndex: 200, border: 'none', boxShadow: 'none', margin: '2px', padding: '2px 5px'}}
+                style={{
+                  border: 'none',
+                  boxShadow: 'none',
+                  margin: '2px',
+                  padding: '2px 5px'
+                }}
                 className={`border btn-light`}
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               ><BsArrowsMove/></Button>
-              <div className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 300}}>
+              <div className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
                 {pageSectionData.ImageAlign !== 'left' && (
                   <span className="dropdown-item" onClick={() => setImageAlign('left')}>Align Left</span>)}
                 {pageSectionData.ImageAlign !== 'center' && pageSectionData.ImagePosition === 'above' && (

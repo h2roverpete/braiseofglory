@@ -12,9 +12,54 @@
 .Editor .btn-sm {
 }
 
+/** Preserve active links when editing */
+.SectionText a {
+  pointer-events: auto;
+}
+
 /* Editing drop down menus */
 .Editor .dropdown-item {
   font-size: 12pt;
+  color: black;
+}
+
+.Editor.DropFile {
+  font-size:14pt;
+}
+
+.Editor.EmptyElement {
+  width:100%;
+  height:100%;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  color: gray;
+  font-size: 12pt;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.Editor div.form-check {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.Editor div.form-check .form-check-input {
+  transform: translateY(2px);
+}
+
+div.dropdown-menu.Editor {
+  background-color: white;
+  padding: 10px 0;
+  cursor: pointer;
+  line-height:200%;
+}
+
+.Editor .dropdown-item:hover {
+  background-color: lightgray;
 }
 
 /* Headings in edit panels */
@@ -22,14 +67,33 @@
   font-size:13pt;
 }
 
-/* Admin panel padding */
-.Editor .accordion-body {
-  padding: 10px;
+/* Admin panel */
+.Editor {
+  color:black;
+  font-size: 10pt;
+  font-weight: normal;
+}
+
+button.EditorToggle.btn:active,
+button.EditorToggle.btn {
+  color: black;
+  background: transparent;
+  border: none;
+  border-radius: 0;
 }
 
 .Editor {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 10pt;
-  font-weight: normal;
-  color:black;
+}
+
+.Editor.DropFile {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  align-content: center;
+  justify-content: center;
+  background-color: #ffffff88;
+  text-align: center;
 }

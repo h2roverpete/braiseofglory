@@ -4,14 +4,14 @@ import {useRestApi} from "../../api/RestApi";
 import {useFormEditor} from "./FormEditor";
 import {useEffect} from "react";
 
-export default function SiteFields(props) {
+export default function SiteConfig(props) {
 
   const {siteData, setSiteData} = useSiteContext();
   const {Sites} = useRestApi();
 
   const {edits, FormData} = useFormEditor();
   useEffect(() => {
-    FormData?.update(siteData);
+    FormData.update(siteData);
   },[siteData])
 
   function onSubmit() {
@@ -42,6 +42,7 @@ export default function SiteFields(props) {
   return (<>
     {siteData && (
       <div {...props}>
+        <h5 className={'mt-4'}>Site Properties</h5>
         <Row>
           <Col>
             <Form.Label column={'sm'} className={'required'} htmlFor={'SiteName'}>Site Name</Form.Label>

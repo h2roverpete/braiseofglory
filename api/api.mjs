@@ -70,6 +70,8 @@ import axios from "axios";
  * @property {Number} OutlineSeq
  * @property {String} PageTitle
  * @property {Boolean} DisplayTitle
+ * @property {Boolean} PageHidden
+ * @property {String} Modified
  * @property {String} NavTitle
  * @property {String} LinkToURL
  * @property {Boolean} HasChildren
@@ -248,15 +250,11 @@ import axios from "axios";
  * @class GalleryData
  *
  * @property {number} GalleryID
- * @property {number} GallerySiteID
+ * @property {number} SiteID
  * @property {string} GalleryName
  * @property {string} GalleryDescription
  * @property {string} GalleryLongDescription
- * @property {number} GallerySeq
- * @property {boolean} GalleryHidden
  * @property {string} GalleryDate
- * @property {string} GalleryLogin
- * @property {string} GalleryPassword
  * @property {boolean} RandomizeOrder
  * @property {string} Created
  * @property {string} Modified
@@ -268,6 +266,7 @@ import axios from "axios";
  * @property {number} PhotoID
  * @property {number} GalleryID
  * @property {number} GalleryPhotoSeq
+ * @property {string} PhotoFile
  * @property {string} PhotoDescription
  * @property {string} PhotoSmall
  * @property {string} PhotoMedium

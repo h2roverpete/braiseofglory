@@ -31,23 +31,27 @@ export default function PageNavigation() {
   }, [outlineData, pageData]);
 
   return (
-    <div className="PageNavigation d-flex justify-content-end" style={{flex: 0}}>
+    <div
+      className="PageNavigation"
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "end",
+        flexGrow: 1,
+      }}
+    >
       {prev && (
-        <div className={'d-flex align-items-center justify-content-start text-nowrap'}>
-          <Link to={prev.PageRoute}>
-            <>&nbsp;&laquo;&nbsp;</>
-            {prev.NavTitle ? prev.NavTitle : prev.PageTitle}
-          </Link>
-        </div>
+        <Link to={prev.PageRoute}>
+          <>&nbsp;&laquo;&nbsp;</>
+          {prev.NavTitle ? prev.NavTitle : prev.PageTitle}
+        </Link>
       )}
-      <div style={{flex: 1}}></div>
+      <span style={{flexGrow:1}}></span>
       {next && (
-        <div className={'d-flex align-items-center justify-content-end text-nowrap'} style={{flex: 0}}>
-          <Link to={next.PageRoute}>
-            {next.NavTitle ? next.NavTitle : next.PageTitle}
-            <>&nbsp;&raquo;&nbsp;</>
-          </Link>
-        </div>
+        <Link to={next.PageRoute}>
+          {next.NavTitle ? next.NavTitle : next.PageTitle}
+          <>&nbsp;&raquo;&nbsp;</>
+        </Link>
       )}
     </div>
   )

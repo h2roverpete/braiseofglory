@@ -7,6 +7,7 @@ import {useRestApi} from "../../api/RestApi";
 import Logout from '../../auth/Logout';
 import {useEdit} from "../editor/EditProvider";
 import SiteEditor from "../editor/SiteEditor";
+import {Alert} from "react-bootstrap";
 
 /**
  * @typedef ErrorData
@@ -47,6 +48,7 @@ export default function Site(props) {
   const [siteData, setSiteData] = useState(null);
   const [outlineData, setOutlineData] = useState(null);
   const [error, __setError__] = useState(null); // use public setter, not __setError__
+  const [alert, setAlert] = useState('');
   const navigate = useNavigate();
   const {Sites} = useRestApi();
   const {canEdit} = useEdit();
@@ -65,6 +67,35 @@ export default function Site(props) {
       }
     }
   }, [navigate, error]);
+
+  /**
+   * Display an error alert.
+   * @param {ErrorData} errorData
+   */
+  const showErrorAlert = useCallback((text, error) => {
+    // use stringify for deep compare
+    if (alert !== text) {
+      setAlert(`${text} ${error?.message}`);
+    }
+  }, [alert]);
+
+  function onAlertClose() {
+    setAlert(null);
+  }
+
+  const alertElement = alert.length > 0 ?
+    <Alert
+      dismissible={true}
+      onClose={onAlertClose}
+      variant="danger"
+      style={{
+        position: 'fixed',
+        bottom: 0,
+      }}
+    >
+      {alert}
+    </Alert>
+    : <></>;
 
   // set error from props if defined
   useEffect(() => {
@@ -99,15 +130,15 @@ export default function Site(props) {
       console.debug(`Loaded site ${data.SiteID}.`);
       setSiteData(data);
     }).catch(err => console.error(`Error loading site.`, err));
-  }, []);
+  }, [Sites]);
 
   useEffect(() => {
     // load site outline
     Sites.getSiteOutline().then((data) => {
       console.debug(`Loaded site outline.`);
-      setOutlineData(data);
+      setOutlineData(buildOutline(data));
     }).catch(err => console.error(`Error loading outline.`, err));
-  }, []);
+  }, [Sites]);
 
   let redirect;
   if (props.redirects && window.location.pathname === '/') {
@@ -143,7 +174,7 @@ export default function Site(props) {
     }
   }
 
-  function deletePageFromOutline(pageId) {
+  const deletePageFromOutline = useCallback((pageId) => {
     if (outlineData) {
       const newOutlineData = [];
       outlineData.map((item) => {
@@ -154,9 +185,9 @@ export default function Site(props) {
       })
       setOutlineData(buildOutline(newOutlineData));
     }
-  }
+  }, [outlineData, setOutlineData]);
 
-  function addPageToOutline(pageData) {
+  const addPageToOutline = useCallback((pageData) => {
     if (outlineData && pageData) {
       console.debug(`Add page ${pageData.PageID} to outline.`)
       const newOutlineData = [...outlineData, pageData];
@@ -164,9 +195,9 @@ export default function Site(props) {
     } else {
       console.error(`Can't add page to outline. Outline or page data are null.`);
     }
-  }
+  }, [outlineData, setOutlineData]);
 
-  function movePageBefore(pageData, beforePageData) {
+  const movePageBefore = useCallback((pageData, beforePageData) => {
     console.debug(`Move page '${pageData.PageTitle} (${pageData.ParentID},${pageData.OutlineSeq})' before '${beforePageData.PageTitle} (${beforePageData.ParentID},${beforePageData.OutlineSeq})'`);
     const newOutlineData = outlineData.map((item) => {
       if (item.PageID === pageData.PageID) {
@@ -186,9 +217,9 @@ export default function Site(props) {
       }
     });
     setOutlineData(buildOutline(newOutlineData));
-  }
+  }, [outlineData]);
 
-  function movePageAfter(pageData, afterPageData) {
+  const movePageAfter = useCallback((pageData, afterPageData) => {
     console.debug(`Move page '${pageData.PageTitle} (${pageData.ParentID},${pageData.OutlineSeq})' after '${afterPageData.PageTitle} (${afterPageData.ParentID},${afterPageData.OutlineSeq})'`);
     const newOutlineData = outlineData.map((item) => {
       if (item.PageID === pageData.PageID) {
@@ -208,9 +239,9 @@ export default function Site(props) {
       }
     });
     setOutlineData(buildOutline(newOutlineData));
-  }
+  }, [outlineData, setOutlineData]);
 
-  function makeChildOf(pageData, parentPageData) {
+  const makeChildOf = useCallback((pageData, parentPageData) => {
     console.debug(`Make page '${pageData.PageTitle} (${pageData.ParentID},${pageData.OutlineSeq})' child of '${parentPageData.PageTitle} (${parentPageData.ParentID},${parentPageData.OutlineSeq})'`);
     const newOutlineData = outlineData.map((item) => {
       if (item.PageID === pageData.PageID) {
@@ -230,55 +261,10 @@ export default function Site(props) {
       }
     });
     setOutlineData(buildOutline(newOutlineData));
-  }
+  }, [outlineData, setOutlineData]);
 
-  /**
-   * Build or rebuild the site outline in the proper sequence
-   * from an unsorted array of page data.
-   *
-   * @param pages {[OutlineData]}   Array of page data (arbitrary sort order)
-   * @param [parentId] {number}     Parent page ID.
-   * @param [level] {number}        Level number, also a trigger to recurse through all children.
-   * @param [parent] {OutlineData}  Parent's sort string
-   * @returns {[OutlineData]}       Outline built from page data
-   */
-  function buildOutline(pages, parentId, level, parent) {
-    parentId = parentId ? parentId : 0;
-    level = level ? level : 0;
-    let result = [];
-    pages.map((page) => {
-      if (page.ParentID === parentId) {
-        // copy outline data fields
-        const child = {
-          PageID: page.PageID,
-          SiteID: page.SiteID,
-          ParentID: page.ParentID,
-          PageTitle: page.PageTitle,
-          DisplayTitle: page.DisplayTitle,
-          PageHidden: page.PageHidden,
-          NavTitle: page.NavTitle,
-          OutlineSeq: page.OutlineSeq,
-          LinkToURL: page.LinkToURL,
-          HasChildren: page.HasChildren,
-          PageRoute: page.PageRoute,
-          Modified: page.Modified,
-          OutlineLevel: level,
-          OutlineSort: setCharAt(parent ? parent.OutlineSort : '0'.repeat(20), level * 2, page.OutlineSeq.toString().padStart(2, "0"))
-        }
-        result.push(child);
-        result = result.concat(buildOutline(pages, child.PageID, level + 1, child));
-      }
-    })
-    result.sort((a, b) => a.OutlineSort.localeCompare(b.OutlineSort));
-    return result;
-  }
-
-  function setCharAt(str, index, chr) {
-    if (index > str.length - 1) return str;
-    return str.substring(0, index) + chr + str.substring(index + 1);
-  }
-
-  const siteElements = (
+  // set up routes (or catchall if outline is not yet loaded)
+  const content = outlineData ? (
     <Routes>
       <Route
         path="/login"
@@ -340,7 +326,14 @@ export default function Site(props) {
       )}</>
       {props.children}
     </Routes>
-
+  ) : (
+    <Routes>
+      <Route
+        path={'*'}
+        element={<></>}
+      />
+      {props.children}
+    </Routes>
   )
 
   const siteContext = {
@@ -357,6 +350,7 @@ export default function Site(props) {
     outlineData: outlineData,
     error: error,
     setError: setError,
+    showErrorAlert: showErrorAlert,
     getChildren: getChildren
   };
 
@@ -365,7 +359,8 @@ export default function Site(props) {
       <SiteContext value={siteContext}>
         <SiteEditor>
           <div className="Site" data-testid="Site">
-            {siteElements}
+            {content}
+            {alertElement}
           </div>
         </SiteEditor>
       </SiteContext>
@@ -374,7 +369,8 @@ export default function Site(props) {
     return (
       <SiteContext value={siteContext}>
         <div className="Site" data-testid="Site">
-          {siteElements}
+          {content}
+          {alertElement}
         </div>
       </SiteContext>
     );
@@ -383,4 +379,52 @@ export default function Site(props) {
 
 export function useSiteContext() {
   return useContext(SiteContext)
+}
+
+/**
+ * Build or rebuild the site outline in the proper sequence
+ * from an unsorted array of page data.
+ *
+ * @param pages {[OutlineData]}   Array of page data (arbitrary sort order)
+ * @param [parentId] {number}     Parent page ID.
+ * @param [level] {number}        Level number, also a trigger to recurse through all children.
+ * @param [parent] {OutlineData}  Parent's sort string
+ * @returns {[OutlineData]}       Outline built from page data
+ */
+function buildOutline(pages, parentId, level, parent) {
+  parentId = parentId ? parentId : 0;
+  level = level ? level : 0;
+  let result = [];
+  pages.map((page) => {
+    if (page.ParentID === parentId) {
+      // copy outline data fields
+      const child = {
+        PageID: page.PageID,
+        SiteID: page.SiteID,
+        ParentID: page.ParentID,
+        PageTitle: page.PageTitle,
+        DisplayTitle: page.DisplayTitle,
+        PageHidden: page.PageHidden,
+        NavTitle: page.NavTitle,
+        OutlineSeq: page.OutlineSeq,
+        LinkToURL: page.LinkToURL,
+        HasChildren: false, // will be reset to true if children are found
+        PageRoute: page.PageRoute,
+        Modified: page.Modified,
+        OutlineLevel: level,
+        OutlineSort: setCharAt(parent ? parent.OutlineSort : '0'.repeat(20), level * 2, page.OutlineSeq.toString().padStart(2, "0"))
+      }
+      result.push(child);
+      result = result.concat(buildOutline(pages, child.PageID, level + 1, child));
+    }
+    return true; // make eslint happy
+  })
+  if (result.length > 0 && parent) parent.HasChildren = true;
+  result.sort((a, b) => a.OutlineSort.localeCompare(b.OutlineSort));
+  return result;
+}
+
+function setCharAt(str, index, chr) {
+  if (index > str.length - 1) return str;
+  return str.substring(0, index) + chr + str.substring(index + 1);
 }

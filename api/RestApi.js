@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useCallback, useRef} from 'react';
 import {useCookies} from "react-cookie";
 import {useContext} from "react";
 import axios from "axios";
@@ -17,35 +17,35 @@ export default function RestApi(props) {
     axios.defaults.headers.common["Authorization"] = `Bearer ${cookies.token.access_token}`;
   }
 
-  async function insertOrUpdateSite(data) {
+  const insertOrUpdateSite = useCallback(async (data) => {
     return await adminApiCall(() => {
       return async () => {
         const response = await axios.post(`${host}/api/v1/content/sites`, data);
         return response.data;
       }
     });
-  }
+  }, [host]);
 
-  async function getPage(pageId) {
+  const getPage = useCallback(async (pageId) => {
     const response = await axios.get(`${host}/api/v1/content/pages/${pageId}`);
     return response.data;
-  }
+  }, [host]);
 
-  async function getPageSections(pageId) {
+  const getPageSections = useCallback(async (pageId) => {
     const response = await axios.get(`${host}/api/v1/content/pages/${pageId}/sections`);
     return response.data;
-  }
+  }, [host]);
 
-  async function insertOrUpdatePageSection(data) {
+  const insertOrUpdatePageSection = useCallback(async (data) => {
     return await adminApiCall(() => {
       return async () => {
         const response = await axios.post(`${host}/api/v1/content/pages/${data.PageID}/sections`, data);
         return response.data;
       }
     });
-  }
+  }, [host]);
 
-  async function uploadSectionImage(pageId, pageSectionId, file) {
+  const uploadSectionImage = useCallback(async (pageId, pageSectionId, file) => {
     return await adminApiCall(() => {
       return async () => {
         const formData = new FormData();
@@ -54,27 +54,27 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }
+  }, [host]);
 
-  async function deleteSectionImage(pageId, pageSectionId) {
+  const deleteSectionImage = useCallback(async (pageId, pageSectionId) => {
     return await adminApiCall(() => {
       return async () => {
         const response = await axios.delete(`${host}/api/v1/content/pages/${pageId}/sections/${pageSectionId}/image`);
         return response.data;
       }
     });
-  }
+  }, [host]);
 
-  async function deletePageSection(pageId, pageSectionId) {
+  const deletePageSection = useCallback(async (pageId, pageSectionId) => {
     return await adminApiCall(() => {
       return async () => {
         const response = await axios.delete(`${host}/api/v1/content/pages/${pageId}/sections/${pageSectionId}`);
         return response.data;
       }
     });
-  }
+  }, [host]);
 
-  async function insertOrUpdatePage(data) {
+  const insertOrUpdatePage = useCallback(async (data) => {
     return await adminApiCall(() => {
       return async () => {
         console.debug("Insert or update Page...");
@@ -82,142 +82,162 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }
+  }, [host]);
 
-  async function deletePage(pageId) {
+  const deletePage = useCallback(async (pageId) => {
     return await adminApiCall(() => {
       return async () => {
         const response = await axios.delete(`${host}/api/v1/content/pages/${pageId}`);
         return response.data;
       }
     });
-  }
+  }, [host]);
 
-  async function movePageBefore(pageId, beforePageId) {
+  const movePageBefore = useCallback(async (pageId, beforePageId) => {
     return await adminApiCall(() => {
       return async () => {
         const response = await axios.post(`${host}/api/v1/content/pages/${pageId}/before/${beforePageId}`);
         return response.data;
       }
     });
-  }
+  }, [host]);
 
-  async function movePageAfter(pageId, afterPageId) {
+  const movePageAfter = useCallback(async (pageId, afterPageId) => {
     return await adminApiCall(() => {
       return async () => {
         const response = await axios.post(`${host}/api/v1/content/pages/${pageId}/after/${afterPageId}`);
         return response.data;
       }
     });
-  }
+  }, [host]);
 
-  async function makePageChildOf(pageId, parentId) {
+  const makePageChildOf = useCallback(async (pageId, parentId) => {
     return await adminApiCall(() => {
       return async () => {
         const response = await axios.post(`${host}/api/v1/content/pages/${pageId}/childof/${parentId}`);
         return response.data;
       }
     });
-  }
+  }, [host]);
 
-  async function getSite() {
+  const getSite = useCallback(async () => {
     const response = await axios.get(`${host}/api/v1/content/sites/${siteId}`);
     return response.data;
-  }
+  }, [host, siteId]);
 
-  async function getSiteOutline() {
+  const getSiteOutline = useCallback(async () => {
     const response = await axios.get(`${host}/api/v1/content/sites/${siteId}/outline`);
     return response.data;
-  }
+  }, [host, siteId]);
 
-  async function getSitemap() {
+  const getSitemap = useCallback(async () => {
     const response = await axios.get(`${host}/api/v1/content/sites/${siteId}/sitemap`);
     return response.data;
-  }
+  }, [host, siteId]);
 
-  async function getGuestBooks() {
+  const getGuestBooks = useCallback(async () => {
     const response = await axios.get(`${host}/api/v1/guestbooks`);
     return response.data;
-  }
+  }, [host]);
 
-  async function getGuestBook(guestBookId) {
+  const getGuestBook = useCallback(async (guestBookId) => {
     const response = await axios.get(`${host}/api/v1/guestbook/${guestBookId}`);
     return response.data;
-  }
+  }, [host]);
 
-  async function insertOrUpdateGuestBook(data) {
+  const insertOrUpdateGuestBook = useCallback(async (data) => {
     return await adminApiCall(() => {
       return async () => {
         const response = await axios.post(`${host}/api/v1/guestbook`, data);
         return response.data;
       }
     });
-  }
+  }, [host]);
 
-  async function deleteGuestBook(guestBookId) {
+  const deleteGuestBook = useCallback(async (guestBookId) => {
     const response = await axios.delete(`${host}/api/v1/guestbook/${guestBookId}`);
     return response.data;
-  }
+  }, [host]);
 
-  async function getGuest(guestId) {
+  const getGuest = useCallback(async (guestId) => {
     const response = await axios.get(`${host}/api/v1/guestbook/guest/${guestId}`);
     return response.data;
-  }
+  }, [host]);
 
-  async function insertOrUpdateGuest(guestBookId, data) {
+  const insertOrUpdateGuest = useCallback(async (guestBookId, data) => {
     const response = await axios.post(`${host}/api/v1/guestbook/${guestBookId}/guest`, data);
     return response.data;
-  }
+  }, [host]);
 
-  async function getGuestFeedback(guestFeedbackId) {
+  const getGuestFeedback = useCallback(async (guestFeedbackId) => {
     const response = await axios.get(`${host}/api/v1/guestbook/feedback/${guestFeedbackId}`);
     return response.data;
-  }
+  }, [host]);
 
-  async function insertOrUpdateGuestFeedback(guestId, data) {
+  const insertOrUpdateGuestFeedback = useCallback(async (guestId, data) => {
     const response = await axios.post(`${host}/api/v1/guestbook/guest/${guestId}/feedback`, data);
     return response.data;
-  }
+  }, [host]);
 
-  async function getGallery(galleryId) {
-    const response = await axios.get(`${host}/api/v1/gallery/${galleryId}`);
+  const getGallery = useCallback(async (galleryId) => {
+    const response = await axios.get(`${host}/api/v1/galleries/${galleryId}`);
     return response.data;
-  }
+  }, [host]);
 
-  async function getGalleries() {
+  const getGalleries = useCallback(async () => {
     const response = await axios.get(`${host}/api/v1/galleries`);
     return response.data;
-  }
+  }, [host]);
 
-  async function insertOrUpdateGallery(data) {
+  const insertOrUpdateGallery = useCallback(async (data) => {
     return adminApiCall(() => {
       return async () => {
         const response = await axios.post(`${host}/api/v1/galleries`, data);
         return response.data;
       }
     });
-  }
+  }, [host]);
 
-  async function deleteGallery(galleryId) {
+  const deleteGallery = useCallback(async (galleryId) => {
     return adminApiCall(() => {
       return async () => {
         const response = await axios.delete(`${host}/api/v1/galleries/${galleryId}`);
         return response.data;
       }
     });
-  }
+  }, [host]);
 
-  async function getPhotos(galleryId) {
-    const response = await axios.get(`${host}/api/v1/gallery/${galleryId}/photos`);
+  const getPhotos = useCallback(async (galleryId) => {
+    const response = await axios.get(`${host}/api/v1/galleries/${galleryId}/photos`);
     return response.data;
-  }
+  }, [host]);
 
-  async function getPageExtras(pageId) {
+  const uploadPhoto = useCallback(async (galleryId, file) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const formData = new FormData();
+        formData.append('PhotoFile', file);
+        const response = await axios.post(`${host}/api/v1/galleries/${galleryId}/photos`, formData);
+        return response.data;
+      }
+    });
+  }, [host]);
+
+  const deletePhoto = useCallback(async (galleryId, photoId) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.delete(`${host}/api/v1/galleries/${galleryId}/photos/${photoId}`);
+        return response.data;
+      }
+    });
+  }, [host]);
+
+  const getPageExtras = useCallback(async (pageId) => {
     const response = await axios.get(`${host}/api/v1/content/pages/${pageId}/extras`);
     return response.data;
-  }
+  }, [host]);
 
-  async function insertOrUpdateExtra(data) {
+  const insertOrUpdateExtra = useCallback(async (data) => {
     return await adminApiCall(() => {
       return async () => {
         const formData = new FormData();
@@ -230,31 +250,31 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }
+  }, [host]);
 
-  async function deleteExtra(extraId) {
+  const deleteExtra = useCallback(async (extraId) => {
     return await adminApiCall(() => {
       return async () => {
         const response = await axios.delete(`${host}/api/v1/content/extras/${extraId}`);
         return response.data;
       }
     });
-  }
+  }, [host]);
 
-  async function getAuthToken(clientId, redirectUrl, authCode) {
+  const getAuthToken = useCallback(async (clientId, redirectUrl, authCode) => {
     const response = await axios.post(`${host}/oauth/token?client_id=${clientId}&redirect_uri=${redirectUrl}&code=${authCode}&grant_type=authorization_code`);
     return response.data;
-  }
+  }, [host]);
 
-  async function refreshToken(refreshToken, clientId) {
+  const refreshToken = useCallback(async (refreshToken, clientId) => {
     const response = await axios.post(`${host}/oauth/token?client_id=${clientId}&grant_type=refresh_token&refresh_token=${refreshToken}`);
     return response.data;
-  }
+  }, [host]);
 
-  async function checkToken() {
+  const checkToken = useCallback(async () => {
     const response = await axios.get(`${host}/oauth/check`);
     return response.data;
-  }
+  }, [host]);
 
   /**
    * @callback RestApiCall
@@ -349,6 +369,8 @@ export default function RestApi(props) {
         getPhotos: getPhotos,
         insertOrUpdateGallery: insertOrUpdateGallery,
         deleteGallery: deleteGallery,
+        uploadPhoto: uploadPhoto,
+        deletePhoto: deletePhoto,
       },
       Extras: {
         getPageExtras: getPageExtras,

@@ -61,12 +61,7 @@ function GuestFields({guestBookConfig, guestData, onChange, labelCols}) {
         </Row>
       </>)}
       {guestBookConfig?.ShowAddress && (
-        <Row>
-          <Form.Label column={true} sm={labelCols} htmlFor={'Address1'}>Address</Form.Label>
-          <Col sm={9}>
-            <AddressFields address={guestData} onChange={(data) => onChange(data)}/>
-          </Col>
-        </Row>
+          <AddressFields address={guestData} onChange={(data) => onChange(data)}/>
       )}
       {guestBookConfig?.ShowDayPhone && (
         <Row className={"mt-2"}>
@@ -125,20 +120,20 @@ function GuestFields({guestBookConfig, guestData, onChange, labelCols}) {
         </Row>
       )}
       {guestBookConfig?.ShowContactInfo && (<>
-        <Row className={"mt-2"}>
-            <Form.Label htmlFor="ContactMethod" column={true} sm={'auto'}>Contact By</Form.Label>
-            <Col sm={3}>
-              <Form.Select
-                id="ContactMethod"
-                value={guestData?.ContactMethod || ''}
-                onChange={(e) => onChange({name: 'ContactMethod', value: e.target.value})}
-              >
-                {guestBookConfig?.ShowEmail && (<option>Email</option>)}
-                {guestBookConfig?.ShowDayPhone && (<option>Phone</option>)}
-                {guestBookConfig?.ShowEveningPhone && (<option>Mobile</option>)}
-                {guestBookConfig?.ShowFax && (<option>Alternate</option>)}
-              </Form.Select>
-            </Col>
+        <Row className={"mt-4"}>
+          <Form.Label htmlFor="ContactMethod" column={true} sm={'auto'}>Contact By</Form.Label>
+          <Col sm={3}>
+            <Form.Select
+              id="ContactMethod"
+              value={guestData?.ContactMethod || ''}
+              onChange={(e) => onChange({name: 'ContactMethod', value: e.target.value})}
+            >
+              {guestBookConfig?.ShowEmail && (<option>Email</option>)}
+              {guestBookConfig?.ShowDayPhone && (<option>Phone</option>)}
+              {guestBookConfig?.ShowEveningPhone && (<option>Mobile</option>)}
+              {guestBookConfig?.ShowFax && (<option>Alternate</option>)}
+            </Form.Select>
+          </Col>
         </Row>
       </>)}
       {guestBookConfig?.ShowMailingList && (

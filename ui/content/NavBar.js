@@ -1,4 +1,4 @@
-import {useRef, useState} from "react";
+import {lazy, Suspense, useRef, useState} from "react";
 import {useSiteContext} from "./Site";
 import {usePageContext} from "./Page";
 import Navbar from 'react-bootstrap/Navbar';
@@ -10,7 +10,8 @@ import {BsPlus} from "react-icons/bs";
 import {useRestApi} from "../../api/RestApi";
 import React from 'react';
 import FormEditor from "../editor/FormEditor";
-import NewPageModal from "../editor/NewPageModal";
+
+const NewPageModal = lazy(() => import("../editor/NewPageModal"));
 
 /**
  * @typedef NavBarProps
@@ -33,12 +34,12 @@ import NewPageModal from "../editor/NewPageModal";
 export default function NavBar(props) {
 
   const {siteData, getChildren, Outline} = useSiteContext();
-  const {pageData, breadcrumbs} = usePageContext();
+  const {pageData, breadcrumbs, addPageSection} = usePageContext();
   const navigate = useNavigate();
   const togglerRef = useRef(null);
   const {token} = useAuth();
   const {canEdit} = useEdit();
-  const {Pages} = useRestApi();
+  const {Pages, PageSections} = useRestApi();
 
   const [showNewPage, setShowNewPage] = useState(false);
 
@@ -80,7 +81,7 @@ export default function NavBar(props) {
           onDrop={(e) => dropHandler(e, props.pageData, 'vertical')}
           key={props.pageData.PageID}
           onClick={() => navigateTo(props.pageData.PageRoute)}
-          className={`text-nowrap${isInCurrentPath(props.pageData.PageID) ? ' active' : ''}`}
+          className={`NavbarDropdownItem text-nowrap${isInCurrentPath(props.pageData.PageID) ? ' active' : ''}`}
           data-testid={`NavItem-${props.pageData.PageID}`}
         >
           {props.pageData.NavTitle ? props.pageData.NavTitle : props.pageData.PageTitle}
@@ -88,6 +89,7 @@ export default function NavBar(props) {
       ) : (
         // at least one child, render a dropdown
         <NavDropdown
+          className="NavbarDropdown"
           draggable={canEdit}
           onMouseMove={(e) => mouseMoveHandler(e)}
           onDragStart={(e) => dragStartHandler(e, props.pageData)}
@@ -112,7 +114,7 @@ export default function NavBar(props) {
                 onDragOver={(e) => dragOverHandler(e, item, 'vertical')}
                 onDragLeave={(e) => dragLeaveHandler(e)}
                 onDrop={(e) => dropHandler(e, item, 'vertical')}
-                className={`text-nowrap${pageData?.PageID === item.PageID ? ' active' : ''}`}
+                className={`NavbarDropdownItem text-nowrap${pageData?.PageID === item.PageID ? ' active' : ''}`}
                 key={item.PageID}
                 onClick={() => navigateTo(item.PageRoute)}
                 data-testid={`NavItem-${item.PageID}`}
@@ -246,6 +248,21 @@ export default function NavBar(props) {
     }
   }
 
+  function onAddSection() {
+    if (pageData) {
+      const data = {
+        PageID: pageData.PageID
+      }
+      console.debug(`Adding page section...`);
+      PageSections.insertOrUpdatePageSection(data)
+        .then((section) => {
+          addPageSection(section);
+        }).catch((error) => {
+        console.error(`Error adding page section.`, error);
+      })
+    }
+  }
+
   return (
     <Navbar
       expand={props.expand ? props.expand : 'sm'}
@@ -295,9 +312,14 @@ export default function NavBar(props) {
         <Navbar.Toggle
           aria-controls="basic-navbar-nav"
           id="NavbarToggle"
+          className="NavbarToggle"
           ref={togglerRef}
         />
-        <Navbar.Collapse id="MainNavigation">
+        <Navbar.Collapse
+          className="NavbarCollapse"
+          id="MainNavigation"
+          style={{position: 'relative'}}
+        >
           <Nav>
             {getChildren(0).map((item) => (
               <React.Fragment
@@ -315,7 +337,7 @@ export default function NavBar(props) {
                     onDragLeave={(e) => dragLeaveHandler(e)}
                     onDrop={(e) => dropHandler(e, item, 'horizontal')}
                     onClick={() => navigateTo(item.PageRoute)}
-                    className={`NavItem text-nowrap${isInCurrentPath(item.PageID) ? ' active' : ''}`}
+                    className={`NavLink text-nowrap${isInCurrentPath(item.PageID) ? ' active' : ''}`}
                     key={item.PageID}
                     data-testid={`NavItem-${item.PageID}`}
                   >
@@ -347,30 +369,53 @@ export default function NavBar(props) {
             )}</>
 
           </Nav>
-          {canEdit && (<>
-            <Button
-              style={{
-                border: 'none',
-                boxShadow: 'none',
-                margin: '0 20px 0 20px',
-                padding: '2px 3px',
-                zIndex: 200,
-              }}
-              className={`AddPageButton border border-secondary btn-light`}
-              type="button"
-              variant={'secondary'}
-              size={'sm'}
-              aria-expanded="false"
-              onClick={() => {
-                setShowNewPage(true);
-              }}
+          {canEdit && (
+            <div
+              className="AddPageButton Editor dropdown"
             >
-              <BsPlus/>
-            </Button>
-            <FormEditor>
-              <NewPageModal show={showNewPage} setShow={setShowNewPage}/>
-            </FormEditor>
-          </>)}
+              <Button
+                style={{
+                  margin: '0 0 0 5px',
+                  padding: '2px 5px',
+                  fontSize: '10pt'
+                }}
+                className={`border btn-light`}
+                type="button"
+                variant={'secondary'}
+                size={'sm'}
+                aria-expanded="false"
+                data-bs-toggle="dropdown"
+              >
+                <BsPlus/>
+              </Button>
+              <div
+                className="dropdown-menu Editor border-secondary border-opacity-25"
+                style={{
+                  position: 'absolute',
+                  zIndex: 100,
+                }}>
+              <span
+                className="dropdown-item"
+                onClick={() => setShowNewPage(true)}
+              >
+                New Page
+              </span>
+                <span
+                  className="dropdown-item"
+                  onClick={() => onAddSection()}
+                >
+                New Section
+              </span>
+              </div>
+              {showNewPage && (
+                <Suspense fallback={<></>}>
+                  <FormEditor>
+                    <NewPageModal show={showNewPage} setShow={setShowNewPage}/>
+                  </FormEditor>
+                </Suspense>
+              )}
+            </div>
+          )}
         </Navbar.Collapse>
       </div>
     </Navbar>
