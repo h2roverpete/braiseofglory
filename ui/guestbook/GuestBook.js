@@ -1,4 +1,4 @@
-import {useEffect, useState, memo, useContext, createContext} from "react";
+import {useEffect, useState, memo, useContext, createContext, useRef} from "react";
 import GuestFields from "./GuestFields";
 import GuestFeedbackFields from "./GuestFeedbackFields";
 import '../forms/Forms.css'
@@ -7,6 +7,8 @@ import {Button} from "react-bootstrap";
 import GuestBookConfig from "./GuestBookConfig";
 import {isValidEmail} from "../forms/EmailField";
 import FormEditor from "../editor/FormEditor";
+import {useTouchContext} from "../../util/TouchProvider";
+import {useEdit} from "../editor/EditProvider";
 
 
 export const GuestBookContext = createContext({
@@ -52,6 +54,10 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
 
   // has form been submitted?
   const [submitted, setSubmitted] = useState(false);
+
+  const {supportsHover} = useTouchContext();
+  const expandButtonRef = useRef(null);
+  const {canEdit} = useEdit();
 
   // load guest book configuration when initialized
   useEffect(() => {
@@ -186,8 +192,22 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
         setGuestBookConfig: setGuestBookConfig,
       }
     }>
-      {guestBookConfig && (<>
-        <div className="GuestBook SectionText" key={guestBookId} style={{width: '100%'}}>
+      {guestBookConfig && (<div
+        onMouseOver={() => {
+          if (canEdit && supportsHover) {
+            expandButtonRef.current.hidden = false;
+          }
+        }}
+        onMouseOut={() => {
+          if (canEdit && supportsHover) {
+            expandButtonRef.current.hidden = true;
+          }
+        }}
+      >
+        <div
+          className="GuestBook"
+          style={{width: '100%'}}
+        >
           {submitted ? (
             <>
               <p
@@ -237,10 +257,12 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
             </>
           )}
         </div>
-        <FormEditor>
-          <GuestBookConfig extraId={extraId}/>
-        </FormEditor>
-      </>)}
+        {canEdit && (
+          <FormEditor>
+            <GuestBookConfig extraId={extraId} buttonRef={expandButtonRef}/>
+          </FormEditor>
+        )}
+      </div>)}
     </GuestBookContext>
   )
 }

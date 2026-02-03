@@ -10,6 +10,7 @@ import {DropState, FileDropTarget} from "../editor/FileDropTarget";
 import Extras from "../extras/Extras";
 import {useSiteContext} from "./Site";
 import {loremIpsum} from "lorem-ipsum";
+import {useTouchContext} from "../../util/TouchProvider";
 
 /**
  * Generate a page section
@@ -38,6 +39,8 @@ function PageSection({pageSectionData}) {
   const sectionTextRef = useRef(null);
   const sectionImageRef = useRef(null);
   const sectionRef = useRef(null);
+  const editButtonRef = useRef(null);
+  const {supportsHover} = useTouchContext();
 
   const onTitleChanged = useCallback(({textContent, textAlign}) => {
     // commit title edits
@@ -310,6 +313,8 @@ function PageSection({pageSectionData}) {
     }}>
       <div
         className={`PageSection`}
+        onMouseOver={()=>{if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden=false}}
+        onMouseLeave={()=>{if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden=true}}
         style={{
           position: 'relative',
           minHeight:
@@ -370,6 +375,8 @@ function PageSection({pageSectionData}) {
           <div
             className="Editor dropdown"
             style={{position: 'absolute', top: '2px', right: '2px'}}
+            ref={editButtonRef}
+            hidden={supportsHover}
           >
             <Button
               variant="secondary"

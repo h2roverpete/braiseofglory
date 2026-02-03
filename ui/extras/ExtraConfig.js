@@ -6,7 +6,7 @@ import {usePageContext} from "../content/Page";
 import {useFormEditor} from "../editor/FormEditor";
 import {useEffect} from "react";
 
-export default function ExtraConfig({extraData}) {
+export default function ExtraConfig({extraData, buttonRef}) {
 
   const {canEdit} = useEdit();
   const {Extras} = useRestApi();
@@ -44,6 +44,7 @@ export default function ExtraConfig({extraData}) {
         });
       }}
       isDataValid={() => true}
+      buttonRef={buttonRef}
     >
       <h5>File Properties</h5>
       <Row className="mt-2">

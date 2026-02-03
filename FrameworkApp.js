@@ -3,6 +3,7 @@ import RestApiProvider from "./api/RestApi";
 import {BrowserRouter} from "react-router";
 import {CookiesProvider} from "react-cookie";
 import React from "react";
+import TouchProvider from "./util/TouchProvider";
 
 /**
  * Provide all dependencies for a framework app.
@@ -29,7 +30,9 @@ export default function FrameworkApp(props) {
       <RestApiProvider>
         <AuthProvider>
           <BrowserRouter>
-            {props.children}
+            <TouchProvider>
+              {props.children}
+            </TouchProvider>
           </BrowserRouter>
         </AuthProvider>
       </RestApiProvider>

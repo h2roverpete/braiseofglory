@@ -2,11 +2,16 @@ import {Button, Collapse} from "react-bootstrap";
 import {BsChevronCompactLeft, BsChevronCompactRight} from "react-icons/bs";
 import SiteOutline from "./SiteOutline";
 import FormEditor from "./FormEditor";
-import {useState} from "react";
+import {useRef, useState} from "react";
 import SiteConfig from "./SiteConfig";
+import {useTouchContext} from "../../util/TouchProvider";
 
 export default function SiteConfigPanel() {
+
   const [expanded, setExpanded] = useState(false);
+  const buttonRef = useRef(null);
+  const {supportsHover} = useTouchContext();
+
   return (<div
     className={'Editor SiteEditor'}
     style={{
@@ -15,23 +20,38 @@ export default function SiteConfigPanel() {
       height: '100%',
     }}
   >
-    <Button
-      variant=""
-      onClick={() => setExpanded(!expanded)}
-      className={`EditorToggle ${expanded ? '' : 'collapsed'}`}
+    <div
       style={{
-        padding: '30px 5px 0 0',
-        display: 'fixed',
-        flexDirection: 'column',
         position: 'fixed',
         top: 0,
         left: '-5px',
         zIndex: 1198,
         height: '100vh',
+        width: '25px',
+      }}
+      onMouseEnter={() => {
+        if (supportsHover && buttonRef.current) buttonRef.current.hidden = false;
+      }}
+      onMouseLeave={() => {
+        if (supportsHover && buttonRef.current) buttonRef.current.hidden = true;
       }}
     >
-      {expanded ? (<BsChevronCompactLeft size={'25'}/>) : ((<BsChevronCompactRight size={'25'}/>))}
-    </Button>
+      <Button
+        variant=""
+        onClick={() => setExpanded(!expanded)}
+        className={`SiteEditor EditorToggle ${expanded ? '' : 'collapsed'}`}
+        style={{
+          padding: '30px 5px 0 0',
+          display: 'fixed',
+          flexDirection: 'column',
+          height: '100%'
+        }}
+        hidden={supportsHover}
+        ref={buttonRef}
+      >
+        {expanded ? (<BsChevronCompactLeft size={'25'}/>) : ((<BsChevronCompactRight size={'25'}/>))}
+      </Button>
+    </div>
     <Collapse
       in={expanded}
       dimension={'width'}

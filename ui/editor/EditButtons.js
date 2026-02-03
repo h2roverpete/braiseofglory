@@ -8,6 +8,8 @@ import {BsCheck, BsPencil, BsX} from "react-icons/bs";
  * @property {callback} callback
  * @property {string} align
  * @property {boolean} showEditButton
+ * @property {boolean} hidden
+ * @property ref
  */
 
 /**
@@ -21,7 +23,11 @@ export default function EditButtons(props) {
   return (
     <>
       {props.editable && (
-        <div style={{whiteSpace: "nowrap", position: 'absolute', top: '2px', right: '2px'}}>
+        <div
+          style={{whiteSpace: "nowrap", position: 'absolute', top: '2px', right: '2px'}}
+          hidden={props.hidden===true}
+          ref={props.ref}
+        >
           <Button
             onClick={() => props.callback(EditAction.CONFIRM)}
             variant={'secondary'}

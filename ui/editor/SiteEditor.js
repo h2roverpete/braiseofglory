@@ -3,7 +3,6 @@ import SiteConfigPanel from "./SiteConfigPanel";
 export default function SiteEditor({children}) {
   return (
     <div
-      className="SiteEditor"
       style={{
         display: 'flex',
         flexDirection: 'row',

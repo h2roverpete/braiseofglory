@@ -10,6 +10,7 @@ import FileDropTarget, {DropState} from "../editor/FileDropTarget";
 import {useSiteContext} from "../content/Site";
 import {Button} from "react-bootstrap";
 import {BsThreeDotsVertical} from "react-icons/bs";
+import {useTouchContext} from "../../util/TouchProvider";
 
 /**
  * Display a photo gallery
@@ -28,6 +29,10 @@ export default function Gallery({galleryId, extraId}) {
   const {Galleries} = useRestApi();
   const {siteData, showErrorAlert} = useSiteContext();
   const fileDropRef = useRef(null);
+  const {supportsHover} = useTouchContext();
+  const buttonRef = useRef(null);
+  const expandButtonRef = useRef(null);
+  const configRef = useRef(null);
 
   useEffect(() => {
     if (galleryId) {
@@ -183,9 +188,21 @@ export default function Gallery({galleryId, extraId}) {
         minHeight: '100px',
         position: 'relative',
         border: images?.length === 0 ? '1px dotted gray' : 'none'
-    }}
+      }}
       onDragEnter={(e) => {
         fileDropRef.current?.onDragEnter(e, DropState.ADD);
+      }}
+      onMouseOver={() => {
+        if (canEdit && supportsHover) {
+          buttonRef.current.hidden = false;
+          expandButtonRef.current.hidden = false;
+        }
+      }}
+      onMouseOut={() => {
+        if (canEdit && supportsHover) {
+          buttonRef.current.hidden = true;
+          expandButtonRef.current.hidden = true;
+        }
       }}
     >
 
@@ -210,12 +227,14 @@ export default function Gallery({galleryId, extraId}) {
             top: 0,
             right: '5px',
           }}
+          hidden={supportsHover}
+          ref={buttonRef}
         >
           <Button
             style={{
               fontSize: '10pt',
-              margin: '5px',
-              padding: '2px 5px'
+              margin: 0,
+              padding: '1px 3px',
             }}
             className={`btn-light`}
             type="button"
@@ -239,16 +258,18 @@ export default function Gallery({galleryId, extraId}) {
           </div>
         </div>
       </>)}
+      {canEdit && (
+        <FormEditor>
+          <GalleryConfig
+            galleryConfig={galleryConfig}
+            setGalleryConfig={setGalleryConfig}
+            extraId={extraId}
+            buttonRef={expandButtonRef}
+            ref={configRef}
+          />
+        </FormEditor>
+      )}
     </div>
-    {canEdit && (
-      <FormEditor>
-        <GalleryConfig
-          galleryConfig={galleryConfig}
-          setGalleryConfig={setGalleryConfig}
-          extraId={extraId}
-        />
-      </FormEditor>
-    )}
   </>)
 }
 

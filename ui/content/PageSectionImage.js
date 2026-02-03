@@ -6,6 +6,8 @@ import {useSiteContext} from "./Site";
 import FileDropTarget from "../editor/FileDropTarget";
 import {Button} from "react-bootstrap";
 import {usePageSectionContext} from "./PageSection";
+import {useRef} from "react";
+import {useTouchContext} from "../../util/TouchProvider";
 
 /**
  * Insert an editable page section image.
@@ -22,6 +24,8 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
   const {pageSectionData} = usePageSectionContext();
   const {canEdit} = useEdit();
   const {siteData, showErrorAlert} = useSiteContext();
+  const editButtonRef = useRef(null);
+  const {supportsHover} = useTouchContext();
 
   if (!pageSectionData.SectionImage) {
     return <></>;
@@ -108,7 +112,7 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
     const w = getImageWidth();
     if (w < 6) {
       // small images remain beside text on small screens
-      imageDivClassName += ` mb-0 col-${Math.round(w*1.25)} col-sm-${w}`;
+      imageDivClassName += ` mb-0 col-${Math.round(w * 1.25)} col-sm-${w}`;
       if (pageSectionData.ImageAlign === 'right') {
         imageDivClassName += ' ms-3';
       } else if (pageSectionData.ImageAlign === 'left') {
@@ -146,6 +150,12 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
         style={imageDivStyle}
         className={imageDivClassName}
         data-testid={`SectionImageDiv-${pageSectionData.PageSectionID}`}
+        onMouseOver={() => {
+          if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = false;
+        }}
+        onMouseLeave={() => {
+          if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = true;
+        }}
       >
         <img
           className={imageClassName}
@@ -161,6 +171,8 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
             <div
               className="dropdown"
               style={{position: 'absolute', bottom: '0', right: '2px'}}
+              ref={editButtonRef}
+              hidden={supportsHover}
             >
               <Button
                 variant="secondary"
