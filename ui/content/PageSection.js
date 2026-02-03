@@ -333,13 +333,15 @@ function PageSection({pageSectionData}) {
         data-testid={`PageSection-${pageSectionData.PageSectionID}`}
         ref={sectionRef}
       >
-        {!sectionExtras.length
-          && pageSectionData.PageSectionID
+        {
+          pageSectionData.PageSectionID
           && !pageSectionData.SectionImage
           && !pageSectionData.SectionTitle
           && !pageSectionData.SectionText
           && (
+            <div style={{height:'100px'}}>
             <div className={'Editor EmptyElement'}>(Empty Section)</div>
+            </div>
           )}
         {(pageSectionData.SectionTitle || editingTitle) && (
           <EditableField

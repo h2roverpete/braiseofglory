@@ -181,26 +181,28 @@ export default function Gallery({galleryId, extraId}) {
     }
   }
 
-  return (<>
+  return (<div
+    onDragEnter={(e) => {
+      if (canEdit) {
+        fileDropRef.current?.onDragEnter(e, DropState.ADD);
+      }
+    }}
+    onMouseOver={() => {
+      if (canEdit && supportsHover) {
+        buttonRef.current.hidden = false;
+        expandButtonRef.current.hidden = false;
+      }
+    }}
+    onMouseOut={() => {
+      if (canEdit && supportsHover) {
+        buttonRef.current.hidden = true;
+        expandButtonRef.current.hidden = true;
+      }
+    }}>
     <div
-      className="Gallery mt-4"
+      className="Gallery"
       style={{
         position: 'relative',
-      }}
-      onDragEnter={(e) => {
-        fileDropRef.current?.onDragEnter(e, DropState.ADD);
-      }}
-      onMouseOver={() => {
-        if (canEdit && supportsHover) {
-          buttonRef.current.hidden = false;
-          expandButtonRef.current.hidden = false;
-        }
-      }}
-      onMouseOut={() => {
-        if (canEdit && supportsHover) {
-          buttonRef.current.hidden = true;
-          expandButtonRef.current.hidden = true;
-        }
       }}
     >
       {images?.length > 0 && (
@@ -255,19 +257,19 @@ export default function Gallery({galleryId, extraId}) {
           </div>
         </div>
       </>)}
-      {canEdit && (
-        <FormEditor>
-          <GalleryConfig
-            galleryConfig={galleryConfig}
-            setGalleryConfig={setGalleryConfig}
-            extraId={extraId}
-            buttonRef={expandButtonRef}
-            ref={configRef}
-          />
-        </FormEditor>
-      )}
     </div>
-  </>)
+    {canEdit && (
+      <FormEditor>
+        <GalleryConfig
+          galleryConfig={galleryConfig}
+          setGalleryConfig={setGalleryConfig}
+          extraId={extraId}
+          buttonRef={expandButtonRef}
+          ref={configRef}
+        />
+      </FormEditor>
+    )}
+  </div>)
 }
 
 /**
