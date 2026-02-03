@@ -205,9 +205,7 @@ function buildBreadcrumbs(outlineData, parentId) {
       }
     }
   }
-  return breadcrumbs.sort((a, b) => {
-    return b?.OutlineSeq - a?.OutlineSeq
-  });
+  return breadcrumbs.reverse();
 }
 
 export function usePageContext() {
