@@ -106,7 +106,7 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
   if (pageSectionData.ImagePosition === 'beside') {
     // align image left or right beside text
     const w = getImageWidth();
-    if (w < 3) {
+    if (w < 4) {
       imageDivClassName += ` mb-0 col-${w*3} col-sm${w}`;
       if (pageSectionData.ImageAlign === 'right') {
         imageDivClassName += ' ms-3';
