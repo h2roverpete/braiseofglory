@@ -1,5 +1,5 @@
 import {Button, Collapse} from "react-bootstrap";
-import {BsChevronCompactLeft, BsChevronCompactRight} from "react-icons/bs";
+import {BsChevronCompactLeft, BsChevronCompactRight, BsX, BsXLg, BsXSquare} from "react-icons/bs";
 import SiteOutline from "./SiteOutline";
 import FormEditor from "./FormEditor";
 import {useRef, useState} from "react";
@@ -19,6 +19,12 @@ export default function SiteConfigPanel() {
       flexDirection: 'row',
       height: '100%',
     }}
+    onMouseEnter={() => {
+      if (supportsHover && buttonRef.current) buttonRef.current.hidden = false;
+    }}
+    onMouseLeave={() => {
+      if (supportsHover && buttonRef.current) buttonRef.current.hidden = true;
+    }}
   >
     <div
       style={{
@@ -29,12 +35,6 @@ export default function SiteConfigPanel() {
         height: '100vh',
         width: '25px',
       }}
-      onMouseEnter={() => {
-        if (supportsHover && buttonRef.current) buttonRef.current.hidden = false;
-      }}
-      onMouseLeave={() => {
-        if (supportsHover && buttonRef.current) buttonRef.current.hidden = true;
-      }}
     >
       <Button
         variant=""
@@ -44,12 +44,28 @@ export default function SiteConfigPanel() {
           padding: '30px 5px 0 0',
           display: 'fixed',
           flexDirection: 'column',
-          height: '100%'
+          height: '100%',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
         hidden={supportsHover}
         ref={buttonRef}
       >
+        <div
+          style={{
+            flexGrow: 1,
+            margin: '10px 0',
+          }}
+          className={`Editor ToggleBar ${expanded ? 'expanded' : 'collapsed'}`}
+        />
         {expanded ? (<BsChevronCompactLeft size={'25'}/>) : ((<BsChevronCompactRight size={'25'}/>))}
+        <div
+          style={{
+            flexGrow: 1,
+            margin: '10px 0',
+          }}
+          className={`Editor ToggleBar ${expanded ? 'expanded' : 'collapsed'}`}
+        />
       </Button>
     </div>
     <Collapse
@@ -72,13 +88,31 @@ export default function SiteConfigPanel() {
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
+          position: 'relative',
         }}>
+          <BsXLg
+            style={{
+              position: 'absolute',
+              top: 4,
+              right: 4,
+              fontSize: '14pt',
+              cursor: 'pointer',
+            }}
+            onClick={() => {
+              setExpanded(false)
+            }}
+          />
           <div style={{
             flexGrow: 1,
+            flexShrink: 1,
+            overflow: 'hidden',
           }}>
-            <SiteOutline style={{maxHeight: '60vh'}} className={'overflow-auto'}/>
+            <SiteOutline/>
           </div>
-          <div style={{}}>
+          <div style={{
+            flexGrow: 0,
+            flexShrink: 0,
+          }}>
             <FormEditor>
               <SiteConfig/>
             </FormEditor>

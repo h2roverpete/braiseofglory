@@ -83,7 +83,7 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId,
             onClick={onRemoveFromSection}
           >
             <span className={'d-none d-sm-block'}>Remove from Section</span>
-            <span className={'d-block d-sm-none'}>-Section</span>
+            <span className={'d-block d-sm-none'}>Remove</span>
           </Button>
         )}
       </>}

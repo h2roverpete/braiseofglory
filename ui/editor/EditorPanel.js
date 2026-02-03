@@ -2,7 +2,7 @@ import {Button, Col, Collapse, Row} from "react-bootstrap";
 import {useState} from "react";
 import {useEdit} from "./EditProvider";
 import {useFormEditor} from "./FormEditor";
-import {BsChevronCompactDown, BsChevronCompactUp} from "react-icons/bs";
+import {BsChevronCompactDown, BsChevronCompactUp, BsXLg} from "react-icons/bs";
 
 /**
  * Display a collapsable editing panel
@@ -43,7 +43,7 @@ export default function EditorPanel(
   }
 
   return (<div
-    className={"EditorPanel Editor mt-4"}
+    className={"EditorPanel Editor"}
     style={{
       display: 'flex',
       flexDirection: 'column',
@@ -69,10 +69,25 @@ export default function EditorPanel(
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'center',
+          alignItems: 'center',
           width: '100%',
         }}
       >
+        <div
+          style={{
+            flexGrow: 1,
+            margin: '0 10px',
+          }}
+          className={`Editor ToggleBar ${expanded ? 'expanded' : 'collapsed'}`}
+        />
         {expanded ? (<BsChevronCompactUp size={'25'}/>) : ((<BsChevronCompactDown size={'25'}/>))}
+        <div
+          style={{
+            flexGrow: 1,
+            margin: '0 10px',
+          }}
+          className={`Editor ToggleBar ${expanded ? 'expanded' : 'collapsed'}`}
+        />
       </Button>
     </div>
     <Collapse
@@ -85,9 +100,22 @@ export default function EditorPanel(
           backgroundColor: '#e0e0e0f0',
           width: '100%',
           padding: '0 10px 10px 10px',
+          position: 'relative',
         }}
         className="EditorPanel Body"
       >
+        <BsXLg
+          style={{
+            position: 'absolute',
+            top: -5,
+            right: 15,
+            fontSize: '14pt',
+            cursor: 'pointer',
+          }}
+          onClick={() => {
+            setExpanded(false)
+          }}
+        />
         {children}
         <Row className={'mt-4'}>
           <Col xs={'auto'} className={'pe-0'}>

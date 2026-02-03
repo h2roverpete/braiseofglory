@@ -381,8 +381,7 @@ function PageSection({pageSectionData}) {
             <Button
               variant="secondary"
               size="sm"
-              style={{border: 'none', boxShadow: 'none', margin: '2px', padding: '2px 5px'}}
-              className={`border btn-light`}
+              className={`EditButton border btn-light`}
               type="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"

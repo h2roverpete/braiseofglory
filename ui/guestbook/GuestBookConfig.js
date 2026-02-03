@@ -1,7 +1,7 @@
 import {useGuestBook} from "./GuestBook";
 import {useEdit} from "../editor/EditProvider";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import EmailField, {isValidEmail} from "../forms/EmailField";
 import {useRestApi} from "../../api/RestApi";
 import CustomFieldsConfig from "./CustomFieldsConfig";
@@ -125,8 +125,8 @@ export default function GuestBookConfig({extraId, buttonRef}) {
             size="sm"
             onClick={() => onDeleteExtra()}
           >
-            <span className={'d-none d-sm-block'}>Remove from Page</span>
-            <span className={'d-block d-sm-none'}>-Page</span>
+            <span className={'d-none d-sm-block'}>Remove from Section</span>
+            <span className={'d-block d-sm-none'}>Remove</span>
           </Button>
         )}
       </>}

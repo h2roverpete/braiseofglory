@@ -185,9 +185,7 @@ export default function Gallery({galleryId, extraId}) {
     <div
       className="Gallery mt-4"
       style={{
-        minHeight: '100px',
         position: 'relative',
-        border: images?.length === 0 ? '1px dotted gray' : 'none'
       }}
       onDragEnter={(e) => {
         fileDropRef.current?.onDragEnter(e, DropState.ADD);
@@ -205,13 +203,17 @@ export default function Gallery({galleryId, extraId}) {
         }
       }}
     >
-
       {images?.length > 0 && (
         <ImageGallery items={images} ref={galleryRef} onSlide={onSlide}/>
       )}
       {canEdit && (<>
         {images?.length === 0 && (
-          <div className={'Editor EmptyElement'}>(Empty Gallery)</div>
+          <div style={{
+            position: 'relative',
+            height: '100px',
+          }}>
+            <div className={'Editor EmptyElement'}>(Empty Gallery)</div>
+          </div>
         )}
         <FileDropTarget
           ref={fileDropRef}
@@ -231,12 +233,7 @@ export default function Gallery({galleryId, extraId}) {
           ref={buttonRef}
         >
           <Button
-            style={{
-              fontSize: '10pt',
-              margin: 0,
-              padding: '1px 3px',
-            }}
-            className={`btn-light`}
+            className={`EditButton btn-light mt-1`}
             type="button"
             variant={'secondary'}
             size={'sm'}

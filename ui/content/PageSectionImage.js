@@ -169,7 +169,7 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
           <>
             <FileDropTarget ref={dropRef} onFileSelected={onFileSelected} onFilesSelected={onFilesSelected}/>
             <div
-              className="dropdown"
+              className="EditSectionImage Editor dropdown"
               style={{position: 'absolute', bottom: '0', right: '2px'}}
               ref={editButtonRef}
               hidden={supportsHover}
@@ -177,13 +177,7 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
               <Button
                 variant="secondary"
                 size="sm"
-                style={{
-                  border: 'none',
-                  boxShadow: 'none',
-                  margin: '2px',
-                  padding: '2px 5px'
-                }}
-                className={`border btn-light`}
+                className={`EditButton border btn-light`}
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
