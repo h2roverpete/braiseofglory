@@ -106,19 +106,21 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
   if (pageSectionData.ImagePosition === 'beside') {
     // align image left or right beside text
     const w = getImageWidth();
-    if (w < 3) {
-      imageDivClassName += ` mb-0 col-${w*3} col-sm${w}`;
+    if (w < 6) {
+      // small images remain beside text on small screens
+      imageDivClassName += ` mb-0 col-${Math.round(w*1.25)} col-sm-${w}`;
       if (pageSectionData.ImageAlign === 'right') {
         imageDivClassName += ' ms-3';
       } else if (pageSectionData.ImageAlign === 'left') {
         imageDivClassName += ' me-3';
       }
     } else {
+      // larger images go full width below 'sm' boundary
       imageDivClassName += ` mb-3 col-12 col-sm-${w}`;
       if (pageSectionData.ImageAlign === 'right') {
         imageDivClassName += ' ms-sm-3';
       } else if (pageSectionData.ImageAlign === 'left') {
-        imageDivClassName += ' me-sm-4';
+        imageDivClassName += ' me-sm-3';
       }
     }
     imageDivStyle.position = 'relative';
@@ -126,7 +128,7 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
     imageDivStyle.textAlign = 'center';
   } else {
     // center image
-    imageDivClassName += ` col-sm-12`;
+    imageDivClassName += ` col-sm-12 mb-3`;
     imageDivStyle.display = 'flex'
     imageDivStyle.flexDirection = 'column'
     imageDivStyle.alignItems = pageSectionData.ImageAlign === 'right' ? 'flex-end' : pageSectionData.ImageAlign === 'left' ? 'flex-start' : 'center';

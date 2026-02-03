@@ -27,7 +27,7 @@ export default function SiteConfigPanel() {
         top: 0,
         left: '-5px',
         zIndex: 1198,
-        height: '100%',
+        height: '100vh',
       }}
     >
       {expanded ? (<BsChevronCompactLeft size={'25'}/>) : ((<BsChevronCompactRight size={'25'}/>))}
