@@ -56,30 +56,43 @@ export default function SiteOutline(props) {
   }
 
   return (
-    <div {...props}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+      }}
+    >
       <h5>Site Outline</h5>
-      {outlineData?.map((page) => (
-        <div
-          key={page.PageID}
-          style={{
-            marginLeft: `${page.OutlineLevel * 20}px`,
-            padding: '5px',
-            opacity: page.PageHidden ? 0.5 : 1.0,
-            background: location.pathname === page.PageRoute ? '#00000020' : 'transparent',
-          }}
-          onClick={() => {
-            navigate(page.PageRoute)
-          }}
-          onMouseMove={(e) => onMouseMove(e)}
-          onDragOver={(e) => onDragOver(e, page, 'vertical')}
-          onDragStart={(e) => onDragStart(e, page)}
-          onDragLeave={(e) => onDragLeave(e)}
-          onDrop={(e) => onDrop(e, page)}
-          draggable={true}
-        >
-          {page.NavTitle ? page.NavTitle : page.PageTitle}
-        </div>
-      ))}
+      <div
+        style={{
+          flexGrow: 1,
+          flexShrink: 1,
+          overflowY: 'scroll',
+        }}
+      >
+        {outlineData?.map((page) => (
+          <div
+            key={page.PageID}
+            className={`OutlineItem ${location.pathname === page.PageRoute ? 'active' : ''}`}
+            style={{
+              marginLeft: `${page.OutlineLevel * 10}px`,
+              opacity: page.PageHidden ? 0.5 : 1.0,
+            }}
+            onClick={() => {
+              navigate(page.PageRoute)
+            }}
+            onMouseMove={(e) => onMouseMove(e)}
+            onDragOver={(e) => onDragOver(e, page, 'vertical')}
+            onDragStart={(e) => onDragStart(e, page)}
+            onDragLeave={(e) => onDragLeave(e)}
+            onDrop={(e) => onDrop(e, page)}
+            draggable={true}
+          >
+            {page.NavTitle ? page.NavTitle : page.PageTitle}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

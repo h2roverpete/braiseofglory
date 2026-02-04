@@ -7,12 +7,10 @@
 .Editor textarea.form-control-sm,
 .Editor .btn-sm {
   font-size: 10pt;
+  line-height: 1.2em;
 }
 
-.Editor .btn-sm {
-}
-
-/** Preserve active links when editing */
+/* Preserve active links when editing */
 .SectionText a {
   pointer-events: auto;
 }
@@ -23,14 +21,16 @@
   color: black;
 }
 
+/* File drop and uploading prompts */
 .Editor.DropFile {
-  font-size:14pt;
+  font-size: 14pt;
 }
 
+/* Empty elements like page sections and galleries */
 .Editor.EmptyElement {
-  width:100%;
-  height:100%;
-  display:flex;
+  width: 100%;
+  height: 100%;
+  display: flex;
   justify-content: center;
   align-items: center;
   color: gray;
@@ -38,6 +38,7 @@
   position: absolute;
   top: 0;
   left: 0;
+  border: 1px dotted gray;
 }
 
 .Editor div.form-check {
@@ -51,11 +52,17 @@
   transform: translateY(2px);
 }
 
+button.EditButton {
+  width: 25px;
+  height: 25px;
+  padding: 0;
+}
+
 div.dropdown-menu.Editor {
   background-color: white;
   padding: 10px 0;
   cursor: pointer;
-  line-height:200%;
+  line-height: 200%;
 }
 
 .Editor .dropdown-item:hover {
@@ -64,22 +71,56 @@ div.dropdown-menu.Editor {
 
 /* Headings in edit panels */
 .Editor h5 {
-  font-size:13pt;
+  font-size: 13pt;
 }
 
 /* Admin panel */
 .Editor {
-  color:black;
+  color: black;
   font-size: 10pt;
   font-weight: normal;
 }
 
-button.EditorToggle.btn:active,
+/* all editor toggles */
+button.EditorToggle.btn.expanded,
 button.EditorToggle.btn {
   color: black;
   background: transparent;
   border: none;
   border-radius: 0;
+}
+
+button.EditorToggle {
+  background-color: transparent;
+}
+
+/* all toggle arrows */
+.EditorToggle {
+  color: black;
+}
+
+/* page editor toggle arrow collapsed */
+.PageEditor .EditorToggle.collapsed {
+  color: white;
+  filter: drop-shadow(0px 1px black);
+}
+
+/* site editor toggle arrow collapsed */
+.SiteEditor .EditorToggle.collapsed {
+  color: white;
+  filter: drop-shadow(1px 0px black);
+}
+
+.OutlineItem {
+  padding: 2px 5px;
+}
+
+.OutlineItem.active {
+  background-color: #00000020;
+}
+
+.ToggleBar {
+  background-color: #00000022;
 }
 
 .Editor {

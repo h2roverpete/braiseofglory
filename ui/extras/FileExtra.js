@@ -1,13 +1,18 @@
 import {useSiteContext} from "../content/Site";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import ExtraConfig from "./ExtraConfig";
 import {Col, Container, Row} from "react-bootstrap";
 import FormEditor from "../editor/FormEditor";
+import {useTouchContext} from "../../util/TouchProvider";
+import {useEdit} from "../editor/EditProvider";
 
 export default function FileExtra({extraData}) {
 
   const {siteData} = useSiteContext();
   const [content, setContent] = useState(<></>);
+  const {supportsHover} = useTouchContext();
+  const buttonRef = useRef();
+  const {canEdit} = useEdit();
 
   useEffect(() => {
     if (siteData && extraData) {
@@ -54,17 +59,29 @@ export default function FileExtra({extraData}) {
           setContent(<>
             <div className={'Extra'}>
               <a
-                href={fileUrl}>{extraData.ExtraFilePrompt ? extraData.ExtraFilePrompt : fileName}</a>
+                href={fileUrl}  rel="noreferrer" target={'_blank'}>{extraData.ExtraFilePrompt ? extraData.ExtraFilePrompt : fileName}</a>
             </div>
           </>);
           break;
       }
     }
   }, [siteData, extraData]);
-  return (<>
+  return (<div
+    onMouseOver={() => {
+      if (canEdit && supportsHover) {
+        buttonRef.current.hidden = false;
+      }
+    }}
+    onMouseOut={() => {
+      if (canEdit && supportsHover) {
+        buttonRef.current.hidden = true;
+      }
+    }}>
     {content}
-    <FormEditor>
-      <ExtraConfig extraData={extraData}/>
-    </FormEditor>
-  </>);
+    {canEdit && (
+      <FormEditor>
+        <ExtraConfig extraData={extraData} buttonRef={buttonRef}/>
+      </FormEditor>
+    )}
+  </div>);
 }

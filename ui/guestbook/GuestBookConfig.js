@@ -1,7 +1,7 @@
 import {useGuestBook} from "./GuestBook";
 import {useEdit} from "../editor/EditProvider";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import EmailField, {isValidEmail} from "../forms/EmailField";
 import {useRestApi} from "../../api/RestApi";
 import CustomFieldsConfig from "./CustomFieldsConfig";
@@ -9,14 +9,13 @@ import {usePageContext} from "../content/Page";
 import EditorPanel from "../editor/EditorPanel";
 import {useFormEditor} from "../editor/FormEditor";
 
-export default function GuestBookConfig({extraId}) {
+export default function GuestBookConfig({extraId, buttonRef}) {
 
   const {guestBookConfig, setGuestBookConfig} = useGuestBook();
   const {canEdit} = useEdit();
   const {GuestBooks, Extras} = useRestApi();
   const {removeExtraFromPage} = usePageContext();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const buttonRef = useRef(null);
   const {edits, FormData} = useFormEditor();
   useEffect(() => {
     FormData?.update(guestBookConfig);
@@ -126,8 +125,8 @@ export default function GuestBookConfig({extraId}) {
             size="sm"
             onClick={() => onDeleteExtra()}
           >
-            <span className={'d-none d-sm-block'}>Remove from Page</span>
-            <span className={'d-block d-sm-none'}>-Page</span>
+            <span className={'d-none d-sm-block'}>Remove from Section</span>
+            <span className={'d-block d-sm-none'}>Remove</span>
           </Button>
         )}
       </>}

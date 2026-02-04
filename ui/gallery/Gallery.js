@@ -10,6 +10,7 @@ import FileDropTarget, {DropState} from "../editor/FileDropTarget";
 import {useSiteContext} from "../content/Site";
 import {Button} from "react-bootstrap";
 import {BsThreeDotsVertical} from "react-icons/bs";
+import {useTouchContext} from "../../util/TouchProvider";
 
 /**
  * Display a photo gallery
@@ -28,6 +29,10 @@ export default function Gallery({galleryId, extraId}) {
   const {Galleries} = useRestApi();
   const {siteData, showErrorAlert} = useSiteContext();
   const fileDropRef = useRef(null);
+  const {supportsHover} = useTouchContext();
+  const buttonRef = useRef(null);
+  const expandButtonRef = useRef(null);
+  const configRef = useRef(null);
 
   useEffect(() => {
     if (galleryId) {
@@ -176,25 +181,41 @@ export default function Gallery({galleryId, extraId}) {
     }
   }
 
-  return (<>
-    <div
-      className="Gallery mt-4"
-      style={{
-        minHeight: '100px',
-        position: 'relative',
-        border: images?.length === 0 ? '1px dotted gray' : 'none'
-    }}
-      onDragEnter={(e) => {
+  return (<div
+    onDragEnter={(e) => {
+      if (canEdit) {
         fileDropRef.current?.onDragEnter(e, DropState.ADD);
+      }
+    }}
+    onMouseOver={() => {
+      if (canEdit && supportsHover) {
+        buttonRef.current.hidden = false;
+        expandButtonRef.current.hidden = false;
+      }
+    }}
+    onMouseOut={() => {
+      if (canEdit && supportsHover) {
+        buttonRef.current.hidden = true;
+        expandButtonRef.current.hidden = true;
+      }
+    }}>
+    <div
+      className="Gallery"
+      style={{
+        position: 'relative',
       }}
     >
-
       {images?.length > 0 && (
         <ImageGallery items={images} ref={galleryRef} onSlide={onSlide}/>
       )}
       {canEdit && (<>
         {images?.length === 0 && (
-          <div className={'Editor EmptyElement'}>(Empty Gallery)</div>
+          <div style={{
+            position: 'relative',
+            height: '100px',
+          }}>
+            <div className={'Editor EmptyElement'}>(Empty Gallery)</div>
+          </div>
         )}
         <FileDropTarget
           ref={fileDropRef}
@@ -210,14 +231,11 @@ export default function Gallery({galleryId, extraId}) {
             top: 0,
             right: '5px',
           }}
+          hidden={supportsHover}
+          ref={buttonRef}
         >
           <Button
-            style={{
-              fontSize: '10pt',
-              margin: '5px',
-              padding: '2px 5px'
-            }}
-            className={`btn-light`}
+            className={`EditButton btn-light mt-1`}
             type="button"
             variant={'secondary'}
             size={'sm'}
@@ -246,10 +264,12 @@ export default function Gallery({galleryId, extraId}) {
           galleryConfig={galleryConfig}
           setGalleryConfig={setGalleryConfig}
           extraId={extraId}
+          buttonRef={expandButtonRef}
+          ref={configRef}
         />
       </FormEditor>
     )}
-  </>)
+  </div>)
 }
 
 /**

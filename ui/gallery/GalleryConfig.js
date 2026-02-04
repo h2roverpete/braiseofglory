@@ -6,7 +6,7 @@ import {usePageContext} from "../content/Page";
 import EditorPanel from "../editor/EditorPanel";
 import {useFormEditor} from "../editor/FormEditor";
 
-export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId}) {
+export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId, buttonRef, ref}) {
 
   const {canEdit} = useEdit();
   const {Galleries, Extras} = useRestApi();
@@ -42,7 +42,6 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId}
       removeExtraFromPage(extraId);
     })
   }
-
 
   function onDeleteGallery() {
     console.debug(`Delete gallery....`);
@@ -84,13 +83,15 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId}
             onClick={onRemoveFromSection}
           >
             <span className={'d-none d-sm-block'}>Remove from Section</span>
-            <span className={'d-block d-smnotes-none'}>-Section</span>
+            <span className={'d-block d-sm-none'}>Remove</span>
           </Button>
-        )}</>
-      }
+        )}
+      </>}
       onUpdate={onUpdate}
       isDataValid={isDataValid}
       onDelete={() => setShowDeleteConfirmation(true)}
+      buttonRef={buttonRef}
+      ref={ref}
     >
       <h5>Gallery Properties</h5>
       <Row>

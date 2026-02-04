@@ -3,6 +3,7 @@ import EditButtons, {EditAction} from "./EditButtons";
 import {useEdit} from "./EditProvider";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "react-bootstrap";
 import AlignButtons, {AlignAction} from "./AlignButtons";
+import {useTouchContext} from "../../util/TouchProvider";
 
 /**
  * @typedef EditCallbackData
@@ -43,6 +44,9 @@ export default function EditableField(props) {
   const [savedPadding, setSavedPadding] = useState('0');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [originalContent, setOriginalContent] = useState(null);
+  const editButtonRef = useRef(null);
+  const {supportsHover} = useTouchContext();
+
   useEffect(() => {
     setOriginalContent(props.textContent);
   }, [props.textContent]);
@@ -119,7 +123,7 @@ export default function EditableField(props) {
   function commitEdits() {
     console.debug(`Committing edits...`);
     props.callback({
-      textContent: props.fieldRef.current.innerText,
+      textContent: props.fieldRef.current.innerText.trimEnd(),
       textAlign: props.fieldRef.current.style.textAlign,
     });
 
@@ -204,6 +208,8 @@ export default function EditableField(props) {
             pointerEvents: isEditing || props.showEditButton ? 'auto' : 'none',
           }}
           ref={divRef}
+          onMouseOver={()=>{if(supportsHover && props.showEditButton && !isEditing && editButtonRef.current) editButtonRef.current.hidden=false}}
+          onMouseLeave={()=>{if(supportsHover && props.showEditButton && !isEditing && editButtonRef.current) editButtonRef.current.hidden=true}}
         >
           {isEditing ? (<>
             {props.field}
@@ -223,6 +229,8 @@ export default function EditableField(props) {
             editable={canEdit}
             editing={isEditing}
             showEditButton={props.showEditButton}
+            ref={editButtonRef}
+            hidden={!isEditing && supportsHover}
             style={{position: 'absolute', right: '2px', top: '2px'}}
           />
         </div>

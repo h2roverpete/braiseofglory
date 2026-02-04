@@ -8,6 +8,8 @@ import {BsCheck, BsPencil, BsX} from "react-icons/bs";
  * @property {callback} callback
  * @property {string} align
  * @property {boolean} showEditButton
+ * @property {boolean} hidden
+ * @property ref
  */
 
 /**
@@ -21,28 +23,29 @@ export default function EditButtons(props) {
   return (
     <>
       {props.editable && (
-        <div style={{whiteSpace: "nowrap", position: 'absolute', top: '2px', right: '2px'}}>
+        <div
+          style={{whiteSpace: "nowrap", position: 'absolute', top: '2px', right: '2px'}}
+          hidden={props.hidden===true}
+          ref={props.ref}
+        >
           <Button
             onClick={() => props.callback(EditAction.CONFIRM)}
             variant={'secondary'}
             size={'sm'}
-            style={{border: 'none', boxShadow: 'none', margin: '2px', padding: '3px 5px'}}
-            className={`border text-primary border-primary btn-light ${!props.editing ? ' d-none' : ''}`}
+            className={`EditButton me-1 border text-primary border-primary btn-light ${!props.editing ? ' d-none' : ''}`}
           ><BsCheck/></Button>
           <Button
             onClick={() => props.callback(EditAction.CANCEL)}
             variant={'secondary'}
             size={'sm'}
-            style={{border: 'none', boxShadow: 'none', margin: '2px', padding: '3px 5px'}}
-            className={`border border-danger text-danger btn-light ${!props.editing ? ' d-none' : ''}`}
+            className={`EditButton me-1 border border-danger text-danger btn-light ${!props.editing ? ' d-none' : ''}`}
           ><BsX/></Button>
           {props.showEditButton && !props.editing && (
             <Button
               onClick={() => props.callback(EditAction.EDIT)}
               variant={'secondary'}
               size={'sm'}
-              style={{border: 'none', boxShadow: 'none', margin: '2px', padding: '3px 5px'}}
-              className={`border btn-light`}
+              className={`EditButton border btn-light`}
             ><BsPencil/></Button>
           )}
         </div>

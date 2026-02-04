@@ -10,6 +10,7 @@ import {BsPlus} from "react-icons/bs";
 import {useRestApi} from "../../api/RestApi";
 import React from 'react';
 import FormEditor from "../editor/FormEditor";
+import {useTouchContext} from "../../util/TouchProvider";
 
 const NewPageModal = lazy(() => import("../editor/NewPageModal"));
 
@@ -40,8 +41,9 @@ export default function NavBar(props) {
   const {token} = useAuth();
   const {canEdit} = useEdit();
   const {Pages, PageSections} = useRestApi();
-
+  const editButtonRef = useRef(null);
   const [showNewPage, setShowNewPage] = useState(false);
+  const {supportsHover} = useTouchContext();
 
   function navigateTo(to) {
     if ((togglerRef.current.style.visible || togglerRef.current.style.display !== 'none') && !togglerRef.current.classList.contains("collapsed")) {
@@ -270,6 +272,12 @@ export default function NavBar(props) {
       data-bs-theme={props.theme ? props.theme : "light"}
       fixed={props.fixed ? props.fixed : undefined}
       data-testid="NavBar"
+      onMouseOver={() => {
+        if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden = false
+      }}
+      onMouseLeave={() => {
+        if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden = true
+      }}
     >
       <div
         className="NavBarContents
@@ -372,6 +380,8 @@ export default function NavBar(props) {
           {canEdit && (
             <div
               className="AddPageButton Editor dropdown"
+              ref={editButtonRef}
+              hidden={supportsHover}
             >
               <Button
                 style={{

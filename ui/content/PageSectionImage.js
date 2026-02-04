@@ -6,6 +6,8 @@ import {useSiteContext} from "./Site";
 import FileDropTarget from "../editor/FileDropTarget";
 import {Button} from "react-bootstrap";
 import {usePageSectionContext} from "./PageSection";
+import {useRef} from "react";
+import {useTouchContext} from "../../util/TouchProvider";
 
 /**
  * Insert an editable page section image.
@@ -22,6 +24,8 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
   const {pageSectionData} = usePageSectionContext();
   const {canEdit} = useEdit();
   const {siteData, showErrorAlert} = useSiteContext();
+  const editButtonRef = useRef(null);
+  const {supportsHover} = useTouchContext();
 
   if (!pageSectionData.SectionImage) {
     return <></>;
@@ -106,19 +110,21 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
   if (pageSectionData.ImagePosition === 'beside') {
     // align image left or right beside text
     const w = getImageWidth();
-    if (w < 4) {
-      imageDivClassName += ` mb-0 col-${w*3} col-sm${w}`;
+    if (w < 6) {
+      // small images remain beside text on small screens
+      imageDivClassName += ` mb-0 col-${Math.round(w * 1.25)} col-sm-${w}`;
       if (pageSectionData.ImageAlign === 'right') {
         imageDivClassName += ' ms-3';
       } else if (pageSectionData.ImageAlign === 'left') {
         imageDivClassName += ' me-3';
       }
     } else {
+      // larger images go full width below 'sm' boundary
       imageDivClassName += ` mb-3 col-12 col-sm-${w}`;
       if (pageSectionData.ImageAlign === 'right') {
         imageDivClassName += ' ms-sm-3';
       } else if (pageSectionData.ImageAlign === 'left') {
-        imageDivClassName += ' me-sm-4';
+        imageDivClassName += ' me-sm-3';
       }
     }
     imageDivStyle.position = 'relative';
@@ -126,7 +132,7 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
     imageDivStyle.textAlign = 'center';
   } else {
     // center image
-    imageDivClassName += ` col-sm-12`;
+    imageDivClassName += ` col-sm-12 mb-3`;
     imageDivStyle.display = 'flex'
     imageDivStyle.flexDirection = 'column'
     imageDivStyle.alignItems = pageSectionData.ImageAlign === 'right' ? 'flex-end' : pageSectionData.ImageAlign === 'left' ? 'flex-start' : 'center';
@@ -144,6 +150,12 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
         style={imageDivStyle}
         className={imageDivClassName}
         data-testid={`SectionImageDiv-${pageSectionData.PageSectionID}`}
+        onMouseOver={() => {
+          if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = false;
+        }}
+        onMouseLeave={() => {
+          if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = true;
+        }}
       >
         <img
           className={imageClassName}
@@ -157,19 +169,15 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
           <>
             <FileDropTarget ref={dropRef} onFileSelected={onFileSelected} onFilesSelected={onFilesSelected}/>
             <div
-              className="dropdown"
+              className="EditSectionImage Editor dropdown"
               style={{position: 'absolute', bottom: '0', right: '2px'}}
+              ref={editButtonRef}
+              hidden={supportsHover}
             >
               <Button
                 variant="secondary"
                 size="sm"
-                style={{
-                  border: 'none',
-                  boxShadow: 'none',
-                  margin: '2px',
-                  padding: '2px 5px'
-                }}
-                className={`border btn-light`}
+                className={`EditButton border btn-light`}
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"

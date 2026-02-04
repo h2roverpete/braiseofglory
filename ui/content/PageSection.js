@@ -10,6 +10,7 @@ import {DropState, FileDropTarget} from "../editor/FileDropTarget";
 import Extras from "../extras/Extras";
 import {useSiteContext} from "./Site";
 import {loremIpsum} from "lorem-ipsum";
+import {useTouchContext} from "../../util/TouchProvider";
 
 /**
  * Generate a page section
@@ -38,6 +39,8 @@ function PageSection({pageSectionData}) {
   const sectionTextRef = useRef(null);
   const sectionImageRef = useRef(null);
   const sectionRef = useRef(null);
+  const editButtonRef = useRef(null);
+  const {supportsHover} = useTouchContext();
 
   const onTitleChanged = useCallback(({textContent, textAlign}) => {
     // commit title edits
@@ -310,31 +313,28 @@ function PageSection({pageSectionData}) {
     }}>
       <div
         className={`PageSection`}
+        onMouseOver={() => {
+          if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden = false
+        }}
+        onMouseLeave={() => {
+          if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden = true
+        }}
         style={{
           position: 'relative',
-          minHeight:
-            !sectionExtras.length
-            && pageSectionData.PageSectionID
-            && !pageSectionData.SectionText
-            && !pageSectionData.SectionTitle
-            && !pageSectionData.SectionImage ? 100 : 0,
-          border:
-            !sectionExtras.length
-            && pageSectionData.PageSectionID
-            && !pageSectionData.SectionText
-            && !pageSectionData.SectionTitle
-            && !pageSectionData.SectionImage ? '1px dotted gray' : 'none',
         }}
         data-testid={`PageSection-${pageSectionData.PageSectionID}`}
         ref={sectionRef}
       >
-        {!sectionExtras.length
+        {!editingText
+          && !editingTitle
           && pageSectionData.PageSectionID
           && !pageSectionData.SectionImage
           && !pageSectionData.SectionTitle
           && !pageSectionData.SectionText
           && (
-            <div className={'Editor EmptyElement'}>(Empty Section)</div>
+            <div style={{height: '100px'}}>
+              <div className={'Editor EmptyElement'}>(Empty Section)</div>
+            </div>
           )}
         {(pageSectionData.SectionTitle || editingTitle) && (
           <EditableField
@@ -370,12 +370,13 @@ function PageSection({pageSectionData}) {
           <div
             className="Editor dropdown"
             style={{position: 'absolute', top: '2px', right: '2px'}}
+            ref={editButtonRef}
+            hidden={supportsHover}
           >
             <Button
               variant="secondary"
               size="sm"
-              style={{border: 'none', boxShadow: 'none', margin: '2px', padding: '2px 5px'}}
-              className={`border btn-light`}
+              className={`EditButton border btn-light`}
               type="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"

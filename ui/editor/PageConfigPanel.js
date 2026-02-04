@@ -1,9 +1,10 @@
 import {Button, Collapse} from "react-bootstrap";
 import {useRef, useState} from "react";
 import {useNavigate} from "react-router";
-import {BsChevronCompactDown, BsChevronCompactUp} from "react-icons/bs";
+import {BsChevronCompactDown, BsChevronCompactUp, BsXLg} from "react-icons/bs";
 import PageConfig from "./PageConfig";
 import FormEditor from "./FormEditor";
+import {useTouchContext} from "../../util/TouchProvider";
 
 /**
  * Edit page metadata fields.
@@ -15,6 +16,7 @@ export default function PageConfigPanel() {
   const [expanded, setExpanded] = useState(false);
   const navigate = useNavigate();
   const buttonRef = useRef(null);
+  const {supportsHover} = useTouchContext();
 
   function collapsePanel() {
     buttonRef.current?.click();
@@ -35,18 +37,17 @@ export default function PageConfigPanel() {
       display: 'flex',
       flexDirection: 'column',
       width: '100%',
-    }}>
-    <Button
-      ref={buttonRef}
-      onClick={() => setExpanded(!expanded)}
-      className={`EditorToggle ${expanded ? '' : 'collapsed'}`}
+    }}
+    onMouseEnter={() => {
+      if (supportsHover && buttonRef.current) buttonRef.current.hidden = false;
+    }}
+    onMouseLeave={() => {
+      if (supportsHover && buttonRef.current) buttonRef.current.hidden = true;
+    }}
+  >
+    <div
       style={{
-        border: 'none',
-        borderRadius: 0,
-        padding: '0 10px 5px 0',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
+        height: '25px',
         position: 'fixed',
         top: '-5px',
         left: 0,
@@ -54,8 +55,26 @@ export default function PageConfigPanel() {
         width: '100%',
       }}
     >
-      {expanded ? (<BsChevronCompactUp size={'25'}/>) : ((<BsChevronCompactDown size={'25'}/>))}
-    </Button>
+      <Button
+        variant=''
+        ref={buttonRef}
+        onClick={() => setExpanded(!expanded)}
+        className={`EditorToggle horizontal ${expanded ? '' : 'collapsed'}`}
+        style={{
+          border: 'none',
+          borderRadius: 0,
+          padding: 0,
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+        }}
+        hidden={supportsHover}
+      >
+        {expanded ? (<BsChevronCompactUp size={'25'}/>) : ((<BsChevronCompactDown size={'25'}/>))}
+      </Button>
+    </div>
     <Collapse
       in={expanded}
       dimension={'height'}
@@ -67,9 +86,20 @@ export default function PageConfigPanel() {
         position: 'fixed',
         zIndex: 1199,
         width: '100%',
-        padding: '10px 10px 10px 10px',
-
+        padding: '15px 10px 10px 10px',
       }}>
+        <BsXLg
+          style={{
+            position: 'absolute',
+            top: 10,
+            right: 10,
+            fontSize: '14pt',
+            cursor: 'pointer',
+          }}
+          onClick={() => {
+            setExpanded(false)
+          }}
+        />
         <FormEditor>
           <PageConfig onPageUpdated={onPageUpdated} onPageDeleted={onPageDeleted}/>
         </FormEditor>
