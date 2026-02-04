@@ -306,6 +306,20 @@ function PageSection({pageSectionData}) {
     setTimeout(() => sectionTextRef.current?.focus(), 10);
   }
 
+  /**
+   * See if user is pasting image data.
+   */
+  function onPaste(e) {
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for (const item of items) {
+      if (item.type.indexOf('image') !== -1) {
+        const file = item.getAsFile();
+        onUploadFile(file);
+        e.preventDefault();
+      }
+    }
+  }
+
   return (
     <PageSectionContext value={{
       pageSectionData: pageSectionData,
@@ -319,6 +333,7 @@ function PageSection({pageSectionData}) {
         onMouseLeave={() => {
           if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden = true
         }}
+        onPaste={onPaste}
         style={{
           position: 'relative',
         }}
@@ -364,7 +379,14 @@ function PageSection({pageSectionData}) {
           />
         )}
         {!pageSectionData.SectionImage && (
-          <FileDropTarget ref={dropRef} onFileSelected={onUploadFile} onError={(err) => showErrorAlert(err)}/>
+          <FileDropTarget
+            ref={dropRef}
+            onFileSelected={onUploadFile}
+            onError={(err) => {
+              showErrorAlert(err);
+              dropRef.current.setDropState(DropState.HIDDEN);
+            }}
+          />
         )}
         {!editingText && !editingTitle && (
           <div

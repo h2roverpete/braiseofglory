@@ -8,6 +8,7 @@ const IMAGE_MIME_TYPES = [
   'image/jpeg',
   'image/png',
   'image/gif',
+  'text/uri-list'
 ]
 
 /**
@@ -125,23 +126,60 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
   }
 
   /**
-   * Filter dragged items by type, MIME type and file size.
-   * @param dataTransferItems {DataTransferItemList}
-   * @returns {File[]} A list of valid droppable items.
+   * Filter dragged items by MIME type.
+   *
+   * @param dataTransferItems {[DataTransferItem]}
+   * @returns {DataTransferItem[]} A list of data transfer items
    */
   function filterDragItems(dataTransferItems) {
-    let files = [...dataTransferItems].filter((item) => item.kind === 'file');
-    return [...files].filter(
+    return [...dataTransferItems].filter(
       (item) => {
         return mimeTypes.includes(item.type)
       },
     );
   }
 
-  function onDrop(e) {
-    let files = filterDragItems(e.dataTransfer.items);
-    files = [...files].map((item) => item.getAsFile())
-    files = [...files].filter((item) => item.size < SIZE_LIMIT_BYTES);
+  async function onDrop(e) {
+    e.preventDefault();
+    let items = filterDragItems(e.dataTransfer.items);
+    const files = [];
+    for (const item of items) {
+      switch (item.kind) {
+        case 'file':
+          const file = item.getAsFile();
+          if (file.size < SIZE_LIMIT_BYTES) {
+            files.push(file);
+          }
+          break;
+        case 'string':
+          try {
+            const f = await new Promise((resolve, reject) => {
+              item.getAsString(async (uri) => {
+                try {
+                  const res = await fetch(uri);
+                  const blob = await res.blob();
+                  const type = blob.type;
+                  if (mimeTypes.includes(type)) {
+                    const file = new File([blob], 'tempFileName', {type});
+                    resolve(file);
+                  } else {
+                    reject(new Error("Invalid file type"));
+                  }
+                } catch (err) {
+                  reject(err);
+                }
+              });
+            });
+            files.push(f);
+          } catch (err) {
+            onError?.(err);
+          }
+          break;
+        default:
+          // not supported
+          break;
+      }
+    }
     if (multiple === true && files.length > 1) {
       onFilesSelected(files);
     } else if (files.length === 1) {
@@ -149,7 +187,6 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
     } else {
       onError?.(new Error('No valid files were dropped.'));
     }
-    e.preventDefault();
   }
 
   const fileInputRef = useRef(null);

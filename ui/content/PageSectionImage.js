@@ -3,7 +3,7 @@ import {useRestApi} from "../../api/RestApi";
 import {usePageContext} from "./Page";
 import {useEdit} from "../editor/EditProvider";
 import {useSiteContext} from "./Site";
-import FileDropTarget from "../editor/FileDropTarget";
+import FileDropTarget, {DropState} from "../editor/FileDropTarget";
 import {Button} from "react-bootstrap";
 import {usePageSectionContext} from "./PageSection";
 import {useRef} from "react";
@@ -167,7 +167,15 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
         />
         {canEdit && (
           <>
-            <FileDropTarget ref={dropRef} onFileSelected={onFileSelected} onFilesSelected={onFilesSelected}/>
+            <FileDropTarget
+              ref={dropRef}
+              onFileSelected={onFileSelected}
+              onFilesSelected={onFilesSelected}
+              onError={(err) => {
+                showErrorAlert(err);
+                dropRef.current.setDropState(DropState.HIDDEN);
+              }}
+            />
             <div
               className="EditSectionImage Editor dropdown"
               style={{position: 'absolute', bottom: '0', right: '2px'}}

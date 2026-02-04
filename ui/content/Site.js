@@ -74,7 +74,7 @@ export default function Site(props) {
   const showErrorAlert = useCallback((text, error) => {
     // use stringify for deep compare
     if (alert !== text) {
-      setAlert(`${text} ${error?.message}`);
+      setAlert(`${text} ${error ? error.message : ''}`);
     }
   }, [alert]);
 
@@ -82,7 +82,7 @@ export default function Site(props) {
     setAlert(null);
   }
 
-  const alertElement = alert.length > 0 ?
+  const alertElement = alert?.length > 0 ?
     <Alert
       dismissible={true}
       onClose={onAlertClose}
