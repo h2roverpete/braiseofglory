@@ -1,5 +1,5 @@
 import {Button, Collapse} from "react-bootstrap";
-import {BsChevronCompactLeft, BsChevronCompactRight, BsX, BsXLg, BsXSquare} from "react-icons/bs";
+import {BsChevronCompactLeft, BsChevronCompactRight, BsXLg} from "react-icons/bs";
 import SiteOutline from "./SiteOutline";
 import FormEditor from "./FormEditor";
 import {useRef, useState} from "react";

@@ -59,7 +59,7 @@ export default function FileExtra({extraData}) {
           setContent(<>
             <div className={'Extra'}>
               <a
-                href={fileUrl} target={'_blank'}>{extraData.ExtraFilePrompt ? extraData.ExtraFilePrompt : fileName}</a>
+                href={fileUrl}  rel="noreferrer" target={'_blank'}>{extraData.ExtraFilePrompt ? extraData.ExtraFilePrompt : fileName}</a>
             </div>
           </>);
           break;
