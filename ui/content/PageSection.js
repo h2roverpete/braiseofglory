@@ -333,7 +333,11 @@ function PageSection({pageSectionData}) {
         onMouseLeave={() => {
           if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden = true
         }}
-        onPaste={onPaste}
+        onPaste={(e) => {
+          if (canEdit) {
+            onPaste(e)
+          }
+        }}
         style={{
           position: 'relative',
         }}
