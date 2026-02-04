@@ -42,7 +42,7 @@ export default function SiteConfig(props) {
   return (<>
     {siteData && (
       <div {...props}>
-        <h5 className={'mt-4'}>Site Properties</h5>
+        <h5 className={''}>Site Properties</h5>
         <Row>
           <Col>
             <Form.Label column={'sm'} className={'required'} htmlFor={'SiteName'}>Site Name</Form.Label>
@@ -79,6 +79,18 @@ export default function SiteConfig(props) {
               isInvalid={FormData?.isTouched('SiteRootUrl') && !isValidBucket(edits?.SiteBucketName)}
               value={edits?.SiteBucketName || ''}
               onChange={(e) => FormData?.onDataChanged({name: 'SiteBucketName', value: e.target.value})}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Form.Label column={'sm'} className={''} htmlFor={'GoogleClientID'}>Google Client ID</Form.Label>
+            <Form.Control
+              size={'sm'}
+              id={'GoogleClientID'}
+              placeholder={'G-XXXXXXXXXX'}
+              value={edits?.GoogleClientID || ''}
+              onChange={(e) => FormData?.onDataChanged({name: 'GoogleClientID', value: e.target.value})}
             />
           </Col>
         </Row>

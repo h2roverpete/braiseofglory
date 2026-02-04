@@ -106,7 +106,7 @@ button.EditorToggle {
 }
 
 /* site editor toggle arrow collapsed */
-.SiteEditor .EditorToggle.collapsed {
+.SiteEditor .EditorToggle.collapsed.vertical {
   color: white;
   filter: drop-shadow(1px 0px black);
 }
@@ -117,10 +117,6 @@ button.EditorToggle {
 
 .OutlineItem.active {
   background-color: #00000020;
-}
-
-.ToggleBar {
-  background-color: #00000022;
 }
 
 .Editor {

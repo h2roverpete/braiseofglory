@@ -37,14 +37,6 @@ export const SiteContext = createContext({});
  */
 export default function Site(props) {
 
-  useMemo(() => {
-    // Google Analytics, if provided.
-    if (props.googleId || process.env.REACT_APP_GOOGLE_CLIENT_ID) {
-      ReactGA.initialize(props.googleId ? props.googleId : process.env.REACT_APP_GOOGLE_CLIENT_ID);
-    }
-    return true;
-  }, [props.googleId]);
-
   const [siteData, setSiteData] = useState(null);
   const [outlineData, setOutlineData] = useState(null);
   const [error, __setError__] = useState(null); // use public setter, not __setError__
@@ -52,6 +44,13 @@ export default function Site(props) {
   const navigate = useNavigate();
   const {Sites} = useRestApi();
   const {canEdit} = useEdit();
+
+  useEffect(() => {
+    // Google Analytics, if provided.
+    if (siteData?.GoogleClientID) {
+      ReactGA.initialize(siteData.GoogleClientID);
+    }
+  }, [siteData]);
 
   /**
    * Display the site in an error state.

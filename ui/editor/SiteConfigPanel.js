@@ -5,6 +5,7 @@ import FormEditor from "./FormEditor";
 import {useRef, useState} from "react";
 import SiteConfig from "./SiteConfig";
 import {useTouchContext} from "../../util/TouchProvider";
+import EditorPanel from "./EditorPanel";
 
 export default function SiteConfigPanel() {
 
@@ -100,7 +101,9 @@ export default function SiteConfigPanel() {
             flexShrink: 0,
           }}>
             <FormEditor>
-              <SiteConfig/>
+              <EditorPanel hideButtons={true} hideCloseBox={true}>
+                <SiteConfig/>
+              </EditorPanel>
             </FormEditor>
           </div>
         </div>
