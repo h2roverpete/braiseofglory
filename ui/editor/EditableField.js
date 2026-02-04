@@ -123,7 +123,7 @@ export default function EditableField(props) {
   function commitEdits() {
     console.debug(`Committing edits...`);
     props.callback({
-      textContent: props.fieldRef.current.innerText,
+      textContent: props.fieldRef.current.innerText.trimEnd(),
       textAlign: props.fieldRef.current.style.textAlign,
     });
 

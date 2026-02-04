@@ -313,34 +313,27 @@ function PageSection({pageSectionData}) {
     }}>
       <div
         className={`PageSection`}
-        onMouseOver={()=>{if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden=false}}
-        onMouseLeave={()=>{if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden=true}}
+        onMouseOver={() => {
+          if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden = false
+        }}
+        onMouseLeave={() => {
+          if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden = true
+        }}
         style={{
           position: 'relative',
-          minHeight:
-            !sectionExtras.length
-            && pageSectionData.PageSectionID
-            && !pageSectionData.SectionText
-            && !pageSectionData.SectionTitle
-            && !pageSectionData.SectionImage ? 100 : 0,
-          border:
-            !sectionExtras.length
-            && pageSectionData.PageSectionID
-            && !pageSectionData.SectionText
-            && !pageSectionData.SectionTitle
-            && !pageSectionData.SectionImage ? '1px dotted gray' : 'none',
         }}
         data-testid={`PageSection-${pageSectionData.PageSectionID}`}
         ref={sectionRef}
       >
-        {
-          pageSectionData.PageSectionID
+        {!editingText
+          && !editingTitle
+          && pageSectionData.PageSectionID
           && !pageSectionData.SectionImage
           && !pageSectionData.SectionTitle
           && !pageSectionData.SectionText
           && (
-            <div style={{height:'100px'}}>
-            <div className={'Editor EmptyElement'}>(Empty Section)</div>
+            <div style={{height: '100px'}}>
+              <div className={'Editor EmptyElement'}>(Empty Section)</div>
             </div>
           )}
         {(pageSectionData.SectionTitle || editingTitle) && (
