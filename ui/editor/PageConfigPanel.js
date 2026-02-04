@@ -56,9 +56,10 @@ export default function PageConfigPanel() {
       }}
     >
       <Button
+        variant=''
         ref={buttonRef}
         onClick={() => setExpanded(!expanded)}
-        className={`PageEditor EditorToggle ${expanded ? '' : 'collapsed'}`}
+        className={`EditorToggle horizontal ${expanded ? '' : 'collapsed'}`}
         style={{
           border: 'none',
           borderRadius: 0,
@@ -71,21 +72,7 @@ export default function PageConfigPanel() {
         }}
         hidden={supportsHover}
       >
-        <div
-          style={{
-            flexGrow: 1,
-            margin: '0 10px',
-          }}
-          className={`Editor ToggleBar ${expanded ? 'expanded' : 'collapsed'}`}
-        />
         {expanded ? (<BsChevronCompactUp size={'25'}/>) : ((<BsChevronCompactDown size={'25'}/>))}
-        <div
-          style={{
-            flexGrow: 1,
-            margin: '0 10px',
-          }}
-          className={`Editor ToggleBar ${expanded ? 'expanded' : 'collapsed'}`}
-        />
       </Button>
     </div>
     <Collapse

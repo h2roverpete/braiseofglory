@@ -59,9 +59,10 @@ export default function EditorPanel(
         justifyContent: 'center',
       }}>
       <Button
+        variant={''}
         ref={buttonRef}
         onClick={() => setExpanded(!expanded)}
-        className={`EditorToggle ${expanded ? '' : 'collapsed'}`}
+        className={`EditorToggle horizontal ${expanded ? '' : 'collapsed'}`}
         style={{
           marginLeft: 0,
           borderRadius: 0,
@@ -73,21 +74,7 @@ export default function EditorPanel(
           width: '100%',
         }}
       >
-        <div
-          style={{
-            flexGrow: 1,
-            margin: '0 10px',
-          }}
-          className={`Editor ToggleBar ${expanded ? 'expanded' : 'collapsed'}`}
-        />
         {expanded ? (<BsChevronCompactUp size={'25'}/>) : ((<BsChevronCompactDown size={'25'}/>))}
-        <div
-          style={{
-            flexGrow: 1,
-            margin: '0 10px',
-          }}
-          className={`Editor ToggleBar ${expanded ? 'expanded' : 'collapsed'}`}
-        />
       </Button>
     </div>
     <Collapse

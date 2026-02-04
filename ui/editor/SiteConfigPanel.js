@@ -39,10 +39,10 @@ export default function SiteConfigPanel() {
       <Button
         variant=""
         onClick={() => setExpanded(!expanded)}
-        className={`SiteEditor EditorToggle ${expanded ? '' : 'collapsed'}`}
+        className={`EditorToggle vertical ${expanded ? 'expanded' : 'collapsed'}`}
         style={{
           padding: '30px 5px 0 0',
-          display: 'fixed',
+          display: 'flex',
           flexDirection: 'column',
           height: '100%',
           alignItems: 'center',
@@ -51,21 +51,7 @@ export default function SiteConfigPanel() {
         hidden={supportsHover}
         ref={buttonRef}
       >
-        <div
-          style={{
-            flexGrow: 1,
-            margin: '10px 0',
-          }}
-          className={`Editor ToggleBar ${expanded ? 'expanded' : 'collapsed'}`}
-        />
         {expanded ? (<BsChevronCompactLeft size={'25'}/>) : ((<BsChevronCompactRight size={'25'}/>))}
-        <div
-          style={{
-            flexGrow: 1,
-            margin: '10px 0',
-          }}
-          className={`Editor ToggleBar ${expanded ? 'expanded' : 'collapsed'}`}
-        />
       </Button>
     </div>
     <Collapse
