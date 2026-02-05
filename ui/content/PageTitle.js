@@ -33,7 +33,7 @@ export default function PageTitle(props) {
   const [editingTitle, setEditingTitle] = useState(false);
 
   function onTitleChanged({textContent, textAlign}) {
-    if (pageData && textContent?.length > 0) {
+    if (pageData) {
       console.debug(`Updating page title: textContent=${textContent}, textAlign=${textAlign}`);
       pageData.PageTitle = textContent;
       pageData.PageTitleAlign = textAlign;
