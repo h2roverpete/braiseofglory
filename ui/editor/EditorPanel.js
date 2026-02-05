@@ -79,8 +79,8 @@ export default function EditorPanel(
           <BsXLg
             style={{
               position: 'absolute',
-              top: 10,
-              right: 10,
+              top: '10px',
+              right: '10px',
               fontSize: '14pt',
               cursor: 'pointer',
             }}

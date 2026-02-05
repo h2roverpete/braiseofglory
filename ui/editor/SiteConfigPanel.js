@@ -80,8 +80,8 @@ export default function SiteConfigPanel() {
           <BsXLg
             style={{
               position: 'absolute',
-              top: 4,
-              right: 4,
+              top: '10px',
+              right: '10px',
               fontSize: '14pt',
               cursor: 'pointer',
             }}
@@ -89,7 +89,9 @@ export default function SiteConfigPanel() {
               setExpanded(false)
             }}
           />
-          <div style={{
+          <div
+            className={`Editor OutlinePanel`}
+            style={{
             flexGrow: 1,
             flexShrink: 1,
             overflow: 'hidden',

@@ -1,7 +1,5 @@
-import {Button, Collapse} from "react-bootstrap";
 import {useRef, useState} from "react";
 import {useNavigate} from "react-router";
-import {BsChevronCompactDown, BsChevronCompactUp, BsXLg} from "react-icons/bs";
 import PageConfig from "./PageConfig";
 import FormEditor from "./FormEditor";
 import {useTouchContext} from "../../util/TouchProvider";
@@ -14,7 +12,6 @@ import EditorPanel from "./EditorPanel";
  */
 export default function PageConfigPanel() {
 
-  const [expanded, setExpanded] = useState(false);
   const navigate = useNavigate();
   const buttonRef = useRef(null);
   const {supportsHover} = useTouchContext();
@@ -49,7 +46,7 @@ export default function PageConfigPanel() {
       }}
     >
       <FormEditor>
-        <EditorPanel buttonRef={buttonRef} expanded={expanded} hideButtons={true}>
+        <EditorPanel buttonRef={buttonRef} hideButtons={true}>
           <PageConfig
             onPageUpdated={onPageUpdated}
             onPageDeleted={onPageDeleted}

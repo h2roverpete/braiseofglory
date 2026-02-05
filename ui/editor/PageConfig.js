@@ -189,7 +189,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
         </Button>
       </Col>
     </Row>
-    <Modal show={showDeleteConfirmation} onHide={() => setShowDeleteConfirmation(false)} style={{zIndex: 2020}}>
+    <Modal show={showDeleteConfirmation} onHide={() => setShowDeleteConfirmation(false)} style={{zIndex: 1199}}>
       <Modal.Header><h5>Delete Page</h5></Modal.Header>
       <Modal.Body>Are you sure you want to delete this page? This action can't be undone.</Modal.Body>
       <Modal.Footer>

@@ -49,6 +49,7 @@
 /* Standard editor panel body */
 .EditorPanel.Body {
   background-color: #e0e0e0;
+  border: 1px solid #00000040;
   padding: 15px 10px 10px 10px;
 }
 
@@ -64,20 +65,28 @@
 
 /* Body of site editor */
 .SiteEditor .EditorPanel.Body {
-  padding: 20px 10px 10px 15px;
-  border-right: 1px solid #00000040;
+  padding: 0;
+  border: none;
+  border-right:  1px solid #00000040;
 }
 
 /* Body of page editor */
 .PageEditor .EditorPanel.Body {
   padding: 20px 10px 10px 15px;
+  border: none;
   border-bottom: 1px solid #00000040;
+}
+
+/* Outline editor */
+.Editor.OutlinePanel {
+  padding: 25px 10px 10px 15px;
 }
 
 /* Site properties slide up panel within site editor panel */
 .SiteEditor .EditorPanel.Body .EditorPanel.Body {
-  padding: 20px 0 0 0;
-  border-right: none;
+  padding: 20px 10px 10px 15px;
+  border: none;
+  border-top: 1px solid #00000040;
 }
 
 .Editor div.form-check {
