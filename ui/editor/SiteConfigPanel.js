@@ -5,7 +5,7 @@ import FormEditor from "./FormEditor";
 import {useRef, useState} from "react";
 import SiteConfig from "./SiteConfig";
 import {useTouchContext} from "../../util/TouchProvider";
-import EditorPanel from "./EditorPanel";
+import EditorPanel, {Direction} from "./EditorPanel";
 
 export default function SiteConfigPanel() {
 
@@ -28,6 +28,7 @@ export default function SiteConfigPanel() {
     }}
   >
     <div
+      className={`Editor EditorPanel Header ${expanded ? 'expanded' : 'collapsed'}`}
       style={{
         position: 'fixed',
         top: 0,
@@ -40,7 +41,7 @@ export default function SiteConfigPanel() {
       <Button
         variant=""
         onClick={() => setExpanded(!expanded)}
-        className={`EditorToggle vertical ${expanded ? 'expanded' : 'collapsed'}`}
+        className={`Editor EditorToggle vertical ${expanded ? 'expanded' : 'collapsed'}`}
         style={{
           padding: '30px 5px 0 0',
           display: 'flex',
@@ -58,18 +59,17 @@ export default function SiteConfigPanel() {
     <Collapse
       in={expanded}
       dimension={'width'}
-      className={'Editor'}
     >
-      <div style={{
-        backgroundColor: '#e0e0e0f0',
-        borderRight: '1px solid #00000040',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        zIndex: 1197,
-        padding: '10px 10px 10px 10px',
-        height: '100vh'
-      }}>
+      <div
+        className={`Editor EditorPanel Body ${expanded ? 'expanded' : 'collapsed'}`}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          zIndex: 1197,
+          height: '100vh'
+        }}
+      >
         <div style={{
           width: '200px',
           display: 'flex',
@@ -96,12 +96,13 @@ export default function SiteConfigPanel() {
           }}>
             <SiteOutline/>
           </div>
-          <div style={{
+          <div
+            style={{
             flexGrow: 0,
             flexShrink: 0,
           }}>
             <FormEditor>
-              <EditorPanel hideButtons={true} hideCloseBox={true}>
+              <EditorPanel hideButtons={true} hideCloseBox={true} direction={Direction.UP}>
                 <SiteConfig/>
               </EditorPanel>
             </FormEditor>

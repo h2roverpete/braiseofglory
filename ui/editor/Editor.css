@@ -41,6 +41,45 @@
   border: 1px dotted gray;
 }
 
+/** all editor panels */
+.EditorPanel {
+  margin-top: 10px;
+}
+
+/* Standard editor panel body */
+.EditorPanel.Body {
+  background-color: #e0e0e0;
+  padding: 15px 10px 10px 10px;
+}
+
+/* no margin for site editor */
+.SiteEditor .EditorPanel {
+  margin: 0;
+}
+
+/* no margin for page editor */
+.PageEditor .EditorPanel {
+  margin: 0;
+}
+
+/* Body of site editor */
+.SiteEditor .EditorPanel.Body {
+  padding: 20px 10px 10px 15px;
+  border-right: 1px solid #00000040;
+}
+
+/* Body of page editor */
+.PageEditor .EditorPanel.Body {
+  padding: 20px 10px 10px 15px;
+  border-bottom: 1px solid #00000040;
+}
+
+/* Site properties slide up panel within site editor panel */
+.SiteEditor .EditorPanel.Body .EditorPanel.Body {
+  padding: 20px 0 0 0;
+  border-right: none;
+}
+
 .Editor div.form-check {
   display: flex;
   flex-direction: row;
@@ -90,13 +129,15 @@ button.EditorToggle.btn {
   border-radius: 0;
 }
 
-button.EditorToggle {
-  background-color: transparent;
-}
 
 /* all toggle arrows */
 .EditorToggle {
   color: black;
+  background-color: transparent;
+}
+
+.PageEditor .EditorPanel.Body {
+
 }
 
 /* page editor toggle arrow collapsed */

@@ -37,7 +37,7 @@ export default function EditorPanel(
     ref,
     hideButtons = false,
     hideCloseBox = false,
-    direction = Direction.UP,
+    direction = Direction.DOWN,
   }
 ) {
   const {FormData} = useFormEditor();
@@ -55,53 +55,15 @@ export default function EditorPanel(
   }
 
   return (<div
-    className={"EditorPanel Editor"}
+    className={`Editor EditorPanel ${expanded ? 'expanded' : 'collapsed'}`}
     style={{
       display: 'flex',
       flexDirection: 'column',
       width: '100%',
+      position: 'relative',
+      minHeight: '20px',
     }}>
-    <div
-      style={{
-        height: '20px',
-        backgroundColor: expanded ? '#e0e0e0f0' : 'transparent',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-      <Button
-        variant={''}
-        ref={buttonRef}
-        onClick={() => setExpanded(!expanded)}
-        className={`EditorToggle horizontal ${expanded ? '' : 'collapsed'}`}
-        style={{
-          marginLeft: 0,
-          borderRadius: 0,
-          padding: 0,
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: '100%',
-        }}
-      >
-        {expanded ? (<>
-          {direction === Direction.DOWN ? (
-            <BsChevronCompactUp size={'25'}/>
-          ) : (
-            <BsChevronCompactDown size={'25'}/>
-          )}
-        </>) : (<>
-        {direction === Direction.DOWN ? (
-          <BsChevronCompactDown size={'25'}/>
-        ) : (
-          <BsChevronCompactUp size={'25'}/>
-        )
-        }
-        </>)}
-      </Button>
-    </div>
+
     <Collapse
       in={expanded}
       dimension={'height'}
@@ -109,19 +71,16 @@ export default function EditorPanel(
     >
       <div
         style={{
-          backgroundColor: '#e0e0e0f0',
-          width: '100%',
-          padding: '0 10px 10px 10px',
           position: 'relative',
         }}
-        className="EditorPanel Body"
+        className={`Editor EditorPanel Body ${expanded ? 'expanded' : 'collapsed'}`}
       >
         {!hideCloseBox && (
           <BsXLg
             style={{
               position: 'absolute',
-              top: -5,
-              right: 15,
+              top: 10,
+              right: 10,
               fontSize: '14pt',
               cursor: 'pointer',
             }}
@@ -173,6 +132,47 @@ export default function EditorPanel(
         )}
       </div>
     </Collapse>
-  </div>)
-    ;
+    <div
+      className={`Editor EditorPanel Header ${expanded ? 'expanded' : 'collapsed'}`}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'absolute',
+        width: '100%',
+      }}>
+      <Button
+        variant={''}
+        ref={buttonRef}
+        onClick={() => setExpanded(!expanded)}
+        className={`EditorToggle horizontal ${expanded ? '' : 'collapsed'}`}
+        style={{
+          marginLeft: 0,
+          borderRadius: 0,
+          padding: 0,
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+        }}
+      >
+        {expanded ? (<>
+          {direction === Direction.DOWN ? (
+            <BsChevronCompactUp size={'25'}/>
+          ) : (
+            <BsChevronCompactDown size={'25'}/>
+          )}
+        </>) : (<>
+          {direction === Direction.DOWN ? (
+            <BsChevronCompactDown size={'25'}/>
+          ) : (
+            <BsChevronCompactUp size={'25'}/>
+          )
+          }
+        </>)}
+      </Button>
+    </div>
+  </div>);
 }
