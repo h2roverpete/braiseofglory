@@ -10,6 +10,12 @@ export const Direction = {
   /** slide down */
   DOWN: 'down',
 }
+
+/**
+ * @typedef PanelAPI
+ * @property {boolean} isExpanded
+ */
+
 /**
  * Display a collapsable editing panel
  *
@@ -20,8 +26,8 @@ export const Direction = {
  * @param [hideButtons] {boolean}       Hide the built-in panel buttons for Update and Revert
  * @param [hideCloseBox] {boolean}      Hide the close box
  * @param children {[JSX.Element]}      Child elements, i.e. Rows and Cols and form controls.
- * @param [buttonRef] {RefObject}       Reference to the collapse/expand button.
- * @param [ref] {RefObject}             Reference to functions.
+ * @param [buttonRef] {Ref<HTMLButtonElement>}       Reference to the collapse/expand button.
+ * @param [ref] {Ref<PanelAPI>}         Reference to functions.
  * @param [direction] {String}          Direction that
  * @returns {JSX.Element}
  * @constructor

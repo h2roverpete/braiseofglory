@@ -1,4 +1,4 @@
-import {useRef, useState} from "react";
+import {useEffect, useRef} from "react";
 import {useNavigate} from "react-router";
 import PageConfig from "./PageConfig";
 import FormEditor from "./FormEditor";
@@ -28,6 +28,12 @@ export default function PageConfigPanel() {
     collapsePanel();
     navigate('/');
   }
+
+  useEffect(() => {
+    if (buttonRef.current) {
+      buttonRef.current.hidden = supportsHover;
+    }
+  }, [supportsHover, buttonRef]);
 
   return (
     <div

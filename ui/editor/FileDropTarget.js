@@ -45,7 +45,7 @@ const IMAGE_MIME_TYPES = [
 /**
  * Insert a div as a file drop target.
  *
- * @param ref  Reference to functions
+ * @param ref {Ref<DropFunctions>}  Reference to functions
  * @param onFileSelected {function(File)} Callback to receive selected file after uploadFile() is called.
  * @param onFilesSelected  {function([File])} Callback to receive multiple selected files after uploadFile() is called.
  * @param onError  {function(Error)} Callback to receive drag and drop errors.
