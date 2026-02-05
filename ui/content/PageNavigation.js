@@ -37,7 +37,6 @@ export default function PageNavigation() {
         display: "flex",
         flexDirection: "row",
         alignItems: "end",
-        flexGrow: 1,
       }}
     >
       {prev && (
