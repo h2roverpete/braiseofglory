@@ -165,7 +165,7 @@ export default function EditorPanel(
           alignItems: 'center',
           width: '100%',
         }}
-        hidden={supportsHover}
+        hidden={buttonRef && supportsHover}
       >
         {expanded ? (<>
           {direction === Direction.DOWN ? (
