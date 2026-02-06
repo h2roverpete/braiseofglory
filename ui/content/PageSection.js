@@ -329,15 +329,11 @@ export default function PageSection({pageSectionData}) {
     return (<>
       <div
         className={`PageSection`}
-        onMouseEnter={() => {
-          if (!editing) {
-            editButtonRef.current.hidden = false;
-          }
+        onMouseOver={() => {
+          if (!editing && supportsHover) editButtonRef.current.hidden = false;
         }}
         onMouseLeave={() => {
-          if (!editing) {
-            editButtonRef.current.hidden = supportsHover;
-          }
+          if (!editing && supportsHover) editButtonRef.current.hidden = true;
         }}
         onPaste={(e) => {
           if (canEdit) {

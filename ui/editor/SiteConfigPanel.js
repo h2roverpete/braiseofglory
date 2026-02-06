@@ -20,11 +20,11 @@ export default function SiteConfigPanel() {
       flexDirection: 'row',
       height: '100%',
     }}
-    onMouseEnter={() => {
-      if (supportsHover && buttonRef.current) buttonRef.current.hidden = false;
+    onMouseOver={() => {
+      if (supportsHover) buttonRef.current.hidden = false;
     }}
     onMouseLeave={() => {
-      if (supportsHover && buttonRef.current) buttonRef.current.hidden = true;
+      if (supportsHover) buttonRef.current.hidden = true;
     }}
   >
     <div

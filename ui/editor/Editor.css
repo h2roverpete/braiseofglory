@@ -43,7 +43,8 @@
 
 /** all editor panels */
 .EditorPanel {
-  margin-top: 10px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 /* Standard editor panel body */

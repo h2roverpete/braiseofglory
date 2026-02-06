@@ -3,6 +3,7 @@ import {useState} from "react";
 import {useEdit} from "./EditProvider";
 import {useFormEditor} from "./FormEditor";
 import {BsChevronCompactDown, BsChevronCompactUp, BsXLg} from "react-icons/bs";
+import {useTouchContext} from "../../util/TouchProvider";
 
 export const Direction = {
   /** slide up */
@@ -47,6 +48,7 @@ export default function EditorPanel(
   }
 ) {
   const {FormData} = useFormEditor();
+  const {supportsHover} = useTouchContext();
   const [expanded, setExpanded] = useState(false);
   const {canEdit} = useEdit();
 
@@ -163,6 +165,7 @@ export default function EditorPanel(
           alignItems: 'center',
           width: '100%',
         }}
+        hidden={supportsHover}
       >
         {expanded ? (<>
           {direction === Direction.DOWN ? (

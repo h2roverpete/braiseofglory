@@ -219,11 +219,11 @@ export default function EditableField(
           }}
           onMouseOver={() => {
             // always reveal edit buttons
-            editButtonRef.current.hidden = false;
+            if (supportsHover) editButtonRef.current.hidden = false;
           }}
           onMouseLeave={() => {
-            // hide if we support hover and aren't editing
-            editButtonRef.current.hidden = (supportsHover && !isEditing);
+            // hide if we aren't editing
+            if (supportsHover) editButtonRef.current.hidden = !isEditing;
           }}
         >
           {field}

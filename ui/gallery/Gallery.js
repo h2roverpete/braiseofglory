@@ -204,12 +204,14 @@ export default function Gallery({galleryId, extraId}) {
     }}
     onMouseOver={() => {
       if (canEdit && supportsHover) {
+        // show editor button and property panel
         buttonRef.current.hidden = false;
         expandButtonRef.current.hidden = false;
       }
     }}
     onMouseOut={() => {
       if (canEdit && supportsHover) {
+        // hide editor button and property panel
         buttonRef.current.hidden = true;
         expandButtonRef.current.hidden = true;
       }

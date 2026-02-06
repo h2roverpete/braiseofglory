@@ -158,10 +158,10 @@ export default function PageSectionImage({pageSectionData, imageRef, dropRef, on
         className={imageDivClassName}
         data-testid={`SectionImageDiv-${pageSectionData.PageSectionID}`}
         onMouseOver={() => {
-          if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = false;
+          if (canEdit && supportsHover) editButtonRef.current.hidden = false;
         }}
         onMouseLeave={() => {
-          if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = true;
+          if (canEdit && supportsHover) editButtonRef.current.hidden = true;
         }}
       >
         <img
