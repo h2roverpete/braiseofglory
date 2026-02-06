@@ -60,6 +60,7 @@ export default function PageSection({pageSectionData}) {
     PageSections.insertOrUpdatePageSection(pageSectionData)
       .then(() => console.debug(`Updated section title.`))
       .catch(error => showErrorAlert(`Error updating section title.`, error));
+    editButtonRef.current.hidden = false;
     setEditing(false);
   }, [pageSectionData, updatePageSection, PageSections, showErrorAlert]);
 
@@ -72,11 +73,13 @@ export default function PageSection({pageSectionData}) {
     PageSections.insertOrUpdatePageSection(pageSectionData)
       .then(() => console.debug(`Updated section text.`))
       .catch(error => showErrorAlert(`Error updating section text.`, error));
+    editButtonRef.current.hidden = false;
     setEditing(false);
   }, [pageSectionData, updatePageSection, PageSections, showErrorAlert]);
 
   const onEditCanceled = useCallback(() => {
     // cancel editing
+    editButtonRef.current.hidden = false;
     setEditing(false);
   }, [setEditing]);
 
@@ -282,12 +285,14 @@ export default function PageSection({pageSectionData}) {
   function onEditTitle() {
     // start editing section title
     sectionTitleApi.current?.startEditing();
+    editButtonRef.current.hidden = true;
     setEditing(true);
   }
 
   function onEditText() {
     // start editing section text
     sectionTextApi.current?.startEditing();
+    editButtonRef.current.hidden = true;
     setEditing(true);
   }
 
@@ -324,7 +329,7 @@ export default function PageSection({pageSectionData}) {
     return (<>
       <div
         className={`PageSection`}
-        onMouseOver={() => {
+        onMouseEnter={() => {
           if (!editing) {
             editButtonRef.current.hidden = false;
           }
@@ -394,8 +399,6 @@ export default function PageSection({pageSectionData}) {
         <div
           className="Editor dropdown"
           style={{position: 'absolute', top: '3px', right: '3px'}}
-          ref={editButtonRef}
-          hidden={editing}
         >
           <Button
             variant="secondary"
@@ -405,6 +408,8 @@ export default function PageSection({pageSectionData}) {
             data-bs-toggle="dropdown"
             aria-expanded="false"
             style={{marginBottom: '10px'}}
+            ref={editButtonRef}
+            hidden={supportsHover}
           ><BsThreeDotsVertical/></Button>
           <div className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
               <span className="dropdown-item"
