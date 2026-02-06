@@ -1,5 +1,5 @@
 import EditableField from "../editor/EditableField";
-import {createContext, useCallback, useContext, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
 import {useEdit} from "../editor/EditProvider";
 import {BsThreeDotsVertical} from "react-icons/bs";
@@ -13,12 +13,17 @@ import {loremIpsum} from "lorem-ipsum";
 import {useTouchContext} from "../../util/TouchProvider";
 
 /**
- * Generate a page section
- * @param sectionData{PageSectionData}
+ * Display a page section.
+ *
+ * Add editing features if logged in with edit permission.
+ *
+ * @param sectionData{PageSectionData}  Data for page section.
  * @constructor
  */
-function PageSection({pageSectionData}) {
+export default function PageSection({pageSectionData}) {
 
+  // imports
+  const {supportsHover} = useTouchContext();
   const {PageSections} = useRestApi();
   const {canEdit} = useEdit();
   const {
@@ -30,55 +35,55 @@ function PageSection({pageSectionData}) {
     pageExtras
   } = usePageContext();
   const {showErrorAlert} = useSiteContext();
-  const [editingTitle, setEditingTitle] = useState(false);
-  const [editingText, setEditingText] = useState(false);
+
+  // states
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [sectionExtras, setSectionExtras] = useState([]);
+  const [editing, setEditing] = useState(false);
+
+  // refs
   const dropRef = useRef(null);
+  const sectionTitleApi = useRef(null);
+  const sectionTextApi = useRef(null);
   const sectionTitleRef = useRef(null);
   const sectionTextRef = useRef(null);
   const sectionImageRef = useRef(null);
   const sectionRef = useRef(null);
   const editButtonRef = useRef(null);
-  const {supportsHover} = useTouchContext();
 
   const onTitleChanged = useCallback(({textContent, textAlign}) => {
     // commit title edits
-    if (textContent != null) {
-      console.debug(`Update section title...`);
-      pageSectionData.SectionTitle = textContent;
-      pageSectionData.TitleAlign = textAlign;
-      updatePageSection(pageSectionData);
-      PageSections.insertOrUpdatePageSection(pageSectionData)
-        .then(() => console.debug(`Updated section title.`))
-        .catch(error => showErrorAlert(`Error updating section title.`, error));
-    }
-    setEditingTitle(false);
+    console.debug(`Update section title...`);
+    pageSectionData.SectionTitle = textContent;
+    pageSectionData.TitleAlign = textAlign;
+    updatePageSection(pageSectionData);
+    PageSections.insertOrUpdatePageSection(pageSectionData)
+      .then(() => console.debug(`Updated section title.`))
+      .catch(error => showErrorAlert(`Error updating section title.`, error));
+    setEditing(false);
   }, [pageSectionData, updatePageSection, PageSections, showErrorAlert]);
 
   const onTextChanged = useCallback(({textContent, textAlign}) => {
     // commit text edits
-    if (textContent != null) {
-      console.debug(`Update section text...`);
-      pageSectionData.SectionText = textContent;
-      pageSectionData.TextAlign = textAlign;
-      updatePageSection(pageSectionData);
-      PageSections.insertOrUpdatePageSection(pageSectionData)
-        .then(() => console.debug(`Updated section text.`))
-        .catch(error => showErrorAlert(`Error updating section text.`, error));
-    }
-    setEditingText(false);
+    console.debug(`Update section text...`);
+    pageSectionData.SectionText = textContent;
+    pageSectionData.TextAlign = textAlign;
+    updatePageSection(pageSectionData);
+    PageSections.insertOrUpdatePageSection(pageSectionData)
+      .then(() => console.debug(`Updated section text.`))
+      .catch(error => showErrorAlert(`Error updating section text.`, error));
+    setEditing(false);
   }, [pageSectionData, updatePageSection, PageSections, showErrorAlert]);
+
+  const onEditCanceled = useCallback(() => {
+    // cancel editing
+    setEditing(false);
+  }, [setEditing]);
 
   useEffect(() => {
     // manage extras
     if (pageExtras && pageSectionData) {
-      const list = [];
-      for (const extra of pageExtras) {
-        if (extra.PageSectionID === pageSectionData.PageSectionID) {
-          list.push(extra);
-        }
-      }
+      const list = pageExtras.filter((extra) => extra.PageSectionID === pageSectionData.PageSectionID);
       setSectionExtras(list);
     }
   }, [pageExtras, pageSectionData]);
@@ -86,11 +91,13 @@ function PageSection({pageSectionData}) {
   useEffect(() => {
     // manage drag scripts
     if (pageSectionData.SectionImage && sectionImageRef.current && dropRef.current) {
+      // make section image the drop target
       sectionImageRef.current.ondragenter = (e) => dropRef.current.onDragEnter(e, DropState.REPLACE);
       if (sectionRef.current) {
         sectionRef.current.ondragenter = undefined;
       }
     } else if (!pageSectionData.SectionImage && sectionRef.current && dropRef.current) {
+      // make whole section the drop target
       sectionRef.current.ondragenter = (e) => dropRef.current.onDragEnter(e, DropState.ADD);
       if (sectionImageRef.current) {
         sectionImageRef.current.ondragenter = undefined;
@@ -99,6 +106,8 @@ function PageSection({pageSectionData}) {
   }, [sectionImageRef, pageSectionData, dropRef])
 
   const onUploadFile = useCallback((file) => {
+    // upload a file that has been dropped, selected from a file dialog
+    // or pasted from the clipboard
     dropRef.current.setDropState(DropState.UPLOADING);
     PageSections.uploadSectionImage(pageSectionData.PageID, pageSectionData.PageSectionID, file)
       .then((result) => {
@@ -112,7 +121,7 @@ function PageSection({pageSectionData}) {
       });
   }, [dropRef, PageSections, pageSectionData, updatePageSection, showErrorAlert]);
 
-  const sectionTitle = (
+  const sectionTitle = useMemo(() => (
     <h2
       ref={sectionTitleRef}
       className={'SectionTitle'}
@@ -120,34 +129,16 @@ function PageSection({pageSectionData}) {
       data-testid={`SectionTitle-${pageSectionData.PageSectionID}`}
       style={{textAlign: pageSectionData.TitleAlign, width: '100%'}}
     />
-  );
+  ), [pageSectionData]);
 
-  const sectionText = (
+  const sectionText = useMemo(() => (
     <div
       className={`SectionText`}
       style={{textAlign: pageSectionData.TextAlign}}
       dangerouslySetInnerHTML={{__html: pageSectionData.SectionText}}
       ref={sectionTextRef}
     />
-  );
-
-  if (!canEdit) {
-    // non-editable version of page section
-    return <PageSectionContext value={{
-      pageSectionData: pageSectionData,
-      sectionExtras: sectionExtras
-    }}>
-      <div
-        className={`PageSection`}
-        ref={sectionRef}
-      >
-        {sectionTitle}
-        <PageSectionImage/>
-        {sectionText}
-      </div>
-      <Extras/>
-    </PageSectionContext>
-  }
+  ), [pageSectionData]);
 
   function onInsertLoremIpsum() {
     const textContent = loremIpsum(
@@ -156,13 +147,7 @@ function PageSection({pageSectionData}) {
         count: 4,
         units: 'paragraphs'
       });
-    console.debug(`Update section text...`);
-    pageSectionData.SectionText = textContent;
-    pageSectionData.TextAlign = 'left';
-    updatePageSection(pageSectionData);
-    PageSections.insertOrUpdatePageSection(pageSectionData)
-      .then(() => console.debug(`Updated section text.`))
-      .catch(error => showErrorAlert(`Error updating section text.`, error));
+    onTextChanged({textContent: textContent, textAlign: pageSectionData.TextAlign});
   }
 
   function onDeleteSection() {
@@ -295,21 +280,22 @@ function PageSection({pageSectionData}) {
   }
 
   function onEditTitle() {
-    setEditingTitle(true);
-    // defer focus until field is visible
-    setTimeout(() => sectionTitleRef.current?.focus(), 10);
+    // start editing section title
+    sectionTitleApi.current?.startEditing();
+    setEditing(true);
   }
 
   function onEditText() {
-    setEditingText(true);
-    // defer focus until field is visible
-    setTimeout(() => sectionTextRef.current?.focus(), 10);
+    // start editing section text
+    sectionTextApi.current?.startEditing();
+    setEditing(true);
   }
 
   /**
    * See if user is pasting image data.
    */
   function onPaste(e) {
+    // handle pasting image data
     const items = (e.clipboardData || e.originalEvent.clipboardData).items;
     for (const item of items) {
       if (item.type.indexOf('image') !== -1) {
@@ -320,18 +306,33 @@ function PageSection({pageSectionData}) {
     }
   }
 
-  return (
-    <PageSectionContext value={{
-      pageSectionData: pageSectionData,
-      sectionExtras: sectionExtras
-    }}>
+  if (!canEdit) {
+    // non-editable version of page section
+    return (
+      <div
+        className={`PageSection`}
+        ref={sectionRef}
+      >
+        {sectionTitle}
+        <PageSectionImage pageSectionData={pageSectionData}/>
+        {sectionText}
+        <Extras extras={sectionExtras}/>
+      </div>
+    );
+  } else {
+    // editable version of page section
+    return (<>
       <div
         className={`PageSection`}
         onMouseOver={() => {
-          if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden = false
+          if (!editing) {
+            editButtonRef.current.hidden = false;
+          }
         }}
         onMouseLeave={() => {
-          if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden = true
+          if (!editing) {
+            editButtonRef.current.hidden = supportsHover;
+          }
         }}
         onPaste={(e) => {
           if (canEdit) {
@@ -344,44 +345,42 @@ function PageSection({pageSectionData}) {
         data-testid={`PageSection-${pageSectionData.PageSectionID}`}
         ref={sectionRef}
       >
-        {!editingText
-          && !editingTitle
-          && pageSectionData.PageSectionID
-          && !pageSectionData.SectionImage
-          && !pageSectionData.SectionTitle
-          && !pageSectionData.SectionText
-          && (
-            <div style={{height: '100px'}}>
-              <div className={'Editor EmptyElement'}>(Empty Section)</div>
-            </div>
-          )}
-        {(pageSectionData.SectionTitle || editingTitle) && (
-          <EditableField
-            field={sectionTitle}
-            fieldRef={sectionTitleRef}
-            textContent={pageSectionData.SectionTitle}
-            textAlign={pageSectionData.TitleAlign}
-            callback={onTitleChanged}
-            editing={editingTitle}
-          />
-        )}
+        <div
+          style={{height: '100px'}}
+          hidden={
+            editing
+            || pageSectionData.SectionImage
+            || pageSectionData.SectionTitle
+            || pageSectionData.SectionText
+          }
+        >
+          <div className={'Editor EmptyElement'}>(Empty Section)</div>
+        </div>
+        <EditableField
+          field={sectionTitle}
+          fieldRef={sectionTitleRef}
+          apiRef={sectionTitleApi}
+          textContent={pageSectionData.SectionTitle}
+          textAlign={pageSectionData.TitleAlign}
+          callback={onTitleChanged}
+          onCancel={onEditCanceled}
+        />
         <PageSectionImage
           pageSectionData={pageSectionData}
           imageRef={sectionImageRef}
           dropRef={dropRef}
           onFileSelected={onUploadFile}
         />
-        {(pageSectionData.SectionText || editingText) && (
-          <EditableField
-            field={sectionText}
-            fieldRef={sectionTextRef}
-            textContent={pageSectionData.SectionText}
-            textAlign={pageSectionData.TextAlign}
-            callback={onTextChanged}
-            allowEnterKey={true}
-            editing={editingText}
-          />
-        )}
+        <EditableField
+          field={sectionText}
+          fieldRef={sectionTextRef}
+          apiRef={sectionTextApi}
+          textContent={pageSectionData.SectionText}
+          textAlign={pageSectionData.TextAlign}
+          callback={onTextChanged}
+          onCancel={onEditCanceled}
+          allowEnterKey={true}
+        />
         {!pageSectionData.SectionImage && (
           <FileDropTarget
             ref={dropRef}
@@ -392,49 +391,48 @@ function PageSection({pageSectionData}) {
             }}
           />
         )}
-        {!editingText && !editingTitle && (
-          <div
-            className="Editor dropdown"
-            style={{position: 'absolute', top: '2px', right: '2px'}}
-            ref={editButtonRef}
-            hidden={supportsHover}
-          >
-            <Button
-              variant="secondary"
-              size="sm"
-              className={`EditButton border btn-light`}
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            ><BsThreeDotsVertical/></Button>
-            <div className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
+        <div
+          className="Editor dropdown"
+          style={{position: 'absolute', top: '3px', right: '3px'}}
+          ref={editButtonRef}
+          hidden={editing}
+        >
+          <Button
+            variant="secondary"
+            size="sm"
+            className={`EditButton border btn-light`}
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            style={{marginBottom: '10px'}}
+          ><BsThreeDotsVertical/></Button>
+          <div className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
               <span className="dropdown-item"
                     onClick={onEditTitle}>{`${pageSectionData?.SectionTitle?.length > 0 ? 'Edit' : 'Add'} Section Title`}</span>
+            <span className="dropdown-item"
+                  onClick={onEditText}>{`${pageSectionData?.SectionText?.length > 0 ? 'Edit' : 'Add'} Section Text`}</span>
+            {!pageSectionData.SectionText && (
               <span className="dropdown-item"
-                    onClick={onEditText}>{`${pageSectionData?.SectionText?.length > 0 ? 'Edit' : 'Add'} Section Text`}</span>
-              {!pageSectionData.SectionText && (
-                <span className="dropdown-item"
-                      onClick={() => onInsertLoremIpsum()}>Add Placeholder Text</span>
-              )}
-              <span className="dropdown-item"
-                    onClick={() => dropRef.current?.selectFile()}>{`${pageSectionData?.SectionImage?.length > 0 ? 'Update' : 'Add'} Section Image`}</span>
-              <span className="dropdown-item"
-                    onClick={() => addExtraModal({pageSectionId: pageSectionData.PageSectionID})}>Add Extra</span>
-              {pageSectionData.PageSectionID !== sectionData[0].PageSectionID && (
-                <span className="dropdown-item" onClick={onMoveUp}>Move Up</span>
-              )}
-              {pageSectionData.PageSectionID !== sectionData[sectionData.length - 1].PageSectionID && (
-                <span className="dropdown-item" style={{marginLeft: '0'}} onClick={onMoveDown}>Move
+                    onClick={() => onInsertLoremIpsum()}>Add Placeholder Text</span>
+            )}
+            <span className="dropdown-item"
+                  onClick={() => dropRef.current?.selectFile()}>{`${pageSectionData?.SectionImage?.length > 0 ? 'Update' : 'Add'} Section Image`}</span>
+            <span className="dropdown-item"
+                  onClick={() => addExtraModal({pageSectionId: pageSectionData.PageSectionID})}>Add Extra</span>
+            {pageSectionData.PageSectionID !== sectionData[0].PageSectionID && (
+              <span className="dropdown-item" onClick={onMoveUp}>Move Up</span>
+            )}
+            {pageSectionData.PageSectionID !== sectionData[sectionData.length - 1].PageSectionID && (
+              <span className="dropdown-item" style={{marginLeft: '0'}} onClick={onMoveDown}>Move
                   Down</span>
-              )}
-              <span className="dropdown-item" style={{marginLeft: '0'}}
-                    onClick={onNewSectionAbove}>New Section Above</span>
-              <span className="dropdown-item" style={{marginLeft: '0'}}
-                    onClick={onNewSectionBelow}>New Section Below</span>
-              <span className="dropdown-item" onClick={() => setShowDeleteConfirmation(true)}> Delete Section</span>
-            </div>
+            )}
+            <span className="dropdown-item" style={{marginLeft: '0'}}
+                  onClick={onNewSectionAbove}>New Section Above</span>
+            <span className="dropdown-item" style={{marginLeft: '0'}}
+                  onClick={onNewSectionBelow}>New Section Below</span>
+            <span className="dropdown-item" onClick={() => setShowDeleteConfirmation(true)}> Delete Section</span>
           </div>
-        )}
+        </div>
         <Modal
           show={showDeleteConfirmation}
           onHide={() => setShowDeleteConfirmation(false)}
@@ -454,15 +452,7 @@ function PageSection({pageSectionData}) {
           </ModalFooter>
         </Modal>
       </div>
-      <Extras/>
-    </PageSectionContext>
-  );
+      <Extras extras={sectionExtras}/>
+    </>);
+  }
 }
-
-const PageSectionContext = createContext({});
-
-export function usePageSectionContext() {
-  return useContext(PageSectionContext);
-}
-
-export default PageSection;

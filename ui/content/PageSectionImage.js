@@ -5,27 +5,35 @@ import {useEdit} from "../editor/EditProvider";
 import {useSiteContext} from "./Site";
 import FileDropTarget, {DropState} from "../editor/FileDropTarget";
 import {Button} from "react-bootstrap";
-import {usePageSectionContext} from "./PageSection";
 import {useRef} from "react";
 import {useTouchContext} from "../../util/TouchProvider";
 
 /**
- * Insert an editable page section image.
+ * Display a page section image.
+ *
  * Should be inserted before section text if position is "above",
  * otherwise it should be inserted after the section text.
+ *
+ * @property {PageSectionData} pageSectionData    Data for entire page section.
+ * @property {Ref<HTMLImageElement>} imageRef     Returns a reference to the image tag.
+ * @property {Ref<DropFunctions>} dropRef         Returns functions API.
+ * @property {function(File)} onFileSelected      Callback when a file is dropped.
+ * @property {function(File[])} onFilesSelected   Callback when multiple files are dropped.
  *
  * @returns {JSX.Element}
  * @constructor
  */
-export default function PageSectionImage({imageRef, dropRef, onFileSelected, onFilesSelected}) {
+export default function PageSectionImage({pageSectionData, imageRef, dropRef, onFileSelected, onFilesSelected}) {
 
+  // imports
   const {PageSections} = useRestApi();
   const {updatePageSection} = usePageContext();
-  const {pageSectionData} = usePageSectionContext();
   const {canEdit} = useEdit();
-  const {siteData, showErrorAlert} = useSiteContext();
-  const editButtonRef = useRef(null);
   const {supportsHover} = useTouchContext();
+  const {siteData, showErrorAlert} = useSiteContext();
+
+  // refs
+  const editButtonRef = useRef(null);
 
   if (!pageSectionData.SectionImage) {
     return <></>;
@@ -37,9 +45,9 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
     PageSections.insertOrUpdatePageSection(pageSectionData)
       .then(() => {
         console.debug(`Updated image alignment.`)
-        updatePageSection(pageSectionData);
       })
       .catch(error => showErrorAlert(`Error updating image alignment.`, error));
+    updatePageSection(pageSectionData);
   }
 
   function setImagePosition(position) {
@@ -52,10 +60,9 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
     PageSections.insertOrUpdatePageSection(pageSectionData)
       .then(() => {
         console.debug(`Updated image position.`)
-        updatePageSection(pageSectionData);
       })
       .catch(error => showErrorAlert(`Error updating image position.`, error));
-
+    updatePageSection(pageSectionData);
   }
 
   function hideImageFrame(hide) {
@@ -64,9 +71,9 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
     PageSections.insertOrUpdatePageSection(pageSectionData)
       .then(() => {
         console.debug(`Updated image frame.`)
-        updatePageSection(pageSectionData);
       })
       .catch(error => showErrorAlert(`Error updating image frame.`, error));
+    updatePageSection(pageSectionData);
   }
 
   function deleteImage() {
@@ -74,10 +81,10 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
     PageSections.deleteSectionImage(pageSectionData.PageID, pageSectionData.PageSectionID)
       .then(() => {
         console.debug(`Deleted section image.`)
-        pageSectionData.SectionImage = null;
-        updatePageSection(pageSectionData);
       })
       .catch(error => showErrorAlert(`Error deleting section image.`, error));
+    pageSectionData.SectionImage = null;
+    updatePageSection(pageSectionData);
   }
 
   function setImageWidth(width) {
@@ -86,8 +93,8 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
     PageSections.insertOrUpdatePageSection(pageSectionData)
       .then(() => {
         console.debug(`Updated image width.`)
-        updatePageSection(pageSectionData);
       }).catch(error => showErrorAlert(`Error updating image width.`, error));
+    updatePageSection(pageSectionData);
   }
 
   /**
@@ -178,7 +185,7 @@ export default function PageSectionImage({imageRef, dropRef, onFileSelected, onF
             />
             <div
               className="EditSectionImage Editor dropdown"
-              style={{position: 'absolute', bottom: '0', right: '2px'}}
+              style={{position: 'absolute', bottom: -5, right: 5, margin:'10px 2px 10px 0'}}
               ref={editButtonRef}
               hidden={supportsHover}
             >

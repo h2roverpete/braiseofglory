@@ -1,5 +1,5 @@
 import {PageContext} from "./Page";
-import {useContext, useRef, useState} from "react";
+import {useContext, useRef} from "react";
 import {useRestApi} from "../../api/RestApi";
 import EditableField from "../editor/EditableField";
 import {useEdit} from "../editor/EditProvider";
@@ -30,7 +30,6 @@ export default function PageTitle(props) {
   const {Outline} = useSiteContext();
   const {Pages} = useRestApi();
   const {canEdit} = useEdit();
-  const [editingTitle, setEditingTitle] = useState(false);
 
   function onTitleChanged({textContent, textAlign}) {
     if (pageData) {
@@ -47,7 +46,6 @@ export default function PageTitle(props) {
           console.error(`Error updating page title: ${err.message}`);
         })
     }
-    setEditingTitle(false);
   }
 
   const titleRef = useRef(null);
@@ -74,7 +72,6 @@ export default function PageTitle(props) {
         textContent={pageData?.PageTitle}
         textAlign={pageData?.PageTitleAlign}
         showEditButton={true}
-        editing={editingTitle}
         alwaysShow={props.alwaysShow === true}
       />
     ) : (

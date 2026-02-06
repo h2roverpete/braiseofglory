@@ -104,7 +104,8 @@ export default function Page(props) {
     const newSections = [];
     for (const section of sectionData) {
       if (section.PageSectionID === newData.PageSectionID) {
-        newSections.push(newData);
+        // copy the data to insure replacement
+        newSections.push({...newData});
       } else {
         newSections.push(section);
       }
