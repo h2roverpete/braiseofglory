@@ -181,6 +181,21 @@ export default function Gallery({galleryId, extraId}) {
     }
   }
 
+  /**
+   * See if user is pasting image data.
+   */
+  function onPaste(e) {
+    console.debug(`Paste to gallery.`);
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for (const item of items) {
+      if (item.type.indexOf('image') !== -1) {
+        const file = item.getAsFile();
+        uploadFile(file);
+        e.preventDefault();
+      }
+    }
+  }
+
   return (<div
     onDragEnter={(e) => {
       if (canEdit) {
@@ -189,86 +204,97 @@ export default function Gallery({galleryId, extraId}) {
     }}
     onMouseOver={() => {
       if (canEdit && supportsHover) {
+        // show editor button and property panel
         buttonRef.current.hidden = false;
         expandButtonRef.current.hidden = false;
       }
     }}
     onMouseOut={() => {
       if (canEdit && supportsHover) {
+        // hide editor button and property panel
         buttonRef.current.hidden = true;
         expandButtonRef.current.hidden = true;
       }
-    }}>
+    }}
+  >
     <div
       className="Gallery"
       style={{
         position: 'relative',
+      }}
+      onPaste={(e) => {
+        if (canEdit) {
+          onPaste(e)
+        }
       }}
     >
       {images?.length > 0 && (
         <ImageGallery items={images} ref={galleryRef} onSlide={onSlide}/>
       )}
       {canEdit && (<>
-        {images?.length === 0 && (
-          <div style={{
-            position: 'relative',
-            height: '100px',
-          }}>
-            <div className={'Editor EmptyElement'}>(Empty Gallery)</div>
-          </div>
-        )}
-        <FileDropTarget
-          ref={fileDropRef}
-          onFileSelected={uploadFile}
-          onFilesSelected={uploadFiles}
-          onError={onDropError}
-          multiple={true}
-        />
-        <div
-          className="EditGalleryPhoto Editor dropdown"
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: '5px',
-          }}
-          hidden={supportsHover}
-          ref={buttonRef}
-        >
-          <Button
-            className={`EditButton btn-light mt-1`}
-            type="button"
-            variant={'secondary'}
-            size={'sm'}
-            aria-expanded="false"
-            data-bs-toggle="dropdown"
-          >
-            <BsThreeDotsVertical/>
-          </Button>
+          {images?.length === 0 && (
+            <div style={{
+              position: 'relative',
+              height: '100px',
+            }}>
+              <div className={'Editor EmptyElement'}>(Empty Gallery)</div>
+            </div>
+          )}
+          <FileDropTarget
+            ref={fileDropRef}
+            onFileSelected={uploadFile}
+            onFilesSelected={uploadFiles}
+            onError={onDropError}
+            multiple={true}
+          />
           <div
-            className="dropdown-menu Editor border-secondary border-opacity-25"
-            style={{zIndex: 100}}
+            className="EditGalleryPhoto Editor dropdown"
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: '5px',
+            }}
+            hidden={supportsHover}
+            ref={buttonRef}
           >
-            {currentPhoto && (<span className="dropdown-item" onClick={onDeletePhoto}>
+            <Button
+              className={`EditButton btn-light mt-1`}
+              type="button"
+              variant={'secondary'}
+              size={'sm'}
+              aria-expanded="false"
+              data-bs-toggle="dropdown"
+            >
+              <BsThreeDotsVertical/>
+            </Button>
+            <div
+              className="dropdown-menu Editor border-secondary border-opacity-25"
+              style={{zIndex: 100}}
+            >
+              {currentPhoto && (<span className="dropdown-item" onClick={onDeletePhoto}>
                 Delete Photo
               </span>)}
-            <span className="dropdown-item" onClick={fileDropRef.current?.selectFile}>
+              <span className="dropdown-item" onClick={fileDropRef.current?.selectFile}>
                 Upload a Photo
               </span>
+            </div>
           </div>
-        </div>
-      </>)}
+        </>
+      )}
     </div>
-    {canEdit && (
-      <FormEditor>
-        <GalleryConfig
-          galleryConfig={galleryConfig}
-          setGalleryConfig={setGalleryConfig}
-          extraId={extraId}
-          buttonRef={expandButtonRef}
-          ref={configRef}
-        />
-      </FormEditor>
-    )}
+    {
+      canEdit && (
+        <FormEditor>
+          <GalleryConfig
+            galleryConfig={galleryConfig}
+            setGalleryConfig={setGalleryConfig}
+            extraId={extraId}
+            buttonRef={expandButtonRef}
+            ref={configRef}
+          />
+        </FormEditor>
+      )
+    }
   </div>)
 }
 

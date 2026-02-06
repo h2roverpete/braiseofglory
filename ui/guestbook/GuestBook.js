@@ -194,14 +194,10 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
     }>
       {guestBookConfig && (<div
         onMouseOver={() => {
-          if (canEdit && supportsHover) {
-            expandButtonRef.current.hidden = false;
-          }
+          if (canEdit && supportsHover) expandButtonRef.current.hidden = false;
         }}
         onMouseOut={() => {
-          if (canEdit && supportsHover) {
-            expandButtonRef.current.hidden = true;
-          }
+          if (canEdit && supportsHover) expandButtonRef.current.hidden = true;
         }}
       >
         <div

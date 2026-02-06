@@ -6,7 +6,7 @@ import EditorPanel from "../editor/EditorPanel";
 import {useFormEditor} from "../editor/FormEditor";
 import {useEffect} from "react";
 
-export default function InstagramConfig({extraData, setExtraData}) {
+export default function InstagramConfig({extraData, setExtraData, buttonRef}) {
 
   const {canEdit} = useEdit();
   const {Extras} = useRestApi();
@@ -48,6 +48,7 @@ export default function InstagramConfig({extraData, setExtraData}) {
     <EditorPanel
       onDelete={onDelete}
       onUpdate={onUpdate}
+      buttonRef={buttonRef}
       isDataValid={() => isValidInstagramHandle(edits?.InstagramHandle)}
     >
       <h5>Instagram Properties</h5>

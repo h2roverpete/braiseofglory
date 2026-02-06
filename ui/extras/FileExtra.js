@@ -59,7 +59,8 @@ export default function FileExtra({extraData}) {
           setContent(<>
             <div className={'Extra'}>
               <a
-                href={fileUrl}  rel="noreferrer" target={'_blank'}>{extraData.ExtraFilePrompt ? extraData.ExtraFilePrompt : fileName}</a>
+                href={fileUrl} rel="noreferrer"
+                target={'_blank'}>{extraData.ExtraFilePrompt ? extraData.ExtraFilePrompt : fileName}</a>
             </div>
           </>);
           break;
@@ -68,14 +69,10 @@ export default function FileExtra({extraData}) {
   }, [siteData, extraData]);
   return (<div
     onMouseOver={() => {
-      if (canEdit && supportsHover) {
-        buttonRef.current.hidden = false;
-      }
+      if (canEdit && supportsHover) buttonRef.current.hidden = false;
     }}
     onMouseOut={() => {
-      if (canEdit && supportsHover) {
-        buttonRef.current.hidden = true;
-      }
+      if (canEdit && supportsHover) buttonRef.current.hidden = true;
     }}>
     {content}
     {canEdit && (

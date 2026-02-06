@@ -41,6 +41,55 @@
   border: 1px dotted gray;
 }
 
+/** all editor panels */
+.EditorPanel {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+/* Standard editor panel body */
+.EditorPanel.Body {
+  background-color: #e0e0e0;
+  border: 1px solid #00000040;
+  padding: 15px 10px 10px 10px;
+}
+
+/* no margin for site editor */
+.SiteEditor .EditorPanel {
+  margin: 0;
+}
+
+/* no margin for page editor */
+.PageEditor .EditorPanel {
+  margin: 0;
+}
+
+/* Body of site editor */
+.SiteEditor .EditorPanel.Body {
+  padding: 0;
+  border: none;
+  border-right:  1px solid #00000040;
+}
+
+/* Body of page editor */
+.PageEditor .EditorPanel.Body {
+  padding: 20px 10px 10px 15px;
+  border: none;
+  border-bottom: 1px solid #00000040;
+}
+
+/* Outline editor */
+.Editor.OutlinePanel {
+  padding: 25px 10px 10px 15px;
+}
+
+/* Site properties slide up panel within site editor panel */
+.SiteEditor .EditorPanel.Body .EditorPanel.Body {
+  padding: 20px 10px 10px 15px;
+  border: none;
+  border-top: 1px solid #00000040;
+}
+
 .Editor div.form-check {
   display: flex;
   flex-direction: row;
@@ -90,13 +139,15 @@ button.EditorToggle.btn {
   border-radius: 0;
 }
 
-button.EditorToggle {
-  background-color: transparent;
-}
 
 /* all toggle arrows */
 .EditorToggle {
   color: black;
+  background-color: transparent;
+}
+
+.PageEditor .EditorPanel.Body {
+
 }
 
 /* page editor toggle arrow collapsed */
@@ -106,7 +157,7 @@ button.EditorToggle {
 }
 
 /* site editor toggle arrow collapsed */
-.SiteEditor .EditorToggle.collapsed {
+.SiteEditor .EditorToggle.collapsed.vertical {
   color: white;
   filter: drop-shadow(1px 0px black);
 }
@@ -117,10 +168,6 @@ button.EditorToggle {
 
 .OutlineItem.active {
   background-color: #00000020;
-}
-
-.ToggleBar {
-  background-color: #00000022;
 }
 
 .Editor {

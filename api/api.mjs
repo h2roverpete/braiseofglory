@@ -7,20 +7,10 @@ import axios from "axios";
  * @property {Number} SiteID
  * @property {String} SiteName
  * @property {String} SiteRootUrl
- * @property {String} SiteRootDir
  * @property {String} SiteBucketName
- * @property {String} PageDisplayURL
- * @property {Number} ColorSchemeID
- * @property {Number} FrameID
- * @property {Boolean} AddSections
- * @property {Boolean} EditOutline
- * @property {Number} OutlineDepthLimit
- * @property {Boolean} AddDeletePages
- * @property {String} PageImage1Label
- * @property {String} PageImage2Label
- * @property {Number} RealmID
  * @property {String} Created
  * @property {String} Modified
+ * @property {String} GoogleClientID
  */
 
 /**

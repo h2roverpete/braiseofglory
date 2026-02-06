@@ -273,10 +273,10 @@ export default function NavBar(props) {
       fixed={props.fixed ? props.fixed : undefined}
       data-testid="NavBar"
       onMouseOver={() => {
-        if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden = false
+        if (canEdit && supportsHover) editButtonRef.current.hidden = false
       }}
       onMouseLeave={() => {
-        if (supportsHover && canEdit && editButtonRef.current) editButtonRef.current.hidden = true
+        if (canEdit && supportsHover) editButtonRef.current.hidden = true
       }}
     >
       <div
