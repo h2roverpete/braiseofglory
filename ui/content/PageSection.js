@@ -393,8 +393,7 @@ export default function PageSection({pageSectionData}) {
           />
         )}
         <div
-          className="Editor dropdown"
-          style={{position: 'absolute', top: '3px', right: '3px'}}
+          className="Editor EditSectionMenu dropdown"
         >
           <Button
             variant="secondary"

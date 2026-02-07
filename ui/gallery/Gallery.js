@@ -197,6 +197,11 @@ export default function Gallery({galleryId, extraId}) {
   }
 
   return (<div
+    style={{
+      position: 'relative',
+      flex: 1,
+      width: '100%'
+    }}
     onDragEnter={(e) => {
       if (canEdit) {
         fileDropRef.current?.onDragEnter(e, DropState.ADD);

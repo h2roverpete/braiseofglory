@@ -24,8 +24,8 @@ export default function EditButtons(props) {
     <>
       {props.editable && (
         <div
-          style={{whiteSpace: "nowrap", position: 'absolute', top: '2px', right: '2px'}}
-          hidden={props.hidden===true}
+          className={'EditButtons'}
+          hidden={props.hidden === true}
           ref={props.ref}
         >
           <Button

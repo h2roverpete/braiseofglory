@@ -10,7 +10,7 @@ import {useEdit} from "./EditProvider";
 /**
  * Show modal dialog to create a new page
  * @param show {boolean}
- * @param setShow {function({boolean})}
+ * @param setShow {function(Boolean)}
  * @returns {Element}
  * @constructor
  */

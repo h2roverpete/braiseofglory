@@ -241,7 +241,6 @@ export default function EditableField(
             showEditButton={showEditButton}
             ref={editButtonRef}
             hidden={!isEditing && supportsHover}
-            style={{position: 'absolute', right: '2px', top: '2px'}}
           />
         </div>
         <Modal
