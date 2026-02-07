@@ -17,14 +17,15 @@ export default function GuestBookConfig({extraId, buttonRef}) {
   const {removeExtraFromPage} = usePageContext();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const {edits, FormData} = useFormEditor();
+
   useEffect(() => {
-    FormData?.update(guestBookConfig);
-  },[guestBookConfig]);
-  
+    FormData.setData(guestBookConfig);
+  }, [guestBookConfig, FormData]);
+
   if (!canEdit) {
     return <></>;
   }
-  
+
   function isDataValid() {
     return edits?.GuestBookName?.length > 0 && isValidEmail(edits?.GuestBookEmail) && areCustomFieldsValid()
   }
@@ -43,7 +44,7 @@ export default function GuestBookConfig({extraId, buttonRef}) {
     GuestBooks.insertOrUpdateGuestBook(edits)
       .then(response => {
         console.debug(`Guest book config updated.`);
-        FormData?.update(response);
+        FormData.update(response);
         setGuestBookConfig(response);
       })
       .catch(error => {
@@ -70,7 +71,7 @@ export default function GuestBookConfig({extraId, buttonRef}) {
     for (let i = 1; i <= 8; i++) {
       if (!edits[`Custom${i}Type`]) {
         console.debug(`Adding custom field at position ${i}`);
-        FormData?.update({
+        FormData.update({
           ...edits,
           [`Custom${i}Label`]: '',
           [`Custom${i}Type`]: 'text',
@@ -99,7 +100,7 @@ export default function GuestBookConfig({extraId, buttonRef}) {
   return (<>
     <EditorPanel
       onUpdate={onUpdate}
-      onDelete={()=>setShowDeleteConfirmation(true)}
+      onDelete={() => setShowDeleteConfirmation(true)}
       isDataValid={isDataValid}
       buttonRef={buttonRef}
       extraButtons={<>
@@ -141,9 +142,9 @@ export default function GuestBookConfig({extraId, buttonRef}) {
             size={"sm"}
             id={'GuestBookName'}
             value={edits?.GuestBookName || ''}
-            isInvalid={FormData?.isTouched('GuestBookName') && edits?.GuestBookName?.length === 0}
-            isValid={FormData?.isTouched('GuestBookName') && edits?.GuestBookName?.length > 0}
-            onChange={(e) => FormData?.onDataChanged({name: 'GuestBookName', value: e.target.value})}
+            isInvalid={FormData.isTouched('GuestBookName') && edits?.GuestBookName?.length === 0}
+            isValid={FormData.isTouched('GuestBookName') && edits?.GuestBookName?.length > 0}
+            onChange={(e) => FormData.onDataChanged({name: 'GuestBookName', value: e.target.value})}
           />
         </Col>
       </Row>
@@ -161,7 +162,7 @@ export default function GuestBookConfig({extraId, buttonRef}) {
             size={'sm'}
             value={edits?.GuestBookEmail}
             required={true}
-            onChange={(e) => FormData?.onDataChanged({name: 'GuestBookEmail', value: e.target.value})}
+            onChange={(e) => FormData.onDataChanged({name: 'GuestBookEmail', value: e.target.value})}
           />
         </Col>
         <Col sm={6}>
@@ -175,7 +176,7 @@ export default function GuestBookConfig({extraId, buttonRef}) {
             size={'sm'}
             id={'GuestBookCCEmail'}
             value={edits?.GuestBookCCEmail}
-            onChange={(e) => FormData?.onDataChanged({name: 'GuestBookCCEmail', value: e.target.value})}
+            onChange={(e) => FormData.onDataChanged({name: 'GuestBookCCEmail', value: e.target.value})}
           />
         </Col>
       </Row>
@@ -185,7 +186,7 @@ export default function GuestBookConfig({extraId, buttonRef}) {
             checked={edits?.AlwaysEmail || false}
             className={'form-control-sm'}
             label={'Always send email to admins, even without feedback'}
-            onChange={(e) => FormData?.onDataChanged({name: 'AlwaysEmail', value: e.target.checked})}
+            onChange={(e) => FormData.onDataChanged({name: 'AlwaysEmail', value: e.target.checked})}
           />
         </Col>
       </Row>
@@ -205,7 +206,7 @@ export default function GuestBookConfig({extraId, buttonRef}) {
             value={edits?.GuestBookMessage || ''}
             placeholder={'Please enter your information below.'}
             rows={3}
-            onChange={(e) => FormData?.onDataChanged({name: 'GuestBookMessage', value: e.target.value})}
+            onChange={(e) => FormData.onDataChanged({name: 'GuestBookMessage', value: e.target.value})}
           />
         </Col>
       </Row>
@@ -225,7 +226,7 @@ export default function GuestBookConfig({extraId, buttonRef}) {
             value={edits?.DoneMessage || ''}
             rows={3}
             placeholder={'Your information has been submitted.'}
-            onChange={(e) => FormData?.onDataChanged({name: 'DoneMessage', value: e.target.value})}
+            onChange={(e) => FormData.onDataChanged({name: 'DoneMessage', value: e.target.value})}
           />
         </Col>
       </Row>
@@ -243,7 +244,7 @@ export default function GuestBookConfig({extraId, buttonRef}) {
             id={'SubmitButtonName'}
             value={edits?.SubmitButtonName || ''}
             placeholder={'Submit'}
-            onChange={(e) => FormData?.onDataChanged({name: 'SubmitButtonName', value: e.target.value})}
+            onChange={(e) => FormData.onDataChanged({name: 'SubmitButtonName', value: e.target.value})}
           />
         </Col>
         <Col sm={6}>
@@ -259,7 +260,7 @@ export default function GuestBookConfig({extraId, buttonRef}) {
             id={'AgainMessage'}
             value={edits?.AgainMessage || ''}
             placeholder={'Submit Again'}
-            onChange={(e) => FormData?.onDataChanged({name: 'AgainMessage', value: e.target.value})}
+            onChange={(e) => FormData.onDataChanged({name: 'AgainMessage', value: e.target.value})}
           />
         </Col>
       </Row>
@@ -278,7 +279,7 @@ export default function GuestBookConfig({extraId, buttonRef}) {
             value={edits?.TextCaption || ''}
             placeholder={'Questions or Comments'}
             disabled={!edits?.ShowFeedback}
-            onChange={(e) => FormData?.onDataChanged({name: 'TextCaption', value: e.target.value})}
+            onChange={(e) => FormData.onDataChanged({name: 'TextCaption', value: e.target.value})}
           />
         </Col>
         <Col sm={6}>
@@ -293,7 +294,7 @@ export default function GuestBookConfig({extraId, buttonRef}) {
             id={'LabelCols'}
             value={edits?.LabelCols || '2'}
             size={"sm"}
-            onChange={(e) => FormData?.onDataChanged({name: 'LabelCols', value: parseInt(e.target.value)})}
+            onChange={(e) => FormData.onDataChanged({name: 'LabelCols', value: parseInt(e.target.value)})}
           >
             <option value={'2'}>2 Columns</option>
             <option value={'3'}>3 Columns</option>
@@ -310,25 +311,25 @@ export default function GuestBookConfig({extraId, buttonRef}) {
             checked={edits?.ShowName || false}
             className={'form-control-sm'}
             label={'Name'}
-            onChange={(e) => FormData?.onDataChanged({name: 'ShowName', value: e.target.checked})}
+            onChange={(e) => FormData.onDataChanged({name: 'ShowName', value: e.target.checked})}
           />
           <Form.Check
             checked={edits?.ShowDayPhone || false}
             className={'form-control-sm'}
             label={'Phone'}
-            onChange={(e) => FormData?.onDataChanged({name: 'ShowDayPhone', value: e.target.checked})}
+            onChange={(e) => FormData.onDataChanged({name: 'ShowDayPhone', value: e.target.checked})}
           />
           <Form.Check
             checked={edits?.ShowEmail || false}
             className={'form-control-sm'}
             label={'Email'}
-            onChange={(e) => FormData?.onDataChanged({name: 'ShowEmail', value: e.target.checked})}
+            onChange={(e) => FormData.onDataChanged({name: 'ShowEmail', value: e.target.checked})}
           />
           <Form.Check
             checked={edits?.ShowFeedback || false}
             className={'form-control-sm'}
             label={'Feedback'}
-            onChange={(e) => FormData?.onDataChanged({name: 'ShowFeedback', value: e.target.checked})}
+            onChange={(e) => FormData.onDataChanged({name: 'ShowFeedback', value: e.target.checked})}
           />
         </Col>
         <Col sm={3}>
@@ -336,19 +337,19 @@ export default function GuestBookConfig({extraId, buttonRef}) {
             checked={edits?.ShowAddress || false}
             className={'form-control-sm'}
             label={'Address'}
-            onChange={(e) => FormData?.onDataChanged({name: 'ShowAddress', value: e.target.checked})}
+            onChange={(e) => FormData.onDataChanged({name: 'ShowAddress', value: e.target.checked})}
           />
           <Form.Check
             checked={edits?.ShowContactInfo || false}
             className={'form-control-sm'}
             label={'Contact Method'}
-            onChange={(e) => FormData?.onDataChanged({name: 'ShowContactInfo', value: e.target.checked})}
+            onChange={(e) => FormData.onDataChanged({name: 'ShowContactInfo', value: e.target.checked})}
           />
           <Form.Check
             checked={edits?.ShowMailingList || false}
             className={'form-control-sm'}
             label={'Mailing List'}
-            onChange={(e) => FormData?.onDataChanged({name: 'ShowMailingList', value: e.target.checked})}
+            onChange={(e) => FormData.onDataChanged({name: 'ShowMailingList', value: e.target.checked})}
           />
         </Col>
         <Col>
@@ -356,19 +357,19 @@ export default function GuestBookConfig({extraId, buttonRef}) {
             checked={edits?.ShowEveningPhone || false}
             className={'form-control-sm'}
             label={'Mobile Phone'}
-            onChange={(e) => FormData?.onDataChanged({name: 'ShowEveningPhone', value: e.target.checked})}
+            onChange={(e) => FormData.onDataChanged({name: 'ShowEveningPhone', value: e.target.checked})}
           />
           <Form.Check
             checked={edits?.ShowFax || false}
             className={'form-control-sm'}
             label={'Alternate Phone'}
-            onChange={(e) => FormData?.onDataChanged({name: 'ShowFax', value: e.target.checked})}
+            onChange={(e) => FormData.onDataChanged({name: 'ShowFax', value: e.target.checked})}
           />
           <Form.Check
             checked={edits?.ShowLodgingFields || false}
             className={'form-control-sm'}
             label={'Lodging Fields'}
-            onChange={(e) => FormData?.onDataChanged({name: 'ShowLodgingFields', value: e.target.checked})}
+            onChange={(e) => FormData.onDataChanged({name: 'ShowLodgingFields', value: e.target.checked})}
           />
         </Col>
       </Row>
@@ -380,12 +381,12 @@ export default function GuestBookConfig({extraId, buttonRef}) {
               checked={edits?.MailingListDefault || false}
               className={'form-control-sm'}
               label={'Mailing list checked by default'}
-              onChange={(e) => FormData?.onDataChanged({name: 'MailingListDefault', value: e.target.checked})}
+              onChange={(e) => FormData.onDataChanged({name: 'MailingListDefault', value: e.target.checked})}
             />
           </Col>
         </Row>
       )}
-      <CustomFieldsConfig guestBookConfig={edits} onChange={FormData?.onDataChanged}/>
+      <CustomFieldsConfig guestBookConfig={edits} onChange={(data)=>FormData.onDataChanged(data)}/>
     </EditorPanel>
 
     <Modal

@@ -35,7 +35,18 @@ export default function FormEditor({ref, children}) {
   }
 
   /**
-   * Update the original data and clear edits, i.e. after a DynamoDB update.
+   * Set initial form data.
+   * @param data {Object} data being edited.
+   */
+  function setData(data) {
+    if (!originalData) {
+      // protect from multiple initialization
+      update(data);
+    }
+  }
+
+  /**
+   * Update the original form data and clear edits, i.e. after a DynamoDB update.
    * @param data {Object} data being edited.
    */
   function update(data) {
@@ -62,6 +73,7 @@ export default function FormEditor({ref, children}) {
   const context = {
     edits: edits,
     FormData: {
+      setData: setData,
       isTouched: isTouched,
       isDataChanged: isDataChanged,
       revert: revert,

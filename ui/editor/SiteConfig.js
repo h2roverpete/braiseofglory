@@ -10,15 +10,16 @@ export default function SiteConfig(props) {
   const {Sites} = useRestApi();
 
   const {edits, FormData} = useFormEditor();
+
   useEffect(() => {
-    FormData.update(siteData);
-  },[siteData])
+    FormData.setData(siteData);
+  }, [siteData, FormData]);
 
   function onSubmit() {
     console.debug(`Updating site properties...`);
     Sites.insertOrUpdateSite(edits).then((result) => {
       console.debug(`Site properties updated.`);
-      FormData?.update(result);
+      FormData.update(result);
       setSiteData(result);
     }).catch((err) => {
       console.error(`Error updating site properties.`, err);
@@ -52,7 +53,7 @@ export default function SiteConfig(props) {
               isValid={FormData?.isTouched('SiteName') && edits?.SiteName?.length > 0}
               isInvalid={FormData?.isTouched('SiteName') && !edits?.SiteName}
               value={edits?.SiteName || ''}
-              onChange={(e) => FormData?.onDataChanged({name: 'SiteName', value: e.target.value})}
+              onChange={(e) => FormData.onDataChanged({name: 'SiteName', value: e.target.value})}
             />
           </Col>
         </Row>
@@ -65,7 +66,7 @@ export default function SiteConfig(props) {
               isValid={FormData?.isTouched('SiteRootUrl') && isValidUrl(edits?.SiteRootUrl)}
               isInvalid={FormData?.isTouched('SiteRootUrl') && !isValidUrl(edits?.SiteRootUrl)}
               value={edits?.SiteRootUrl || ''}
-              onChange={(e) => FormData?.onDataChanged({name: 'SiteRootUrl', value: e.target.value})}
+              onChange={(e) => FormData.onDataChanged({name: 'SiteRootUrl', value: e.target.value})}
             />
           </Col>
         </Row>
@@ -78,7 +79,7 @@ export default function SiteConfig(props) {
               isValid={FormData?.isTouched('SiteRootUrl') && isValidBucket(edits?.SiteBucketName)}
               isInvalid={FormData?.isTouched('SiteRootUrl') && !isValidBucket(edits?.SiteBucketName)}
               value={edits?.SiteBucketName || ''}
-              onChange={(e) => FormData?.onDataChanged({name: 'SiteBucketName', value: e.target.value})}
+              onChange={(e) => FormData.onDataChanged({name: 'SiteBucketName', value: e.target.value})}
             />
           </Col>
         </Row>
@@ -90,7 +91,7 @@ export default function SiteConfig(props) {
               id={'GoogleClientID'}
               placeholder={'G-XXXXXXXXXX'}
               value={edits?.GoogleClientID || ''}
-              onChange={(e) => FormData?.onDataChanged({name: 'GoogleClientID', value: e.target.value})}
+              onChange={(e) => FormData.onDataChanged({name: 'GoogleClientID', value: e.target.value})}
             />
           </Col>
         </Row>
@@ -108,7 +109,7 @@ export default function SiteConfig(props) {
               size={'sm'}
               variant={'secondary'}
               disabled={!FormData?.isDataChanged()}
-              onClick={() => FormData?.revert()}
+              onClick={() => FormData.revert()}
             >
               Revert</Button>
           </Col>

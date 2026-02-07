@@ -12,9 +12,10 @@ export default function InstagramConfig({extraData, setExtraData, buttonRef}) {
   const {Extras} = useRestApi();
   const {removeExtraFromPage} = usePageContext();
   const {edits, FormData} = useFormEditor();
+
   useEffect(() => {
-    FormData?.update(extraData);
-  }, [extraData]);
+    FormData.setData(extraData);
+  }, [extraData, FormData]);
 
   if (!canEdit) {
     return <></>;
@@ -64,7 +65,7 @@ export default function InstagramConfig({extraData, setExtraData, buttonRef}) {
             isValid={FormData?.isTouched('InstagramHandle') && isValidInstagramHandle(edits?.InstagramHandle)}
             isInvalid={FormData?.isTouched('InstagramHandle') && !isValidInstagramHandle(edits?.InstagramHandle)}
             value={edits?.InstagramHandle || ''}
-            onChange={(e) => FormData?.onDataChanged({name: 'InstagramHandle', value: e.target.value})}
+            onChange={(e) => FormData.onDataChanged({name: 'InstagramHandle', value: e.target.value})}
           />
         </Col>
       </Row>

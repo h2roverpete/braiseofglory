@@ -6,6 +6,11 @@
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/** Keep modal dialogs on top */
+.modal {
+  z-index: 2000;
+}
+
 /* Editor form elements */
 .Editor .col-form-label-sm,
 .Editor div.form-control-sm,

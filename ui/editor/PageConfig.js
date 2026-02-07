@@ -16,8 +16,9 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
   const [routes, setRoutes] = useState([]);
 
   useEffect(() => {
-    FormData.update(pageData);
-  }, [pageData])
+    FormData.setData(pageData);
+  }, [pageData, FormData]);
+
   useEffect(() => {
     if (outlineData && pageData) {
       const routeList = [];
@@ -38,7 +39,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
     console.debug(`Updating page...`);
     Pages.insertOrUpdatePage(edits).then((result) => {
       console.debug(`Updated page.`);
-      FormData?.update(result)
+      FormData.update(result)
       Outline.updatePage(result);
       setPageData(result);
     }).catch((error) => {
@@ -78,7 +79,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
           id={'NavTitle'}
           name={'NavTitle'}
           value={edits?.NavTitle || ''}
-          onChange={(e) => FormData?.onDataChanged({name: 'NavTitle', value: e.target.value})}
+          onChange={(e) => FormData.onDataChanged({name: 'NavTitle', value: e.target.value})}
         />
       </Col>
 
@@ -96,7 +97,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
           isValid={FormData?.isTouched('PageRoute') && isValidRoute(edits?.PageRoute)}
           isInvalid={FormData?.isTouched('PageRoute') && !isValidRoute(edits?.PageRoute)}
           value={edits?.PageRoute || ''}
-          onChange={(e) => FormData?.onDataChanged({name: 'PageRoute', value: e.target.value})}
+          onChange={(e) => FormData.onDataChanged({name: 'PageRoute', value: e.target.value})}
         />
       </Col>
       <Col>
@@ -110,7 +111,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
           size={'sm'}
           id={'PageMetaTitle'}
           value={edits?.PageMetaTitle || ''}
-          onChange={(e) => FormData?.onDataChanged({name: 'PageMetaTitle', value: e.target.value})}
+          onChange={(e) => FormData.onDataChanged({name: 'PageMetaTitle', value: e.target.value})}
         />
       </Col>
     </Row>
@@ -126,7 +127,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
           size={'sm'}
           id={'PageMetaDescription'}
           value={edits?.PageMetaDescription || ''}
-          onChange={(e) => FormData?.onDataChanged({name: 'PageMetaDescription', value: e.target.value})}
+          onChange={(e) => FormData.onDataChanged({name: 'PageMetaDescription', value: e.target.value})}
         />
       </Col>
       <Col sm={6}>
@@ -140,7 +141,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
           size={'sm'}
           id={'PageMetaKeywords'}
           value={edits?.PageMetaKeywords || ''}
-          onChange={(e) => FormData?.onDataChanged({name: 'PageMetaKeywords', value: e.target.value})}
+          onChange={(e) => FormData.onDataChanged({name: 'PageMetaKeywords', value: e.target.value})}
         />
       </Col>
     </Row>
@@ -151,7 +152,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
           checked={edits?.PageHidden || false}
           id={'PageHidden'}
           label={'Hide page from site navigation'}
-          onChange={(e) => FormData?.onDataChanged({name: 'PageHidden', value: e.target.checked})}
+          onChange={(e) => FormData.onDataChanged({name: 'PageHidden', value: e.target.checked})}
         />
       </Col>
     </Row>
@@ -165,7 +166,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
             onClick={() => {
               onUpdate?.();
             }}
-            disabled={!isDataValid() || !FormData?.isDataChanged()}
+            disabled={!isDataValid() || !FormData.isDataChanged()}
           >
             Update
           </Button>
@@ -173,7 +174,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
         <Button
           size={'sm'}
           variant="secondary"
-          onClick={() => FormData?.revert()}
+          onClick={() => FormData.revert()}
           disabled={!FormData?.isDataChanged()}
         >
           Revert

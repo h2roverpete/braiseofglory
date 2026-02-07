@@ -13,9 +13,10 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId,
   const {removeExtraFromPage} = usePageContext();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const {edits, FormData} = useFormEditor();
+
   useEffect(() => {
-    FormData.update(galleryConfig);
-  }, [galleryConfig]);
+    FormData.setData(galleryConfig);
+  }, [galleryConfig, FormData]);
 
   if (!canEdit) {
     return <></>

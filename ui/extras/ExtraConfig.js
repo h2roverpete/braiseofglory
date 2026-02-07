@@ -12,9 +12,10 @@ export default function ExtraConfig({extraData, buttonRef}) {
   const {Extras} = useRestApi();
   const {updateExtra, removeExtraFromPage} = usePageContext();
   const {edits, FormData} = useFormEditor();
+
   useEffect(() => {
-    FormData?.update(extraData);
-  },[extraData]);
+    FormData.setData(extraData);
+  }, [extraData, FormData]);
 
   if (!canEdit) {
     return <></>;
@@ -28,7 +29,7 @@ export default function ExtraConfig({extraData, buttonRef}) {
         console.debug(`Updating extra.`);
         Extras.insertOrUpdateExtra(edits).then((extra) => {
           console.debug(`Extra updated.`);
-          FormData?.update(extra);
+          FormData.update(extra);
           updateExtra(extra);
         }).catch((err) => {
           console.error(`Error updating extra.`, err);
@@ -73,7 +74,7 @@ export default function ExtraConfig({extraData, buttonRef}) {
             size={'sm'}
             id={'ExtraFile'}
             onChange={(e) => {
-              FormData?.onDataChanged({
+              FormData.onDataChanged({
                   changes: [
                     {name: 'ExtraFile', value: e.target.files[0]},
                     {name: 'ExtraFileMimeType', value: e.target.files[0].type}
@@ -97,7 +98,7 @@ export default function ExtraConfig({extraData, buttonRef}) {
             size={'sm'}
             id={'ExtraFilePrompt'}
             value={edits?.ExtraFilePrompt || ''}
-            onChange={(e) => FormData?.onDataChanged({name: 'ExtraFilePrompt', value: e.target.value})}
+            onChange={(e) => FormData.onDataChanged({name: 'ExtraFilePrompt', value: e.target.value})}
           />
         </Col>
       </Row>

@@ -118,7 +118,7 @@ export default function EditorPanel(
               <Button
                 size={'sm'}
                 variant="secondary"
-                onClick={() => FormData?.revert()}
+                onClick={() => FormData.revert()}
                 disabled={!FormData?.isDataChanged()}
               >
                 Revert
