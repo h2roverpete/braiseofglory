@@ -67,7 +67,7 @@ button.EditorToggle.btn {
 /* edit, commit and cancel buttons for editable fields */
 div.EditButtons {
   position: absolute;
-  right: 0;
+  right: 3px;
   top: 5px;
   display: flex;
 }
@@ -99,23 +99,38 @@ div.dropdown-menu.Editor {
 }
 
 /* Button for add page dropdown, needs margin for hover */
-div.AddPageButton {
-  margin-bottom:10px;
+button.AddPageButton {
+  margin: 10px 0 10px 0;
 }
 
-/* Position dropdown menu next to NavBar to add page or page section */
-div.AddPageMenu {
+/* Dropdown menu position next to NavBar to add page or page section */
+.navbar-collapse div.AddPageMenu {
   position: absolute;
   right: -30px;
   top: 50%;
   transform: translateY(-50%);
 }
 
+/* Dropdown position in non-expanded state, sm breakpoint */
+@media (max-width: 575px) {
+  .navbar-expand-sm .navbar-collapse div.AddPageMenu {
+    right: 0;
+  }
+}
+
+/* Dropdown position in non-expanded state, md breakpoint */
+@media (max-width: 767px) {
+  .navbar-expand-md .navbar-collapse div.AddPageMenu {
+    right: 0;
+  }
+}
+
+
 /* Position dropdown menu for editing section contents */
 .EditSectionMenu {
   position: absolute;
-  top: 15px;
-  right: 5px;
+  top: 3px;
+  right: 3px;
 }
 
 /* Placeholder for empty page elements */
@@ -126,7 +141,7 @@ div.AddPageMenu {
   justify-content: center;
   align-items: center;
   color: gray;
-  font-size: 14pt;
+  font-size: 12pt;
   position: absolute;
   top: 0;
   left: 0;
@@ -161,7 +176,7 @@ div.AddPageMenu {
 .SiteEditor .EditorPanel.Body {
   padding: 0;
   border: none;
-  border-right:  1px solid #00000040;
+  border-right: 1px solid #00000040;
 }
 
 /* Body of page editor */

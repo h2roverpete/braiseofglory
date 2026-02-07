@@ -44,12 +44,8 @@ export default function AddPageMenu({editButtonRef}) {
     hidden={supportsHover}
   >
     <Button
-      style={{
-        margin: '0 0 0 5px', padding: '2px 5px', fontSize: '10pt'
-      }}
-      className={`border btn-light`}
+      className={`AddPageButton EditButton btn-light`}
       type="button"
-      variant={'secondary'}
       size={'sm'}
       aria-expanded="false"
       data-bs-toggle="dropdown"
@@ -57,7 +53,7 @@ export default function AddPageMenu({editButtonRef}) {
       <BsPlus/>
     </Button>
     <div
-      className="dropdown-menu dropdown-menu-end Editor border-secondary border-opacity-25"
+      className="dropdown-menu dropdown-menu-end Editor"
     >
         <span
           className="dropdown-item"

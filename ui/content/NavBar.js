@@ -1,15 +1,13 @@
-import {lazy, Suspense, useRef, useState} from "react";
+import {useRef} from "react";
 import {useSiteContext} from "./Site";
 import {usePageContext} from "./Page";
 import Navbar from 'react-bootstrap/Navbar';
-import {Button, Nav, NavDropdown} from "react-bootstrap";
+import {Nav, NavDropdown} from "react-bootstrap";
 import {useNavigate} from "react-router";
 import {useAuth} from "../../auth/AuthProvider";
 import {useEdit} from "../editor/EditProvider";
-import {BsPlus} from "react-icons/bs";
 import {useRestApi} from "../../api/RestApi";
 import React from 'react';
-import FormEditor from "../editor/FormEditor";
 import {useTouchContext} from "../../util/TouchProvider";
 import AddPageMenu from "../editor/AddPageMenu";
 
@@ -35,12 +33,12 @@ import AddPageMenu from "../editor/AddPageMenu";
 export default function NavBar(props) {
 
   const {siteData, getChildren, Outline} = useSiteContext();
-  const {pageData, breadcrumbs, addPageSection} = usePageContext();
+  const {pageData, breadcrumbs} = usePageContext();
   const navigate = useNavigate();
   const togglerRef = useRef(null);
   const {token} = useAuth();
   const {canEdit} = useEdit();
-  const {Pages, PageSections} = useRestApi();
+  const {Pages} = useRestApi();
   const editButtonRef = useRef(null);
   const {supportsHover} = useTouchContext();
 
