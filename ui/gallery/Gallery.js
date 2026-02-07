@@ -32,7 +32,6 @@ export default function Gallery({galleryId, extraId}) {
   const {supportsHover} = useTouchContext();
   const buttonRef = useRef(null);
   const expandButtonRef = useRef(null);
-  const configRef = useRef(null);
 
   useEffect(() => {
     if (galleryId) {
@@ -295,7 +294,6 @@ export default function Gallery({galleryId, extraId}) {
             setGalleryConfig={setGalleryConfig}
             extraId={extraId}
             buttonRef={expandButtonRef}
-            ref={configRef}
           />
         </FormEditor>
       )

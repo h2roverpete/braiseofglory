@@ -6,7 +6,7 @@ import {usePageContext} from "../content/Page";
 import EditorPanel from "../editor/EditorPanel";
 import {useFormEditor} from "../editor/FormEditor";
 
-export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId, buttonRef, ref}) {
+export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId, buttonRef}) {
 
   const {canEdit} = useEdit();
   const {Galleries, Extras} = useRestApi();
@@ -91,7 +91,6 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId,
       isDataValid={isDataValid}
       onDelete={() => setShowDeleteConfirmation(true)}
       buttonRef={buttonRef}
-      ref={ref}
     >
       <h5>Gallery Properties</h5>
       <Row>

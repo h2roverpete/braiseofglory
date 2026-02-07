@@ -45,7 +45,6 @@ export default function GuestBookConfig({extraId, buttonRef}) {
         console.debug(`Guest book config updated.`);
         FormData?.update(response);
         setGuestBookConfig(response);
-        collapsePanel();
       })
       .catch(error => {
         console.error(`Error updating guest book config.`, error);
@@ -95,10 +94,6 @@ export default function GuestBookConfig({extraId, buttonRef}) {
       }
     }
     return last;
-  }
-
-  function collapsePanel() {
-    buttonRef.current?.click();
   }
 
   return (<>

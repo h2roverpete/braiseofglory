@@ -353,6 +353,7 @@ export default function PageSection({pageSectionData}) {
             || pageSectionData.SectionImage
             || pageSectionData.SectionTitle
             || pageSectionData.SectionText
+            || sectionExtras?.length > 0
           }
         >
           <div className={'Editor EmptyElement'}>(Empty Section)</div>
