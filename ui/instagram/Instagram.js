@@ -24,10 +24,10 @@ export default function Instagram({extraData}) {
   return (<div
     className={'Instagram mt-4'} style={{width: '100%'}}
     onMouseOver={() => {
-      if (supportsHover) buttonRef.current.hidden = false
+      if (supportsHover && buttonRef.current) buttonRef.current.hidden = false
     }}
     onMouseOut={() => {
-      if (supportsHover) buttonRef.current.hidden = true
+      if (supportsHover && buttonRef.current) buttonRef.current.hidden = true
     }}
   >
     {data && (
