@@ -34,7 +34,7 @@ export default function SiteConfigPanel() {
         top: 0,
         left: '-5px',
         zIndex: 1198,
-        height: '100vh',
+        height: '100dvh',
         width: '25px',
       }}
     >
@@ -67,7 +67,7 @@ export default function SiteConfigPanel() {
           top: 0,
           left: 0,
           zIndex: 1197,
-          height: '100vh'
+          height: '100dvh'
         }}
       >
         <div style={{

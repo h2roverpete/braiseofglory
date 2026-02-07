@@ -7,7 +7,7 @@ export default function SiteEditor({children}) {
         display: 'flex',
         flexDirection: 'row',
         width: '100vw',
-        minHeight: '100vh',
+        minHeight: '100dvh',
         position: 'relative',
       }}
     >
