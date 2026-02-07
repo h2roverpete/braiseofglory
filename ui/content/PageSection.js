@@ -342,6 +342,7 @@ export default function PageSection({pageSectionData}) {
         }}
         style={{
           position: 'relative',
+          minHeight: '30px',
         }}
         data-testid={`PageSection-${pageSectionData.PageSectionID}`}
         ref={sectionRef}
