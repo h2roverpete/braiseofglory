@@ -32,18 +32,11 @@ export default function Head(props) {
       </>
     ) : (
       <>
-        {pageData ? (
-          <>
-            <title>{title}</title>
-            <meta name="description" content={pageData.PageMetaDescription}/>
-            <meta name="keywords" content={pageData.PageMetaKeywords}/>
-          </>
-        ) : (
-          <>
-            <title>Loading...</title>
-          </>
-        )
-        }
+        {pageData && (<>
+          <title>{title}</title>
+          <meta name="description" content={pageData.PageMetaDescription}/>
+          <meta name="keywords" content={pageData.PageMetaKeywords}/>
+        </>)}
       </>
     )}</>
   )
