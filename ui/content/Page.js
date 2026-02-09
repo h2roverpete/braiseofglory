@@ -4,6 +4,8 @@ import {useRestApi} from "../../api/RestApi";
 import PageConfigPanel from "../editor/PageConfigPanel";
 import FormEditor from "../editor/FormEditor";
 import {useEdit} from "../editor/EditProvider"
+import {useSwipeable} from "react-swipeable";
+import {useNavigate} from "react-router";
 
 const AddExtrasModal = lazy(() => import("../extras/AddExtrasModal"));
 
@@ -40,6 +42,46 @@ export default function Page(props) {
   const [extraPageSectionId, setExtraPageSectionId] = useState(0);
   const [extras, setExtras] = useState([]);
   const {canEdit} = useEdit();
+  const [nextPage, setNextPage] = useState(null);
+  const [prevPage, setPrevPage] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // build next & prev page for navigation
+    if (pageData && outlineData) {
+      let before;
+      let current;
+      let after;
+      for (const page of outlineData) {
+        if (page.PageID === pageData.PageID) {
+          current = page;
+        } else if (current && !page.HasChildren && !page.PageHidden) {
+          after = page;
+          break;
+        } else if (!page.HasChildren && !page.PageHidden) {
+          before = page;
+        }
+      }
+      setPrevPage(before);
+      setNextPage(after);
+    }
+  }, [outlineData, pageData]);
+
+  const swipeHandlers = useSwipeable({
+      onSwipedLeft: (e) => {
+        console.debug(`Swipe left.`);
+        if (nextPage) {
+          navigate(nextPage.PageRoute);
+        }
+      },
+      onSwipedRight: (e) => {
+        console.debug(`Swipe right.`);
+        if (prevPage) {
+          navigate(prevPage.PageRoute);
+        }
+      }
+    }
+  )
 
   let errorData;
   if (error) {
@@ -167,6 +209,8 @@ export default function Page(props) {
         addExtraToPage: addExtraToPage,
         removeExtraFromPage: removeExtraFromPage,
         updateExtra: updateExtra,
+        nextPage: nextPage,
+        prevPage: prevPage,
       }}
     >
       {canEdit && showAddExtraModal && (
@@ -183,7 +227,7 @@ export default function Page(props) {
       {canEdit && (
         <PageConfigPanel/>
       )}
-      <div className="Page" data-testid="Page">
+      <div {...swipeHandlers} className="Page" data-testid="Page">
         {props.children}
       </div>
     </PageContext>
