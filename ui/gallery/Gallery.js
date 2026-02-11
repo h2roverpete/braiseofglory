@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import "react-image-gallery/styles/css/image-gallery.css";
 import ImageGallery from "react-image-gallery";
 import {useRestApi} from "../../api/RestApi";
@@ -22,14 +22,19 @@ import {useTouchContext} from "../../util/TouchProvider";
  */
 export default function Gallery({galleryId, extraId}) {
 
-  const [galleryConfig, setGalleryConfig] = useState(null);
-  const [galleryPhotos, setGalleryPhotos] = useState([]);
-  const [currentPhoto, setCurrentPhoto] = useState(null);
+  // imports
   const {canEdit} = useEdit();
   const {Galleries} = useRestApi();
   const {siteData, showErrorAlert} = useSiteContext();
-  const fileDropRef = useRef(null);
   const {supportsHover} = useTouchContext();
+
+  // states
+  const [galleryConfig, setGalleryConfig] = useState(null);
+  const [galleryPhotos, setGalleryPhotos] = useState([]);
+  const [currentPhoto, setCurrentPhoto] = useState(null);
+
+  // refs
+  const fileDropRef = useRef(null);
   const buttonRef = useRef(null);
   const expandButtonRef = useRef(null);
 
@@ -45,19 +50,21 @@ export default function Gallery({galleryId, extraId}) {
   }, [galleryId, showErrorAlert, Galleries]);
 
   useEffect(() => {
-    Galleries.getPhotos(galleryId).then((data) => {
-      console.debug(`Loaded ${data.length} photos for gallery ${galleryId}.`);
-      if (galleryConfig?.RandomizeOrder) {
-        data.sort(() => Math.random() - 0.5);
-      }
-      if (data.length > 0) {
-        setCurrentPhoto(data[0]);
-      }
-      setGalleryPhotos(data);
-    }).catch(error => {
-      showErrorAlert(`Error loading photos for gallery ${galleryId}: ${error}`);
-    })
-  }, [galleryId, galleryConfig, showErrorAlert, Galleries]);
+    if (galleryPhotos.length === 0) {
+      Galleries.getPhotos(galleryId).then((data) => {
+        console.debug(`Loaded ${data.length} photos for gallery ${galleryId}.`);
+        if (galleryConfig?.RandomizeOrder) {
+          data.sort(() => Math.random() - 0.5);
+        }
+        if (data.length > 0) {
+          setCurrentPhoto(data[0]);
+        }
+        setGalleryPhotos(data);
+      }).catch(error => {
+        showErrorAlert(`Error loading photos for gallery ${galleryId}: ${error}`);
+      })
+    }
+  }, [galleryId, galleryConfig, showErrorAlert, Galleries, galleryPhotos.length]);
 
   function uploadFile(file) {
     console.debug(`Uploading photo...`);
@@ -112,10 +119,9 @@ export default function Gallery({galleryId, extraId}) {
     showErrorAlert(error);
   }
 
-  const [images, setImages] = useState([]);
-  useEffect(() => {
+  const images = useMemo(() => {
     // build list of images for gallery
-    console.debug(`Rebuild list of images for gallery control...`);
+    console.debug(`Build list of images for gallery control...`);
     const list = [];
     for (const photo of galleryPhotos) {
       if (photo.PhotoFile && siteData) {
@@ -131,8 +137,8 @@ export default function Gallery({galleryId, extraId}) {
         })
       }
     }
-    console.debug(`Rebuilt list of ${list.length} images.`);
-    setImages(list);
+    console.debug(`Built list of ${list.length} images.`);
+    return list;
   }, [galleryPhotos, siteData]);
 
   useEffect(() => {
@@ -230,6 +236,9 @@ export default function Gallery({galleryId, extraId}) {
         if (canEdit) {
           onPaste(e)
         }
+      }}
+      onTouchMove={(e) => {
+        e.stopPropagation()
       }}
     >
       {images?.length > 0 && (

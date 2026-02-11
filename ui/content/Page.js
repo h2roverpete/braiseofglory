@@ -4,7 +4,6 @@ import {useRestApi} from "../../api/RestApi";
 import PageConfigPanel from "../editor/PageConfigPanel";
 import FormEditor from "../editor/FormEditor";
 import {useEdit} from "../editor/EditProvider"
-import {useNavigate} from "react-router";
 
 const AddExtrasModal = lazy(() => import("../extras/AddExtrasModal"));
 
@@ -43,7 +42,6 @@ export default function Page(props) {
   const {canEdit} = useEdit();
   const [nextPage, setNextPage] = useState(null);
   const [prevPage, setPrevPage] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // build next & prev page for navigation

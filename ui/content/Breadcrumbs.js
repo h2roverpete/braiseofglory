@@ -24,7 +24,7 @@ export default function Breadcrumbs(props) {
       <>&nbsp;&raquo;&nbsp;</>
       {breadcrumbs.map(page => (
         <span key={page.PageID}>
-          {page.PageTitle}
+          {page.NavTitle ? page.NavTitle : page.PageTitle}
           <>{props.delimiter ? (
             <>{props.delimiter}</>
           ) : (

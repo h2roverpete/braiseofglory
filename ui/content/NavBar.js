@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import {useRef} from "react";
 import {useSiteContext} from "./Site";
 import Navbar from 'react-bootstrap/Navbar';
 import {Nav, NavDropdown} from "react-bootstrap";
@@ -30,7 +30,7 @@ import AddPageMenu from "../editor/AddPageMenu";
  */
 export default function NavBar(props) {
 
-  const {siteData, getChildren, Outline} = useSiteContext();
+  const {siteData, getChildren, Outline, currentPage, breadcrumbs, outlineData} = useSiteContext();
   const navigate = useNavigate();
   const location = useLocation();
   const toggleRef = useRef(null);
@@ -39,23 +39,6 @@ export default function NavBar(props) {
   const {Pages} = useRestApi();
   const editButtonRef = useRef(null);
   const {supportsHover} = useTouchContext();
-  const {outlineData} = useSiteContext();
-  const [currentPage, setCurrentPage] = useState({});
-
-  useEffect(() => {
-    if (outlineData?.length > 0) {
-      if (location.pathname === "/") {
-        setCurrentPage(outlineData[0]);
-      } else {
-        for (const page of outlineData) {
-          if (page.PageRoute === location.pathname) {
-            setCurrentPage(page);
-            break;
-          }
-        }
-      }
-    }
-  }, [outlineData, setCurrentPage]);
 
   function navigateTo(to) {
     if ((toggleRef.current.style.visible || toggleRef.current.style.display !== 'none') && !toggleRef.current.classList.contains("collapsed")) {
@@ -72,10 +55,7 @@ export default function NavBar(props) {
     } else if (pageRoute === location.pathname) {
       return true;
     } else {
-      for (const page of outlineData) {
-        // TODO return true if the route is a parent of current page
-      }
-      return false;
+      return breadcrumbs?.find((item) => item.PageRoute === pageRoute);
     }
   }
 
@@ -323,56 +303,54 @@ export default function NavBar(props) {
           id="MainNavigation"
           style={{position: 'relative'}}
         >
-          {outlineData && (
-            <Nav>
-              {getChildren(0).map((item) => (
-                <React.Fragment
-                  key={item.PageID}
-                >
-                  {getChildren(item.PageID).length > 0 ? (
-                    <RecursiveDropdown pageData={item}/>
-                  ) : (
-                    <Nav.Link
-                      draggable={canEdit}
-                      style={{cursor: canEdit ? 'move' : 'pointer'}}
-                      onMouseMove={(e) => mouseMoveHandler(e)}
-                      onDragStart={(e) => dragStartHandler(e, item)}
-                      onDragOver={(e) => dragOverHandler(e, item, 'horizontal')}
-                      onDragLeave={(e) => dragLeaveHandler(e)}
-                      onDrop={(e) => dropHandler(e, item, 'horizontal')}
-                      onClick={() => navigateTo(item.PageRoute)}
-                      className={`NavLink text-nowrap${isInCurrentPath(item.PageRoute) ? ' active' : ''}`}
-                      key={item.PageID}
-                      data-testid={`NavItem-${item.PageID}`}
-                    >
-                      {item.NavTitle ? item.NavTitle : item.PageTitle}
-                    </Nav.Link>
-                  )}
-                </React.Fragment>
-              ))}
-              <>{props.showLogin === true && (
-                <>{token ? (
-                  <Nav.Link
-                    onClick={() => navigateTo('/logout')}
-                    className={`NavItem text-nowrap`}
-                    key={`Logout`}
-                    data-testid={`NavItem-Logout`}
-                  >
-                    Log Out
-                  </Nav.Link>
+          <Nav>
+            {getChildren(0).map((item) => (
+              <React.Fragment
+                key={item.PageID}
+              >
+                {getChildren(item.PageID).length > 0 ? (
+                  <RecursiveDropdown pageData={item}/>
                 ) : (
                   <Nav.Link
-                    onClick={() => navigateTo('/login')}
-                    className={`NavItem text-nowrap`}
-                    key={`Login`}
-                    data-testid={`NavItem-Login`}
+                    draggable={canEdit}
+                    style={{cursor: canEdit ? 'move' : 'pointer'}}
+                    onMouseMove={(e) => mouseMoveHandler(e)}
+                    onDragStart={(e) => dragStartHandler(e, item)}
+                    onDragOver={(e) => dragOverHandler(e, item, 'horizontal')}
+                    onDragLeave={(e) => dragLeaveHandler(e)}
+                    onDrop={(e) => dropHandler(e, item, 'horizontal')}
+                    onClick={() => navigateTo(item.PageRoute)}
+                    className={`NavLink text-nowrap${isInCurrentPath(item.PageRoute) ? ' active' : ''}`}
+                    key={item.PageID}
+                    data-testid={`NavItem-${item.PageID}`}
                   >
-                    Log In
+                    {item.NavTitle ? item.NavTitle : item.PageTitle}
                   </Nav.Link>
-                )}</>
+                )}
+              </React.Fragment>
+            ))}
+            <>{props.showLogin === true && (
+              <>{token ? (
+                <Nav.Link
+                  onClick={() => navigateTo('/logout')}
+                  className={`NavItem text-nowrap`}
+                  key={`Logout`}
+                  data-testid={`NavItem-Logout`}
+                >
+                  Log Out
+                </Nav.Link>
+              ) : (
+                <Nav.Link
+                  onClick={() => navigateTo('/login')}
+                  className={`NavItem text-nowrap`}
+                  key={`Login`}
+                  data-testid={`NavItem-Login`}
+                >
+                  Log In
+                </Nav.Link>
               )}</>
-            </Nav>
-          )}
+            )}</>
+          </Nav>
           {canEdit && (
             <AddPageMenu editButtonRef={editButtonRef}/>
           )}

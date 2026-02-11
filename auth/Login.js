@@ -51,14 +51,11 @@ const Login = (props) => {
   const {token, setToken} = useAuth();
   const navigate = useNavigate();
   const [cookies, setCookie] = useCookies();
-  const loginState = useMemo(() => generateState(), []);
-
-  useEffect(() => {
-    if (!cookies.loginState) {
-      setCookie("loginState", loginState);
-    }
-  }, [cookies, setCookie, loginState]);
-
+  const loginState = useMemo(() => {
+    const state = generateState();
+    setCookie("loginState", state);
+    return state;
+  }, [setCookie]);
 
   useEffect(() => {
     if (token) {

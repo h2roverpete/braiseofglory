@@ -1,13 +1,14 @@
-import {createContext, useCallback, useContext, useEffect, useState} from 'react';
+import React, {createContext, useCallback, useContext, useEffect, useState} from 'react';
 import ReactGA from 'react-ga4';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.js';
-import {Route, Routes, useNavigate} from "react-router";
+import {Route, Routes, useLocation, useNavigate} from "react-router";
 import {useRestApi} from "../../api/RestApi";
 import Logout from '../../auth/Logout';
 import {useEdit} from "../editor/EditProvider";
 import SiteEditor from "../editor/SiteEditor";
 import {Alert} from "react-bootstrap";
+import Head from "./Head";
 
 /**
  * @typedef ErrorData
@@ -37,13 +38,36 @@ export const SiteContext = createContext({});
  */
 export default function Site(props) {
 
+  // imports
+  const navigate = useNavigate();
+  const location = useLocation();
+  const {Sites} = useRestApi();
+  const {canEdit} = useEdit();
+
+  // states
   const [siteData, setSiteData] = useState(null);
   const [outlineData, setOutlineData] = useState(null);
   const [error, __setError__] = useState(null); // use public setter, not __setError__
   const [alert, setAlert] = useState('');
-  const navigate = useNavigate();
-  const {Sites} = useRestApi();
-  const {canEdit} = useEdit();
+  const [currentPage, setCurrentPage] = useState(null);
+  const [breadcrumbs, setBreadcrumbs] = useState([]);
+
+  useEffect(() => {
+    // get current page and breadcrumbs from new pathname
+    if (outlineData?.length > 0) {
+      if (location.pathname === '/') {
+        setCurrentPage(outlineData[0]);
+      }
+      for (const page of outlineData) {
+        if (page.PageRoute === location.pathname) {
+          setCurrentPage(page);
+          const crumbs = buildBreadcrumbs(outlineData, page.ParentID);
+          setBreadcrumbs(crumbs);
+          break;
+        }
+      }
+    }
+  }, [location.pathname, outlineData, setCurrentPage]);
 
   useEffect(() => {
     // Google Analytics, if provided.
@@ -350,12 +374,15 @@ export default function Site(props) {
     error: error,
     setError: setError,
     showErrorAlert: showErrorAlert,
-    getChildren: getChildren
+    getChildren: getChildren,
+    currentPage: currentPage,
+    breadcrumbs: breadcrumbs,
   };
 
   if (canEdit) {
     return (
       <SiteContext value={siteContext}>
+        <Head/>
         <SiteEditor>
           <div className="Site" data-testid="Site">
             {content}
@@ -367,6 +394,7 @@ export default function Site(props) {
   } else {
     return (
       <SiteContext value={siteContext}>
+        <Head/>
         <div className="Site" data-testid="Site">
           {content}
           {alertElement}
@@ -426,4 +454,23 @@ function buildOutline(pages, parentId, level, parent) {
 function setCharAt(str, index, chr) {
   if (index > str.length - 1) return str;
   return str.substring(0, index) + chr + str.substring(index + 1);
+}
+
+/**
+ * Build breadcrumb array from site outline.
+ *
+ * @param outlineData {[OutlineData]}
+ * @param parentId {number}
+ */
+function buildBreadcrumbs(outlineData, parentId) {
+  const breadcrumbs = [];
+  if (outlineData && parentId) {
+    for (let i = outlineData.length - 1; i >= 0; i--) {
+      if (outlineData[i].PageID === parentId) {
+        breadcrumbs.push(outlineData[i]);
+        parentId = outlineData[i].ParentID;
+      }
+    }
+  }
+  return breadcrumbs.reverse();
 }

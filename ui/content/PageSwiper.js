@@ -4,14 +4,16 @@ import {useSiteContext} from "./Site";
 import Page from "./Page";
 import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router";
+import {useEdit} from "../editor/EditProvider";
 
 export default function PageSwiper(props) {
 
-  const {outlineData} = useSiteContext();
+  const {outlineData, error} = useSiteContext();
   const [swipePages, setSwipePages] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
   const [swiperInstance, setSwiperInstance] = useState(null);
+  const {canEdit} = useEdit();
 
   useEffect(() => {
     if (outlineData) {
@@ -26,6 +28,7 @@ export default function PageSwiper(props) {
         if (location.pathname === page.PageRoute) {
           currentSlideIndex = index;
         }
+        return page;
       })
       if (currentSlideIndex !== -1 && swiperInstance.realIndex !== currentSlideIndex) {
         swiperInstance.slideTo(
@@ -44,17 +47,22 @@ export default function PageSwiper(props) {
     }
   };
 
-  return (<Swiper
-    onSwiper={setSwiperInstance}
-    onSlideChange={onSlideChange}
-    style={{
-      margin: 0,
-    }}
-  >
-    {swipePages?.map((page) =>
-      <SwiperSlide key={page.PageID} style={{overflow: 'scroll'}}>
-        <Page {...props} pageId={page.PageID}/>
-      </SwiperSlide>
-    )}
-  </Swiper>);
+  return (<>{error || props.login || canEdit ? (
+    <Page {...props}/>
+  ) : (
+    <Swiper
+      speed={600}
+      onSwiper={setSwiperInstance}
+      onSlideChange={onSlideChange}
+      style={{
+        margin: 0,
+      }}
+    >
+      {swipePages?.map((page) =>
+        <SwiperSlide key={page.PageID} style={{overflow: 'scroll'}}>
+          <Page {...props} pageId={page.PageID}/>
+        </SwiperSlide>
+      )}
+    </Swiper>
+  )}</>);
 }
