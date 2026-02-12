@@ -50,6 +50,8 @@ export default function Site(props) {
   const [error, __setError__] = useState(null); // use public setter, not __setError__
   const [alert, setAlert] = useState('');
   const [currentPage, setCurrentPage] = useState(null);
+  const [prevPage, setPrevPage] = useState(null);
+  const [nextPage, setNextPage] = useState(null);
   const [breadcrumbs, setBreadcrumbs] = useState([]);
 
   useEffect(() => {
@@ -173,6 +175,27 @@ export default function Site(props) {
       }
     }
   }
+
+  useEffect(() => {
+    // build next & prev page for navigation
+    if (currentPage && outlineData) {
+      let before;
+      let current;
+      let after;
+      for (const page of outlineData) {
+        if (page.PageID === currentPage.PageID) {
+          current = page;
+        } else if (current && !page.HasChildren && !page.PageHidden) {
+          after = page;
+          break;
+        } else if (!page.HasChildren && !page.PageHidden) {
+          before = page;
+        }
+      }
+      setPrevPage(before);
+      setNextPage(after);
+    }
+  }, [outlineData, currentPage]);
 
   const params = new URLSearchParams(window.location.search);
   let cfmPageId = parseInt(params.get('pageid'));
@@ -376,6 +399,8 @@ export default function Site(props) {
     showErrorAlert: showErrorAlert,
     getChildren: getChildren,
     currentPage: currentPage,
+    prevPage: prevPage,
+    nextPage: nextPage,
     breadcrumbs: breadcrumbs,
   };
 
@@ -426,18 +451,8 @@ function buildOutline(pages, parentId, level, parent) {
     if (page.ParentID === parentId) {
       // copy outline data fields
       const child = {
-        PageID: page.PageID,
-        SiteID: page.SiteID,
-        ParentID: page.ParentID,
-        PageTitle: page.PageTitle,
-        DisplayTitle: page.DisplayTitle,
-        PageHidden: page.PageHidden,
-        NavTitle: page.NavTitle,
-        OutlineSeq: page.OutlineSeq,
-        LinkToURL: page.LinkToURL,
+        ...page,
         HasChildren: false, // will be reset to true if children are found
-        PageRoute: page.PageRoute,
-        Modified: page.Modified,
         OutlineLevel: level,
         OutlineSort: setCharAt(parent ? parent.OutlineSort : '0'.repeat(20), level * 2, page.OutlineSeq.toString().padStart(2, "0"))
       }

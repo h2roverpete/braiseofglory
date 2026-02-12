@@ -1,8 +1,7 @@
-import React, {useState, useEffect, useContext} from 'react';
-import {PageContext} from "./Page";
+import React, {useState, useEffect} from 'react';
 
 export default function HtmlFile(props) {
-  const {pageData} = useContext(PageContext);
+  const {currentPage} = useSiteContext();
 
   const [htmlContent, setHtmlContent] = useState('');
 
@@ -14,7 +13,7 @@ export default function HtmlFile(props) {
   }, [props.fileName]);
 
   return (
-    <>{pageData?.PageID === props.pageId && (
+    <>{currentPage?.PageID === props.pageId && (
       <div dangerouslySetInnerHTML={{__html: htmlContent}}/>
     )}</>
   );

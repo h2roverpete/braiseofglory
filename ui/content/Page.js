@@ -31,7 +31,7 @@ export const PageContext = createContext(
  */
 export default function Page(props) {
 
-  const {outlineData, error} = useContext(SiteContext);
+  const {outlineData, error, getPage} = useContext(SiteContext);
   const [pageData, setPageData] = useState(null);
   const [sectionData, setSectionData] = useState(null);
   const [breadcrumbs, setBreadcrumbs] = useState(null);
@@ -40,29 +40,6 @@ export default function Page(props) {
   const [extraPageSectionId, setExtraPageSectionId] = useState(0);
   const [extras, setExtras] = useState([]);
   const {canEdit} = useEdit();
-  const [nextPage, setNextPage] = useState(null);
-  const [prevPage, setPrevPage] = useState(null);
-
-  useEffect(() => {
-    // build next & prev page for navigation
-    if (pageData && outlineData) {
-      let before;
-      let current;
-      let after;
-      for (const page of outlineData) {
-        if (page.PageID === pageData.PageID) {
-          current = page;
-        } else if (current && !page.HasChildren && !page.PageHidden) {
-          after = page;
-          break;
-        } else if (!page.HasChildren && !page.PageHidden) {
-          before = page;
-        }
-      }
-      setPrevPage(before);
-      setNextPage(after);
-    }
-  }, [outlineData, pageData]);
 
   let errorData;
   if (error) {
@@ -74,29 +51,31 @@ export default function Page(props) {
   }
 
   useEffect(() => {
-    if (props.pageId) {
-      // load page data
-      Pages.getPage(props.pageId).then((data) => {
-        console.debug(`Loaded page ${props.pageId} data.`);
-        setPageData(data); // update state
-      })
+    if (props.pageId && outlineData) {
+      if (outlineData) {
+        for (const page of outlineData) {
+          if (page.PageID === props.pageId) {
+            setPageData(page);
+            console.debug(`Loaded page ${props.pageId} data.`);
+            break;
+          }
+        }
+      }
     }
-  }, [props.pageId, Pages]);
+  }, [props.pageId, outlineData]);
 
   useEffect(() => {
-    if (pageData) {
-      // load page sections
-      Pages.getPageSections(pageData.PageID).then((data) => {
-        console.debug(`Loaded page ${pageData.PageID} sections.`);
-        setSectionData(data); // update state
-      })
-      // load extras
-      Extras.getPageExtras(pageData.PageID).then((data) => {
-        console.debug(`Loaded page ${pageData.PageID} extras: ${JSON.stringify(data)}`);
-        setExtras(data); // update state
-      })
-    }
-  }, [pageData, Extras, Pages]);
+    // load page sections
+    Pages.getPageSections(props.pageId).then((data) => {
+      console.debug(`Loaded page ${props.pageId} sections.`);
+      setSectionData(data); // update state
+    })
+    // load extras
+    Extras.getPageExtras(props.pageId).then((data) => {
+      console.debug(`Loaded page ${props.pageId} extras: ${JSON.stringify(data)}`);
+      setExtras(data); // update state
+    })
+  }, [props.pageId, Extras, Pages]);
 
   useEffect(() => {
     if (pageData && outlineData) {
@@ -190,8 +169,6 @@ export default function Page(props) {
         addExtraToPage: addExtraToPage,
         removeExtraFromPage: removeExtraFromPage,
         updateExtra: updateExtra,
-        nextPage: nextPage,
-        prevPage: prevPage,
       }}
     >
       {canEdit && showAddExtraModal && (

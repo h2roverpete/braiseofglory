@@ -30,7 +30,7 @@ import AddPageMenu from "../editor/AddPageMenu";
  */
 export default function NavBar(props) {
 
-  const {siteData, getChildren, Outline, currentPage, breadcrumbs, outlineData} = useSiteContext();
+  const {siteData, getChildren, Outline, currentPage, breadcrumbs} = useSiteContext();
   const navigate = useNavigate();
   const location = useLocation();
   const toggleRef = useRef(null);
@@ -49,13 +49,13 @@ export default function NavBar(props) {
     navigate(to);
   }
 
-  function isInCurrentPath(pageRoute) {
-    if (!outlineData) {
-      return false
-    } else if (pageRoute === location.pathname) {
+  function isInCurrentPath(pageId) {
+    if (currentPage && currentPage.PageID === pageId) {
+      // is current page
       return true;
     } else {
-      return breadcrumbs?.find((item) => item.PageRoute === pageRoute);
+      // is in breadcrumb path
+      return breadcrumbs?.find((item) => item.PageRoute === location.pathname);
     }
   }
 
@@ -73,7 +73,7 @@ export default function NavBar(props) {
           onDrop={(e) => dropHandler(e, props.pageData, 'vertical')}
           key={props.pageData.PageID}
           onClick={() => navigateTo(props.pageData.PageRoute)}
-          className={`NavbarDropdownItem text-nowrap${isInCurrentPath(props.pageData.PageRoute) ? ' active' : ''}`}
+          className={`NavbarDropdownItem text-nowrap${isInCurrentPath(props.pageData.PageID) ? ' active' : ''}`}
           data-testid={`NavItem-${props.pageData.PageID}`}
         >
           {props.pageData.NavTitle ? props.pageData.NavTitle : props.pageData.PageTitle}
@@ -90,7 +90,7 @@ export default function NavBar(props) {
           onDrop={(e) => dropHandler(e, props.pageData, 'horizontal')}
           key={props.pageData.PageID}
           title={props.pageData.NavTitle ? props.pageData.NavTitle : props.pageData.PageTitle}
-          id={`nav-dropdown${isInCurrentPath(props.pageData.PageRoute) ? '-active' : ''}`}
+          id={`nav-dropdown${isInCurrentPath(props.pageData.PageID) ? '-active' : ''}`}
           data-testid={`NavItem-${props.pageData.PageID}`}
         >
           <>{children.map((item) => (
@@ -320,7 +320,7 @@ export default function NavBar(props) {
                     onDragLeave={(e) => dragLeaveHandler(e)}
                     onDrop={(e) => dropHandler(e, item, 'horizontal')}
                     onClick={() => navigateTo(item.PageRoute)}
-                    className={`NavLink text-nowrap${isInCurrentPath(item.PageRoute) ? ' active' : ''}`}
+                    className={`NavLink text-nowrap${isInCurrentPath(item.PageID) ? ' active' : ''}`}
                     key={item.PageID}
                     data-testid={`NavItem-${item.PageID}`}
                   >

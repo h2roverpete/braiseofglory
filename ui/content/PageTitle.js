@@ -26,17 +26,17 @@ import {useSiteContext} from "./Site";
  */
 export default function PageTitle(props) {
 
-  const {pageData, error, login} = useContext(PageContext);
-  const {Outline} = useSiteContext();
+  const {error, login} = useContext(PageContext);
+  const {Outline, currentPage} = useSiteContext();
   const {Pages} = useRestApi();
   const {canEdit} = useEdit();
 
   function onTitleChanged({textContent, textAlign}) {
-    if (pageData) {
+    if (currentPage) {
       console.debug(`Updating page title: textContent=${textContent}, textAlign=${textAlign}`);
-      pageData.PageTitle = textContent;
-      pageData.PageTitleAlign = textAlign;
-      Pages.insertOrUpdatePage(pageData)
+      currentPage.PageTitle = textContent;
+      currentPage.PageTitleAlign = textAlign;
+      Pages.insertOrUpdatePage(currentPage)
         .then((result) => {
           console.debug(`Page title updated.`);
           // refresh outline with new title
@@ -54,12 +54,12 @@ export default function PageTitle(props) {
       className={`PageTitle`}
       style={{
         width: '100%',
-        textAlign: pageData?.PageTitleAlign,
+        textAlign: currentPage?.PageTitleAlign,
       }}
       data-testid="PageTitle"
       ref={titleRef}
     >
-      {error?.title ? error.title : login ? `Log In` : pageData?.PageTitle.length > 0 ? pageData.PageTitle : (<>&nbsp;</>)}
+      {error?.title ? error.title : login ? `Log In` : currentPage?.PageTitle.length > 0 ? currentPage.PageTitle : (<>&nbsp;</>)}
     </h1>
   )
 
@@ -69,13 +69,13 @@ export default function PageTitle(props) {
         field={title}
         fieldRef={titleRef}
         callback={onTitleChanged}
-        textContent={pageData?.PageTitle}
-        textAlign={pageData?.PageTitleAlign}
+        textContent={currentPage?.PageTitle}
+        textAlign={currentPage?.PageTitleAlign}
         showEditButton={true}
         alwaysShow={props.alwaysShow === true}
       />
     ) : (
-      <>{(pageData?.PageTitle.length || error?.title.length || props.alwaysShow || login) && (
+      <>{(currentPage?.PageTitle.length || error?.title.length || props.alwaysShow || login) && (
         <>{title}</>
       )}</>
     )}</>

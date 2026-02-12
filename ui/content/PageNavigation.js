@@ -1,9 +1,9 @@
-import {usePageContext} from "./Page";
 import {Link} from "react-router";
+import {useSiteContext} from "./Site";
 
 export default function PageNavigation() {
 
-  const {nextPage, prevPage} = usePageContext();
+  const {nextPage, prevPage} = useSiteContext();
 
   return (
     <div
