@@ -1,7 +1,6 @@
 import {createContext, lazy, Suspense, useCallback, useContext, useEffect, useState} from "react";
 import {SiteContext} from "./Site";
 import {useRestApi} from "../../api/RestApi";
-import PageConfigPanel from "../editor/PageConfigPanel";
 import FormEditor from "../editor/FormEditor";
 import {useEdit} from "../editor/EditProvider"
 
@@ -31,7 +30,7 @@ export const PageContext = createContext(
  */
 export default function Page(props) {
 
-  const {outlineData, error, getPage} = useContext(SiteContext);
+  const {outlineData, error} = useContext(SiteContext);
   const [pageData, setPageData] = useState(null);
   const [sectionData, setSectionData] = useState(null);
   const [breadcrumbs, setBreadcrumbs] = useState(null);
@@ -65,17 +64,19 @@ export default function Page(props) {
   }, [props.pageId, outlineData]);
 
   useEffect(() => {
-    // load page sections
-    Pages.getPageSections(props.pageId).then((data) => {
-      console.debug(`Loaded page ${props.pageId} sections.`);
-      setSectionData(data); // update state
-    })
-    // load extras
-    Extras.getPageExtras(props.pageId).then((data) => {
-      console.debug(`Loaded page ${props.pageId} extras: ${JSON.stringify(data)}`);
-      setExtras(data); // update state
-    })
-  }, [props.pageId, Extras, Pages]);
+    if (!props.error && !props.login) {
+      // load page sections
+      Pages.getPageSections(props.pageId).then((data) => {
+        console.debug(`Loaded page ${props.pageId} sections.`);
+        setSectionData(data); // update state
+      })
+      // load extras
+      Extras.getPageExtras(props.pageId).then((data) => {
+        console.debug(`Loaded page ${props.pageId} extras: ${JSON.stringify(data)}`);
+        setExtras(data); // update state
+      })
+    }
+  }, [props.pageId, props.error, props.login, Extras, Pages]);
 
   useEffect(() => {
     if (pageData && outlineData) {
@@ -181,9 +182,6 @@ export default function Page(props) {
             />
           </Suspense>
         </FormEditor>
-      )}
-      {canEdit && (
-        <PageConfigPanel/>
       )}
       <div className="Page" data-testid="Page">
         {props.children}

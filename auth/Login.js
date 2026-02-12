@@ -1,8 +1,8 @@
-import {useContext, useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import '../ui/forms/Forms.css'
 import PasswordField from "../ui/forms/PasswordField";
 import {useSearchParams} from 'react-router';
-import {SiteContext} from "../ui/content/Site";
+import {useSiteContext} from "../ui/content/Site";
 import {useNavigate} from "react-router";
 import {Permission, useAuth} from "./AuthProvider";
 import {useCookies} from "react-cookie";
@@ -46,16 +46,20 @@ const Login = (props) => {
   const scope = permissions.join(",")
 
   const {Auth} = useRestApi();
-  const {setError} = useContext(SiteContext);
+  const {setError} = useSiteContext();
   const [searchParams] = useSearchParams();
   const {token, setToken} = useAuth();
   const navigate = useNavigate();
   const [cookies, setCookie] = useCookies();
-  const loginState = useMemo(() => {
-    const state = generateState();
-    setCookie("loginState", state);
-    return state;
-  }, [setCookie]);
+  const [loginState, setLoginState] = useState('');
+
+  useEffect(() => {
+    if (!cookies.loginState) {
+      const state = generateState();
+      setCookie("loginState", state);
+      setLoginState(state);
+    }
+  }, [cookies.loginState, setLoginState, setCookie]);
 
   useEffect(() => {
     if (token) {
@@ -64,7 +68,11 @@ const Login = (props) => {
     }
   }, [token, navigate])
 
-  const loginResponse = searchParams.get('state') && searchParams.get('code');
+  const [loginResponse, setLoginResponse] = useState(false);
+  useEffect(() => {
+    setLoginResponse(searchParams.get('state') !== null && searchParams.get('code') !== null);
+  }, [searchParams]);
+
   const fetchingToken = useRef(false); // prevent double fetch of token
   useEffect(() => {
     // process login response
@@ -76,6 +84,7 @@ const Login = (props) => {
           title: 'Invalid login state',
           description: "Couldn't verify login state.",
         })
+        setCookie("loginState", null);
       } else {
         Auth.getAuthToken(
           window.location.host,
@@ -95,7 +104,7 @@ const Login = (props) => {
         );
       }
     }
-  });
+  }, [Auth, cookies.loginState, navigate, searchParams, setCookie, setError, setToken, token, loginResponse]);
 
   return (
     <>{loginResponse ? (

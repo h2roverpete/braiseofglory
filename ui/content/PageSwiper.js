@@ -4,7 +4,6 @@ import {useSiteContext} from "./Site";
 import Page from "./Page";
 import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router";
-import {useEdit} from "../editor/EditProvider";
 
 export default function PageSwiper(props) {
 
@@ -13,7 +12,6 @@ export default function PageSwiper(props) {
   const navigate = useNavigate();
   const location = useLocation();
   const [swiperInstance, setSwiperInstance] = useState(null);
-  const {canEdit} = useEdit();
 
   useEffect(() => {
     if (outlineData) {
@@ -47,7 +45,7 @@ export default function PageSwiper(props) {
     }
   };
 
-  return (<>{error || props.login || canEdit ? (
+  return (<>{error || props.login ? (
     <Page {...props}/>
   ) : (
     <Swiper

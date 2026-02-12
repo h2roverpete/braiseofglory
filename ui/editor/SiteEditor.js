@@ -1,4 +1,5 @@
 import SiteConfigPanel from "./SiteConfigPanel";
+import PageConfigPanel from "./PageConfigPanel";
 
 export default function SiteEditor({children}) {
   return (
@@ -11,7 +12,8 @@ export default function SiteEditor({children}) {
         position: 'relative',
       }}
     >
-      <SiteConfigPanel/>
+      <SiteConfigPanel />
+      <PageConfigPanel />
       {children}
     </div>
   )

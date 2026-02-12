@@ -2,7 +2,7 @@ import {useRef} from "react";
 import {useSiteContext} from "./Site";
 import Navbar from 'react-bootstrap/Navbar';
 import {Nav, NavDropdown} from "react-bootstrap";
-import {useLocation, useNavigate} from "react-router";
+import {useNavigate} from "react-router";
 import {useAuth} from "../../auth/AuthProvider";
 import {useEdit} from "../editor/EditProvider";
 import {useRestApi} from "../../api/RestApi";
@@ -32,7 +32,6 @@ export default function NavBar(props) {
 
   const {siteData, getChildren, Outline, currentPage, breadcrumbs} = useSiteContext();
   const navigate = useNavigate();
-  const location = useLocation();
   const toggleRef = useRef(null);
   const {token} = useAuth();
   const {canEdit} = useEdit();
@@ -55,7 +54,7 @@ export default function NavBar(props) {
       return true;
     } else {
       // is in breadcrumb path
-      return breadcrumbs?.find((item) => item.PageRoute === location.pathname);
+      return breadcrumbs?.find((item) => item.PageID === pageId);
     }
   }
 

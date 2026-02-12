@@ -8,28 +8,28 @@ import {usePageContext} from "../content/Page";
 export default function PageConfig({onPageUpdated, onPageDeleted}) {
 
   const {Pages} = useRestApi();
-  const {Outline, outlineData} = useSiteContext()
-  const {pageData, setPageData} = usePageContext();
+  const {Outline, outlineData, currentPage} = useSiteContext();
+  const {setPageData} = usePageContext();
   const {edits, FormData} = useFormEditor();
 
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [routes, setRoutes] = useState([]);
 
   useEffect(() => {
-    FormData.setData(pageData);
-  }, [pageData, FormData]);
+    FormData.update(currentPage);
+  }, [currentPage]);
 
   useEffect(() => {
-    if (outlineData && pageData) {
+    if (outlineData && currentPage) {
       const routeList = [];
       for (const page of outlineData) {
-        if (page.PageID !== pageData.PageID) {
+        if (page.PageID !== currentPage.PageID) {
           routeList.push(page.PageRoute);
         }
       }
       setRoutes(routeList);
     }
-  }, [outlineData, pageData]);
+  }, [outlineData, currentPage]);
 
   function isDataValid() {
     return isValidRoute(edits?.PageRoute)
@@ -50,10 +50,10 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
 
   function onDelete() {
     console.debug(`Deleting page...`);
-    Pages.deletePage(pageData.PageID)
+    Pages.deletePage(currentPage.PageID)
       .then(() => {
         console.debug(`Deleted page.`);
-        Outline.deletePage(pageData.PageID);
+        Outline.deletePage(currentPage.PageID);
 
       })
       .catch(e => console.error(`Error deleting page.`, e));

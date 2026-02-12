@@ -132,7 +132,7 @@ button.AddPageButton {
 
 
 /* Position dropdown menu for editing section contents */
-.EditSectionMenu {
+div.EditSectionMenu {
   position: absolute;
   top: 3px;
   right: 3px;

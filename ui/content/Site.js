@@ -56,16 +56,17 @@ export default function Site(props) {
 
   useEffect(() => {
     // get current page and breadcrumbs from new pathname
-    if (outlineData?.length > 0) {
+    if (outlineData) {
       if (location.pathname === '/') {
         setCurrentPage(outlineData[0]);
-      }
-      for (const page of outlineData) {
-        if (page.PageRoute === location.pathname) {
-          setCurrentPage(page);
-          const crumbs = buildBreadcrumbs(outlineData, page.ParentID);
-          setBreadcrumbs(crumbs);
-          break;
+      } else {
+        for (const page of outlineData) {
+          if (page.PageRoute === location.pathname) {
+            setCurrentPage(page);
+            const crumbs = buildBreadcrumbs(outlineData, page.ParentID);
+            setBreadcrumbs(crumbs);
+            break;
+          }
         }
       }
     }

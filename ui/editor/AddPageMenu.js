@@ -45,6 +45,7 @@ export default function AddPageMenu({editButtonRef}) {
   >
     <Button
       className={`AddPageButton EditButton btn-light`}
+      variant="secondary"
       type="button"
       size={'sm'}
       aria-expanded="false"
