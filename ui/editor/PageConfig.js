@@ -1,5 +1,5 @@
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
-import {useFormEditor} from "./FormEditor";
+import {useFormData} from "./FormEditor";
 import {useEffect, useState} from "react";
 import {useSiteContext} from "../content/Site";
 import {useRestApi} from "../../api/RestApi";
@@ -10,14 +10,18 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
   const {Pages} = useRestApi();
   const {Outline, outlineData, currentPage} = useSiteContext();
   const {setPageData} = usePageContext();
-  const {edits, FormData} = useFormEditor();
+
+  /** @type FormData<PageData> */
+  const formData = useFormData();
 
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [routes, setRoutes] = useState([]);
 
+  // destructure update function to satisfy eslint
+  const {update} = formData;
   useEffect(() => {
-    FormData.update(currentPage);
-  }, [currentPage]);
+    update(currentPage);
+  }, [currentPage, update]);
 
   useEffect(() => {
     if (outlineData && currentPage) {
@@ -32,14 +36,14 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
   }, [outlineData, currentPage]);
 
   function isDataValid() {
-    return isValidRoute(edits?.PageRoute)
+    return isValidRoute(formData.edits?.PageRoute)
   }
 
   function onUpdate() {
     console.debug(`Updating page...`);
-    Pages.insertOrUpdatePage(edits).then((result) => {
+    Pages.insertOrUpdatePage(formData.edits).then((result) => {
       console.debug(`Updated page.`);
-      FormData.update(result)
+      formData.update(result)
       Outline.updatePage(result);
       setPageData(result);
     }).catch((error) => {
@@ -78,8 +82,8 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
           size={'sm'}
           id={'NavTitle'}
           name={'NavTitle'}
-          value={edits?.NavTitle || ''}
-          onChange={(e) => FormData.onDataChanged({name: 'NavTitle', value: e.target.value})}
+          value={formData.edits?.NavTitle || ''}
+          onChange={(e) => formData.onDataChanged({name: 'NavTitle', value: e.target.value})}
         />
       </Col>
 
@@ -94,10 +98,10 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
           size={'sm'}
           id={'PageRoute'}
           name={'PageRoute'}
-          isValid={FormData?.isTouched('PageRoute') && isValidRoute(edits?.PageRoute)}
-          isInvalid={FormData?.isTouched('PageRoute') && !isValidRoute(edits?.PageRoute)}
-          value={edits?.PageRoute || ''}
-          onChange={(e) => FormData.onDataChanged({name: 'PageRoute', value: e.target.value})}
+          isValid={formData?.isTouched('PageRoute') && isValidRoute(formData.edits?.PageRoute)}
+          isInvalid={formData?.isTouched('PageRoute') && !isValidRoute(formData.edits?.PageRoute)}
+          value={formData.edits?.PageRoute || ''}
+          onChange={(e) => formData.onDataChanged({name: 'PageRoute', value: e.target.value})}
         />
       </Col>
       <Col>
@@ -110,8 +114,8 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
         <Form.Control
           size={'sm'}
           id={'PageMetaTitle'}
-          value={edits?.PageMetaTitle || ''}
-          onChange={(e) => FormData.onDataChanged({name: 'PageMetaTitle', value: e.target.value})}
+          value={formData.edits?.PageMetaTitle || ''}
+          onChange={(e) => formData.onDataChanged({name: 'PageMetaTitle', value: e.target.value})}
         />
       </Col>
     </Row>
@@ -126,8 +130,8 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
         <Form.Control
           size={'sm'}
           id={'PageMetaDescription'}
-          value={edits?.PageMetaDescription || ''}
-          onChange={(e) => FormData.onDataChanged({name: 'PageMetaDescription', value: e.target.value})}
+          value={formData.edits?.PageMetaDescription || ''}
+          onChange={(e) => formData.onDataChanged({name: 'PageMetaDescription', value: e.target.value})}
         />
       </Col>
       <Col sm={6}>
@@ -140,8 +144,8 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
         <Form.Control
           size={'sm'}
           id={'PageMetaKeywords'}
-          value={edits?.PageMetaKeywords || ''}
-          onChange={(e) => FormData.onDataChanged({name: 'PageMetaKeywords', value: e.target.value})}
+          value={formData.edits?.PageMetaKeywords || ''}
+          onChange={(e) => formData.onDataChanged({name: 'PageMetaKeywords', value: e.target.value})}
         />
       </Col>
     </Row>
@@ -149,10 +153,10 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
       <Col>
         <Form.Check
           className={'form-control-sm'}
-          checked={edits?.PageHidden || false}
+          checked={formData.edits?.PageHidden || false}
           id={'PageHidden'}
           label={'Hide page from site navigation'}
-          onChange={(e) => FormData.onDataChanged({name: 'PageHidden', value: e.target.checked})}
+          onChange={(e) => formData.onDataChanged({name: 'PageHidden', value: e.target.checked})}
         />
       </Col>
     </Row>
@@ -166,7 +170,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
             onClick={() => {
               onUpdate?.();
             }}
-            disabled={!isDataValid() || !FormData.isDataChanged()}
+            disabled={!isDataValid() || !formData.isDataChanged()}
           >
             Update
           </Button>
@@ -174,8 +178,8 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
         <Button
           size={'sm'}
           variant="secondary"
-          onClick={() => FormData.revert()}
-          disabled={!FormData?.isDataChanged()}
+          onClick={() => formData.revert()}
+          disabled={!formData?.isDataChanged()}
         >
           Revert
         </Button>

@@ -1,7 +1,7 @@
 import {Button, Col, Collapse, Row} from "react-bootstrap";
 import {useState} from "react";
 import {useEdit} from "./EditProvider";
-import {useFormEditor} from "./FormEditor";
+import {useFormData} from "./FormEditor";
 import {BsChevronCompactDown, BsChevronCompactUp, BsXLg} from "react-icons/bs";
 import {useTouchContext} from "../../util/TouchProvider";
 
@@ -47,7 +47,7 @@ export default function EditorPanel(
     direction = Direction.DOWN,
   }
 ) {
-  const {FormData} = useFormEditor();
+  const formData = useFormData();
   const {supportsHover} = useTouchContext();
   const [expanded, setExpanded] = useState(false);
   const {canEdit} = useEdit();
@@ -110,7 +110,7 @@ export default function EditorPanel(
                     setExpanded(false);
                     onUpdate?.();
                   }}
-                  disabled={!isDataValid() || !FormData?.isDataChanged()}
+                  disabled={!isDataValid() || !formData?.isDataChanged()}
                 >
                   Update
                 </Button>
@@ -118,8 +118,8 @@ export default function EditorPanel(
               <Button
                 size={'sm'}
                 variant="secondary"
-                onClick={() => FormData.revert()}
-                disabled={!FormData?.isDataChanged()}
+                onClick={() => formData.revert()}
+                disabled={!formData?.isDataChanged()}
               >
                 Revert
               </Button>

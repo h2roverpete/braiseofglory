@@ -3,7 +3,7 @@ import {usePageContext} from "../content/Page";
 import React, {useEffect, useState} from "react";
 import {useSiteContext} from "../content/Site";
 import {useRestApi} from "../../api/RestApi";
-import {useFormEditor} from "./FormEditor";
+import {useFormData} from "./FormEditor";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import {useEdit} from "./EditProvider";
 
@@ -21,7 +21,7 @@ export default function NewPageModal({show, setShow}) {
   const {pageData} = usePageContext();
   const {Pages, PageSections} = useRestApi();
   const navigate = useNavigate();
-  const {edits, FormData} = useFormEditor();
+  const formData = useFormData();
   const [routes, setRoutes] = useState([]);
   useEffect(() => {
     if (canEdit && outlineData && pageData) {
@@ -41,7 +41,7 @@ export default function NewPageModal({show, setShow}) {
   }
 
   function isDataValid() {
-    return isValidTitle(edits.PageTitle) && isValidRoute(edits.PageRoute);
+    return isValidTitle(formData.edits.PageTitle) && isValidRoute(formData.edits.PageRoute);
   }
 
   function isValidTitle(title) {
@@ -57,10 +57,10 @@ export default function NewPageModal({show, setShow}) {
     Pages.insertOrUpdatePage({
       SiteID: siteData.SiteID,
       ParentID: 0,
-      PageTitle: edits.PageTitle,
-      NavTitle: edits.PageTitle,
-      PageRoute: edits.PageRoute,
-      PageHidden: edits.PageHidden,
+      PageTitle: formData.edits.PageTitle,
+      NavTitle: formData.edits.PageTitle,
+      PageRoute: formData.edits.PageRoute,
+      PageHidden: formData.edits.PageHidden,
     })
       .then((newPage) => {
         console.debug(`Page inserted.`);
@@ -70,7 +70,7 @@ export default function NewPageModal({show, setShow}) {
         }).then((newSection) => {
           console.debug(`Page section inserted.`);
           setShow?.(false);
-          FormData.revert();
+          formData.revert();
           Outline.addPage(newPage);
           navigate(newPage.PageRoute);
         }).catch(e => console.error(`Error inserting new page section.`, e));
@@ -78,7 +78,7 @@ export default function NewPageModal({show, setShow}) {
   }
 
   function onCancel() {
-    FormData.revert();
+    formData.revert();
     setShow?.(false);
   }
 
@@ -102,14 +102,14 @@ export default function NewPageModal({show, setShow}) {
           <Col>
             <Form.Control
               size={'sm'}
-              isValid={FormData.isTouched('PageTitle') && edits.PageTitle.length > 0}
-              isInvalid={FormData.isTouched('PageTitle') && edits.PageTitle.length === 0}
+              isValid={formData.isTouched('PageTitle') && formData.edits.PageTitle.length > 0}
+              isInvalid={formData.isTouched('PageTitle') && formData.edits.PageTitle.length === 0}
               id={'PageTitle'}
               name={'PageTitle'}
-              value={edits.PageTitle || ''}
+              value={formData.edits.PageTitle || ''}
               placeholder={'Title'}
               onChange={(e) => {
-                FormData.onDataChanged({name: 'PageTitle', value: e.target.value})
+                formData.onDataChanged({name: 'PageTitle', value: e.target.value})
               }}
             />
           </Col>
@@ -126,15 +126,15 @@ export default function NewPageModal({show, setShow}) {
           <Col>
             <Form.Control
               size={'sm'}
-              isValid={FormData.isTouched('PageRoute') && isValidRoute(edits.PageRoute)}
-              isInvalid={FormData.isTouched('PageRoute') && !isValidRoute(edits.PageRoute)}
+              isValid={formData.isTouched('PageRoute') && isValidRoute(formData.edits.PageRoute)}
+              isInvalid={formData.isTouched('PageRoute') && !isValidRoute(formData.edits.PageRoute)}
               id={'PageRoute'}
               name={'PageRoute'}
               placeholder={'/page'}
               type="text"
-              value={edits.PageRoute || ''}
+              value={formData.edits.PageRoute || ''}
               onChange={(e) => {
-                FormData.onDataChanged({name: 'PageRoute', value: e.target.value})
+                formData.onDataChanged({name: 'PageRoute', value: e.target.value})
               }}
             />
           </Col>
@@ -150,9 +150,9 @@ export default function NewPageModal({show, setShow}) {
               className={'form-control-sm'}
               id={'PageHidden'}
               label={'Hide page from site navigation'}
-              checked={edits.PageHidden === true}
+              checked={formData.edits.PageHidden === true}
               onChange={(e) => {
-                FormData.onDataChanged({name: 'PageHidden', value: e.target.checked})
+                formData.onDataChanged({name: 'PageHidden', value: e.target.checked})
               }}
             />
           </Col>

@@ -32,6 +32,7 @@ export default function PageSwiper(props) {
           if (location.pathname === page.PageRoute) {
             currentSlideIndex = index;
           }
+          return page; // make eslint happy
         })
       }
       if (currentSlideIndex !== -1 && swiperInstance.realIndex !== currentSlideIndex) {

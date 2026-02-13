@@ -1,9 +1,22 @@
-import {createContext, useContext, useState} from "react";
+import {createContext, useCallback, useContext, useState} from "react";
 import './Editor.css';
 
-export const FormEditContext = createContext(null);
+const FormEditContext = createContext(null);
 
-export default function FormEditor({ref, children}) {
+/**
+ * @template T
+ * @typedef FormDataAPI
+ *
+ * @property {function(T)} setData
+ * @property {function(string)} isTouched
+ * @property {function()} isDataChanged
+ * @property {function()} revert
+ * @property {function(T)} update
+ * @property {DataCallback} onDataChanged
+ * @property {T} edits
+ */
+
+export default function FormEditor({children}) {
 
   const [originalData, setOriginalData] = useState(null);
   const [edits, setEdits] = useState({});
@@ -49,26 +62,26 @@ export default function FormEditor({ref, children}) {
    * Update the original form data and clear edits, i.e. after a DynamoDB update.
    * @param data {Object} data being edited.
    */
-  function update(data) {
+  const update = useCallback((data) => {
     setEdits(data);
     setOriginalData(data);
     setTouched([]);
-  }
+  }, [setEdits, setOriginalData, setTouched]);
 
-  function isTouched(name) {
+  const isTouched = useCallback((name) => {
     if (name) {
       return touched.includes(name);
     }
-  }
+  }, [touched]);
 
-  function isDataChanged() {
+  const isDataChanged = useCallback(() => {
     return JSON.stringify(edits) !== JSON.stringify(originalData);
-  }
+  }, [edits, originalData]);
 
-  function revert() {
+  const revert = useCallback(() => {
     setEdits({...originalData});
     setTouched([]);
-  }
+  }, [setEdits, setTouched, originalData]);
 
   const context = {
     edits: edits,
@@ -83,10 +96,6 @@ export default function FormEditor({ref, children}) {
     }
   }
 
-  if (ref) {
-    ref.current = context.FormData;
-  }
-
   return (
     <FormEditContext.Provider value={context}>
       {children}
@@ -96,4 +105,12 @@ export default function FormEditor({ref, children}) {
 
 export function useFormEditor() {
   return useContext(FormEditContext);
+}
+
+/**
+ * @template T
+ * @returns {FormDataAPI<T>}
+ */
+export function useFormData() {
+  return useContext(FormEditContext).FormData
 }
