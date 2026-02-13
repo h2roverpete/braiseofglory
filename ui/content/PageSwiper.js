@@ -22,12 +22,15 @@ export default function PageSwiper(props) {
   useEffect(() => {
     if (swiperInstance) {
       let currentSlideIndex = -1;
-      swipePages?.map((page, index) => {
-        if (location.pathname === page.PageRoute) {
-          currentSlideIndex = index;
-        }
-        return page;
-      })
+      if (location.pathname === '/') {
+        currentSlideIndex = 0;
+      } else {
+        swipePages?.map((page, index) => {
+          if (location.pathname === page.PageRoute) {
+            currentSlideIndex = index;
+          }
+        })
+      }
       if (currentSlideIndex !== -1 && swiperInstance.realIndex !== currentSlideIndex) {
         swiperInstance.slideTo(
           currentSlideIndex,
