@@ -348,16 +348,15 @@ export default function PageSection({pageSectionData}) {
         ref={sectionRef}
       >
         <div
-          style={{height: '100px'}}
+          style={{height: '100%'}}
           hidden={
             editing
             || pageSectionData.SectionImage
             || pageSectionData.SectionTitle
             || pageSectionData.SectionText
-            || sectionExtras?.length > 0
           }
         >
-          <div className={'Editor EmptyElement'}>(Empty Section)</div>
+          <div className={'Editor EmptyElement'}>(No Content)</div>
         </div>
         <EditableField
           field={sectionTitle}

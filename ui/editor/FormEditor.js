@@ -39,8 +39,8 @@ export default function FormEditor({ref, children}) {
    * @param data {Object} data being edited.
    */
   function setData(data) {
-    if (!originalData) {
-      // protect from multiple initialization
+    if (data && !originalData) {
+      // protect from null data & multiple initialization
       update(data);
     }
   }
