@@ -1,6 +1,6 @@
 {
   "name": "framework",
-  "version": "1.3.10",
+  "version": "1.3.11",
   "description": "React framework for managed web sites",
   "main": "index.js",
   "scripts": {

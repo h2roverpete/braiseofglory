@@ -51,15 +51,13 @@ const Login = (props) => {
   const {token, setToken} = useAuth();
   const navigate = useNavigate();
   const [cookies, setCookie] = useCookies();
-  const [loginState, setLoginState] = useState('');
 
   useEffect(() => {
     if (!cookies.loginState) {
       const state = generateState();
       setCookie("loginState", state);
-      setLoginState(state);
     }
-  }, [cookies.loginState, setLoginState, setCookie]);
+  }, [cookies.loginState, setCookie]);
 
   useEffect(() => {
     if (token) {
@@ -119,7 +117,7 @@ const Login = (props) => {
           <input type="hidden" name="client_id" value={window.location.host}/>
           <input type="hidden" name="redirect_uri"
                  value={`${window.location.protocol}//${window.location.host}/login`}/>
-          <input type="hidden" name="state" value={loginState}/>
+          <input type="hidden" name="state" value={cookies.loginState}/>
           <input type="hidden" name="scope" value={scope}/>
           <Row className="mt-4">
             <Form.Label className={'required'} htmlFor="username" column={true} sm={3}>
