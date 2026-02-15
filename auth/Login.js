@@ -117,7 +117,7 @@ const Login = (props) => {
           <input type="hidden" name="client_id" value={window.location.host}/>
           <input type="hidden" name="redirect_uri"
                  value={`${window.location.protocol}//${window.location.host}/login`}/>
-          <input type="hidden" name="state" value={cookies.loginState}/>
+          <input type="hidden" name="state" value={cookies.loginState ? cookies.loginState : ''}/>
           <input type="hidden" name="scope" value={scope}/>
           <Row className="mt-4">
             <Form.Label className={'required'} htmlFor="username" column={true} sm={3}>

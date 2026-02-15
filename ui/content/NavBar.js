@@ -270,7 +270,6 @@ export default function NavBar(props) {
                 src={props.icon}
                 alt={props.brand?.length ? props.brand : siteData?.SiteName}
                 height={45}
-                style={{marginRight: '10px'}}
                 onClick={() => {
                   navigateTo('/')
                 }}

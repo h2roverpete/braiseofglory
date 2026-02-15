@@ -1,9 +1,16 @@
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import EditButtons, {EditAction} from "./EditButtons";
 import {useEdit} from "./EditProvider";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "react-bootstrap";
 import AlignButtons, {AlignAction} from "./AlignButtons";
 import {useTouchContext} from "../../util/TouchProvider";
+
+/**
+ * @type EditableAPI
+ *
+ * @property {boolean} isEditing
+ * @property {function()} startEditing
+ */
 
 /**
  * @typedef EditCallbackData
@@ -17,40 +24,54 @@ import {useTouchContext} from "../../util/TouchProvider";
  */
 
 /**
- * @typedef EditableAPI
- *
- * @property {function(boolean)} startEdit
- * @property {boolean} isEditing
- */
-
-/**
  * Make an HTML element (h1, h2, div, etc.) editable.
  *
- * @property {JSX.Element} field          JSX element that contains the editable item.
- * @property {Ref<HTMLElement>} fieldRef  Reference to the editable HTML element within the JSX.
- * @property {EditCallback} callback      Called when text edits need to be committed.
- * @property {function()} onCancel        Called when editing is canceled.
- * @property {boolean} [allowEnterKey]    Allow user to press enter key while editing (instead of committing changes)
- * @property {boolean} [showEditButton]   Show edit button? (If false, parent needs to call startEditing() in API)
- * @property {boolean} [alwaysShow]       Always show the field, even if empty (reserves layout space)
- * @property {Ref<EditableAPI>} [apiRef]  Returns the editing API
+ * @property {JSX.Element} field            JSX element that contains the editable item.
+ * @property {Ref<HTMLElement>} fieldRef    Reference to the editable HTML element within the JSX.
+ * @property {EditCallback} callback        Called when text edits need to be committed.
+ * @property {function()} onCancel          Called when editing is canceled.
+ * @property {boolean} [allowEnterKey]      Allow user to press enter key while editing (instead of committing changes)
+ * @property {boolean} [showEditButton]     Show edit button? (If false, parent needs to call startEditing() in API)
+ * @property {boolean} [alwaysShow]         Always show the field, even if empty (reserves layout space)
+ * @property {function(EditableAPI)} [api]  Function to receive editable API.
+ *
  * @returns {JSX.Element}
  * @constructor
  */
 export default function EditableField(
   {
-    field, fieldRef, callback, onCancel, allowEnterKey, showEditButton, alwaysShow, apiRef
-  }) {
+    field,
+    fieldRef,
+    callback,
+    onCancel,
+    allowEnterKey,
+    showEditButton,
+    alwaysShow,
+    api
+  }
+) {
 
-  // memoize original content
+  // imports
+  const {canEdit} = useEdit();
+  const {supportsHover} = useTouchContext();
+
+  // states
   const [originalContent, setOriginalContent] = useState(null);
   const [originalAlign, setOriginalAlign] = useState(null);
-  const {canEdit} = useEdit();
   const [isEditing, setEditing] = useState(false);
   const [savedPadding, setSavedPadding] = useState('0');
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const editButtonRef = useRef(null);
-  const {supportsHover} = useTouchContext();
+  const [hideEditButtons, setHideEditButtons] = useState(supportsHover);
+
+  useEffect(() => {
+    if (api) {
+      // return editable API
+      api({
+        isEditing: isEditing,
+        startEditing: startEditing,
+      })
+    }
+  },[api, setEditing])
 
   const isChanged = useCallback(() => {
     return fieldRef.current.innerHTML !== originalContent || fieldRef.current.style.textAlign !== originalAlign;
@@ -85,7 +106,7 @@ export default function EditableField(
     fieldRef.current.style.whiteSpace = 'normal';
     fieldRef.current.style.padding = savedPadding;
 
-    // revert title value and alignment
+    // revert content value and alignment
     fieldRef.current.innerHTML = originalContent;
     fieldRef.current.style.textAlign = originalAlign;
 
@@ -117,6 +138,11 @@ export default function EditableField(
     setEditing(false);
   }, [fieldRef, setEditing, setShowConfirmation, savedPadding, callback]);
 
+  /**
+   * Handle keyboard events during editing.
+   *
+   * @type {function(KeyboardEvent): void}
+   */
   const onKeyDown = useCallback((evt) => {
     // end editing and update on enter
     if (evt.key === 'Enter' && !allowEnterKey) {
@@ -140,6 +166,11 @@ export default function EditableField(
     }
   }, [allowEnterKey, cancelEditing, commitEdits, isChanged]);
 
+  /**
+   * Receive callbacks from edit and alignment buttons.
+   *
+   * @param action {String} The requested action.
+   */
   function editCallback(action) {
     switch (action) {
       case EditAction.EDIT:
@@ -200,14 +231,6 @@ export default function EditableField(
     }
   }, [isEditing, fieldRef, alwaysShow, onKeyDown]);
 
-  if (apiRef) {
-    // return editing API
-    apiRef.current = {
-      startEditing: startEditing,
-      isEditing: isEditing,
-    }
-  }
-
   return (
     <>{canEdit ? (
       <>
@@ -219,28 +242,24 @@ export default function EditableField(
           }}
           onMouseOver={() => {
             // always reveal edit buttons
-            if (supportsHover) editButtonRef.current.hidden = false;
+            if (supportsHover) setHideEditButtons(false);
           }}
           onMouseLeave={() => {
             // hide if we aren't editing
-            if (supportsHover) editButtonRef.current.hidden = !isEditing;
+            if (supportsHover) setHideEditButtons(!isEditing);
           }}
         >
           {field}
           <AlignButtons
             callback={editCallback}
-            editable={canEdit}
             editing={isEditing}
             align={fieldRef.current?.style.textAlign}
-            style={{position: 'absolute', top: '-20px', left: '40%'}}
           />
           <EditButtons
             callback={editCallback}
-            editable={canEdit}
             editing={isEditing}
             showEditButton={showEditButton}
-            ref={editButtonRef}
-            hidden={!isEditing && supportsHover}
+            hidden={!isEditing && supportsHover && hideEditButtons}
           />
         </div>
         <Modal

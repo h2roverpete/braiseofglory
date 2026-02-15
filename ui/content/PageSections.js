@@ -3,6 +3,7 @@ import React, {Fragment, useEffect} from "react";
 import {usePageContext} from "./Page";
 import Login from "../../auth/Login";
 import {useEdit} from "../editor/EditProvider";
+import {useSiteContext} from "./Site";
 
 /**
  * @typedef PageSectionProps
@@ -17,7 +18,7 @@ import {useEdit} from "../editor/EditProvider";
  * @constructor
  */
 export default function PageSections(props) {
-  const {pageData, sectionData, error, login} = usePageContext();
+  const {pageData, sectionData, login, error} = usePageContext();
 
   const {canEdit} = useEdit();
   useEffect(() => {
@@ -28,7 +29,7 @@ export default function PageSections(props) {
   }, [canEdit]);
 
   function windowDropHandler(e) {
-    if ([...e.dataTransfer.items].some((item) => item.kind === "file")) {
+    if ([...e.dataTransfer.items].some((item) => item.kind === "file" || item.type.match("^text/uri-list"))) {
       e.preventDefault();
     }
   }
@@ -41,7 +42,7 @@ export default function PageSections(props) {
         <Login/>
       </>) : (<>
         {pageData && sectionData && (<>
-          {sectionData.map(section => (<Fragment key={hash(section.PageSectionID+section.SectionText+section.SectionTitle+section.SectionImage+section.TitleAlign+section.TextAlign)}>
+          {sectionData.map(section => (<Fragment key={section.PageSectionID + "_" + section.Modified}>
             <PageSection
               pageSectionData={section}
               data-testid={`PageSection-section.PageSectionID`}/>

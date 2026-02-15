@@ -1,15 +1,29 @@
 import GuestBook from "../guestbook/GuestBook";
 import Gallery from "../gallery/Gallery";
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import Instagram from "../instagram/Instagram";
 import FileExtra from "./FileExtra";
+import {usePageContext} from "../content/Page";
 
 /**
- * Display any page extras.
- * @property {[ExtraData]} extras
+ * Display any extras.
+ *
+ * @property {number} pageSectionId
+ *
  * @constructor
  */
-export default function Extras({extras}) {
+export default function Extras({pageSectionId}) {
+
+  const {pageExtras} = usePageContext();
+  const [extras, setExtras] = useState([]);
+  useEffect(() => {
+    // manage extras
+    if (pageExtras && pageSectionId) {
+      const list = pageExtras.filter((extra) => extra.PageSectionID === pageSectionId);
+      setExtras(list);
+      console.debug(`Updated extras for section ${pageSectionId}.`);
+    }
+  },[pageSectionId, pageExtras, setExtras]);
 
   return (<>
     {extras.map((extra) => (<React.Fragment key={extra.ExtraID}>

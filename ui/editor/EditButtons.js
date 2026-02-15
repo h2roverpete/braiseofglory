@@ -2,60 +2,48 @@ import {Button} from "react-bootstrap";
 import {BsCheck, BsPencil, BsX} from "react-icons/bs";
 
 /**
- * @typedef EditButtonProps
- * @property {boolean} editable
- * @property {boolean} editing
- * @property {callback} callback
- * @property {string} align
- * @property {boolean} showEditButton
- * @property {boolean} hidden
- * @property ref
- */
-
-/**
- * Display edit/confirm/cancel buttons when editable.
+ * Display edit/confirm/cancel buttons for an editable text element.
  *
- * @param {EditButtonProps} props
+ * @property {boolean} editing          Are we currently editing? (Controls display of edit vs cancel/commit)
+ * @property {EditCallback} callback    Callback to receive Edit Actions when buttons are pressed.
+ * @property {boolean} showEditButton   Show the edit button? (If false, only commit/cancel will be shown.)
+ * @property {boolean} hidden           Hide all the edit buttons?
+ *
  * @returns {JSX.Element}
  * @constructor
  */
-export default function EditButtons(props) {
+export default function EditButtons({editing, callback, showEditButton, hidden}) {
   return (
-    <>
-      {props.editable && (
-        <div
-          className={'EditButtons'}
-          hidden={props.hidden === true}
-          ref={props.ref}
-        >
-          <Button
-            onClick={() => props.callback(EditAction.CONFIRM)}
-            variant={'secondary'}
-            size={'sm'}
-            className={`EditButton me-1 border text-primary border-primary btn-light ${!props.editing ? ' d-none' : ''}`}
-          ><BsCheck/></Button>
-          <Button
-            onClick={() => props.callback(EditAction.CANCEL)}
-            variant={'secondary'}
-            size={'sm'}
-            className={`EditButton me-1 border border-danger text-danger btn-light ${!props.editing ? ' d-none' : ''}`}
-          ><BsX/></Button>
-          {props.showEditButton && !props.editing && (
-            <Button
-              onClick={() => props.callback(EditAction.EDIT)}
-              variant={'secondary'}
-              size={'sm'}
-              className={`EditButton border btn-light`}
-            ><BsPencil/></Button>
-          )}
-        </div>
+    <div
+      className={'EditButtons'}
+      hidden={hidden === true}
+    >
+      <Button
+        onClick={() => callback(EditAction.CONFIRM)}
+        variant={'secondary'}
+        size={'sm'}
+        className={`EditButton me-1 border text-primary border-primary btn-light ${!editing ? ' d-none' : ''}`}
+      ><BsCheck/></Button>
+      <Button
+        onClick={() => callback(EditAction.CANCEL)}
+        variant={'secondary'}
+        size={'sm'}
+        className={`EditButton me-1 border border-danger text-danger btn-light ${!editing ? ' d-none' : ''}`}
+      ><BsX/></Button>
+      {showEditButton && !editing && (
+        <Button
+          onClick={() => callback(EditAction.EDIT)}
+          variant={'secondary'}
+          size={'sm'}
+          className={`EditButton border btn-light`}
+        ><BsPencil/></Button>
       )}
-    </>
+    </div>
   );
 }
 
 /**
- * Site permissions.
+ * Editing actions sent to callback.
  *
  * @enum {string}
  */

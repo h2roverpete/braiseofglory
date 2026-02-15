@@ -8,6 +8,14 @@ import {useRestApi} from "../../api/RestApi";
 
 const NewPageModal = lazy(() => import("../editor/NewPageModal"));
 
+/**
+ * Dropdown menu for adding a new page or page section.
+ *
+ * @param {RefObject<HTMLButtonElement>} [editButtonRef]  Receive a reference to the dropdown button.
+ *
+ * @returns {Element}
+ * @constructor
+ */
 export default function AddPageMenu({editButtonRef}) {
 
   // imports
@@ -35,11 +43,6 @@ export default function AddPageMenu({editButtonRef}) {
 
   return (<div
     className="AddPageMenu Editor dropdown"
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      zIndex: 100,
-    }}
     ref={editButtonRef}
     hidden={supportsHover}
   >

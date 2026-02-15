@@ -3,7 +3,7 @@ import EditorPanel from "../editor/EditorPanel";
 import {useEdit} from "../editor/EditProvider";
 import {useRestApi} from "../../api/RestApi";
 import {usePageContext} from "../content/Page";
-import {useFormEditor} from "../editor/FormEditor";
+import {useFormData} from "../editor/FormEditor";
 import {useEffect} from "react";
 
 export default function ExtraConfig({extraData, buttonRef}) {
@@ -11,11 +11,13 @@ export default function ExtraConfig({extraData, buttonRef}) {
   const {canEdit} = useEdit();
   const {Extras} = useRestApi();
   const {updateExtra, removeExtraFromPage} = usePageContext();
-  const {edits, FormData} = useFormEditor();
+  
+  /** @type FormDataAPI<ExtraData> */
+  const formData = useFormData();
 
   useEffect(() => {
-    FormData.setData(extraData);
-  }, [extraData, FormData]);
+    formData.setData(extraData);
+  }, [extraData, formData]);
 
   if (!canEdit) {
     return <></>;
@@ -23,27 +25,31 @@ export default function ExtraConfig({extraData, buttonRef}) {
 
   const labelCols = 2;
 
+  function onUpdate() {
+    console.debug(`Updating extra.`);
+    Extras.insertOrUpdateExtra(formData.edits).then((extra) => {
+      console.debug(`Extra updated.`);
+      formData.update(extra);
+      updateExtra(extra);
+    }).catch((err) => {
+      console.error(`Error updating extra.`, err);
+    });
+  }
+
+  function onDelete() {
+    console.debug(`Deleting extra.`);
+    Extras.deleteExtra(extraData.ExtraID).then(() => {
+      console.debug(`Extra deleted.`);
+      removeExtraFromPage(extraData.ExtraID);
+    }).catch((err) => {
+      console.error(`Error deleting extra.`, err);
+    });
+  }
+
   return (
     <EditorPanel
-      onUpdate={() => {
-        console.debug(`Updating extra.`);
-        Extras.insertOrUpdateExtra(edits).then((extra) => {
-          console.debug(`Extra updated.`);
-          FormData.update(extra);
-          updateExtra(extra);
-        }).catch((err) => {
-          console.error(`Error updating extra.`, err);
-        });
-      }}
-      onDelete={() => {
-        console.debug(`Deleting extra.`);
-        Extras.deleteExtra(extraData.ExtraID).then(() => {
-          console.debug(`Extra deleted.`);
-          removeExtraFromPage(extraData.ExtraID);
-        }).catch((err) => {
-          console.error(`Error deleting extra.`, err);
-        });
-      }}
+      onUpdate={onUpdate}
+      onDelete={onDelete}
       isDataValid={() => true}
       buttonRef={buttonRef}
     >
@@ -74,7 +80,7 @@ export default function ExtraConfig({extraData, buttonRef}) {
             size={'sm'}
             id={'ExtraFile'}
             onChange={(e) => {
-              FormData.onDataChanged({
+              formData.onDataChanged({
                   changes: [
                     {name: 'ExtraFile', value: e.target.files[0]},
                     {name: 'ExtraFileMimeType', value: e.target.files[0].type}
@@ -87,7 +93,7 @@ export default function ExtraConfig({extraData, buttonRef}) {
       </Row>
       <Row
         className="mt-2"
-        hidden={edits?.ExtraFileMimeType?.startsWith('text/')}
+        hidden={formData.edits?.ExtraFileMimeType?.startsWith('text/')}
       >
         <Form.Label
           column={'sm'}
@@ -97,8 +103,8 @@ export default function ExtraConfig({extraData, buttonRef}) {
           <Form.Control
             size={'sm'}
             id={'ExtraFilePrompt'}
-            value={edits?.ExtraFilePrompt || ''}
-            onChange={(e) => FormData.onDataChanged({name: 'ExtraFilePrompt', value: e.target.value})}
+            value={formData.edits?.ExtraFilePrompt || ''}
+            onChange={(e) => formData.onDataChanged({name: 'ExtraFilePrompt', value: e.target.value})}
           />
         </Col>
       </Row>

@@ -3,17 +3,13 @@ import {PageContext} from "./Page";
 import {SiteContext} from "./Site";
 
 /**
- * @typedef BreadcrumbProps
- * @property {string} [delimiter]   Delimiter to use between pages.
- */
-/**
  * Display breadcrumb trail in site navigation.
  *
- * @param props {BreadcrumbProps}
+ * @property {string} [delimiter]   Delimiter to use between pages.
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Breadcrumbs(props) {
+export default function Breadcrumbs({delimiter}) {
 
   const {siteData} = useContext(SiteContext);
   const {breadcrumbs} = useContext(PageContext);
@@ -25,8 +21,8 @@ export default function Breadcrumbs(props) {
       {breadcrumbs.map(page => (
         <span key={page.PageID}>
           {page.NavTitle ? page.NavTitle : page.PageTitle}
-          <>{props.delimiter ? (
-            <>{props.delimiter}</>
+          <>{delimiter ? (
+            <>{delimiter}</>
           ) : (
             <>&nbsp;&raquo;&nbsp;</>
           )}</>

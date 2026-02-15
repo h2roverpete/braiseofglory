@@ -3,7 +3,7 @@ import {useRestApi} from "../../api/RestApi";
 import {usePageContext} from "../content/Page";
 import {Col, Row, Form} from "react-bootstrap";
 import EditorPanel from "../editor/EditorPanel";
-import {useFormEditor} from "../editor/FormEditor";
+import {useFormData} from "../editor/FormEditor";
 import {useEffect} from "react";
 
 export default function InstagramConfig({extraData, setExtraData, buttonRef}) {
@@ -11,11 +11,13 @@ export default function InstagramConfig({extraData, setExtraData, buttonRef}) {
   const {canEdit} = useEdit();
   const {Extras} = useRestApi();
   const {removeExtraFromPage} = usePageContext();
-  const {edits, FormData} = useFormEditor();
+  
+  /** @type FormDataAPI<ExtraData> */
+  const formData = useFormData();
 
   useEffect(() => {
-    FormData.setData(extraData);
-  }, [extraData, FormData]);
+    formData.setData(extraData);
+  }, [extraData, formData]);
 
   if (!canEdit) {
     return <></>;
@@ -27,7 +29,7 @@ export default function InstagramConfig({extraData, setExtraData, buttonRef}) {
 
   function onUpdate() {
     console.debug(`Updating instagram extra.`);
-    Extras.insertOrUpdateExtra(edits)
+    Extras.insertOrUpdateExtra(formData.edits)
       .then((result) => {
         setExtraData(result);
       })
@@ -50,7 +52,7 @@ export default function InstagramConfig({extraData, setExtraData, buttonRef}) {
       onDelete={onDelete}
       onUpdate={onUpdate}
       buttonRef={buttonRef}
-      isDataValid={() => isValidInstagramHandle(edits?.InstagramHandle)}
+      isDataValid={() => isValidInstagramHandle(formData.edits?.InstagramHandle)}
     >
       <h5>Instagram Properties</h5>
       <Row>
@@ -62,10 +64,10 @@ export default function InstagramConfig({extraData, setExtraData, buttonRef}) {
           <Form.Control
             size={'sm'}
             id={'GalleryName'}
-            isValid={FormData?.isTouched('InstagramHandle') && isValidInstagramHandle(edits?.InstagramHandle)}
-            isInvalid={FormData?.isTouched('InstagramHandle') && !isValidInstagramHandle(edits?.InstagramHandle)}
-            value={edits?.InstagramHandle || ''}
-            onChange={(e) => FormData.onDataChanged({name: 'InstagramHandle', value: e.target.value})}
+            isValid={formData.isTouched('InstagramHandle') && isValidInstagramHandle(formData.edits?.InstagramHandle)}
+            isInvalid={formData.isTouched('InstagramHandle') && !isValidInstagramHandle(formData.edits?.InstagramHandle)}
+            value={formData.edits?.InstagramHandle || ''}
+            onChange={(e) => formData.onDataChanged({name: 'InstagramHandle', value: e.target.value})}
           />
         </Col>
       </Row>

@@ -82,6 +82,14 @@ button.EditButton {
   width: 25px;
   height: 25px;
   padding: 0;
+  font-size: 10pt;
+}
+
+/* Text alignment buttons for editing */
+div.AlignButtons {
+  position: absolute;
+  top: -20px;
+  left: 40%;
 }
 
 /* Editor drop down menus */
@@ -114,6 +122,9 @@ button.AddPageButton {
   right: -30px;
   top: 50%;
   transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
 }
 
 /* Dropdown position in non-expanded state, sm breakpoint */
@@ -134,14 +145,18 @@ button.AddPageButton {
 /* Position dropdown menu for editing section contents */
 div.EditSectionMenu {
   position: absolute;
-  top: 3px;
-  right: 3px;
+  top: -2px;
+  right: 2px;
+}
+
+div.EditSectionButton {
+  z-index: 100;
 }
 
 /* Placeholder for empty page elements */
-.Editor.EmptyElement {
+div.Editor.EmptyElement {
   width: 100%;
-  height: 100%;
+  height: 30px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -165,6 +180,7 @@ div.EditSectionMenu {
   background-color: #ffffff88;
   text-align: center;
   font-size: 14pt;
+  overflow: hidden;
 }
 
 /* no margin for site editor */

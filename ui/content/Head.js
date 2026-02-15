@@ -2,9 +2,7 @@ import {useSiteContext} from "./Site";
 
 /**
  * Element to display elements in page head.
- * Needs to be a child of the <Page> tag.
- *
- * Uses Helmet to propagate data to the <head> elements.
+ * Needs to be a child of the <Site> tag.
  *
  * @returns {JSX.Element}
  * @constructor

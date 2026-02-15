@@ -1,5 +1,5 @@
 import {createContext, lazy, Suspense, useCallback, useContext, useEffect, useState} from "react";
-import {SiteContext} from "./Site";
+import {useSiteContext} from "./Site";
 import {useRestApi} from "../../api/RestApi";
 import FormEditor from "../editor/FormEditor";
 import {useEdit} from "../editor/EditProvider"
@@ -11,72 +11,65 @@ export const PageContext = createContext(
 );
 
 /**
- * @typedef PageProps
- *
- * @property {[JSX.Element]} children   Child elements.
- * @property {number} [pageId]          Specific page ID to display.
- * @property {ErrorData} [error]        Error information to display.
- * @property {boolean} [login]          User is logging in or out.
- */
-
-/**
  * Page component.
  * Generates a container <div> for styling and display.
  * Provides page related data in a PageContext to children.
  *
- * @param props {PageProps}
+ * @property {[JSX.Element]} children   Child elements.
+ * @property {number} [pageId]          Specific page ID to display.
+ * @property {Error} [error]            Display error instead of page content.
+ * @property {boolean} [login]          User is logging in or out.
+ *
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Page(props) {
+export default function Page({children, pageId, error, login}) {
 
-  const {outlineData, error} = useContext(SiteContext);
+  // imports
+  const {canEdit} = useEdit();
+  const {outlineData} = useSiteContext();
+  const {Pages, Extras} = useRestApi();
+
+  // states
+  const [breadcrumbs, setBreadcrumbs] = useState(null);
   const [pageData, setPageData] = useState(null);
   const [sectionData, setSectionData] = useState(null);
-  const [breadcrumbs, setBreadcrumbs] = useState(null);
-  const {Pages, Extras} = useRestApi();
   const [showAddExtraModal, setShowAddExtraModal] = useState(false);
   const [extraPageSectionId, setExtraPageSectionId] = useState(0);
   const [extras, setExtras] = useState([]);
-  const {canEdit} = useEdit();
-
-  let errorData;
-  if (error) {
-    // pass error from site context
-    errorData = error;
-  } else if (props.error) {
-    // pass error from props
-    errorData = props.error;
-  }
 
   useEffect(() => {
-    if (props.pageId && outlineData) {
+    if (pageId && outlineData) {
       if (outlineData) {
         for (const page of outlineData) {
-          if (page.PageID === props.pageId) {
+          if (page.PageID === pageId) {
             setPageData(page);
-            console.debug(`Loaded page ${props.pageId} data.`);
+            console.debug(`Loaded page ${pageId} data.`);
             break;
           }
         }
       }
     }
-  }, [props.pageId, outlineData]);
+  }, [pageId, outlineData]);
 
   useEffect(() => {
-    if (!props.error && !props.login) {
-      // load page sections
-      Pages.getPageSections(props.pageId).then((data) => {
-        console.debug(`Loaded page ${props.pageId} sections.`);
-        setSectionData(data); // update state
-      })
+    // load page sections
+    Pages.getPageSections(pageId).then((data) => {
+      console.debug(`Loaded page ${pageId} sections.`);
+      setSectionData(data); // update state
+    })
+
+  }, [pageId, Pages]);
+
+  useEffect(() => {
+    if (extras.length === 0) {
       // load extras
-      Extras.getPageExtras(props.pageId).then((data) => {
-        console.debug(`Loaded page ${props.pageId} extras: ${JSON.stringify(data)}`);
+      Extras.getPageExtras(pageId).then((data) => {
+        console.debug(`Loaded page ${pageId} extras: ${JSON.stringify(data)}`);
         setExtras(data); // update state
       })
     }
-  }, [props.pageId, props.error, props.login, Extras, Pages]);
+  }, [Extras, pageId, setExtras]);
 
   useEffect(() => {
     if (pageData && outlineData) {
@@ -89,6 +82,8 @@ export default function Page(props) {
 
   const addPageSection = useCallback((newData) => {
     const newSectionData = [...sectionData, newData]
+    newSectionData.Created = new Date().toISOString();
+    newSectionData.Modified = new Date().toISOString();
     newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
     setSectionData(newSectionData);
   }, [sectionData, setSectionData]);
@@ -108,7 +103,8 @@ export default function Page(props) {
     for (const section of sectionData) {
       if (section.PageSectionID === newData.PageSectionID) {
         // copy the data to insure replacement
-        newSections.push({...newData});
+        // add modification timestamp so key is changed
+        newSections.push({...newData, Modified: new Date().toISOString()});
       } else {
         newSections.push(section);
       }
@@ -159,8 +155,8 @@ export default function Page(props) {
         sectionData: sectionData,
         pageExtras: extras,
         breadcrumbs: breadcrumbs,
-        login: props.login === true,
-        error: errorData,
+        login: login === true,
+        error: error,
         setPageData: setPageData,
         setSectionData: setSectionData,
         updatePageSection: updatePageSection,
@@ -184,7 +180,7 @@ export default function Page(props) {
         </FormEditor>
       )}
       <div className="Page" data-testid="Page">
-        {props.children}
+        {children}
       </div>
     </PageContext>
   );

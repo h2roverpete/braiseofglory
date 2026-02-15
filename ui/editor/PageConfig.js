@@ -11,7 +11,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
   const {Outline, outlineData, currentPage} = useSiteContext();
   const {setPageData} = usePageContext();
 
-  /** @type FormData<PageData> */
+  /** @type FormDataAPI<PageData> */
   const formData = useFormData();
 
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -98,8 +98,8 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
           size={'sm'}
           id={'PageRoute'}
           name={'PageRoute'}
-          isValid={formData?.isTouched('PageRoute') && isValidRoute(formData.edits?.PageRoute)}
-          isInvalid={formData?.isTouched('PageRoute') && !isValidRoute(formData.edits?.PageRoute)}
+          isValid={formData.isTouched('PageRoute') && isValidRoute(formData.edits?.PageRoute)}
+          isInvalid={formData.isTouched('PageRoute') && !isValidRoute(formData.edits?.PageRoute)}
           value={formData.edits?.PageRoute || ''}
           onChange={(e) => formData.onDataChanged({name: 'PageRoute', value: e.target.value})}
         />
@@ -179,7 +179,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
           size={'sm'}
           variant="secondary"
           onClick={() => formData.revert()}
-          disabled={!formData?.isDataChanged()}
+          disabled={!formData.isDataChanged()}
         >
           Revert
         </Button>

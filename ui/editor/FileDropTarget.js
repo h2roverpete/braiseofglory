@@ -1,9 +1,12 @@
 import {ProgressBar, Spinner} from "react-bootstrap";
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 
 // Lambda payload size limit
 const SIZE_LIMIT_BYTES = 1024 * 1024 * 6;
 
+/**
+ * Default MIME types.
+ */
 const IMAGE_MIME_TYPES = [
   'image/jpeg',
   'image/png',
@@ -13,10 +16,10 @@ const IMAGE_MIME_TYPES = [
 
 /**
  * Drop target component for uploading files.
- * Meant to cover an image or another valid drop area.
+ * Designed to cover an image or another valid drop area.
  *
  * Attach an onDragEnter handler to your visible drop target
- * and pass it to the onDragEnter function in the ref object.
+ * and pass the event to the onDragEnter function in the API.
  * onDragEnter() will display the component with the selected
  * prompt and track user interaction until the file is dropped,
  * or they drag away from the target.
@@ -24,11 +27,12 @@ const IMAGE_MIME_TYPES = [
  * Provide onFileSelected and/or onFilesSelected callbacks to receive
  * the drop result.
  *
- * Display a file picker by calling selectFile() in the ref object.
+ * Display a file picker by calling selectFile() in the API.
  */
 
 /**
  * @typedef ProgressData
+ *
  * @property {number} min
  * @property {number} max
  * @property {number} now
@@ -36,28 +40,51 @@ const IMAGE_MIME_TYPES = [
 
 /**
  * @typedef DropFunctions
+ *
  * @property {function()} selectFile
- * @property {function(Event)} onDragEnter
- * @property {function({DropState})} setDropState
- * @property {function({ProgressData})} setProgress
+ * @property {function(Event, String)} onDragEnter
+ * @property {function(String)} setDropState
+ * @property {function(ProgressData|void):ProgressData|void} setProgress
  */
 
 /**
- * Insert a div as a file drop target.
+ * Display UI for file drag, drop and uploading.
  *
- * @param ref {Ref<DropFunctions>}  Reference to functions
- * @param onFileSelected {function(File)} Callback to receive selected file after uploadFile() is called.
- * @param onFilesSelected  {function([File])} Callback to receive multiple selected files after uploadFile() is called.
- * @param onError  {function(Error)} Callback to receive drag and drop errors.
- * @param [mimeTypes] {[String]} List of MIME types that can be dropped. (Default is standard web image formats.)
- * @param [multiple]  {Boolean} Allow multiple file select/drop. (When true, implement both onFileSelected and onFilesSelected callbacks)
+ * @param ref {RefObject<DropFunctions>}      Reference to functions
+ * @param onFileSelected {function(File)}     Callback to receive one selected file after uploadFile() is called.
+ * @param onFilesSelected  {function(File[])} Callback to receive multiple selected files after uploadFile() is called.
+ * @param onError  {function(Error)}          Callback to receive drag and drop errors.
+ * @param [mimeTypes] {[String]}              List of MIME types that can be dropped. (Default is standard web image formats.)
+ * @param [multiple]  {Boolean}               Allow multiple file select/drop. (When true, implement both onFileSelected and onFilesSelected callbacks)
+ * @param [api] {function(DropFunctions)}     Provide a setter to receive the API.
+ *
  * @returns {JSX.Element}
  * @constructor
  */
-export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, mimeTypes, multiple}) {
+export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, mimeTypes, multiple, api}) {
 
   const [dropState, setDropState] = useState(DropState.HIDDEN);
   const [progress, setProgress] = useState({min: 0, max: 100, now: 0});
+
+  /** @type DropFunctions */
+  const dropFunctions = {
+    selectFile: selectFile,
+    onDragEnter: onDragEnter,
+    setDropState: setDropState,
+    setProgress: setProgress,
+  };
+
+  useEffect(() => {
+    // return API via setter
+    if (api) {
+      api(dropFunctions);
+    }
+  }, [api, dropFunctions]);
+
+  if (ref) {
+    // return API via RefObject
+    ref.current = dropFunctions;
+  }
 
   if (!mimeTypes) {
     mimeTypes = IMAGE_MIME_TYPES;
@@ -95,8 +122,9 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
 
   /**
    * Process a dragenter event on the trigger component.
+   *
    * @param e {DragEvent} Original drag enter event.
-   * @param [state] {DropState} State to display in UI.
+   * @param [state] {String} State to display in UI.
    */
   function onDragEnter(e, state) {
     console.log(`DropTarget onDragEnter.`);
@@ -107,6 +135,10 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
     }
   }
 
+  /**
+   * Process a dragleave event on the drop target.
+   * @param e {DragEvent} The original event.
+   */
   function onDragLeave(e) {
     console.log(`DropTarget onDragLeave.`);
     // this work because dropState is frozen at the time of drag enter
@@ -114,6 +146,10 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
     e.preventDefault();
   }
 
+  /**
+   * Process a dragleave event on the drop target.
+   * @param e {DragEvent} The original event.
+   */
   function onDragOver(e) {
     console.log(`DropTarget onDragOver.`);
     const files = filterDragItems(e.dataTransfer.items)
@@ -128,7 +164,7 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
   /**
    * Filter dragged items by MIME type.
    *
-   * @param dataTransferItems {[DataTransferItem]}
+   * @param dataTransferItems {DataTransferItemList}
    * @returns {DataTransferItem[]} A list of data transfer items
    */
   function filterDragItems(dataTransferItems) {
@@ -139,6 +175,15 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
     );
   }
 
+  /**
+   * Process a file drop on the drop target.
+   * Extracts the file data and calls
+   * onFileSelected (for a single file), or
+   * onFilesSelected (for multiple files, if enabled)
+   *
+   * @param e {DragEvent} Original drop event.
+   * @returns {Promise<void>}
+   */
   async function onDrop(e) {
     e.preventDefault();
     let items = filterDragItems(e.dataTransfer.items);
@@ -191,22 +236,21 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
 
   const fileInputRef = useRef(null);
 
-  if (ref) {
-    // callable functions
-    ref.current = {
-      selectFile: selectFile,
-      onDragEnter: onDragEnter,
-      setDropState: setDropState,
-      setProgress: setProgress,
-    }
-  }
-
+  /**
+   * Display a file select dialog for picking files.
+   */
   function selectFile() {
     fileInputRef.current.accept = mimeTypes.join(',');
     fileInputRef.current.click();
   }
 
+  /**
+   * Handle file selection(s) from the file picker dialog.
+   *
+   * @param e {Event}
+   */
   function fileSelectedHandler(e) {
+    /** @type File[] */
     const files = [...e.target.files];
     console.debug(`${files.length} file(s) selected.`);
     if (files.length === 1) {
@@ -214,7 +258,7 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
       onFileSelected?.(files[0]);
     } else {
       // multiple file select
-      onFileSelected?.(files);
+      onFilesSelected?.(files);
     }
     e.preventDefault();
   }
@@ -244,6 +288,11 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
   )
 }
 
+/**
+ * File drop states, used to display different UI.
+ *
+ * @enum {string}
+ */
 export class DropState {
   static DROP_HERE = 'drophere';
   static INSERT = 'upload';
