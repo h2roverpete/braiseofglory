@@ -7,14 +7,20 @@ import {useSiteContext} from "./Site";
 import Page from "./Page";
 import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router";
+import {useEdit} from "../editor/EditProvider";
 
 export default function PageSwiper(props) {
 
-  const {outlineData, error} = useSiteContext();
-  const [swipePages, setSwipePages] = useState([]);
+  // imports
+  const {outlineData, error, currentPage} = useSiteContext();
+  const {canEdit} = useEdit();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // states
+  const [swipePages, setSwipePages] = useState([]);
   const [swiperInstance, setSwiperInstance] = useState(null);
+  const [showCurrentPage, setShowCurrentPage] = useState(false);
 
   useEffect(() => {
     if (outlineData) {
@@ -23,25 +29,32 @@ export default function PageSwiper(props) {
   }, [outlineData, setSwipePages]);
 
   useEffect(() => {
+    setShowCurrentPage(false);
     if (swiperInstance) {
       let currentSlideIndex = -1;
       if (location.pathname === '/') {
+        // select default/home page
         currentSlideIndex = 0;
       } else {
-        swipePages?.map((page, index) => {
+        // find a swiper page to display
+        swipePages?.forEach((page, index) => {
           if (location.pathname === page.PageRoute) {
             currentSlideIndex = index;
           }
-          return page; // make eslint happy
-        })
+        });
       }
       if (currentSlideIndex !== -1 && swiperInstance.realIndex !== currentSlideIndex) {
+        // swipe to a normal page
         swiperInstance.slideTo(
           currentSlideIndex,
           Math.abs(swiperInstance.realIndex - currentSlideIndex) === 1 ? 500 : 0
         );
+      } else if (currentSlideIndex === -1 && currentPage && canEdit) {
+        // display a hidden page for editing
+        setShowCurrentPage(true);
       }
     }
+
   }, [location.pathname, swiperInstance, swipePages]);
 
   // Function to handle slide change and update the URL
@@ -52,7 +65,7 @@ export default function PageSwiper(props) {
     }
   };
 
-  return (<>{error || props.login ? (
+  return (<>{error || props.login || showCurrentPage ? (
     <Page {...props}/>
   ) : (
     <Swiper

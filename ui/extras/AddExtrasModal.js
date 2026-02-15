@@ -6,6 +6,9 @@ import {useEffect, useState} from "react";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import {useEdit} from "../editor/EditProvider";
 import {useFormData} from "../editor/FormEditor";
+import YouTubeExtraFields from "./youtube/YouTubeExtraFields";
+import InstagramExtraFields from "./instagram/InstagramExtraFields";
+import FileExtraFields from "./file/FileExtraFields";
 
 /**
  * @callback Callback
@@ -159,32 +162,19 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
           });
         }
         break;
-      case 'instagram':
-        console.debug(`Adding Instagram extra.`);
-        Extras.insertOrUpdateExtra({
-          ExtraType: formData.edits.ExtraType,
-          SiteID: siteData.SiteID,
-          PageID: pageData.PageID,
-          PageSectionID: pageSectionId,
-          InstagramHandle: formData.edits.InstagramHandle
-        }).then((extra) => {
-          console.debug(`Extra added.`);
-          onExtraAdded(extra);
-        }).catch((err) => console.error(`Error adding instagram.`, err));
-        break;
       case 'file':
-        console.debug(`Adding File extra.`);
+      case 'instagram':
+      case 'youtube':
+        console.debug(`Adding extra.`);
         Extras.insertOrUpdateExtra({
-          ExtraType: formData.edits.ExtraType,
+          ...formData.edits,
           SiteID: siteData.SiteID,
           PageID: pageData.PageID,
           PageSectionID: pageSectionId,
-          ExtraFile: formData.edits.ExtraFile,
-          ExtraFilePrompt: formData.edits.ExtraFilePrompt,
         }).then((extra) => {
           console.debug(`Extra added.`);
           onExtraAdded(extra);
-        }).catch((err) => console.error(`Error adding file.`, err));
+        }).catch((err) => console.error(`Error adding extra.`, err));
         break;
       default:
         console.error(`Unsupported extra type ${formData.edits.ExtraType}`)
@@ -213,6 +203,8 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
         return ((!formData.edits.GalleryID && formData.edits.GalleryName?.length > 0) || formData.edits.GalleryID > 0);
       case 'instagram':
         return isValidInstagramHandle(formData.edits.InstagramHandle);
+      case 'youtube':
+        return isValidYouTubeUrl(formData.edits.YouTubeVideoUrl);
       case 'file':
         return formData.edits.ExtraFile !== null
       default:
@@ -222,6 +214,10 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
 
   function isValidInstagramHandle(value) {
     return value && /^@[a-zA-Z0-9\-.]+$/.test(value);
+  }
+
+  function isValidYouTubeUrl(url) {
+    return /^https:\/\/www.youtube.com\/watch\?v=/.test(url);
   }
 
   function onCancel() {
@@ -255,6 +251,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
               <option value='gallery'>Photo Gallery</option>
               <option value='guestbook'>Guest Book</option>
               <option value='instagram'>Instagram Gallery</option>
+              <option value='youtube'>YouTube Video</option>
               <option value='file'>File</option>
             </Form.Select>
           </Col>
@@ -410,70 +407,14 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
           )}
         </>)}
         {formData.edits.ExtraType === 'instagram' && (
-          <Row className="mt-2">
-            <Form.Label
-              className='required'
-              column={'sm'}
-              htmlFor={'InstagramHandle'}
-              sm={labelCols}
-            >
-              Instagram Handle
-            </Form.Label>
-            <Col>
-              <Form.Control
-                id="InstagramHandle"
-                name="InstagramHandle"
-                size="sm"
-                placeholder="@myhandle"
-                isValid={formData.edits.InstagramHandle && isValidInstagramHandle(formData.edits.InstagramHandle)}
-                isInvalid={formData.edits.InstagramHandle && !isValidInstagramHandle(formData.edits.InstagramHandle)}
-                onChange={(e) => formData.onDataChanged({name: 'InstagramHandle', value: e.target.value})}
-                value={formData.edits.InstagramHandle || ''}
-              />
-            </Col>
-          </Row>
+          <InstagramExtraFields />
         )}
-        {formData.edits.ExtraType === 'file' && (<>
-          <Row className="mt-2">
-            <Form.Label
-              className='required'
-              column={'sm'}
-              htmlFor={'ExtraFile'}
-              sm={labelCols}
-            >
-              File to Upload
-            </Form.Label>
-            <Col>
-              <Form.Control
-                type="file"
-                id="ExtraFile"
-                name="ExtraFile"
-                size="sm"
-                onChange={(e) => formData.onDataChanged({name: 'ExtraFile', value: e.target.files[0]})}
-              />
-            </Col>
-          </Row>
-          <Row
-            className="mt-2"
-            hidden={!formData.edits.ExtraFile || formData.edits.ExtraFile.type?.startsWith('text/')}
-          >
-            <Form.Label
-              column={'sm'}
-              htmlFor={'ExtraFile'}
-              sm={labelCols}
-            >
-              Prompt for Links
-            </Form.Label>
-            <Col>
-              <Form.Control
-                id="ExtraFilePrompt"
-                name="ExtraFilePrompt"
-                size="sm"
-                onChange={(e) => formData.onDataChanged({name: 'ExtraFilePrompt', value: e.target.value})}
-              />
-            </Col>
-          </Row>
-        </>)}
+        {formData.edits.ExtraType === 'youtube' && (
+          <YouTubeExtraFields/>
+        )}
+        {formData.edits.ExtraType === 'file' && (
+          <FileExtraFields/>
+        )}
       </Modal.Body>
       <Modal.Footer>
         <Button size="sm" variant="secondary" onClick={onCancel}>Cancel</Button>

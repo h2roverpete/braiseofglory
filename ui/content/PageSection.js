@@ -347,7 +347,7 @@ export default function PageSection({pageSectionData}) {
             || pageSectionData.SectionText
           }
         >
-          (Empty)
+          (No Content)
         </div>
         <EditableField
           field={sectionTitle}

@@ -262,11 +262,6 @@ export default function Gallery({galleryId, extraId}) {
           />
           <div
             className="EditGalleryPhoto Editor dropdown"
-            style={{
-              position: 'absolute',
-              top: 0,
-              right: '5px',
-            }}
             hidden={supportsHover}
             ref={buttonRef}
           >

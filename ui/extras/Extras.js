@@ -1,9 +1,11 @@
 import GuestBook from "../guestbook/GuestBook";
 import Gallery from "../gallery/Gallery";
 import React, {useEffect, useState} from 'react'
-import Instagram from "../instagram/Instagram";
-import FileExtra from "./FileExtra";
+import FileExtra from "./file/FileExtra";
 import {usePageContext} from "../content/Page";
+import YouTubeExtra from "./youtube/YouTubeExtra";
+import {Row} from "react-bootstrap";
+import InstagramExtra from "./instagram/InstagramExtra";
 
 /**
  * Display any extras.
@@ -25,7 +27,7 @@ export default function Extras({pageSectionId}) {
     }
   },[pageSectionId, pageExtras, setExtras]);
 
-  return (<>
+  return (<Row>
     {extras.map((extra) => (<React.Fragment key={extra.ExtraID}>
       {extra.ExtraType === 'guestbook' && (
         <GuestBook guestBookId={extra.GuestBookID} extraId={extra.ExtraID}/>
@@ -34,11 +36,14 @@ export default function Extras({pageSectionId}) {
         <Gallery galleryId={extra.GalleryID} extraId={extra.ExtraID}/>
       )}
       {extra.ExtraType === 'instagram' && (
-        <Instagram extraData={extra}/>
+        <InstagramExtra extraData={extra}/>
       )}
       {extra.ExtraType === 'file' && (
         <FileExtra extraData={extra}/>
       )}
+      {extra.ExtraType === 'youtube' && (
+        <YouTubeExtra extraData={extra}/>
+      )}
     </React.Fragment>))}
-  </>)
+  </Row>)
 }

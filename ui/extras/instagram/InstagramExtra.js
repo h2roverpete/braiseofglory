@@ -1,9 +1,9 @@
 import {InstagramEmbed} from "react-social-media-embed";
-import InstagramConfig from "./InstagramConfig";
-import FormEditor from "../editor/FormEditor";
+import InstagramExtraConfig from "./InstagramExtraConfig";
+import FormEditor from "../../editor/FormEditor";
 import {useEffect, useRef, useState} from "react";
-import {useTouchContext} from "../../util/TouchProvider";
-import {useEdit} from "../editor/EditProvider";
+import {useTouchContext} from "../../../util/TouchProvider";
+import {useEdit} from "../../editor/EditProvider";
 
 /**
  * Embed an Instagram feed.
@@ -12,7 +12,7 @@ import {useEdit} from "../editor/EditProvider";
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Instagram({extraData}) {
+export default function InstagramExtra({extraData}) {
 
   const [data, setData] = useState(null);
   const buttonRef = useRef(null);
@@ -40,7 +40,7 @@ export default function Instagram({extraData}) {
       )}
       {canEdit && (
         <FormEditor>
-          <InstagramConfig extraData={data} setExtraData={setData} buttonRef={buttonRef}/>
+          <InstagramExtraConfig extraData={data} setExtraData={setData} buttonRef={buttonRef}/>
         </FormEditor>
       )}
     </div>

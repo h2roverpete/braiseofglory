@@ -1,17 +1,17 @@
-import {useEdit} from "../editor/EditProvider";
-import {useRestApi} from "../../api/RestApi";
-import {usePageContext} from "../content/Page";
-import {Col, Row, Form} from "react-bootstrap";
-import EditorPanel from "../editor/EditorPanel";
-import {useFormData} from "../editor/FormEditor";
+import {useEdit} from "../../editor/EditProvider";
+import {useRestApi} from "../../../api/RestApi";
+import {usePageContext} from "../../content/Page";
+import EditorPanel from "../../editor/EditorPanel";
+import {useFormData} from "../../editor/FormEditor";
 import {useEffect} from "react";
+import InstagramExtraFields from "./InstagramExtraFields";
 
-export default function InstagramConfig({extraData, setExtraData, buttonRef}) {
+export default function InstagramExtraConfig({extraData, setExtraData, buttonRef}) {
 
   const {canEdit} = useEdit();
   const {Extras} = useRestApi();
   const {removeExtraFromPage} = usePageContext();
-  
+
   /** @type FormDataAPI<ExtraData> */
   const formData = useFormData();
 
@@ -54,23 +54,8 @@ export default function InstagramConfig({extraData, setExtraData, buttonRef}) {
       buttonRef={buttonRef}
       isDataValid={() => isValidInstagramHandle(formData.edits?.InstagramHandle)}
     >
-      <h5>Instagram Properties</h5>
-      <Row>
-        <Form.Label
-          column={'sm'}
-          sm={labelCols}
-          htmlFor={'GalleryName'}>Instagram Handle</Form.Label>
-        <Col>
-          <Form.Control
-            size={'sm'}
-            id={'GalleryName'}
-            isValid={formData.isTouched('InstagramHandle') && isValidInstagramHandle(formData.edits?.InstagramHandle)}
-            isInvalid={formData.isTouched('InstagramHandle') && !isValidInstagramHandle(formData.edits?.InstagramHandle)}
-            value={formData.edits?.InstagramHandle || ''}
-            onChange={(e) => formData.onDataChanged({name: 'InstagramHandle', value: e.target.value})}
-          />
-        </Col>
-      </Row>
+      <h5>Instagram</h5>
+      <InstagramExtraFields/>
     </EditorPanel>
   )
 }
