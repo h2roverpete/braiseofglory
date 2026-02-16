@@ -3,24 +3,19 @@ import React, {Fragment, useEffect} from "react";
 import {usePageContext} from "./Page";
 import Login from "../../auth/Login";
 import {useEdit} from "../editor/EditProvider";
-import {useSiteContext} from "./Site";
 
 /**
- * @typedef PageSectionProps
- * @property {[JSX.Element]} children
- */
-/**
- * Element to show page content
+ * Element to show all the sections on a page
  *
  * A <div> element with class names "content container"
  *
  * @param props {PageSectionProps}
  * @constructor
  */
-export default function PageSections(props) {
-  const {pageData, sectionData, login, error} = usePageContext();
-
+export default function PageSections({children}) {
+  const {sectionData, login, error} = usePageContext();
   const {canEdit} = useEdit();
+
   useEffect(() => {
     if (canEdit) {
       // attach drag and drop related window scripts
@@ -41,13 +36,13 @@ export default function PageSections(props) {
       {login ? (<>
         <Login/>
       </>) : (<>
-        {pageData && sectionData && (<>
+        {sectionData && (<>
           {sectionData.map(section => (<Fragment key={section.PageSectionID + "_" + section.Modified}>
             <PageSection
               pageSectionData={section}
               data-testid={`PageSection-section.PageSectionID`}/>
           </Fragment>))}
-          {props.children}
+          {children}
         </>)}
       </>)}
     </>)}

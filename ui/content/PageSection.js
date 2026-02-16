@@ -42,8 +42,7 @@ export default function PageSection({pageSectionData}) {
   const [textApi, setTextApi] = useState(null);
 
   // refs
-  /** @type RefObject */
-  const dropRef = useRef(null);
+  const dropRef = useRef(/** @type {DropFunctions} */ null);
   const sectionTitleRef = useRef(null);
   const sectionTextRef = useRef(null);
   const sectionImageRef = useRef(null);
@@ -69,7 +68,7 @@ export default function PageSection({pageSectionData}) {
     pageSectionData.SectionText = textContent;
     pageSectionData.TextAlign = textAlign;
     PageSections.insertOrUpdatePageSection(pageSectionData)
-      .then(() => console.debug(`Updated section text.`))
+      .then(() => console.debug(`Section text updated.`))
       .catch(error => showErrorAlert(`Error updating section text.`, error));
     editButtonRef.current.hidden = false;
     setEditing(false);
@@ -441,7 +440,7 @@ export default function PageSection({pageSectionData}) {
           </ModalFooter>
         </Modal>
       </div>
-      <Extras pageSectionId={pageSectionData.PageSectionID} />
+      <Extras extras={pageSectionData.Extras} />
     </>);
   }
 }

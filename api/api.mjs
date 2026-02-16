@@ -99,6 +99,8 @@ import axios from "axios";
  * @property {Boolean} DontMash
  * @property {String} Created
  * @property {String} Modified
+ *
+ * @property {[ExtraData]} Extras
  */
 
 /**

@@ -61,20 +61,23 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
 
   // load guest book configuration when initialized
   useEffect(() => {
-    if (guestBookId) {
+    if (!guestBookConfig && guestBookId) {
+      console.debug(`Loading guest book configuration...`)
       GuestBooks.getGuestBook(guestBookId).then(data => {
         if (!data.LabelCols) {
           data.LabelCols = 2;
         }
+        console.debug(`Guest book configuration loaded.`);
         setGuestBookConfig(data);
       }).catch(error => {
         console.error(`Error loading guest book: ${error}`);
       });
     }
-  }, [GuestBooks, guestBookId, GuestBooks.getGuestBook]);
+  }, [GuestBooks, guestBookId, guestBookConfig]);
 
   useEffect(() => {
-    if (guestId) {
+    if (!guestData && guestId) {
+      console.debug(`Loading guest data...`);
       GuestBooks.getGuest(guestId).then(data => {
         setGuestData(prevData => {
           return {
@@ -82,14 +85,16 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
             ...data
           }
         });
+        console.debug(`Guest data loaded.`)
       }).catch(error => {
         console.error(`Error getting guest data: ${error}`);
       });
     }
-  }, [GuestBooks, guestId, guestBookId, GuestBooks.getGuest])
+  }, [GuestBooks, guestId, guestBookId, guestData])
 
   useEffect(() => {
-    if (guestFeedbackId) {
+    if (!guestFeedbackData && guestFeedbackId) {
+      console.debug(`Loading guest feedback...`);
       GuestBooks.getGuestFeedback(guestFeedbackId).then(data => {
         setGuestFeedbackData(prevData => {
           return {
@@ -97,11 +102,12 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
             ...data
           }
         });
+        console.debug(`Guest feedback loaded.`)
       }).catch(error => {
-        console.error(`Error getting feedback data: ${error}`);
+        console.error(`Error getting feedback: ${error}`);
       });
     }
-  }, [GuestBooks, guestFeedbackId, GuestBooks.getGuestFeedback])
+  }, [GuestBooks, guestFeedbackId, guestFeedbackData])
 
   /**
    * Handle changes in response to data entry.

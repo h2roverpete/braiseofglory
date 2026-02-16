@@ -11,7 +11,7 @@ const NewPageModal = lazy(() => import("../editor/NewPageModal"));
 /**
  * Dropdown menu for adding a new page or page section.
  *
- * @param {RefObject<HTMLButtonElement>} [editButtonRef]  Receive a reference to the dropdown button.
+ * @param {RefObject<HTMLDivElement>} [editButtonRef]  Receive a reference to the dropdown button div.
  *
  * @returns {Element}
  * @constructor

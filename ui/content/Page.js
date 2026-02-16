@@ -27,60 +27,57 @@ export default function Page({children, pageId, error, login}) {
 
   // imports
   const {canEdit} = useEdit();
-  const {outlineData} = useSiteContext();
+  const {outlineData, buildBreadcrumbs} = useSiteContext();
   const {Pages, Extras} = useRestApi();
 
   // states
-  const [breadcrumbs, setBreadcrumbs] = useState(null);
-  const [pageData, setPageData] = useState(null);
-  const [sectionData, setSectionData] = useState(null);
+  const [breadcrumbs, setBreadcrumbs] = useState(/** @type {OutlineData[]} */ null);
+  const [pageData, setPageData] = useState(/** @type {PageData} */null);
+  const [sectionData, setSectionData] = useState(/** @type {PageSectionData[]} */ null);
   const [showAddExtraModal, setShowAddExtraModal] = useState(false);
   const [extraPageSectionId, setExtraPageSectionId] = useState(0);
-  const [extras, setExtras] = useState([]);
 
   useEffect(() => {
-    if (pageId && outlineData) {
-      if (outlineData) {
-        for (const page of outlineData) {
-          if (page.PageID === pageId) {
-            setPageData(page);
-            console.debug(`Loaded page ${pageId} data.`);
-            break;
-          }
+    // extract this page from outline data, don't load from DynamoDB
+    if (!pageData && pageId && outlineData) {
+      for (const page of outlineData) {
+        if (page.PageID === pageId) {
+          setPageData(page);
+          console.debug(`Loaded page ${pageId} data.`);
+          break;
         }
       }
     }
-  }, [pageId, outlineData]);
+  }, [pageId, outlineData, pageData]);
 
   useEffect(() => {
-    // load page sections
-    Pages.getPageSections(pageId).then((data) => {
-      console.debug(`Loaded page ${pageId} sections.`);
-      setSectionData(data); // update state
-    })
-
-  }, [pageId, Pages]);
-
-  useEffect(() => {
-    if (extras.length === 0) {
-      // load extras
-      Extras.getPageExtras(pageId).then((data) => {
-        console.debug(`Loaded page ${pageId} extras: ${JSON.stringify(data)}`);
-        setExtras(data); // update state
+    // load page sections from DynamoDB
+    if (!sectionData && pageId) {
+      Pages.getPageSections(pageId).then((sections) => {
+        console.debug(`Loaded page ${pageId} sections.`);
+        Extras.getPageExtras(pageId).then((extras) => {
+          console.debug(`Loaded page ${pageId} extras.`);
+          sections.forEach((section) => {
+            section.Extras = extras.filter((extra) => extra.PageSectionID === section.PageSectionID);
+          })
+          setSectionData(sections); // update state
+        })
       })
     }
-  }, [Extras, pageId, setExtras, extras.length]);
+  }, [pageId, Pages, sectionData, Extras]);
 
   useEffect(() => {
-    if (pageData && outlineData) {
+    // build breadcrumbs at the page level for slider pages
+    if (!breadcrumbs && pageData && outlineData) {
       // build breadcrumb data
-      setBreadcrumbs(buildBreadcrumbs(outlineData, pageData.ParentID)); // update state
+      setBreadcrumbs(buildBreadcrumbs(outlineData, pageData.ParentID));
     } else {
       setBreadcrumbs([]);
     }
-  }, [pageData, outlineData])
+  }, [pageData, outlineData, breadcrumbs, buildBreadcrumbs]);
 
   const addPageSection = useCallback((newData) => {
+    /** @type {PageSectionData[]} */
     const newSectionData = [...sectionData, newData]
     newSectionData.Created = new Date().toISOString();
     newSectionData.Modified = new Date().toISOString();
@@ -113,34 +110,32 @@ export default function Page({children, pageId, error, login}) {
     setSectionData(newSections);
   }, [sectionData, setSectionData]);
 
-  const addExtraToPage = useCallback((data) => {
-    setExtras([
-      ...extras,
-      data
-    ]);
-  }, [extras, setExtras]);
+  const addExtraToPage = useCallback((extra) => {
+    sectionData.forEach(section => {
+      if (section.PageSectionID === extra.PageSectionID) {
+        section.Extras.push(extra);
+      }
+    })
+    setSectionData([...sectionData]);
+  }, [setSectionData, sectionData]);
 
   const removeExtraFromPage = useCallback((extraId) => {
-    const newExtras = [];
-    for (const extra of extras) {
-      if (extra.ExtraID !== extraId) {
-        newExtras.push(extra);
-      }
-    }
-    setExtras(newExtras);
-  }, [extras, setExtras]);
+    sectionData.forEach(section => {
+      section.Extras.filter((extra) => extra.ExtraID !== extraId);
+    })
+    setSectionData([...sectionData]);
+  }, [sectionData, setSectionData]);
 
-  const updateExtra = useCallback((data) => {
-    const newExtras = [];
-    for (const extra of extras) {
-      if (extra.ExtraID === data.ExtraID) {
-        newExtras.push(data);
-      } else {
-        newExtras.push(extra);
-      }
-    }
-    setExtras(newExtras);
-  }, [extras, setExtras]);
+  const updateExtra = useCallback((newExtra) => {
+    sectionData.forEach(section => {
+      section.Extras.forEach((extra, index) => {
+        if (extra.ExtraID === newExtra.ExtraID) {
+          section.Extras[index]=({...newExtra});
+        }
+      })
+    })
+    setSectionData([...sectionData]);
+  }, [sectionData, setSectionData]);
 
   const addExtraModal = useCallback(({pageSectionId}) => {
     setShowAddExtraModal(true);
@@ -153,7 +148,6 @@ export default function Page({children, pageId, error, login}) {
       value={{
         pageData: pageData,
         sectionData: sectionData,
-        pageExtras: extras,
         breadcrumbs: breadcrumbs,
         login: login === true,
         error: error,
@@ -184,25 +178,6 @@ export default function Page({children, pageId, error, login}) {
       </div>
     </PageContext>
   );
-}
-
-/**
- * Build breadcrumb array from site outline.
- *
- * @param outlineData {[OutlineData]}
- * @param parentId {number}
- */
-function buildBreadcrumbs(outlineData, parentId) {
-  const breadcrumbs = [];
-  if (outlineData && parentId) {
-    for (let i = outlineData.length - 1; i >= 0; i--) {
-      if (outlineData[i].PageID === parentId) {
-        breadcrumbs.push(outlineData[i]);
-        parentId = outlineData[i].ParentID;
-      }
-    }
-  }
-  return breadcrumbs.reverse();
 }
 
 export function usePageContext() {

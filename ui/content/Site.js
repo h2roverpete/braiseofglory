@@ -46,13 +46,16 @@ export default function Site(props) {
 
   // states
   const [siteData, setSiteData] = useState(null);
-  const [outlineData, setOutlineData] = useState(null);
+  const [outlineData, setOutlineData] = useState(/** @type {[OutlineData]|null} */ null);
   const [error, __setError__] = useState(null); // use public setter, not __setError__
   const [alert, setAlert] = useState('');
   const [currentPage, setCurrentPage] = useState(null);
   const [prevPage, setPrevPage] = useState(null);
   const [nextPage, setNextPage] = useState(null);
   const [breadcrumbs, setBreadcrumbs] = useState([]);
+
+  const params = new URLSearchParams(window.location.search);
+  let cfmPageId = parseInt(params.get('pageid'));
 
   useEffect(() => {
     // get current page and breadcrumbs from new pathname
@@ -61,7 +64,7 @@ export default function Site(props) {
         setCurrentPage(outlineData[0]);
       } else {
         for (const page of outlineData) {
-          if (page.PageRoute === location.pathname) {
+          if (page.PageRoute === location.pathname || page.PageID === cfmPageId) {
             setCurrentPage(page);
             const crumbs = buildBreadcrumbs(outlineData, page.ParentID);
             setBreadcrumbs(crumbs);
@@ -70,7 +73,7 @@ export default function Site(props) {
         }
       }
     }
-  }, [location.pathname, outlineData, setCurrentPage]);
+  }, [location.pathname, outlineData, setCurrentPage, cfmPageId]);
 
   useEffect(() => {
     // Google Analytics, if provided.
@@ -198,8 +201,6 @@ export default function Site(props) {
     }
   }, [outlineData, currentPage]);
 
-  const params = new URLSearchParams(window.location.search);
-  let cfmPageId = parseInt(params.get('pageid'));
 
   /**
    * Refresh a page in the site outline.
@@ -403,6 +404,7 @@ export default function Site(props) {
     prevPage: prevPage,
     nextPage: nextPage,
     breadcrumbs: breadcrumbs,
+    buildBreadcrumbs: buildBreadcrumbs,
   };
 
   if (canEdit) {
@@ -441,7 +443,7 @@ export function useSiteContext() {
  * @param pages {[OutlineData]}   Array of page data (arbitrary sort order)
  * @param [parentId] {number}     Parent page ID.
  * @param [level] {number}        Level number, also a trigger to recurse through all children.
- * @param [parent] {OutlineData}  Parent's sort string
+ * @param [parent] {*&{HasChildren: boolean, OutlineLevel: number, OutlineSort: string}}  Parent data.
  * @returns {[OutlineData]}       Outline built from page data
  */
 function buildOutline(pages, parentId, level, parent) {

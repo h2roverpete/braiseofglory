@@ -1,8 +1,7 @@
 import GuestBook from "../guestbook/GuestBook";
 import Gallery from "../gallery/Gallery";
-import React, {useEffect, useState} from 'react'
+import React from "react";
 import FileExtra from "./file/FileExtra";
-import {usePageContext} from "../content/Page";
 import YouTubeExtra from "./youtube/YouTubeExtra";
 import {Row} from "react-bootstrap";
 import InstagramExtra from "./instagram/InstagramExtra";
@@ -10,25 +9,13 @@ import InstagramExtra from "./instagram/InstagramExtra";
 /**
  * Display any extras.
  *
- * @property {number} pageSectionId
+ * @param {[ExtraData]} extras
  *
  * @constructor
  */
-export default function Extras({pageSectionId}) {
-
-  const {pageExtras} = usePageContext();
-  const [extras, setExtras] = useState([]);
-  useEffect(() => {
-    // manage extras
-    if (pageExtras && pageSectionId) {
-      const list = pageExtras.filter((extra) => extra.PageSectionID === pageSectionId);
-      setExtras(list);
-      console.debug(`Updated extras for section ${pageSectionId}.`);
-    }
-  },[pageSectionId, pageExtras, setExtras]);
-
+export default function Extras({extras}) {
   return (<Row>
-    {extras.map((extra) => (<React.Fragment key={extra.ExtraID}>
+    {extras?.map((extra) => (<React.Fragment key={extra.ExtraID}>
       {extra.ExtraType === 'guestbook' && (
         <GuestBook guestBookId={extra.GuestBookID} extraId={extra.ExtraID}/>
       )}

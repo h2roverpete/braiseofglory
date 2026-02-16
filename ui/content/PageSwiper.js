@@ -18,7 +18,7 @@ export default function PageSwiper(props) {
   const location = useLocation();
 
   // states
-  const [swipePages, setSwipePages] = useState([]);
+  const [swipePages, setSwipePages] = useState(/** @type {OutlineData[]} */ []);
   const [swiperInstance, setSwiperInstance] = useState(null);
   const [showCurrentPage, setShowCurrentPage] = useState(false);
 
@@ -30,19 +30,14 @@ export default function PageSwiper(props) {
 
   useEffect(() => {
     setShowCurrentPage(false);
-    if (swiperInstance) {
+    if (swiperInstance && currentPage) {
       let currentSlideIndex = -1;
-      if (location.pathname === '/') {
-        // select default/home page
-        currentSlideIndex = 0;
-      } else {
-        // find a swiper page to display
-        swipePages?.forEach((page, index) => {
-          if (location.pathname === page.PageRoute) {
-            currentSlideIndex = index;
-          }
-        });
-      }
+      // find a swiper page to display
+      swipePages?.forEach((page, index) => {
+        if (currentPage.PageID === page.PageID) {
+          currentSlideIndex = index;
+        }
+      });
       if (currentSlideIndex !== -1 && swiperInstance.realIndex !== currentSlideIndex) {
         // swipe to a normal page
         swiperInstance.slideTo(
@@ -54,8 +49,7 @@ export default function PageSwiper(props) {
         setShowCurrentPage(true);
       }
     }
-
-  }, [location.pathname, swiperInstance, swipePages]);
+  }, [currentPage, swiperInstance, swipePages, canEdit]);
 
   // Function to handle slide change and update the URL
   const onSlideChange = (swiper) => {
@@ -78,11 +72,13 @@ export default function PageSwiper(props) {
       }}
       virtual
     >
-      {swipePages?.map((page, index) =>
-        <SwiperSlide key={page.PageID} virtualIndex={index}>
-          <Page {...props} pageId={page.PageID}/>
-        </SwiperSlide>
-      )}
+      <>
+        {swipePages?.map((page, index) =>
+          <SwiperSlide key={page.PageID} virtualIndex={index}>
+            <Page {...props} pageId={page.PageID}/>
+          </SwiperSlide>
+        )}
+      </>
     </Swiper>
   )}</>);
 }

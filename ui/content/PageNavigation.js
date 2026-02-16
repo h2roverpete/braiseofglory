@@ -1,6 +1,12 @@
 import {Link} from "react-router";
 import {useSiteContext} from "./Site";
 
+/**
+ * Display next/previous page navigation elements.
+ *
+ * @returns {JSX.Element}
+ * @constructor
+ */
 export default function PageNavigation() {
 
   const {nextPage, prevPage} = useSiteContext();
