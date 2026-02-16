@@ -311,7 +311,7 @@ export default function PageSection({pageSectionData}) {
         {sectionTitle}
         <PageSectionImage pageSectionData={pageSectionData}/>
         {sectionText}
-        <Extras pageSectionId={pageSectionData.PageSectionID}/>
+        <Extras extras={pageSectionData.Extras}/>
       </div>
     );
   } else {
