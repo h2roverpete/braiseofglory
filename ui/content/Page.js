@@ -69,7 +69,7 @@ export default function Page({children, pageId, error, login}) {
         setExtras(data); // update state
       })
     }
-  }, [Extras, pageId, setExtras]);
+  }, [Extras, pageId, setExtras, extras.length]);
 
   useEffect(() => {
     if (pageData && outlineData) {

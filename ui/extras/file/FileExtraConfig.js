@@ -1,4 +1,3 @@
-import {Col, Form, Row} from "react-bootstrap";
 import EditorPanel from "../../editor/EditorPanel";
 import {useEdit} from "../../editor/EditProvider";
 import {useRestApi} from "../../../api/RestApi";

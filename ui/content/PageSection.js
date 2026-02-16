@@ -97,7 +97,7 @@ export default function PageSection({pageSectionData}) {
         sectionImageRef.current.ondragenter = undefined;
       }
     }
-  }, [sectionImageRef, pageSectionData, dropRef.current])
+  }, [sectionImageRef, pageSectionData])
 
   const onUploadFile = useCallback((file) => {
     // upload a file that has been dropped, selected from a file dialog
@@ -113,7 +113,7 @@ export default function PageSection({pageSectionData}) {
         showErrorAlert(`Error uploading image.`, e);
         dropRef.current.setDropState(DropState.HIDDEN);
       });
-  }, [dropRef.current, PageSections, pageSectionData, updatePageSection, showErrorAlert]);
+  }, [PageSections, pageSectionData, updatePageSection, showErrorAlert]);
 
   const sectionTitle = useMemo(() => (
     <h2

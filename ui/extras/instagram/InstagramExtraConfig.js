@@ -46,7 +46,6 @@ export default function InstagramExtraConfig({extraData, setExtraData, buttonRef
     }).catch((e) => console.error(`Error deleting extra.`, e));
   }
 
-  const labelCols = 3;
   return (
     <EditorPanel
       onDelete={onDelete}
