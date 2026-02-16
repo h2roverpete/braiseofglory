@@ -63,16 +63,6 @@ export default function EditableField(
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [hideEditButtons, setHideEditButtons] = useState(supportsHover);
 
-  useEffect(() => {
-    if (api) {
-      // return editable API
-      api({
-        isEditing: isEditing,
-        startEditing: startEditing,
-      })
-    }
-  },[api, setEditing])
-
   const isChanged = useCallback(() => {
     return fieldRef.current.innerHTML !== originalContent || fieldRef.current.style.textAlign !== originalAlign;
   }, [fieldRef, originalContent, originalAlign]);
@@ -98,6 +88,17 @@ export default function EditableField(
     // defer focus until field is visible
     setTimeout(() => fieldRef.current.focus(), 10);
   }, [fieldRef]);
+
+  useEffect(() => {
+    if (api) {
+      // return editable API
+      api({
+        isEditing: isEditing,
+        startEditing: startEditing,
+      })
+    }
+  }, [api, setEditing, isEditing, startEditing])
+
 
   const cancelEditing = useCallback(() => {
 

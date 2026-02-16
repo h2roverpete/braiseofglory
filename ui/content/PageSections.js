@@ -53,15 +53,3 @@ export default function PageSections(props) {
     </>)}
     </>)
 }
-
-function hash(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    // Equivalent to `hash * 31 + char`, optimized with bitwise shift operations
-    hash = (hash << 5) - hash + char;
-    // Convert to a 32-bit integer
-    hash |= 0;
-  }
-  return hash;
-}

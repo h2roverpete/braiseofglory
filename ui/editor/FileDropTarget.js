@@ -1,5 +1,5 @@
 import {ProgressBar, Spinner} from "react-bootstrap";
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 
 // Lambda payload size limit
 const SIZE_LIMIT_BYTES = 1024 * 1024 * 6;
@@ -66,26 +66,6 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
   const [dropState, setDropState] = useState(DropState.HIDDEN);
   const [progress, setProgress] = useState({min: 0, max: 100, now: 0});
 
-  /** @type DropFunctions */
-  const dropFunctions = {
-    selectFile: selectFile,
-    onDragEnter: onDragEnter,
-    setDropState: setDropState,
-    setProgress: setProgress,
-  };
-
-  useEffect(() => {
-    // return API via setter
-    if (api) {
-      api(dropFunctions);
-    }
-  }, [api, dropFunctions]);
-
-  if (ref) {
-    // return API via RefObject
-    ref.current = dropFunctions;
-  }
-
   if (!mimeTypes) {
     mimeTypes = IMAGE_MIME_TYPES;
   }
@@ -121,19 +101,33 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
   }
 
   /**
+   * Filter dragged items by MIME type.
+   *
+   * @param dataTransferItems {DataTransferItemList}
+   * @returns {DataTransferItem[]} A list of data transfer items
+   */
+  const filterDragItems = useCallback((dataTransferItems) => {
+    return [...dataTransferItems].filter(
+      (item) => {
+        return mimeTypes.includes(item.type)
+      },
+    );
+  }, [mimeTypes]);
+
+  /**
    * Process a dragenter event on the trigger component.
    *
    * @param e {DragEvent} Original drag enter event.
    * @param [state] {String} State to display in UI.
    */
-  function onDragEnter(e, state) {
+  const onDragEnter = useCallback((e, state) => {
     console.log(`DropTarget onDragEnter.`);
     const files = filterDragItems(e.dataTransfer.items)
     if ((multiple === true && files.length > 0) || (!multiple && files.length === 1)) {
       setDropState(state ? state : DropState.ADD);
       e.preventDefault();
     }
-  }
+  }, [filterDragItems, setDropState, multiple]);
 
   /**
    * Process a dragleave event on the drop target.
@@ -159,20 +153,6 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
     } else {
       e.dataTransfer.dropEffect = "none"
     }
-  }
-
-  /**
-   * Filter dragged items by MIME type.
-   *
-   * @param dataTransferItems {DataTransferItemList}
-   * @returns {DataTransferItem[]} A list of data transfer items
-   */
-  function filterDragItems(dataTransferItems) {
-    return [...dataTransferItems].filter(
-      (item) => {
-        return mimeTypes.includes(item.type)
-      },
-    );
   }
 
   /**
@@ -239,10 +219,10 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
   /**
    * Display a file select dialog for picking files.
    */
-  function selectFile() {
+  const selectFile = useCallback(() => {
     fileInputRef.current.accept = mimeTypes.join(',');
     fileInputRef.current.click();
-  }
+  },[fileInputRef, mimeTypes]);
 
   /**
    * Handle file selection(s) from the file picker dialog.
@@ -263,6 +243,27 @@ export function FileDropTarget({ref, onFileSelected, onFilesSelected, onError, m
     e.preventDefault();
   }
 
+  /** @type DropFunctions */
+  const dropFunctions = useMemo(() => {
+    return {
+      selectFile: selectFile,
+      onDragEnter: onDragEnter,
+      setDropState: setDropState,
+      setProgress: setProgress,
+    }
+  }, [onDragEnter, selectFile]);
+
+  useEffect(() => {
+    // return API via setter
+    if (api) {
+      api(dropFunctions);
+    }
+  }, [api, dropFunctions]);
+
+  if (ref) {
+    // return API via RefObject
+    ref.current = dropFunctions;
+  }
   return (
     <div
       className={`DropFile Editor ${dropState}`}
