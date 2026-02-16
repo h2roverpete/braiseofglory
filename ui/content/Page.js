@@ -71,8 +71,6 @@ export default function Page({children, pageId, error, login}) {
     if (!breadcrumbs && pageData && outlineData) {
       // build breadcrumb data
       setBreadcrumbs(buildBreadcrumbs(outlineData, pageData.ParentID));
-    } else {
-      setBreadcrumbs([]);
     }
   }, [pageData, outlineData, breadcrumbs, buildBreadcrumbs]);
 
