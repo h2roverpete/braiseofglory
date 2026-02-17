@@ -60,14 +60,17 @@ export default function Site(props) {
   useEffect(() => {
     // get current page and breadcrumbs from new pathname
     if (outlineData) {
+      console.debug(`Update current page.`);
       if (location.pathname === '/') {
         setCurrentPage(outlineData[0]);
+        console.debug(`Set current page to home page.`);
       } else {
         for (const page of outlineData) {
           if (page.PageRoute === location.pathname || page.PageID === cfmPageId) {
             setCurrentPage(page);
             const crumbs = buildBreadcrumbs(outlineData, page.ParentID);
             setBreadcrumbs(crumbs);
+            console.debug(`Set current page to ${page.PageID}.`);
             break;
           }
         }
@@ -154,19 +157,23 @@ export default function Site(props) {
   }
 
   useEffect(() => {
-    // load site data
-    Sites.getSite().then((data) => {
-      console.debug(`Loaded site ${data.SiteID}.`);
-      setSiteData(data);
-    }).catch(err => console.error(`Error loading site.`, err));
+    if (!siteData) {
+      // load site data
+      Sites.getSite().then((data) => {
+        console.debug(`Loaded site ${data.SiteID}.`);
+        setSiteData(data);
+      }).catch(err => console.error(`Error loading site.`, err));
+    }
   }, [Sites]);
 
   useEffect(() => {
-    // load site outline
-    Sites.getSiteOutline().then((data) => {
-      console.debug(`Loaded site outline.`);
-      setOutlineData(buildOutline(data));
-    }).catch(err => console.error(`Error loading outline.`, err));
+    if (!outlineData) {
+      // load site outline
+      Sites.getSiteOutline().then((data) => {
+        console.debug(`Loaded site outline.`);
+        setOutlineData(buildOutline(data));
+      }).catch(err => console.error(`Error loading outline.`, err));
+    }
   }, [Sites]);
 
   let redirect;

@@ -39,7 +39,7 @@ export default function Page({children, pageId, error, login}) {
 
   useEffect(() => {
     // extract this page from outline data, don't load from DynamoDB
-    if (!pageData && pageId && outlineData) {
+    if (pageId !== pageData?.PageID && outlineData) {
       for (const page of outlineData) {
         if (page.PageID === pageId) {
           setPageData(page);
@@ -48,11 +48,11 @@ export default function Page({children, pageId, error, login}) {
         }
       }
     }
-  }, [pageId, outlineData, pageData]);
+  }, [pageId, pageData, outlineData]);
 
   useEffect(() => {
     // load page sections from DynamoDB
-    if (!sectionData && pageId) {
+    if (pageId !== pageData?.PageID) {
       Pages.getPageSections(pageId).then((sections) => {
         console.debug(`Loaded page ${pageId} sections.`);
         Extras.getPageExtras(pageId).then((extras) => {
@@ -60,11 +60,14 @@ export default function Page({children, pageId, error, login}) {
           sections.forEach((section) => {
             section.Extras = extras.filter((extra) => extra.PageSectionID === section.PageSectionID);
           })
-          setSectionData(sections); // update state
+          // set new page content
+          setSectionData(sections);
         })
       })
+      // clear page until data loads
+      setSectionData([]);
     }
-  }, [pageId, Pages, sectionData, Extras]);
+  }, [pageId, pageData, Pages, sectionData, Extras]);
 
   useEffect(() => {
     // build breadcrumbs at the page level for slider pages
