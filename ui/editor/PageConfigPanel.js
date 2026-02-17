@@ -37,7 +37,7 @@ export default function PageConfigPanel() {
 
   return (
     <div
-      className="PageEditor"
+      className="Editor PageConfigPanel"
       style={{
         position: 'fixed',
         top: -5,

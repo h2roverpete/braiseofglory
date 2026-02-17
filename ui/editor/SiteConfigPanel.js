@@ -14,7 +14,7 @@ export default function SiteConfigPanel() {
   const {supportsHover} = useTouchContext();
 
   return (<div
-    className={'Editor SiteEditor'}
+    className={'Editor SiteConfigPanel'}
     style={{
       display: 'flex',
       flexDirection: 'row',
