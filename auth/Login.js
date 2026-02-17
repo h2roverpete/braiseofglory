@@ -1,8 +1,8 @@
-import {useContext, useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import '../ui/forms/Forms.css'
 import PasswordField from "../ui/forms/PasswordField";
 import {useSearchParams} from 'react-router';
-import {SiteContext} from "../ui/content/Site";
+import {useSiteContext} from "../ui/content/Site";
 import {useNavigate} from "react-router";
 import {Permission, useAuth} from "./AuthProvider";
 import {useCookies} from "react-cookie";
@@ -46,15 +46,18 @@ const Login = (props) => {
   const scope = permissions.join(",")
 
   const {Auth} = useRestApi();
-  const {setError} = useContext(SiteContext);
+  const {setError} = useSiteContext();
   const [searchParams] = useSearchParams();
   const {token, setToken} = useAuth();
   const navigate = useNavigate();
   const [cookies, setCookie] = useCookies();
 
-  if (!cookies.loginState) {
-    setCookie("loginState", generateState());
-  }
+  useEffect(() => {
+    if (!cookies.loginState) {
+      const state = generateState();
+      setCookie("loginState", state);
+    }
+  }, [cookies.loginState, setCookie]);
 
   useEffect(() => {
     if (token) {
@@ -63,7 +66,11 @@ const Login = (props) => {
     }
   }, [token, navigate])
 
-  const loginResponse = searchParams.get('state') && searchParams.get('code');
+  const [loginResponse, setLoginResponse] = useState(false);
+  useEffect(() => {
+    setLoginResponse(searchParams.get('state') !== null && searchParams.get('code') !== null);
+  }, [searchParams]);
+
   const fetchingToken = useRef(false); // prevent double fetch of token
   useEffect(() => {
     // process login response
@@ -75,6 +82,7 @@ const Login = (props) => {
           title: 'Invalid login state',
           description: "Couldn't verify login state.",
         })
+        setCookie("loginState", null);
       } else {
         Auth.getAuthToken(
           window.location.host,
@@ -94,7 +102,7 @@ const Login = (props) => {
         );
       }
     }
-  });
+  }, [Auth, cookies.loginState, navigate, searchParams, setCookie, setError, setToken, token, loginResponse]);
 
   return (
     <>{loginResponse ? (
@@ -102,14 +110,14 @@ const Login = (props) => {
       <div>Processing login...</div>
     ) : (
       // display login form
-      <div className="container-fluid">
+      <div className="Login container-fluid">
         <title>Log In</title>
         <form method="POST" action={`${process.env.REACT_APP_BACKEND_HOST}/oauth/login`}>
           <input type="hidden" name="response_type" value="code"/>
           <input type="hidden" name="client_id" value={window.location.host}/>
           <input type="hidden" name="redirect_uri"
                  value={`${window.location.protocol}//${window.location.host}/login`}/>
-          <input type="hidden" name="state" value={cookies.loginState}/>
+          <input type="hidden" name="state" value={cookies.loginState ? cookies.loginState : ''}/>
           <input type="hidden" name="scope" value={scope}/>
           <Row className="mt-4">
             <Form.Label className={'required'} htmlFor="username" column={true} sm={3}>

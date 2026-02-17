@@ -1,17 +1,13 @@
 import SiteConfigPanel from "./SiteConfigPanel";
+import PageConfigPanel from "./PageConfigPanel";
 
 export default function SiteEditor({children}) {
   return (
     <div
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        width: '100vw',
-        minHeight: '100vh',
-        position: 'relative',
-      }}
+      className="SiteEditor"
     >
-      <SiteConfigPanel/>
+      <SiteConfigPanel />
+      <PageConfigPanel />
       {children}
     </div>
   )

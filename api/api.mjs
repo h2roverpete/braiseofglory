@@ -99,6 +99,8 @@ import axios from "axios";
  * @property {Boolean} DontMash
  * @property {String} Created
  * @property {String} Modified
+ *
+ * @property {[ExtraData]} Extras
  */
 
 /**
@@ -284,6 +286,9 @@ import axios from "axios";
  * @property {String} [ExtraFile]       S3 path to file attached to the Extra
  * @property {String} [GalleryID]       Gallery ID when ExtraType == 'gallery'
  * @property {String} [GuestBookID]     Guest book ID when ExtraType == 'guestbook'
+ * @property {String} [YouTubeVideoURL] Video URL when ExtraType == 'youtube'
+ * @property {String} [AspectRatio]     Aspect ratio for display, i.e. 4 / 3 or  16 / 9.
+ * @property {number} [DisplayWidth]    Display width in columns.
  * @property {String} Created           Creation date in ISO format.
  * @property {String} Modified          Modification date in ISO format.
  */

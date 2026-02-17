@@ -1,7 +1,6 @@
 import {createContext, lazy, Suspense, useCallback, useContext, useEffect, useState} from "react";
-import {SiteContext} from "./Site";
+import {useSiteContext} from "./Site";
 import {useRestApi} from "../../api/RestApi";
-import PageConfigPanel from "../editor/PageConfigPanel";
 import FormEditor from "../editor/FormEditor";
 import {useEdit} from "../editor/EditProvider"
 
@@ -12,80 +11,77 @@ export const PageContext = createContext(
 );
 
 /**
- * @typedef PageProps
- *
- * @property {[JSX.Element]} children   Child elements.
- * @property {number} [pageId]          Specific page ID to display.
- * @property {ErrorData} [error]        Error information to display.
- * @property {boolean} [login]          User is logging in or out.
- */
-
-/**
  * Page component.
  * Generates a container <div> for styling and display.
  * Provides page related data in a PageContext to children.
  *
- * @param props {PageProps}
+ * @property {[JSX.Element]} children   Child elements.
+ * @property {number} [pageId]          Specific page ID to display.
+ * @property {Error} [error]            Display error instead of page content.
+ * @property {boolean} [login]          User is logging in or out.
+ *
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Page(props) {
+export default function Page({children, pageId, error, login}) {
 
-  const {outlineData, error} = useContext(SiteContext);
-  const [pageData, setPageData] = useState(null);
-  const [sectionData, setSectionData] = useState(null);
-  const [breadcrumbs, setBreadcrumbs] = useState(null);
+  // imports
+  const {canEdit} = useEdit();
+  const {outlineData, buildBreadcrumbs} = useSiteContext();
   const {Pages, Extras} = useRestApi();
+
+  // states
+  const [breadcrumbs, setBreadcrumbs] = useState(/** @type {OutlineData[]} */ null);
+  const [pageData, setPageData] = useState(/** @type {PageData} */null);
+  const [sectionData, setSectionData] = useState(/** @type {PageSectionData[]} */ null);
   const [showAddExtraModal, setShowAddExtraModal] = useState(false);
   const [extraPageSectionId, setExtraPageSectionId] = useState(0);
-  const [extras, setExtras] = useState([]);
-  const {canEdit} = useEdit();
-
-  let errorData;
-  if (error) {
-    // pass error from site context
-    errorData = error;
-  } else if (props.error) {
-    // pass error from props
-    errorData = props.error;
-  }
 
   useEffect(() => {
-    if (props.pageId) {
-      // load page data
-      Pages.getPage(props.pageId).then((data) => {
-        console.debug(`Loaded page ${props.pageId} data.`);
-        setPageData(data); // update state
-      })
+    // extract this page from outline data, don't load from DynamoDB
+    if (pageId !== pageData?.PageID && outlineData) {
+      for (const page of outlineData) {
+        if (page.PageID === pageId) {
+          setPageData(page);
+          console.debug(`Loaded page ${pageId} data.`);
+          break;
+        }
+      }
     }
-  }, [props.pageId, Pages]);
+  }, [pageId, pageData, outlineData]);
 
   useEffect(() => {
-    if (pageData) {
-      // load page sections
-      Pages.getPageSections(pageData.PageID).then((data) => {
-        console.debug(`Loaded page ${pageData.PageID} sections.`);
-        setSectionData(data); // update state
+    // load page sections from DynamoDB
+    if (pageId !== pageData?.PageID) {
+      Pages.getPageSections(pageId).then((sections) => {
+        console.debug(`Loaded page ${pageId} sections.`);
+        Extras.getPageExtras(pageId).then((extras) => {
+          console.debug(`Loaded page ${pageId} extras.`);
+          sections.forEach((section) => {
+            section.Extras = extras.filter((extra) => extra.PageSectionID === section.PageSectionID);
+          })
+          // set new page content
+          setSectionData(sections);
+        })
       })
-      // load extras
-      Extras.getPageExtras(pageData.PageID).then((data) => {
-        console.debug(`Loaded page ${pageData.PageID} extras: ${JSON.stringify(data)}`);
-        setExtras(data); // update state
-      })
+      // clear page until data loads
+      setSectionData([]);
     }
-  }, [pageData, Extras, Pages]);
+  }, [pageId, pageData, Pages, sectionData, Extras]);
 
   useEffect(() => {
-    if (pageData && outlineData) {
+    // build breadcrumbs at the page level for slider pages
+    if (!breadcrumbs && pageData && outlineData) {
       // build breadcrumb data
-      setBreadcrumbs(buildBreadcrumbs(outlineData, pageData.ParentID)); // update state
-    } else {
-      setBreadcrumbs([]);
+      setBreadcrumbs(buildBreadcrumbs(outlineData, pageData.ParentID));
     }
-  }, [pageData, outlineData])
+  }, [pageData, outlineData, breadcrumbs, buildBreadcrumbs]);
 
   const addPageSection = useCallback((newData) => {
+    /** @type {PageSectionData[]} */
     const newSectionData = [...sectionData, newData]
+    newSectionData.Created = new Date().toISOString();
+    newSectionData.Modified = new Date().toISOString();
     newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
     setSectionData(newSectionData);
   }, [sectionData, setSectionData]);
@@ -105,7 +101,8 @@ export default function Page(props) {
     for (const section of sectionData) {
       if (section.PageSectionID === newData.PageSectionID) {
         // copy the data to insure replacement
-        newSections.push({...newData});
+        // add modification timestamp so key is changed
+        newSections.push({...newData, Modified: new Date().toISOString()});
       } else {
         newSections.push(section);
       }
@@ -114,34 +111,32 @@ export default function Page(props) {
     setSectionData(newSections);
   }, [sectionData, setSectionData]);
 
-  const addExtraToPage = useCallback((data) => {
-    setExtras([
-      ...extras,
-      data
-    ]);
-  }, [extras, setExtras]);
+  const addExtraToPage = useCallback((extra) => {
+    sectionData.forEach(section => {
+      if (section.PageSectionID === extra.PageSectionID) {
+        section.Extras.push(extra);
+      }
+    })
+    setSectionData([...sectionData]);
+  }, [setSectionData, sectionData]);
 
   const removeExtraFromPage = useCallback((extraId) => {
-    const newExtras = [];
-    for (const extra of extras) {
-      if (extra.ExtraID !== extraId) {
-        newExtras.push(extra);
-      }
-    }
-    setExtras(newExtras);
-  }, [extras, setExtras]);
+    sectionData.forEach(section => {
+      section.Extras.filter((extra) => extra.ExtraID !== extraId);
+    })
+    setSectionData([...sectionData]);
+  }, [sectionData, setSectionData]);
 
-  const updateExtra = useCallback((data) => {
-    const newExtras = [];
-    for (const extra of extras) {
-      if (extra.ExtraID === data.ExtraID) {
-        newExtras.push(data);
-      } else {
-        newExtras.push(extra);
-      }
-    }
-    setExtras(newExtras);
-  }, [extras, setExtras]);
+  const updateExtra = useCallback((newExtra) => {
+    sectionData.forEach(section => {
+      section.Extras.forEach((extra, index) => {
+        if (extra.ExtraID === newExtra.ExtraID) {
+          section.Extras[index]=({...newExtra});
+        }
+      })
+    })
+    setSectionData([...sectionData]);
+  }, [sectionData, setSectionData]);
 
   const addExtraModal = useCallback(({pageSectionId}) => {
     setShowAddExtraModal(true);
@@ -154,10 +149,9 @@ export default function Page(props) {
       value={{
         pageData: pageData,
         sectionData: sectionData,
-        pageExtras: extras,
         breadcrumbs: breadcrumbs,
-        login: props.login === true,
-        error: errorData,
+        login: login === true,
+        error: error,
         setPageData: setPageData,
         setSectionData: setSectionData,
         updatePageSection: updatePageSection,
@@ -180,33 +174,11 @@ export default function Page(props) {
           </Suspense>
         </FormEditor>
       )}
-      {canEdit && (
-        <PageConfigPanel/>
-      )}
       <div className="Page" data-testid="Page">
-        {props.children}
+        {children}
       </div>
     </PageContext>
   );
-}
-
-/**
- * Build breadcrumb array from site outline.
- *
- * @param outlineData {[OutlineData]}
- * @param parentId {number}
- */
-function buildBreadcrumbs(outlineData, parentId) {
-  const breadcrumbs = [];
-  if (outlineData && parentId) {
-    for (let i = outlineData.length - 1; i >= 0; i--) {
-      if (outlineData[i].PageID === parentId) {
-        breadcrumbs.push(outlineData[i]);
-        parentId = outlineData[i].ParentID;
-      }
-    }
-  }
-  return breadcrumbs.reverse();
 }
 
 export function usePageContext() {

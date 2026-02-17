@@ -1,17 +1,17 @@
-import {useSiteContext} from "../content/Site";
+import {useSiteContext} from "../../content/Site";
 import {useEffect, useRef, useState} from "react";
-import ExtraConfig from "./ExtraConfig";
+import FileExtraConfig from "./FileExtraConfig";
 import {Col, Container, Row} from "react-bootstrap";
-import FormEditor from "../editor/FormEditor";
-import {useTouchContext} from "../../util/TouchProvider";
-import {useEdit} from "../editor/EditProvider";
+import FormEditor from "../../editor/FormEditor";
+import {useTouchContext} from "../../../util/TouchProvider";
+import {useEdit} from "../../editor/EditProvider";
 
 export default function FileExtra({extraData}) {
 
   const {siteData} = useSiteContext();
   const [content, setContent] = useState(<></>);
   const {supportsHover} = useTouchContext();
-  const buttonRef = useRef();
+  const buttonRef = useRef(null);
   const {canEdit} = useEdit();
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function FileExtra({extraData}) {
       switch (extraData.ExtraFileMimeType) {
         case 'audio/mpeg':
           setContent(<>
-            <Container className={'Extra'}>
+            <Container className={'FileExtra'}>
               <Row className="ExtraAudio">
                 <Col xs={'auto'} className={'ExtraAudioLabel d-flex align-items-center ps-0'}>
                   {extraData.ExtraFilePrompt}
@@ -41,7 +41,7 @@ export default function FileExtra({extraData}) {
           fetch(fileUrl)
             .then(response => response.text())
             .then(data => setContent(<>
-              <pre className={'Extra'}>{data}</pre>
+              <pre className={'FileExtra'}>{data}</pre>
             </>))
             .catch(error => console.error(`Error fetching HTML ${fileUrl}:`, error));
           break;
@@ -50,24 +50,24 @@ export default function FileExtra({extraData}) {
           fetch(fileUrl)
             .then(response => response.text())
             .then(data => setContent(<>
-              <div className={'Extra'} dangerouslySetInnerHTML={{__html: data}}/>
+              <div className={'FileExtra'} dangerouslySetInnerHTML={{__html: data}}/>
             </>))
             .catch(error => console.error(`Error fetching HTML ${fileUrl}:`, error));
           break;
         default:
           // display a link to the file
-          setContent(<>
-            <div className={'Extra'}>
-              <a
-                href={fileUrl} rel="noreferrer"
-                target={'_blank'}>{extraData.ExtraFilePrompt ? extraData.ExtraFilePrompt : fileName}</a>
-            </div>
-          </>);
+          setContent(
+            <a
+              href={fileUrl} rel="noreferrer"
+              target={'_blank'}>{extraData.ExtraFilePrompt ? extraData.ExtraFilePrompt : fileName}</a>
+          );
           break;
       }
     }
   }, [siteData, extraData]);
+
   return (<div
+    className={`Extra col-12 col-sm-${extraData?.DisplayWidth}`}
     onMouseOver={() => {
       if (canEdit && supportsHover) buttonRef.current.hidden = false;
     }}
@@ -77,7 +77,7 @@ export default function FileExtra({extraData}) {
     {content}
     {canEdit && (
       <FormEditor>
-        <ExtraConfig extraData={extraData} buttonRef={buttonRef}/>
+        <FileExtraConfig extraData={extraData} buttonRef={buttonRef}/>
       </FormEditor>
     )}
   </div>);

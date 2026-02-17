@@ -3,67 +3,61 @@ import {BsTextCenter, BsTextLeft, BsTextRight} from "react-icons/bs";
 import {useEffect, useState} from "react";
 
 /**
- * @typedef AlignButtonProps
- * @property {boolean} editable
- * @property {boolean} editing
- * @property {callback} callback
- * @property {string} align
- * @property {object} style
- */
-
-/**
- * Display left/center/right alignment buttons when editable.
+ * Display left/center/right alignment buttons.
  *
- * @param {AlignButtonProps} props
+ * @param {boolean} editing             Are we editing? (controls visibility)
+ * @param {function(string)} callback   Callback to receive changes.
+ * @param {string} align                Initial alignment.
+ *
  * @returns {JSX.Element}
  * @constructor
  */
-export default function AlignButtons(props) {
-  const [align, setAlign] = useState(null);
+export default function AlignButtons({editing, callback, align}) {
+  const [alignment, setAlignment] = useState(null);
   useEffect(() => {
-    if (align === null && props.align) {
-      setAlign(props.align);
+    if (alignment === null && align) {
+      setAlignment(align);
     }
-  }, [align, props.align]);
+  }, [alignment, align]);
   return (
     <>
-      {props.editing && (
-        <div className={'btn-group btn-group-toggle'} style={props.style}>
+      {editing && (
+        <div className={'AlignButtons btn-group btn-group-toggle'}>
           <Button
             onClick={() => {
-              setAlign('left');
-              props.callback(AlignAction.ALIGN_LEFT);
+              setAlignment('left');
+              callback(AlignAction.ALIGN_LEFT);
             }}
             name={'align'}
             type="radio"
             variant={'secondary'}
             size={'sm'}
-            checked={align==='left'}
-            className={`EditButton border border-secondary btn-light ${align === 'left' ? 'text-light bg-primary' : ''}`}
+            checked={alignment === 'left'}
+            className={`EditButton border border-secondary btn-light ${alignment === 'left' ? 'text-light bg-primary' : ''}`}
           ><BsTextLeft/></Button>
           <Button
             onClick={() => {
-              setAlign('center');
-              props.callback(AlignAction.ALIGN_CENTER);
+              setAlignment('center');
+              callback(AlignAction.ALIGN_CENTER);
             }}
             type="radio"
             variant={'secondary'}
             size={'sm'}
             name={'align'}
-            checked={align==='center'}
-            className={`EditButton border border-secondary btn-light ${align === 'center' ? 'text-light bg-primary' : ''}`}
+            checked={alignment === 'center'}
+            className={`EditButton border border-secondary btn-light ${alignment === 'center' ? 'text-light bg-primary' : ''}`}
           ><BsTextCenter/></Button>
           <Button
             onClick={() => {
-              setAlign('right');
-              props.callback(AlignAction.ALIGN_RIGHT);
+              setAlignment('right');
+              callback(AlignAction.ALIGN_RIGHT);
             }}
             type="radio"
             variant={'secondary'}
             size={'sm'}
             name={'align'}
-            checked={align==='right'}
-            className={`EditButton border border-secondary btn-light  ${align === 'right' ? 'text-light bg-primary' : ''}`}
+            checked={alignment === 'right'}
+            className={`EditButton border border-secondary btn-light  ${alignment === 'right' ? 'text-light bg-primary' : ''}`}
           ><BsTextRight/></Button>
         </div>
       )}

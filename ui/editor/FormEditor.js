@@ -1,14 +1,49 @@
-import {createContext, useContext, useState} from "react";
+import {createContext, useCallback, useContext, useState} from "react";
 import './Editor.css';
 
-export const FormEditContext = createContext(null);
+const FormEditContext = createContext(null);
 
-export default function FormEditor({ref, children}) {
+
+/**
+ * Object containing a data change
+ *
+ * @typedef DataChange
+ * @property name {String}
+ * @property value {String}
+ */
+
+/**
+ * Callback function to receive data changes.
+ *
+ * @callback DataCallback
+ * @param {{name: String, value:String|Number|Boolean|File}|{changes:[]}} params
+ */
+
+/**
+ * API (Context) for managing form data.
+ *
+ * @template T
+ * @typedef FormDataAPI
+ *
+ * @property {function(T)} setData
+ * @property {function(string)} isTouched
+ * @property {function()} isDataChanged
+ * @property {function()} revert
+ * @property {function(T)} update
+ * @property {DataCallback} onDataChanged
+ * @property {T} edits
+ */
+
+export default function FormEditor({children}) {
 
   const [originalData, setOriginalData] = useState(null);
   const [edits, setEdits] = useState({});
   const [touched, setTouched] = useState([]);
 
+  /**
+   * Receive changes to form data.
+   * @type DataCallback
+   */
   function onDataChanged({name, value, changes}) {
     if (changes && Array.isArray(changes)) {
       for (const change of changes) {
@@ -35,44 +70,64 @@ export default function FormEditor({ref, children}) {
   }
 
   /**
-   * Update the original data and clear edits, i.e. after a DynamoDB update.
-   * @param data {Object} data being edited.
+   * Set initial form data. Can only be called once per use of <FormEditor>
+   * @template T
+   * @type {function(T): void}
    */
-  function update(data) {
+  function setData(data) {
+    if (data && !originalData) {
+      // protect from null data & multiple initialization
+      update(data);
+    }
+  }
+
+  /**
+   * Update the original form data and clear edits, i.e. after a DynamoDB update.
+   * @template T
+   * @type {function(T): void}
+   */
+  const update = useCallback((data) => {
     setEdits(data);
     setOriginalData(data);
     setTouched([]);
-  }
+  }, [setEdits, setOriginalData, setTouched]);
 
-  function isTouched(name) {
+  /**
+   * Check if a given key/field has been edited.
+   * @type {function(String): boolean}
+   */
+  const isTouched = useCallback((name) => {
     if (name) {
       return touched.includes(name);
     }
-  }
+  }, [touched]);
 
-  function isDataChanged() {
+  /**
+   * Have any values changed from their initial ones?
+   * @type {function(): boolean}
+   */
+  const isDataChanged = useCallback(() => {
     return JSON.stringify(edits) !== JSON.stringify(originalData);
-  }
+  }, [edits, originalData]);
 
-  function revert() {
+  /**
+   * Revert changes.
+   * @type {(function(): void)}
+   */
+  const revert = useCallback(() => {
     setEdits({...originalData});
     setTouched([]);
-  }
+  }, [setEdits, setTouched, originalData]);
 
+  /** @type FormDataAPI */
   const context = {
+    setData: setData,
+    isTouched: isTouched,
+    isDataChanged: isDataChanged,
+    revert: revert,
+    update: update,
+    onDataChanged: onDataChanged,
     edits: edits,
-    FormData: {
-      isTouched: isTouched,
-      isDataChanged: isDataChanged,
-      revert: revert,
-      update: update,
-      onDataChanged: onDataChanged,
-      edits: edits,
-    }
-  }
-
-  if (ref) {
-    ref.current = context.FormData;
   }
 
   return (
@@ -82,6 +137,10 @@ export default function FormEditor({ref, children}) {
   )
 }
 
-export function useFormEditor() {
+/**
+ * @template T
+ * @returns {FormDataAPI<T>|null}
+ */
+export function useFormData() {
   return useContext(FormEditContext);
 }

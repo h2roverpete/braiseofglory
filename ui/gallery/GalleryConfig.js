@@ -4,32 +4,35 @@ import {useEffect, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
 import {usePageContext} from "../content/Page";
 import EditorPanel from "../editor/EditorPanel";
-import {useFormEditor} from "../editor/FormEditor";
+import {useFormData} from "../editor/FormEditor";
 
-export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId, buttonRef, ref}) {
+export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId, buttonRef}) {
 
   const {canEdit} = useEdit();
   const {Galleries, Extras} = useRestApi();
   const {removeExtraFromPage} = usePageContext();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const {edits, FormData} = useFormEditor();
+
+  /** @type FormDataAPI<GalleryData> */
+  const formData = useFormData();
+
   useEffect(() => {
-    FormData.update(galleryConfig);
-  }, [galleryConfig]);
+    formData.setData(galleryConfig);
+  }, [galleryConfig, formData]);
 
   if (!canEdit) {
     return <></>
   }
 
   function isDataValid() {
-    return edits?.GalleryName?.length > 0;
+    return formData.edits?.GalleryName?.length > 0;
   }
 
   function onUpdate() {
     console.debug(`Updating gallery.`);
-    Galleries.insertOrUpdateGallery(edits)
+    Galleries.insertOrUpdateGallery(formData.edits)
       .then((result) => {
-        FormData?.update(result);
+        formData.update(result);
         setGalleryConfig(result);
       })
       .catch((err) => {
@@ -91,7 +94,6 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId,
       isDataValid={isDataValid}
       onDelete={() => setShowDeleteConfirmation(true)}
       buttonRef={buttonRef}
-      ref={ref}
     >
       <h5>Gallery Properties</h5>
       <Row>
@@ -107,10 +109,10 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId,
           <Form.Control
             size={'sm'}
             id={'GalleryName'}
-            isValid={FormData?.isTouched('GalleryName') && edits?.GalleryName.length > 0}
-            isInvalid={FormData?.isTouched('GalleryName') && edits?.GalleryName.length === 0}
-            value={edits?.GalleryName || ''}
-            onChange={(e) => FormData?.onDataChanged({name: 'GalleryName', value: e.target.value})}
+            isValid={formData.isTouched('GalleryName') && formData.edits?.GalleryName.length > 0}
+            isInvalid={formData.isTouched('GalleryName') && formData.edits?.GalleryName.length === 0}
+            value={formData.edits?.GalleryName || ''}
+            onChange={(e) => formData.onDataChanged({name: 'GalleryName', value: e.target.value})}
           />
         </Col>
       </Row>
@@ -118,9 +120,9 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId,
         <Col sm={labelCols}></Col>
         <Col>
           <Form.Check
-            checked={edits?.RandomizeOrder === true}
+            checked={formData.edits?.RandomizeOrder === true}
             label="Randomize display order"
-            onChange={(e) => FormData?.onDataChanged({name: 'RandomizeOrder', value: e.target.checked})}
+            onChange={(e) => formData.onDataChanged({name: 'RandomizeOrder', value: e.target.checked})}
           />
         </Col>
       </Row>

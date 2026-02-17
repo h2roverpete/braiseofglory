@@ -39,7 +39,9 @@ export default function RestApi(props) {
   const insertOrUpdatePageSection = useCallback(async (data) => {
     return await adminApiCall(() => {
       return async () => {
-        const response = await axios.post(`${host}/api/v1/content/pages/${data.PageID}/sections`, data);
+        // remove Extras array from section data before updating DB
+        const {Extras, ...dbData} = data;
+        const response = await axios.post(`${host}/api/v1/content/pages/${data.PageID}/sections`, dbData);
         return response.data;
       }
     });

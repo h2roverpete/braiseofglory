@@ -16,7 +16,6 @@ import {useTouchContext} from "../../util/TouchProvider";
  *
  * @property {PageSectionData} pageSectionData    Data for entire page section.
  * @property {Ref<HTMLImageElement>} imageRef     Returns a reference to the image tag.
- * @property {Ref<DropFunctions>} dropRef         Returns functions API.
  * @property {function(File)} onFileSelected      Callback when a file is dropped.
  * @property {function(File[])} onFilesSelected   Callback when multiple files are dropped.
  *

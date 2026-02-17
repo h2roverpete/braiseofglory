@@ -61,20 +61,23 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
 
   // load guest book configuration when initialized
   useEffect(() => {
-    if (guestBookId) {
+    if (!guestBookConfig && guestBookId) {
+      console.debug(`Loading guest book configuration...`)
       GuestBooks.getGuestBook(guestBookId).then(data => {
         if (!data.LabelCols) {
           data.LabelCols = 2;
         }
+        console.debug(`Guest book configuration loaded.`);
         setGuestBookConfig(data);
       }).catch(error => {
         console.error(`Error loading guest book: ${error}`);
       });
     }
-  }, [GuestBooks, guestBookId, GuestBooks.getGuestBook]);
+  }, [GuestBooks, guestBookId, guestBookConfig]);
 
   useEffect(() => {
-    if (guestId) {
+    if (!guestData && guestId) {
+      console.debug(`Loading guest data...`);
       GuestBooks.getGuest(guestId).then(data => {
         setGuestData(prevData => {
           return {
@@ -82,14 +85,16 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
             ...data
           }
         });
+        console.debug(`Guest data loaded.`)
       }).catch(error => {
         console.error(`Error getting guest data: ${error}`);
       });
     }
-  }, [GuestBooks, guestId, guestBookId, GuestBooks.getGuest])
+  }, [GuestBooks, guestId, guestBookId, guestData])
 
   useEffect(() => {
-    if (guestFeedbackId) {
+    if (!guestFeedbackData && guestFeedbackId) {
+      console.debug(`Loading guest feedback...`);
       GuestBooks.getGuestFeedback(guestFeedbackId).then(data => {
         setGuestFeedbackData(prevData => {
           return {
@@ -97,11 +102,12 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
             ...data
           }
         });
+        console.debug(`Guest feedback loaded.`)
       }).catch(error => {
-        console.error(`Error getting feedback data: ${error}`);
+        console.error(`Error getting feedback: ${error}`);
       });
     }
-  }, [GuestBooks, guestFeedbackId, GuestBooks.getGuestFeedback])
+  }, [GuestBooks, guestFeedbackId, guestFeedbackData])
 
   /**
    * Handle changes in response to data entry.
@@ -193,6 +199,8 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
       }
     }>
       {guestBookConfig && (<div
+        className="GuestBook"
+        style={{width: '100%'}}
         onMouseOver={() => {
           if (canEdit && supportsHover) expandButtonRef.current.hidden = false;
         }}
@@ -200,59 +208,54 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
           if (canEdit && supportsHover) expandButtonRef.current.hidden = true;
         }}
       >
-        <div
-          className="GuestBook"
-          style={{width: '100%'}}
-        >
-          {submitted ? (
-            <>
-              <p
-                dangerouslySetInnerHTML={{__html: guestBookConfig.DoneMessage ? guestBookConfig.DoneMessage : 'Your information has been submitted.'}}/>
-              <Button
-                variant="primary"
-                onClick={() => {
-                  // clear submit flag and feedback ID to submit again
-                  setSubmitted(false);
-                  onChange?.({guestFeedbackId: 0});
-                }}>
-                {guestBookConfig.AgainMessage ? guestBookConfig.AgainMessage : 'Submit Again'}
-              </Button>
-            </>
-          ) : (
-            <>
-              <p
-                dangerouslySetInnerHTML={{__html: guestBookConfig.GuestBookMessage ? guestBookConfig.GuestBookMessage : 'Please enter your information below.'}}/>
-              <form
-                encType="multipart/form-data"
-                className="needs-validation"
-                id="GuestBookForm"
-              >
-                <GuestFields
-                  guestBookConfig={guestBookConfig}
-                  guestData={guestData}
-                  onChange={handleGuestChange}
-                  labelCols={guestBookConfig.LabelCols}
-                />
-                <GuestFeedbackFields
-                  guestBookConfig={guestBookConfig}
-                  guestFeedbackData={guestFeedbackData}
-                  onChange={handleFeedbackChange}
-                  labelCols={guestBookConfig.LabelCols}
-                />
-                <div className="form-errors" id="FormErrors"></div>
-                <div className="form-group mt-4">
-                  <Button
-                    variant={'primary'}
-                    disabled={!isDataValid()}
-                    onClick={(e) => handleSubmit(e)}
-                  >
-                    {guestBookConfig.SubmitButtonName ? guestBookConfig.SubmitButtonName : 'Submit'}
-                  </Button>
-                </div>
-              </form>
-            </>
-          )}
-        </div>
+        {submitted ? (
+          <>
+            <p
+              dangerouslySetInnerHTML={{__html: guestBookConfig.DoneMessage ? guestBookConfig.DoneMessage : 'Your information has been submitted.'}}/>
+            <Button
+              variant="primary"
+              onClick={() => {
+                // clear submit flag and feedback ID to submit again
+                setSubmitted(false);
+                onChange?.({guestFeedbackId: 0});
+              }}>
+              {guestBookConfig.AgainMessage ? guestBookConfig.AgainMessage : 'Submit Again'}
+            </Button>
+          </>
+        ) : (
+          <>
+            <p
+              dangerouslySetInnerHTML={{__html: guestBookConfig.GuestBookMessage ? guestBookConfig.GuestBookMessage : 'Please enter your information below.'}}/>
+            <form
+              encType="multipart/form-data"
+              className="needs-validation"
+              id="GuestBookForm"
+            >
+              <GuestFields
+                guestBookConfig={guestBookConfig}
+                guestData={guestData}
+                onChange={handleGuestChange}
+                labelCols={guestBookConfig.LabelCols}
+              />
+              <GuestFeedbackFields
+                guestBookConfig={guestBookConfig}
+                guestFeedbackData={guestFeedbackData}
+                onChange={handleFeedbackChange}
+                labelCols={guestBookConfig.LabelCols}
+              />
+              <div className="form-errors" id="FormErrors"></div>
+              <div className="form-group mt-4">
+                <Button
+                  variant={'primary'}
+                  disabled={!isDataValid()}
+                  onClick={(e) => handleSubmit(e)}
+                >
+                  {guestBookConfig.SubmitButtonName ? guestBookConfig.SubmitButtonName : 'Submit'}
+                </Button>
+              </div>
+            </form>
+          </>
+        )}
         {canEdit && (
           <FormEditor>
             <GuestBookConfig extraId={extraId} buttonRef={expandButtonRef}/>

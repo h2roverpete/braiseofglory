@@ -1,7 +1,7 @@
 import {useSiteContext} from "../content/Site";
 import {Col, Form, Row, Button} from "react-bootstrap";
 import {useRestApi} from "../../api/RestApi";
-import {useFormEditor} from "./FormEditor";
+import {useFormData} from "./FormEditor";
 import {useEffect} from "react";
 
 export default function SiteConfig(props) {
@@ -9,16 +9,18 @@ export default function SiteConfig(props) {
   const {siteData, setSiteData} = useSiteContext();
   const {Sites} = useRestApi();
 
-  const {edits, FormData} = useFormEditor();
+  /** @type FormDataAPI<SiteData> */
+  const formData = useFormData();
+
   useEffect(() => {
-    FormData.update(siteData);
-  },[siteData])
+    formData.setData(siteData);
+  }, [siteData, formData]);
 
   function onSubmit() {
     console.debug(`Updating site properties...`);
-    Sites.insertOrUpdateSite(edits).then((result) => {
+    Sites.insertOrUpdateSite(formData.edits).then((result) => {
       console.debug(`Site properties updated.`);
-      FormData?.update(result);
+      formData.update(result);
       setSiteData(result);
     }).catch((err) => {
       console.error(`Error updating site properties.`, err);
@@ -26,9 +28,9 @@ export default function SiteConfig(props) {
   }
 
   function isDataValid() {
-    return edits?.SiteName?.length > 0
-      && isValidUrl(edits?.SiteRootUrl)
-      && isValidBucket(edits?.SiteBucketName)
+    return formData.edits?.SiteName?.length > 0
+      && isValidUrl(formData.edits?.SiteRootUrl)
+      && isValidBucket(formData.edits?.SiteBucketName)
   }
 
   function isValidUrl(url) {
@@ -49,10 +51,10 @@ export default function SiteConfig(props) {
             <Form.Control
               size={'sm'}
               id={'SiteName'}
-              isValid={FormData?.isTouched('SiteName') && edits?.SiteName?.length > 0}
-              isInvalid={FormData?.isTouched('SiteName') && !edits?.SiteName}
-              value={edits?.SiteName || ''}
-              onChange={(e) => FormData?.onDataChanged({name: 'SiteName', value: e.target.value})}
+              isValid={formData.isTouched('SiteName') && formData.edits?.SiteName?.length > 0}
+              isInvalid={formData.isTouched('SiteName') && !formData.edits?.SiteName}
+              value={formData.edits?.SiteName || ''}
+              onChange={(e) => formData.onDataChanged({name: 'SiteName', value: e.target.value})}
             />
           </Col>
         </Row>
@@ -62,10 +64,10 @@ export default function SiteConfig(props) {
             <Form.Control
               size={'sm'}
               id={'SiteRootUrl'}
-              isValid={FormData?.isTouched('SiteRootUrl') && isValidUrl(edits?.SiteRootUrl)}
-              isInvalid={FormData?.isTouched('SiteRootUrl') && !isValidUrl(edits?.SiteRootUrl)}
-              value={edits?.SiteRootUrl || ''}
-              onChange={(e) => FormData?.onDataChanged({name: 'SiteRootUrl', value: e.target.value})}
+              isValid={formData.isTouched('SiteRootUrl') && isValidUrl(formData.edits?.SiteRootUrl)}
+              isInvalid={formData.isTouched('SiteRootUrl') && !isValidUrl(formData.edits?.SiteRootUrl)}
+              value={formData.edits?.SiteRootUrl || ''}
+              onChange={(e) => formData.onDataChanged({name: 'SiteRootUrl', value: e.target.value})}
             />
           </Col>
         </Row>
@@ -75,10 +77,10 @@ export default function SiteConfig(props) {
             <Form.Control
               size={'sm'}
               id={'SiteBucketName'}
-              isValid={FormData?.isTouched('SiteRootUrl') && isValidBucket(edits?.SiteBucketName)}
-              isInvalid={FormData?.isTouched('SiteRootUrl') && !isValidBucket(edits?.SiteBucketName)}
-              value={edits?.SiteBucketName || ''}
-              onChange={(e) => FormData?.onDataChanged({name: 'SiteBucketName', value: e.target.value})}
+              isValid={formData.isTouched('SiteRootUrl') && isValidBucket(formData.edits?.SiteBucketName)}
+              isInvalid={formData.isTouched('SiteRootUrl') && !isValidBucket(formData.edits?.SiteBucketName)}
+              value={formData.edits?.SiteBucketName || ''}
+              onChange={(e) => formData.onDataChanged({name: 'SiteBucketName', value: e.target.value})}
             />
           </Col>
         </Row>
@@ -89,8 +91,8 @@ export default function SiteConfig(props) {
               size={'sm'}
               id={'GoogleClientID'}
               placeholder={'G-XXXXXXXXXX'}
-              value={edits?.GoogleClientID || ''}
-              onChange={(e) => FormData?.onDataChanged({name: 'GoogleClientID', value: e.target.value})}
+              value={formData.edits?.GoogleClientID || ''}
+              onChange={(e) => formData.onDataChanged({name: 'GoogleClientID', value: e.target.value})}
             />
           </Col>
         </Row>
@@ -101,14 +103,14 @@ export default function SiteConfig(props) {
               variant={'primary'}
               className={'me-2'}
               onClick={onSubmit}
-              disabled={!FormData?.isDataChanged() || !isDataValid()}
+              disabled={!formData.isDataChanged() || !isDataValid()}
             >
               Update</Button>
             <Button
               size={'sm'}
               variant={'secondary'}
-              disabled={!FormData?.isDataChanged()}
-              onClick={() => FormData?.revert()}
+              disabled={!formData.isDataChanged()}
+              onClick={() => formData.revert()}
             >
               Revert</Button>
           </Col>

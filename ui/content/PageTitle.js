@@ -6,11 +6,6 @@ import {useEdit} from "../editor/EditProvider";
 import {useSiteContext} from "./Site";
 
 /**
- * @typedef PageTitleProps
- * @property alwaysShow {Boolean}
- */
-
-/**
  * Display the page title in an <h1> tag.
  *
  * If the page title has not loaded yet, still displays the
@@ -18,15 +13,15 @@ import {useSiteContext} from "./Site";
  *
  * If the site is in a login state, displays "Log In" as the title.
  *
- * Must be located within the <Page> tag to receive page context.
+ * Must be located within the <Page> tag to receive context.
  *
- * @param props {PageTitleProps}
+ * @param alwaysShow {Boolean} Always show <h1> element, even when text is empty.
  * @returns {JSX.Element}
  * @constructor
  */
-export default function PageTitle(props) {
+export default function PageTitle({alwaysShow}) {
 
-  const {pageData, error, login} = useContext(PageContext);
+  const {error, login, pageData} = useContext(PageContext);
   const {Outline} = useSiteContext();
   const {Pages} = useRestApi();
   const {canEdit} = useEdit();
@@ -72,10 +67,10 @@ export default function PageTitle(props) {
         textContent={pageData?.PageTitle}
         textAlign={pageData?.PageTitleAlign}
         showEditButton={true}
-        alwaysShow={props.alwaysShow === true}
+        alwaysShow={alwaysShow === true}
       />
     ) : (
-      <>{(pageData?.PageTitle.length || error?.title.length || props.alwaysShow || login) && (
+      <>{(pageData?.PageTitle.length || error?.title.length || alwaysShow || login) && (
         <>{title}</>
       )}</>
     )}</>

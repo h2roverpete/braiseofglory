@@ -1,28 +1,15 @@
-import {useContext} from "react";
-import {PageContext} from "./Page";
-import {SiteContext} from "./Site";
-
-/**
- * @typedef HeadProps
- * @property {ErrorData} error
- */
+import {useSiteContext} from "./Site";
 
 /**
  * Element to display elements in page head.
- * Needs to be a child of the <Page> tag.
+ * Needs to be a child of the <Site> tag.
  *
- * Uses Helmet to propagate data to the <head> elements.
- *
- * @param props {HeadProps}
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Head(props) {
+export default function Head() {
 
-  const {pageData, error} = useContext(PageContext);
-  const {siteData} = useContext(SiteContext);
-
-  const title = pageData && siteData ? pageData.PageMetaTitle ? pageData.PageMetaTitle : `${siteData.SiteName} - ${pageData.PageTitle}` : `Loading...`;
+  const {siteData, error, currentPage} = useSiteContext();
 
   return (
     <>{error ? (
@@ -32,18 +19,11 @@ export default function Head(props) {
       </>
     ) : (
       <>
-        {pageData ? (
-          <>
-            <title>{title}</title>
-            <meta name="description" content={pageData.PageMetaDescription}/>
-            <meta name="keywords" content={pageData.PageMetaKeywords}/>
-          </>
-        ) : (
-          <>
-            <title>Loading...</title>
-          </>
-        )
-        }
+        {currentPage && siteData && (<>
+          <title>{currentPage.PageMetaTitle ? currentPage.PageMetaTitle : `${siteData.SiteName} - ${currentPage.PageTitle}`}</title>
+          <meta name="description" content={currentPage.PageMetaDescription}/>
+          <meta name="keywords" content={currentPage.PageMetaKeywords}/>
+        </>)}
       </>
     )}</>
   )

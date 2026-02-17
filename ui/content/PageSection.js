@@ -32,19 +32,17 @@ export default function PageSection({pageSectionData}) {
     deletePageSection,
     updatePageSection,
     addExtraModal,
-    pageExtras
   } = usePageContext();
   const {showErrorAlert} = useSiteContext();
 
   // states
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [sectionExtras, setSectionExtras] = useState([]);
   const [editing, setEditing] = useState(false);
+  const [titleApi, setTitleApi] = useState(null);
+  const [textApi, setTextApi] = useState(null);
 
   // refs
-  const dropRef = useRef(null);
-  const sectionTitleApi = useRef(null);
-  const sectionTextApi = useRef(null);
+  const dropRef = useRef(/** @type {DropFunctions} */ null);
   const sectionTitleRef = useRef(null);
   const sectionTextRef = useRef(null);
   const sectionImageRef = useRef(null);
@@ -69,12 +67,12 @@ export default function PageSection({pageSectionData}) {
     console.debug(`Update section text...`);
     pageSectionData.SectionText = textContent;
     pageSectionData.TextAlign = textAlign;
-    updatePageSection(pageSectionData);
     PageSections.insertOrUpdatePageSection(pageSectionData)
-      .then(() => console.debug(`Updated section text.`))
+      .then(() => console.debug(`Section text updated.`))
       .catch(error => showErrorAlert(`Error updating section text.`, error));
     editButtonRef.current.hidden = false;
     setEditing(false);
+    updatePageSection(pageSectionData);
   }, [pageSectionData, updatePageSection, PageSections, showErrorAlert]);
 
   const onEditCanceled = useCallback(() => {
@@ -82,14 +80,6 @@ export default function PageSection({pageSectionData}) {
     editButtonRef.current.hidden = false;
     setEditing(false);
   }, [setEditing]);
-
-  useEffect(() => {
-    // manage extras
-    if (pageExtras && pageSectionData) {
-      const list = pageExtras.filter((extra) => extra.PageSectionID === pageSectionData.PageSectionID);
-      setSectionExtras(list);
-    }
-  }, [pageExtras, pageSectionData]);
 
   useEffect(() => {
     // manage drag scripts
@@ -106,7 +96,7 @@ export default function PageSection({pageSectionData}) {
         sectionImageRef.current.ondragenter = undefined;
       }
     }
-  }, [sectionImageRef, pageSectionData, dropRef])
+  }, [sectionImageRef, pageSectionData])
 
   const onUploadFile = useCallback((file) => {
     // upload a file that has been dropped, selected from a file dialog
@@ -122,7 +112,7 @@ export default function PageSection({pageSectionData}) {
         showErrorAlert(`Error uploading image.`, e);
         dropRef.current.setDropState(DropState.HIDDEN);
       });
-  }, [dropRef, PageSections, pageSectionData, updatePageSection, showErrorAlert]);
+  }, [PageSections, pageSectionData, updatePageSection, showErrorAlert]);
 
   const sectionTitle = useMemo(() => (
     <h2
@@ -284,14 +274,14 @@ export default function PageSection({pageSectionData}) {
 
   function onEditTitle() {
     // start editing section title
-    sectionTitleApi.current?.startEditing();
+    titleApi.startEditing();
     editButtonRef.current.hidden = true;
     setEditing(true);
   }
 
   function onEditText() {
     // start editing section text
-    sectionTextApi.current?.startEditing();
+    textApi.startEditing();
     editButtonRef.current.hidden = true;
     setEditing(true);
   }
@@ -321,7 +311,7 @@ export default function PageSection({pageSectionData}) {
         {sectionTitle}
         <PageSectionImage pageSectionData={pageSectionData}/>
         {sectionText}
-        <Extras extras={sectionExtras}/>
+        <Extras extras={pageSectionData.Extras}/>
       </div>
     );
   } else {
@@ -342,12 +332,13 @@ export default function PageSection({pageSectionData}) {
         }}
         style={{
           position: 'relative',
+          minHeight: '30px',
         }}
         data-testid={`PageSection-${pageSectionData.PageSectionID}`}
         ref={sectionRef}
       >
         <div
-          style={{height: '100px'}}
+          className={'Editor EmptyElement'}
           hidden={
             editing
             || pageSectionData.SectionImage
@@ -355,12 +346,12 @@ export default function PageSection({pageSectionData}) {
             || pageSectionData.SectionText
           }
         >
-          <div className={'Editor EmptyElement'}>(Empty Section)</div>
+          (No Content)
         </div>
         <EditableField
           field={sectionTitle}
           fieldRef={sectionTitleRef}
-          apiRef={sectionTitleApi}
+          api={setTitleApi}
           textContent={pageSectionData.SectionTitle}
           textAlign={pageSectionData.TitleAlign}
           callback={onTitleChanged}
@@ -375,7 +366,7 @@ export default function PageSection({pageSectionData}) {
         <EditableField
           field={sectionText}
           fieldRef={sectionTextRef}
-          apiRef={sectionTextApi}
+          api={setTextApi}
           textContent={pageSectionData.SectionText}
           textAlign={pageSectionData.TextAlign}
           callback={onTextChanged}
@@ -392,10 +383,7 @@ export default function PageSection({pageSectionData}) {
             }}
           />
         )}
-        <div
-          className="Editor dropdown"
-          style={{position: 'absolute', top: '3px', right: '3px'}}
-        >
+        <div className="Editor EditSectionMenu dropdown">
           <Button
             variant="secondary"
             size="sm"
@@ -403,11 +391,10 @@ export default function PageSection({pageSectionData}) {
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
-            style={{marginBottom: '10px'}}
             ref={editButtonRef}
             hidden={supportsHover}
           ><BsThreeDotsVertical/></Button>
-          <div className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
+          <div className="EditSectionButton dropdown-menu Editor" style={{cursor: 'pointer'}}>
               <span className="dropdown-item"
                     onClick={onEditTitle}>{`${pageSectionData?.SectionTitle?.length > 0 ? 'Edit' : 'Add'} Section Title`}</span>
             <span className="dropdown-item"
@@ -453,7 +440,7 @@ export default function PageSection({pageSectionData}) {
           </ModalFooter>
         </Modal>
       </div>
-      <Extras extras={sectionExtras}/>
+      <Extras extras={pageSectionData.Extras} />
     </>);
   }
 }

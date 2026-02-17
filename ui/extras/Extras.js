@@ -1,18 +1,21 @@
 import GuestBook from "../guestbook/GuestBook";
 import Gallery from "../gallery/Gallery";
-import React from 'react'
-import Instagram from "../instagram/Instagram";
-import FileExtra from "./FileExtra";
+import React from "react";
+import FileExtra from "./file/FileExtra";
+import YouTubeExtra from "./youtube/YouTubeExtra";
+import {Row} from "react-bootstrap";
+import InstagramExtra from "./instagram/InstagramExtra";
 
 /**
- * Display any page extras.
- * @property {[ExtraData]} extras
+ * Display any extras.
+ *
+ * @param {[ExtraData]} extras
+ *
  * @constructor
  */
 export default function Extras({extras}) {
-
-  return (<>
-    {extras.map((extra) => (<React.Fragment key={extra.ExtraID}>
+  return (<Row>
+    {extras?.map((extra) => (<React.Fragment key={extra.ExtraID}>
       {extra.ExtraType === 'guestbook' && (
         <GuestBook guestBookId={extra.GuestBookID} extraId={extra.ExtraID}/>
       )}
@@ -20,11 +23,14 @@ export default function Extras({extras}) {
         <Gallery galleryId={extra.GalleryID} extraId={extra.ExtraID}/>
       )}
       {extra.ExtraType === 'instagram' && (
-        <Instagram extraData={extra}/>
+        <InstagramExtra extraData={extra}/>
       )}
       {extra.ExtraType === 'file' && (
         <FileExtra extraData={extra}/>
       )}
+      {extra.ExtraType === 'youtube' && (
+        <YouTubeExtra extraData={extra}/>
+      )}
     </React.Fragment>))}
-  </>)
+  </Row>)
 }

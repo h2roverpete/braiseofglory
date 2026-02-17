@@ -1,7 +1,7 @@
 import {Button, Col, Collapse, Row} from "react-bootstrap";
 import {useState} from "react";
 import {useEdit} from "./EditProvider";
-import {useFormEditor} from "./FormEditor";
+import {useFormData} from "./FormEditor";
 import {BsChevronCompactDown, BsChevronCompactUp, BsXLg} from "react-icons/bs";
 import {useTouchContext} from "../../util/TouchProvider";
 
@@ -13,23 +13,20 @@ export const Direction = {
 }
 
 /**
- * @typedef PanelAPI
- * @property {boolean} isExpanded
- */
-
-/**
- * Display a collapsable editing panel
+ * Display a collapsable editing panel.
  *
- * @param onUpdate {function()}         Callback when Update button is clicked.
- * @param onDelete {function()}         Callback when Delete button is clicked.
- * @param isDataValid {function()}      Callback to check if data is valid.
- * @param [extraButtons] {JSX.Element}  Extra buttons for the bottom of the panel.
- * @param [hideButtons] {boolean}       Hide the built-in panel buttons for Update and Revert
- * @param [hideCloseBox] {boolean}      Hide the close box
- * @param children {[JSX.Element]}      Child elements, i.e. Rows and Cols and form controls.
- * @param [buttonRef] {Ref<HTMLButtonElement>}       Reference to the collapse/expand button.
- * @param [ref] {Ref<PanelAPI>}         Reference to functions.
- * @param [direction] {String}          Direction that
+ * Automatically provides Revert button.
+ * Update and Delete buttons are shown if onUpdate/onDelete callbacks are provided.
+ *
+ * @param onUpdate {function()}             Callback when Update button is clicked.
+ * @param onDelete {function()}             Callback when Delete button is clicked.
+ * @param isDataValid {function():boolean}  Callback to check if current data is valid (controls Revert enabling)
+ * @param [extraButtons] {JSX.Element}      Extra buttons for the bottom right of the panel.
+ * @param [hideButtons] {boolean}           Hide the built-in panel buttons for Update and Revert
+ * @param [hideCloseBox] {boolean}          Hide the close box
+ * @param children {[JSX.Element]}          Child elements, i.e. Rows and Cols and form controls.
+ * @param [buttonRef] {RefObject<HTMLButtonElement>}       Receive a reference to the collapse/expand button.
+ * @param [direction] {string}              Direction that panel should slide. (Direction.UP / Direction.DOWN)
  * @returns {JSX.Element}
  * @constructor
  */
@@ -41,25 +38,18 @@ export default function EditorPanel(
     children,
     buttonRef,
     extraButtons,
-    ref,
     hideButtons = false,
     hideCloseBox = false,
     direction = Direction.DOWN,
   }
 ) {
-  const {FormData} = useFormEditor();
+  const formData = useFormData();
   const {supportsHover} = useTouchContext();
   const [expanded, setExpanded] = useState(false);
   const {canEdit} = useEdit();
 
   if (!canEdit) {
     return <></>
-  }
-
-  if (ref) {
-    ref.current = {
-      isExpanded: expanded,
-    }
   }
 
   return (<div
@@ -110,7 +100,7 @@ export default function EditorPanel(
                     setExpanded(false);
                     onUpdate?.();
                   }}
-                  disabled={!isDataValid() || !FormData?.isDataChanged()}
+                  disabled={!isDataValid() || !formData.isDataChanged()}
                 >
                   Update
                 </Button>
@@ -118,8 +108,8 @@ export default function EditorPanel(
               <Button
                 size={'sm'}
                 variant="secondary"
-                onClick={() => FormData?.revert()}
-                disabled={!FormData?.isDataChanged()}
+                onClick={() => formData.revert()}
+                disabled={!formData.isDataChanged()}
               >
                 Revert
               </Button>

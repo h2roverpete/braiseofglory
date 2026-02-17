@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import "react-image-gallery/styles/css/image-gallery.css";
 import ImageGallery from "react-image-gallery";
 import {useRestApi} from "../../api/RestApi";
@@ -22,17 +22,21 @@ import {useTouchContext} from "../../util/TouchProvider";
  */
 export default function Gallery({galleryId, extraId}) {
 
-  const [galleryConfig, setGalleryConfig] = useState(null);
-  const [galleryPhotos, setGalleryPhotos] = useState([]);
-  const [currentPhoto, setCurrentPhoto] = useState(null);
+  // imports
   const {canEdit} = useEdit();
   const {Galleries} = useRestApi();
   const {siteData, showErrorAlert} = useSiteContext();
-  const fileDropRef = useRef(null);
   const {supportsHover} = useTouchContext();
+
+  // states
+  const [galleryConfig, setGalleryConfig] = useState(null);
+  const [galleryPhotos, setGalleryPhotos] = useState([]);
+  const [currentPhoto, setCurrentPhoto] = useState(null);
+
+  // refs
+  const fileDropRef = useRef(null);
   const buttonRef = useRef(null);
   const expandButtonRef = useRef(null);
-  const configRef = useRef(null);
 
   useEffect(() => {
     if (galleryId) {
@@ -46,19 +50,21 @@ export default function Gallery({galleryId, extraId}) {
   }, [galleryId, showErrorAlert, Galleries]);
 
   useEffect(() => {
-    Galleries.getPhotos(galleryId).then((data) => {
-      console.debug(`Loaded ${data.length} photos for gallery ${galleryId}.`);
-      if (galleryConfig?.RandomizeOrder) {
-        data.sort(() => Math.random() - 0.5);
-      }
-      if (data.length > 0) {
-        setCurrentPhoto(data[0]);
-      }
-      setGalleryPhotos(data);
-    }).catch(error => {
-      showErrorAlert(`Error loading photos for gallery ${galleryId}: ${error}`);
-    })
-  }, [galleryId, galleryConfig, showErrorAlert, Galleries]);
+    if (galleryPhotos.length === 0) {
+      Galleries.getPhotos(galleryId).then((data) => {
+        console.debug(`Loaded ${data.length} photos for gallery ${galleryId}.`);
+        if (galleryConfig?.RandomizeOrder) {
+          data.sort(() => Math.random() - 0.5);
+        }
+        if (data.length > 0) {
+          setCurrentPhoto(data[0]);
+        }
+        setGalleryPhotos(data);
+      }).catch(error => {
+        showErrorAlert(`Error loading photos for gallery ${galleryId}: ${error}`);
+      })
+    }
+  }, [galleryId, galleryConfig, showErrorAlert, Galleries, galleryPhotos.length]);
 
   function uploadFile(file) {
     console.debug(`Uploading photo...`);
@@ -113,10 +119,9 @@ export default function Gallery({galleryId, extraId}) {
     showErrorAlert(error);
   }
 
-  const [images, setImages] = useState([]);
-  useEffect(() => {
+  const images = useMemo(() => {
     // build list of images for gallery
-    console.debug(`Rebuild list of images for gallery control...`);
+    console.debug(`Build list of images for gallery control...`);
     const list = [];
     for (const photo of galleryPhotos) {
       if (photo.PhotoFile && siteData) {
@@ -132,8 +137,8 @@ export default function Gallery({galleryId, extraId}) {
         })
       }
     }
-    console.debug(`Rebuilt list of ${list.length} images.`);
-    setImages(list);
+    console.debug(`Built list of ${list.length} images.`);
+    return list;
   }, [galleryPhotos, siteData]);
 
   useEffect(() => {
@@ -197,6 +202,11 @@ export default function Gallery({galleryId, extraId}) {
   }
 
   return (<div
+    style={{
+      position: 'relative',
+      flex: 1,
+      width: '100%'
+    }}
     onDragEnter={(e) => {
       if (canEdit) {
         fileDropRef.current?.onDragEnter(e, DropState.ADD);
@@ -227,6 +237,9 @@ export default function Gallery({galleryId, extraId}) {
           onPaste(e)
         }
       }}
+      onTouchMove={(e) => {
+        e.stopPropagation()
+      }}
     >
       {images?.length > 0 && (
         <ImageGallery items={images} ref={galleryRef} onSlide={onSlide}/>
@@ -249,11 +262,6 @@ export default function Gallery({galleryId, extraId}) {
           />
           <div
             className="EditGalleryPhoto Editor dropdown"
-            style={{
-              position: 'absolute',
-              top: 0,
-              right: '5px',
-            }}
             hidden={supportsHover}
             ref={buttonRef}
           >
@@ -290,7 +298,6 @@ export default function Gallery({galleryId, extraId}) {
             setGalleryConfig={setGalleryConfig}
             extraId={extraId}
             buttonRef={expandButtonRef}
-            ref={configRef}
           />
         </FormEditor>
       )
