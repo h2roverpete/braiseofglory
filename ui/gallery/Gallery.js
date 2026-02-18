@@ -202,11 +202,7 @@ export default function Gallery({galleryId, extraId}) {
   }
 
   return (<div
-    style={{
-      position: 'relative',
-      flex: 1,
-      width: '100%'
-    }}
+    className="Gallery"
     onDragEnter={(e) => {
       if (canEdit) {
         fileDropRef.current?.onDragEnter(e, DropState.ADD);
@@ -226,70 +222,63 @@ export default function Gallery({galleryId, extraId}) {
         expandButtonRef.current.hidden = true;
       }
     }}
+    onPaste={(e) => {
+      if (canEdit) {
+        onPaste(e)
+      }
+    }}
+    onTouchMove={(e) => {
+      e.stopPropagation()
+    }}
   >
-    <div
-      className="Gallery"
-      style={{
-        position: 'relative',
-      }}
-      onPaste={(e) => {
-        if (canEdit) {
-          onPaste(e)
-        }
-      }}
-      onTouchMove={(e) => {
-        e.stopPropagation()
-      }}
-    >
-      {images?.length > 0 && (
-        <ImageGallery items={images} ref={galleryRef} onSlide={onSlide}/>
-      )}
-      {canEdit && (<>
-          {images?.length === 0 && (
-            <div style={{
-              position: 'relative',
-              height: '100px',
-            }}>
-              <div className={'Editor EmptyElement'}>(Empty Gallery)</div>
-            </div>
-          )}
-          <FileDropTarget
-            ref={fileDropRef}
-            onFileSelected={uploadFile}
-            onFilesSelected={uploadFiles}
-            onError={onDropError}
-            multiple={true}
-          />
-          <div
-            className="EditGalleryPhoto Editor dropdown"
-            hidden={supportsHover}
-            ref={buttonRef}
+    {images?.length > 0 && (
+      <ImageGallery items={images} ref={galleryRef} onSlide={onSlide}/>
+    )}
+    {canEdit && (<>
+        {images?.length === 0 && (
+          <div style={{
+            position: 'relative',
+            height: '100px',
+          }}>
+            <div className={'Editor EmptyElement'}>(Empty Gallery)</div>
+          </div>
+        )}
+        <FileDropTarget
+          ref={fileDropRef}
+          onFileSelected={uploadFile}
+          onFilesSelected={uploadFiles}
+          onError={onDropError}
+          multiple={true}
+        />
+        <div
+          className="EditGalleryPhoto Editor dropdown"
+          hidden={supportsHover}
+          ref={buttonRef}
+        >
+          <Button
+            className={`EditButton btn-light mt-1`}
+            type="button"
+            variant={'secondary'}
+            size={'sm'}
+            aria-expanded="false"
+            data-bs-toggle="dropdown"
           >
-            <Button
-              className={`EditButton btn-light mt-1`}
-              type="button"
-              variant={'secondary'}
-              size={'sm'}
-              aria-expanded="false"
-              data-bs-toggle="dropdown"
-            >
-              <BsThreeDotsVertical/>
-            </Button>
-            <div
-              className="dropdown-menu Editor border-secondary border-opacity-25"
-              style={{zIndex: 100}}
-            >
-              {currentPhoto && (<span className="dropdown-item" onClick={onDeletePhoto}>
+            <BsThreeDotsVertical/>
+          </Button>
+          <div
+            className="dropdown-menu Editor border-secondary border-opacity-25"
+            style={{zIndex: 100}}
+          >
+            {currentPhoto && (<span className="dropdown-item" onClick={onDeletePhoto}>
                 Delete Photo
               </span>)}
-              <span className="dropdown-item" onClick={fileDropRef.current?.selectFile}>
+            <span className="dropdown-item" onClick={fileDropRef.current?.selectFile}>
                 Upload a Photo
               </span>
-            </div>
           </div>
-        </>
-      )}
-    </div>
+        </div>
+      </>
+    )}
     {
       canEdit && (
         <FormEditor>

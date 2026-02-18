@@ -112,26 +112,41 @@ export default function Page({children, pageId, error, login}) {
   }, [sectionData, setSectionData]);
 
   const addExtraToPage = useCallback((extra) => {
-    sectionData.forEach(section => {
+    sectionData.forEach((section, sectionIndex) => {
       if (section.PageSectionID === extra.PageSectionID) {
+        // update section data
+        if (!section.Extras) {
+          section.Extras = [];
+        }
         section.Extras.push(extra);
+        section.Modified = new Date().toISOString();
+        sectionData[sectionIndex] = {...section};
       }
     })
     setSectionData([...sectionData]);
   }, [setSectionData, sectionData]);
 
   const removeExtraFromPage = useCallback((extraId) => {
-    sectionData.forEach(section => {
-      section.Extras.filter((extra) => extra.ExtraID !== extraId);
+    sectionData.forEach((section, sectionIndex) => {
+      const extras = section.Extras?.filter((extra) => extra.ExtraID !== extraId);
+      if (extras && extras.length < section.Extras?.length) {
+        // update section data
+        section.Extras = extras;
+        section.Modified = new Date().toISOString();
+        sectionData[sectionIndex] = {...section};
+      }
     })
     setSectionData([...sectionData]);
   }, [sectionData, setSectionData]);
 
   const updateExtra = useCallback((newExtra) => {
-    sectionData.forEach(section => {
-      section.Extras.forEach((extra, index) => {
+    sectionData.forEach((section, sectionIndex) => {
+      section.Extras?.forEach((extra, extraIndex) => {
         if (extra.ExtraID === newExtra.ExtraID) {
-          section.Extras[index]=({...newExtra});
+          // update section data
+          section.Extras[extraIndex] = ({...newExtra});
+          section.Modified = new Date().toISOString();
+          sectionData[sectionIndex] = {...section};
         }
       })
     })

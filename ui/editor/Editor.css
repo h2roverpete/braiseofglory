@@ -151,12 +151,19 @@ button.AddPageButton {
 /* Position dropdown menu for editing section contents */
 div.EditSectionMenu {
   position: absolute;
-  top: -2px;
+  top: 2px;
   right: 2px;
 }
 
 div.EditSectionButton {
   z-index: 100;
+}
+
+div.EditSectionImage.Editor.dropdown {
+  position: absolute;
+  bottom: -5px;
+  right: 2px;
+  margin:10px 2px 10px 0;
 }
 
 /* Placeholder for empty page elements */

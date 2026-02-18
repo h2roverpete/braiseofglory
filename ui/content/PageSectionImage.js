@@ -184,14 +184,13 @@ export default function PageSectionImage({pageSectionData, imageRef, dropRef, on
             />
             <div
               className="EditSectionImage Editor dropdown"
-              style={{position: 'absolute', bottom: -5, right: 5, margin:'10px 2px 10px 0'}}
               ref={editButtonRef}
               hidden={supportsHover}
             >
               <Button
                 variant="secondary"
                 size="sm"
-                className={`EditButton border btn-light`}
+                className={`EditButton EditImageButton border btn-light`}
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"

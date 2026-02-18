@@ -164,7 +164,7 @@ export default function Site(props) {
         setSiteData(data);
       }).catch(err => console.error(`Error loading site.`, err));
     }
-  }, [Sites]);
+  }, [Sites, siteData]);
 
   useEffect(() => {
     if (!outlineData) {
@@ -174,7 +174,7 @@ export default function Site(props) {
         setOutlineData(buildOutline(data));
       }).catch(err => console.error(`Error loading outline.`, err));
     }
-  }, [Sites]);
+  }, [Sites, outlineData]);
 
   let redirect;
   if (props.redirects && window.location.pathname === '/') {
