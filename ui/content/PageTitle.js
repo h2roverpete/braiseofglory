@@ -1,5 +1,5 @@
 import {PageContext} from "./Page";
-import {useContext, useRef} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
 import EditableField from "../editor/EditableField";
 import {useEdit} from "../editor/EditProvider";
@@ -22,9 +22,18 @@ import {useSiteContext} from "./Site";
 export default function PageTitle({alwaysShow}) {
 
   const {error, login, pageData} = useContext(PageContext);
-  const {Outline} = useSiteContext();
+  const {Outline, currentPage} = useSiteContext();
   const {Pages} = useRestApi();
   const {canEdit} = useEdit();
+
+  const [titleText, setTitleText] = useState(null);
+  useEffect(() => {
+    if (pageData) {
+      setTitleText(pageData.PageTitle);
+    } else if (currentPage) {
+      setTitleText(currentPage.PageTitle);
+    }
+  }, [pageData, currentPage, setTitleText]);
 
   function onTitleChanged({textContent, textAlign}) {
     if (pageData) {
@@ -54,7 +63,7 @@ export default function PageTitle({alwaysShow}) {
       data-testid="PageTitle"
       ref={titleRef}
     >
-      {error?.title ? error.title : login ? `Log In` : pageData?.PageTitle.length > 0 ? pageData.PageTitle : (<>&nbsp;</>)}
+      {error?.title ? error.title : login ? `Log In` : titleText ? titleText : (<>&nbsp;</>)}
     </h1>
   )
 
