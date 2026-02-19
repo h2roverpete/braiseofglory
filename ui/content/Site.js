@@ -64,7 +64,10 @@ export default function Site(props) {
 
   useEffect(() => {
     // get current page and breadcrumbs from new pathname
-    if (outlineData) {
+    if (location.pathname === '/login') {
+      setCurrentPage(null);
+      setBreadcrumbs(null);
+    } else if (outlineData) {
       console.debug(`Update current page.`);
       if (location.pathname === '/') {
         setCurrentPage(outlineData[0]);
