@@ -52,7 +52,7 @@ export default function Page({children, pageId, error, login}) {
 
   useEffect(() => {
     // load page sections from DynamoDB
-    if (pageId !== pageData?.PageID) {
+    if (pageId && pageId !== pageData?.PageID) {
       Pages.getPageSections(pageId).then((sections) => {
         console.debug(`Loaded page ${pageId} sections.`);
         Extras.getPageExtras(pageId).then((extras) => {

@@ -58,6 +58,11 @@ export default function Site(props) {
   let cfmPageId = parseInt(params.get('pageid'));
 
   useEffect(() => {
+    if (siteData?.SiteTheme)
+    document.body.setAttribute('data-bs-theme', siteData.SiteTheme);
+  }, [siteData]);
+
+  useEffect(() => {
     // get current page and breadcrumbs from new pathname
     if (outlineData) {
       console.debug(`Update current page.`);

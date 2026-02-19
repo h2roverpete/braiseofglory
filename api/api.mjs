@@ -7,6 +7,7 @@ import axios from "axios";
  * @property {Number} SiteID
  * @property {String} SiteName
  * @property {String} SiteRootUrl
+ * @property {String} SiteTheme
  * @property {String} SiteBucketName
  * @property {String} Created
  * @property {String} Modified

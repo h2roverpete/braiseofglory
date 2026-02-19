@@ -73,6 +73,21 @@ export default function SiteConfig(props) {
         </Row>
         <Row>
           <Col>
+            <Form.Label column={'sm'} htmlFor={'SiteTheme'}>Theme</Form.Label>
+            <Form.Select
+              size={'sm'}
+              id={'SiteTheme'}
+              value={formData.edits?.SiteTheme || ''}
+              onChange={(e) => formData.onDataChanged({name: 'SiteTheme', value: e.target.value})}
+            >
+              <option value={``}>none</option>
+              <option value={`light`}>Bootstrap-Light</option>
+              <option value={`dark`}>Bootstrap-Dark</option>
+            </Form.Select>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
             <Form.Label column={'sm'} className={'required'} htmlFor={'SiteBucketName'}>S3 Bucket</Form.Label>
             <Form.Control
               size={'sm'}

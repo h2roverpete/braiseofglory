@@ -243,7 +243,6 @@ export default function NavBar(props) {
     <Navbar
       expand={props.expand ? props.expand : 'sm'}
       className={`NavBar ${!props.expand ? 'navbar-expand' : ''}`}
-      data-bs-theme={props.theme ? props.theme : "light"}
       fixed={props.fixed ? props.fixed : undefined}
       data-testid="NavBar"
       onMouseOver={() => {
@@ -264,18 +263,29 @@ export default function NavBar(props) {
             className={`NavBarBrand ${props.brandClassName}`}
             data-testid="NavBarBrand"
           >
-            <>{props.icon && (
-              <img
-                className="NavBarBrandIcon"
-                src={props.icon}
-                alt={props.brand?.length ? props.brand : siteData?.SiteName}
-                height={45}
-                onClick={() => {
-                  navigateTo('/')
-                }}
-                data-testid="NavBarBrandIcon"
-              />
-            )}</>
+            <>{props.icon && (<>
+              {
+                typeof props.icon === 'string' ? (
+                  <img
+                    className="NavBarBrandIcon"
+                    src={props.icon}
+                    alt={props.brand?.length ? props.brand : siteData?.SiteName}
+                    height={45}
+                    onClick={() => {
+                      navigateTo('/')
+                    }}
+                    data-testid="NavBarBrandIcon"
+                  />
+                ) : (<div
+                  className={`NavBarBrandIcon`}
+                  onClick={() => {
+                    navigateTo('/')
+                  }}
+                >
+                  {props.icon}
+                </div>)
+              }
+            </>)}</>
             <>{props.brand?.length > 0 && (
               <span
                 className={'NavBarBrandText text-nowrap'}
