@@ -7,6 +7,7 @@ import {Resource, ResourcePermissions} from "./Permissions";
 export const AuthContext = createContext({});
 
 export default function AuthProvider(props) {
+
   const [cookies, setCookie] = useCookies();
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -23,12 +24,13 @@ export default function AuthProvider(props) {
   });
 
   /**
-   * Check if a permission is present.
-   * Fails until token is verified.
+   * Check if the current user has the requested permission.
+   * Fails until token is verified and current user is set.
    *
-   * @param resource {string}
-   * @param permission {string}
-   * @returns {Promise<boolean>}
+   * @param resource {string}     Resource being checked, i.e. Resource.PAGE, Resource.SITE, etc.
+   * @param permission {string}   Permission being checked, i.e. Permission.ADMIN, etc.
+   *
+   * @returns {boolean} True if the user is logged in and has permission.
    */
   const hasPermission = useCallback((resource, permission) => {
     console.debug(`Check permission '${resource}:${permission}' for current user.`);
@@ -64,12 +66,11 @@ export default function AuthProvider(props) {
         console.debug(`Permission for ${resource}:${permission} = ${canEdit}.`);
         return canEdit;
       } else {
-        // unknown resource
-        console.error(`Unknown resource.`);
+        console.error(`Unknown resource ${resource}.`);
         return false;
       }
     } else {
-      // user not logged in
+      console.debug(`User not logged in.`);
       return false;
     }
   }, [user]);
@@ -80,7 +81,7 @@ export default function AuthProvider(props) {
     setCookie('token', newToken);
     if (newToken) {
       // decode token and set user
-      const decoded = jwtDecode(newToken);
+      const decoded = jwtDecode(newToken.access_token);
       setUser(decoded);
     } else {
       // clear user
@@ -88,6 +89,10 @@ export default function AuthProvider(props) {
     }
   }, [setCookie, setUser]);
 
+  /**
+   * Refresh expired auth token.
+   * @type {(function(): Promise<*|null>)|*}
+   */
   const refreshAuthToken = useCallback(async () => {
     if (cookies.token?.refresh_token) {
       console.debug(`Refreshing auth token...`);
@@ -101,10 +106,11 @@ export default function AuthProvider(props) {
 
   const validateToken = useCallback(async () => {
     try {
-      console.debug(`Validating token...`);
-      const decoded = await Auth.checkToken();
-      console.debug(`Token data: ${JSON.stringify(decoded)}`);
+      console.debug(`Validating access token...`);
+      await Auth.checkToken();
+      const decoded = jwtDecode(cookies.token.access_token);
       setUser(decoded);
+      console.debug(`Access token is valid, setting user.`);
     } catch (error) {
       if (error.status === 401) {
         try {

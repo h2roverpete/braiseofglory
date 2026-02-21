@@ -20,7 +20,7 @@ import {useAuth} from "../../auth/AuthProvider";
  * @returns {JSX.Element}
  * @constructor
  */
-export default function PageTitle({alwaysShow}) {
+export default function PageTitle({text, alwaysShow}) {
 
   const {error, login, pageData} = useContext(PageContext);
   const {Outline, currentPage} = useSiteContext();
@@ -35,7 +35,9 @@ export default function PageTitle({alwaysShow}) {
   }, [setCanEdit, hasPermission]);
 
   useEffect(() => {
-    if (pageData) {
+    if (text) {
+      setTitleText(text);
+    } else if (pageData) {
       setTitleText(pageData.PageTitle);
     } else if (currentPage) {
       setTitleText(currentPage.PageTitle);

@@ -7,7 +7,6 @@ import Page from "./Page";
 import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router";
 import {useAuth} from "../../auth/AuthProvider";
-import {Permission, Resource} from "../../auth/Permissions";
 
 export default function PageSwiper(props) {
 
@@ -21,11 +20,6 @@ export default function PageSwiper(props) {
   const [swipePages, setSwipePages] = useState(/** @type {OutlineData[]} */ []);
   const [swiperInstance, setSwiperInstance] = useState(null);
   const [showCurrentPage, setShowCurrentPage] = useState(false);
-  const [canEdit, setCanEdit] = useState(false);
-
-  useEffect(() => {
-    setCanEdit(hasPermission?.(Resource.PAGE, Permission.EDIT));
-  }, [setCanEdit, hasPermission]);
 
   useEffect(() => {
     if (outlineData) {
@@ -49,12 +43,12 @@ export default function PageSwiper(props) {
           currentSlideIndex,
           Math.abs(swiperInstance.realIndex - currentSlideIndex) === 1 ? 500 : 0
         );
-      } else if (currentSlideIndex === -1 && currentPage && canEdit) {
+      } else if (currentSlideIndex === -1 && currentPage) {
         // display a hidden page for editing
         setShowCurrentPage(true);
       }
     }
-  }, [currentPage, swiperInstance, swipePages, canEdit]);
+  }, [currentPage, swiperInstance, swipePages]);
 
   // Function to handle slide change and update the URL
   const onSlideChange = (swiper) => {

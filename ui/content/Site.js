@@ -212,10 +212,10 @@ export default function Site(props) {
       for (const page of outlineData) {
         if (page.PageID === currentPage.PageID) {
           current = page;
-        } else if (current && !page.HasChildren && !page.PageHidden) {
+        } else if (current && !page.HasChildren && !page.PageHidden && (!page.RequiresLogin || hasPermission(Resource.PAGE, Permission.BROWSE_PROTECTED))) {
           after = page;
           break;
-        } else if (!page.HasChildren && !page.PageHidden) {
+        } else if (!page.HasChildren && !page.PageHidden && (!page.RequiresLogin || hasPermission(Resource.PAGE, Permission.BROWSE_PROTECTED))) {
           before = page;
         }
       }
