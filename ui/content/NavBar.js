@@ -1,14 +1,14 @@
-import {useRef} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useSiteContext} from "./Site";
 import Navbar from 'react-bootstrap/Navbar';
 import {Nav, NavDropdown} from "react-bootstrap";
 import {useLocation, useNavigate} from "react-router";
 import {useAuth} from "../../auth/AuthProvider";
-import {useEdit} from "../editor/EditProvider";
 import {useRestApi} from "../../api/RestApi";
 import React from 'react';
 import {useTouchContext} from "../../util/TouchProvider";
 import AddPageMenu from "../editor/AddPageMenu";
+import {Resource, Permission} from "../../auth/Permissions";
 
 /**
  * @typedef NavBarProps
@@ -30,15 +30,24 @@ import AddPageMenu from "../editor/AddPageMenu";
  */
 export default function NavBar(props) {
 
+  // imports
   const {siteData, getChildren, Outline, currentPage, breadcrumbs} = useSiteContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const toggleRef = useRef(null);
-  const {token} = useAuth();
-  const {canEdit} = useEdit();
+  const {isAuthenticated, hasPermission} = useAuth();
   const {Pages} = useRestApi();
-  const editButtonRef = useRef(null);
   const {supportsHover} = useTouchContext();
+
+  // states
+  const [canEdit, setCanEdit] = useState(false);
+
+  // refs
+  const editButtonRef = useRef(null);
+  const toggleRef = useRef(null);
+
+  useEffect(() => {
+    setCanEdit(hasPermission?.(Resource.SITE, Permission.EDIT));
+  }, [setCanEdit, hasPermission]);
 
   function navigateTo(to) {
     if ((toggleRef.current.style.visible || toggleRef.current.style.display !== 'none') && !toggleRef.current.classList.contains("collapsed")) {
@@ -247,10 +256,10 @@ export default function NavBar(props) {
       fixed={props.fixed ? props.fixed : undefined}
       data-testid="NavBar"
       onMouseOver={() => {
-        if (canEdit && supportsHover) editButtonRef.current.hidden = false
+        if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = false
       }}
       onMouseLeave={() => {
-        if (canEdit && supportsHover) editButtonRef.current.hidden = true
+        if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = true
       }}
     >
       <div
@@ -288,7 +297,7 @@ export default function NavBar(props) {
               }
             </>)}</>
             <>{props.brand?.length > 0 && (
-              <span
+              <div
                 className={'NavBarBrandText text-nowrap'}
                 onClick={() => {
                   navigateTo('/')
@@ -296,7 +305,7 @@ export default function NavBar(props) {
                 data-testid="NavBarBrandText"
               >
                 {props.brand}
-              </span>
+              </div>
             )}</>
           </Navbar.Brand>
         )}</>
@@ -339,7 +348,7 @@ export default function NavBar(props) {
               </React.Fragment>
             ))}
             <>{props.showLogin === true && (
-              <>{token ? (
+              <>{isAuthenticated ? (
                 <Nav.Link
                   onClick={() => navigateTo('/logout')}
                   className={`NavItem text-nowrap`}

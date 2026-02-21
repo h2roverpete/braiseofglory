@@ -1,4 +1,3 @@
-import {useEdit} from "../editor/EditProvider";
 import {Row, Form, Col, Button, Modal} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
@@ -8,7 +7,6 @@ import {useFormData} from "../editor/FormEditor";
 
 export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId, buttonRef}) {
 
-  const {canEdit} = useEdit();
   const {Galleries, Extras} = useRestApi();
   const {removeExtraFromPage} = usePageContext();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -19,10 +17,6 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId,
   useEffect(() => {
     formData.setData(galleryConfig);
   }, [galleryConfig, formData]);
-
-  if (!canEdit) {
-    return <></>
-  }
 
   function isDataValid() {
     return formData.edits?.GalleryName?.length > 0;

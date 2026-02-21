@@ -4,15 +4,13 @@ import FileExtraConfig from "./FileExtraConfig";
 import {Col, Container, Row} from "react-bootstrap";
 import FormEditor from "../../editor/FormEditor";
 import {useTouchContext} from "../../../util/TouchProvider";
-import {useEdit} from "../../editor/EditProvider";
 
-export default function FileExtra({extraData}) {
+export default function FileExtra({extraData, canEdit = false}) {
 
   const {siteData} = useSiteContext();
   const [content, setContent] = useState(<></>);
   const {supportsHover} = useTouchContext();
   const buttonRef = useRef(null);
-  const {canEdit} = useEdit();
 
   useEffect(() => {
     if (siteData && extraData) {

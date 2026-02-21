@@ -1,8 +1,9 @@
 import PageSection from './PageSection';
-import React, {Fragment, useEffect} from "react";
+import React, {Fragment, useEffect, useState} from "react";
 import {usePageContext} from "./Page";
 import Login from "../../auth/Login";
-import {useEdit} from "../editor/EditProvider";
+import {useAuth} from "../../auth/AuthProvider";
+import {Permission, Resource} from "../../auth/Permissions";
 
 /**
  * Element to show all the sections on a page
@@ -13,8 +14,14 @@ import {useEdit} from "../editor/EditProvider";
  * @constructor
  */
 export default function PageSections({children}) {
+
   const {sectionData, login, error} = usePageContext();
-  const {canEdit} = useEdit();
+  const {hasPermission} = useAuth();
+
+  const [canEdit, setCanEdit] = useState(false);
+  useEffect(() => {
+    setCanEdit(hasPermission?.(Resource.PAGE, Permission.EDIT));
+  }, [setCanEdit, hasPermission]);
 
   useEffect(() => {
     if (canEdit) {
@@ -40,7 +47,9 @@ export default function PageSections({children}) {
           {sectionData.map(section => (<Fragment key={section.PageSectionID + "_" + section.Modified}>
             <PageSection
               pageSectionData={section}
-              data-testid={`PageSection-section.PageSectionID`}/>
+              data-testid={`PageSection-section.PageSectionID`}
+              canEdit={canEdit}
+            />
           </Fragment>))}
           {children}
         </>)}

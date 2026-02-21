@@ -2,25 +2,30 @@ import {Swiper, SwiperSlide} from 'swiper/react'
 import {Virtual} from 'swiper/modules';
 import 'swiper/css'
 import 'swiper/css/virtual'
-
 import {useSiteContext} from "./Site";
 import Page from "./Page";
 import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router";
-import {useEdit} from "../editor/EditProvider";
+import {useAuth} from "../../auth/AuthProvider";
+import {Permission, Resource} from "../../auth/Permissions";
 
 export default function PageSwiper(props) {
 
   // imports
   const {outlineData, error, currentPage} = useSiteContext();
-  const {canEdit} = useEdit();
   const navigate = useNavigate();
   const location = useLocation();
+  const {hasPermission} = useAuth();
 
   // states
   const [swipePages, setSwipePages] = useState(/** @type {OutlineData[]} */ []);
   const [swiperInstance, setSwiperInstance] = useState(null);
   const [showCurrentPage, setShowCurrentPage] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
+
+  useEffect(() => {
+    setCanEdit(hasPermission?.(Resource.PAGE, Permission.EDIT));
+  }, [setCanEdit, hasPermission]);
 
   useEffect(() => {
     if (outlineData) {

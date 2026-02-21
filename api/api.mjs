@@ -50,6 +50,7 @@ import axios from "axios";
  * @property {Boolean} InheritSecurity
  * @property {String} FacebookPixelID
  * @property {string} PageRoute
+ * @property {Boolean} RequiresLogin
  */
 
 /**

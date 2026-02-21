@@ -1,32 +1,20 @@
 import {useContext, createContext, useState, useEffect, useImperativeHandle, useCallback} from "react";
 import {useCookies} from 'react-cookie';
 import {useRestApi} from "../api/RestApi";
-import EditProvider from "../ui/editor/EditProvider";
+import {jwtDecode} from 'jwt-decode';
+import {Resource, ResourcePermissions} from "./Permissions";
 
 export const AuthContext = createContext({});
 
-/**
- * Site permissions.
- *
- * @enum {string}
- */
-export const Permission = {
-  ADMIN: "admin",
-  EDIT: "edit",
-  VIEW: "view",
-  NONE: "none"
-}
-
 export default function AuthProvider(props) {
   const [cookies, setCookie] = useCookies();
-  const [scope, setScope] = useState(null);
-  const [username, setUsername] = useState(null);
+  const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const {Auth} = useRestApi();
 
   useEffect(() => {
-    setIsAuthenticated(cookies.token && username && scope);
-  }, [cookies.token, username, scope]);
+    setIsAuthenticated(cookies.token && user);
+  }, [cookies.token, user, setIsAuthenticated]);
 
   useImperativeHandle(Auth.refreshAuthTokenRef, () => {
     return {
@@ -38,26 +26,67 @@ export default function AuthProvider(props) {
    * Check if a permission is present.
    * Fails until token is verified.
    *
-   * @param permission
+   * @param resource {string}
+   * @param permission {string}
    * @returns {Promise<boolean>}
    */
-  const hasPermission = useCallback(async (permission) => {
-    console.debug(`Check permission '${permission}' for current user.`);
-    if (scope) {
-      return checkScopes(scope, `${document.location.host}:${permission}`);
+  const hasPermission = useCallback((resource, permission) => {
+    console.debug(`Check permission '${resource}:${permission}' for current user.`);
+    if (user) {
+      if (user.SiteID !== '0' && user.SiteID !== process.env.REACT_APP_SITE_ID) {
+        console.error(`User not authorized for this site.`);
+        return false;
+      }
+      const permissionList = ResourcePermissions[resource];
+      if (permissionList) {
+        const requestedIndex = permissionList.findIndex((item) => item.permission === permission);
+        let userIndex = -1;
+        switch (resource) {
+          case Resource.SITE:
+            userIndex = permissionList.findIndex((item) => item.permission === user.SitePermission);
+            break;
+          case Resource.PAGE:
+            userIndex = permissionList.findIndex((item) => item.permission === user.PagePermission);
+            break;
+          case Resource.GALLERY:
+            userIndex = permissionList.findIndex((item) => item.permission === user.GalleryPermission);
+            break;
+          case Resource.GUESTBOOK:
+            userIndex = permissionList.findIndex((item) => item.permission === user.GuestBookPermission);
+            break;
+          case Resource.USERS:
+            userIndex = permissionList.findIndex((item) => item.permission === user.UserPermission);
+            break;
+          default:
+            break;
+        }
+        const canEdit = userIndex >= 0 && requestedIndex >= 0 && userIndex <= requestedIndex;
+        console.debug(`Permission for ${resource}:${permission} = ${canEdit}.`);
+        return canEdit;
+      } else {
+        // unknown resource
+        console.error(`Unknown resource.`);
+        return false;
+      }
     } else {
+      // user not logged in
       return false;
     }
-  }, [scope]);
+  }, [user]);
 
   const setToken = useCallback((newToken) => {
     console.debug(`Set token: ${JSON.stringify(newToken)}`);
     // update token value
     setCookie('token', newToken);
-    // clear username and scope
-    setUsername(null);
-    setScope(null);
-  }, [setCookie, setUsername, setScope]);
+    if (newToken) {
+      // decode token and set user
+      const decoded = jwtDecode(newToken);
+      setUser(decoded);
+    } else {
+      // clear user
+      setUser(null);
+    }
+  }, [setCookie, setUser]);
 
   const refreshAuthToken = useCallback(async () => {
     if (cookies.token?.refresh_token) {
@@ -75,8 +104,7 @@ export default function AuthProvider(props) {
       console.debug(`Validating token...`);
       const decoded = await Auth.checkToken();
       console.debug(`Token data: ${JSON.stringify(decoded)}`);
-      setUsername(decoded.user);
-      setScope(decoded.scope);
+      setUser(decoded);
     } catch (error) {
       if (error.status === 401) {
         try {
@@ -89,7 +117,7 @@ export default function AuthProvider(props) {
         console.error(`Unknown error checking token: ${JSON.stringify(error)}`);
       }
     }
-  }, [Auth, setUsername, setScope, refreshAuthToken]);
+  }, [Auth, setUser, refreshAuthToken]);
 
   useEffect(() => {
     if (cookies.token) {
@@ -107,37 +135,11 @@ export default function AuthProvider(props) {
         isAuthenticated: isAuthenticated,
         refreshAuthToken: refreshAuthToken,
       }}>
-      <EditProvider>
-        {props.children}
-      </EditProvider>
+      {props.children}
     </AuthContext>
   );
 };
 
-
 export const useAuth = () => {
   return useContext(AuthContext);
 };
-
-/**
- * Check a requested scope against a list of allowed scopes.
- *
- * @param {string} allowedScopes      Comma delimited list of allowed scopes (or one scope).
- * @param {string} requestedScopes    Comma delimited list of requested scopes (or one scope).
- */
-function checkScopes(allowedScopes, requestedScopes) {
-  const allowed = allowedScopes.split(",");
-  if (allowed.includes('*')) {
-    // all allowed
-    return true;
-  }
-  const requested = requestedScopes.split(",");
-  for (const requestedScope of requested) {
-    if (!allowedScopes.includes(requestedScope)) {
-      // not matched
-      return false;
-    }
-  }
-  // all matched
-  return true;
-}

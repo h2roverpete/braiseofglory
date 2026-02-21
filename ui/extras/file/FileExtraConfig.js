@@ -1,5 +1,4 @@
 import EditorPanel from "../../editor/EditorPanel";
-import {useEdit} from "../../editor/EditProvider";
 import {useRestApi} from "../../../api/RestApi";
 import {usePageContext} from "../../content/Page";
 import {useFormData} from "../../editor/FormEditor";
@@ -8,7 +7,6 @@ import FileExtraFields from "./FileExtraFields";
 
 export default function FileExtraConfig({extraData, buttonRef}) {
 
-  const {canEdit} = useEdit();
   const {Extras} = useRestApi();
   const {updateExtra, removeExtraFromPage} = usePageContext();
 
@@ -18,10 +16,6 @@ export default function FileExtraConfig({extraData, buttonRef}) {
   useEffect(() => {
     formData.setData(extraData);
   }, [extraData, formData]);
-
-  if (!canEdit) {
-    return <></>;
-  }
 
   function onUpdate() {
     console.debug(`Updating extra.`);

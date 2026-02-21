@@ -4,27 +4,66 @@ import {useRestApi} from "../../api/RestApi";
 import {useFormData} from "./FormEditor";
 import {useEffect} from "react";
 
+/**
+ * @typedef SiteConfigProps
+ *
+ * @property {SiteData} [siteData]              Site data to use instead of SiteContext.siteData
+ * @property {function(SiteData)} [onUpdate]    Receive callback on data update.
+ * @property {function(SiteData)} [onDelete]    Show delete button and receive callback on delete.
+ * @property {function()} [onCancel]            Show cancel button and receive callback on cancel.
+ * @property {string} [className]               Class name(s) for container <div>
+ * @property {Object} [style]                   Style for container <div>
+ */
+
+/**
+ * Site configuration fields & database updates.
+ *
+ * @param props {SiteConfigProps}
+ * @returns {JSX.Element}
+ * @constructor
+ */
 export default function SiteConfig(props) {
 
-  const {siteData, setSiteData} = useSiteContext();
+  // imports
+  const {siteData, setSiteData, showErrorAlert} = useSiteContext();
   const {Sites} = useRestApi();
 
   /** @type FormDataAPI<SiteData> */
   const formData = useFormData();
 
   useEffect(() => {
-    formData.setData(siteData);
-  }, [siteData, formData]);
+    if (props.siteData) {
+      // use provided site from props
+      formData.setData(props.siteData);
+    } else if (siteData) {
+      // get site from context
+      formData.setData(siteData);
+    }
+  }, [siteData, formData, props.siteData]);
 
-  function onSubmit() {
+  function onUpdate() {
     console.debug(`Updating site properties...`);
     Sites.insertOrUpdateSite(formData.edits).then((result) => {
-      console.debug(`Site properties updated.`);
+      console.debug(`Site updated.`);
       formData.update(result);
-      setSiteData(result);
+      if (!props.siteData) {
+        // update if we are getting data from site context
+        setSiteData(result);
+      }
+      props.onUpdate?.(result);
     }).catch((err) => {
       console.error(`Error updating site properties.`, err);
     })
+  }
+
+  function onDelete() {
+    Sites.deleteSite(formData.edits.SiteID)
+      .then(result => {
+        props.onDelete?.(result);
+      })
+      .catch((err) => {
+        showErrorAlert(err);
+      });
   }
 
   function isDataValid() {
@@ -43,8 +82,11 @@ export default function SiteConfig(props) {
 
   return (<>
     {siteData && (
-      <div {...props}>
-        <h5 className={''}>Site Properties</h5>
+      <div
+        className={`SiteConfig ${props.className ? props.className : ''}`}
+        style={props.style}
+      >
+        <h5>Site Properties</h5>
         <Row>
           <Col>
             <Form.Label column={'sm'} className={'required'} htmlFor={'SiteName'}>Site Name</Form.Label>
@@ -111,16 +153,16 @@ export default function SiteConfig(props) {
             />
           </Col>
         </Row>
-        <Row className="mt-2">
+        <Row className="mt-4">
           <Col>
             <Button
               size={'sm'}
               variant={'primary'}
               className={'me-2'}
-              onClick={onSubmit}
+              onClick={onUpdate}
               disabled={!formData.isDataChanged() || !isDataValid()}
             >
-              Update</Button>
+              {formData.edits.SiteID ? 'Update' : 'Add'}</Button>
             <Button
               size={'sm'}
               variant={'secondary'}
@@ -129,8 +171,31 @@ export default function SiteConfig(props) {
             >
               Revert</Button>
           </Col>
+          {(props.onCancel || props.onDelete) && (
+            <Col className={'text-end ps-0'}>
+              {props.onCancel && (
+                <Button
+                  size={'sm'}
+                  variant={'secondary'}
+                  onClick={() => props.onCancel()}
+                >
+                  Cancel
+                </Button>
+              )}
+              {props.onDelete && formData.edits.SiteID >= 0 && (
+                <Button
+                  className={'ms-2'}
+                  size={'sm'}
+                  variant={'danger'}
+                  onClick={() => onDelete()}
+                >
+                  Delete
+                </Button>
+              )}
+            </Col>
+          )}
         </Row>
       </div>
     )}
-  </>)
+  </>);
 }

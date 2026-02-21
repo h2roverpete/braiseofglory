@@ -3,21 +3,20 @@ import InstagramExtraConfig from "./InstagramExtraConfig";
 import FormEditor from "../../editor/FormEditor";
 import {useEffect, useRef, useState} from "react";
 import {useTouchContext} from "../../../util/TouchProvider";
-import {useEdit} from "../../editor/EditProvider";
 
 /**
  * Embed an Instagram feed.
  *
  * @param extraData   {ExtraData}
+ * @param canEdit   {Boolean}
  * @returns {JSX.Element}
  * @constructor
  */
-export default function InstagramExtra({extraData}) {
+export default function InstagramExtra({extraData, canEdit = false}) {
 
   const [data, setData] = useState(null);
   const buttonRef = useRef(null);
   const {supportsHover} = useTouchContext();
-  const {canEdit} = useEdit();
 
   useEffect(() => {
     setData(extraData);

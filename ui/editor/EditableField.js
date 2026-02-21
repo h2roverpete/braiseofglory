@@ -1,6 +1,5 @@
 import {useCallback, useEffect, useState} from "react";
 import EditButtons, {EditAction} from "./EditButtons";
-import {useEdit} from "./EditProvider";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "react-bootstrap";
 import AlignButtons, {AlignAction} from "./AlignButtons";
 import {useTouchContext} from "../../util/TouchProvider";
@@ -47,12 +46,12 @@ export default function EditableField(
     allowEnterKey,
     showEditButton,
     alwaysShow,
-    api
+    api,
+    canEdit = false,
   }
 ) {
 
   // imports
-  const {canEdit} = useEdit();
   const {supportsHover} = useTouchContext();
 
   // states

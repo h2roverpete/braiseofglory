@@ -2,7 +2,8 @@ import {createContext, lazy, Suspense, useCallback, useContext, useEffect, useSt
 import {useSiteContext} from "./Site";
 import {useRestApi} from "../../api/RestApi";
 import FormEditor from "../editor/FormEditor";
-import {useEdit} from "../editor/EditProvider"
+import {useAuth} from "../../auth/AuthProvider";
+import {Permission, Resource} from "../../auth/Permissions";
 
 const AddExtrasModal = lazy(() => import("../extras/AddExtrasModal"));
 
@@ -26,9 +27,9 @@ export const PageContext = createContext(
 export default function Page({children, pageId, error, login}) {
 
   // imports
-  const {canEdit} = useEdit();
   const {outlineData, buildBreadcrumbs} = useSiteContext();
   const {Pages, Extras} = useRestApi();
+  const {hasPermission} = useAuth();
 
   // states
   const [breadcrumbs, setBreadcrumbs] = useState(/** @type {OutlineData[]} */ null);
@@ -36,6 +37,11 @@ export default function Page({children, pageId, error, login}) {
   const [sectionData, setSectionData] = useState(/** @type {PageSectionData[]} */ null);
   const [showAddExtraModal, setShowAddExtraModal] = useState(false);
   const [extraPageSectionId, setExtraPageSectionId] = useState(0);
+  const [canEdit, setCanEdit] = useState(false);
+
+  useEffect(() => {
+    setCanEdit(hasPermission?.(Resource.PAGE, Permission.EDIT));
+  }, [setCanEdit, hasPermission]);
 
   useEffect(() => {
     // extract this page from outline data, don't load from DynamoDB

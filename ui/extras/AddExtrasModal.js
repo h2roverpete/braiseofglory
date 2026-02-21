@@ -4,11 +4,12 @@ import {useSiteContext} from "../content/Site";
 import {usePageContext} from "../content/Page";
 import {useEffect, useState} from "react";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
-import {useEdit} from "../editor/EditProvider";
 import {useFormData} from "../editor/FormEditor";
 import YouTubeExtraFields from "./youtube/YouTubeExtraFields";
 import InstagramExtraFields from "./instagram/InstagramExtraFields";
 import FileExtraFields from "./file/FileExtraFields";
+import {useAuth} from "../../auth/AuthProvider";
+import {Permission, Resource} from "../../auth/Permissions";
 
 /**
  * @callback Callback
@@ -30,7 +31,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
   const {siteData} = useSiteContext();
   const {pageData, addExtraToPage} = usePageContext();
   const {GuestBooks, Galleries, Extras} = useRestApi();
-  const {canEdit} = useEdit();
+  const {hasPermission} = useAuth();
 
   /** @type FormDataAPI<ExtraData> */
   const formData = useFormData();
@@ -38,6 +39,11 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
   // lists of existing extras
   const [guestBookList, setGuestBookList] = useState([]);
   const [galleryList, setGalleryList] = useState([]);
+  const [canEdit, setCanEdit] = useState(false);
+
+  useEffect(() => {
+    setCanEdit(hasPermission?.(Resource.PAGE, Permission.EDIT));
+  }, [setCanEdit, hasPermission]);
 
   useEffect(() => {
     if (canEdit && siteData) {
