@@ -42,7 +42,7 @@ export default function PageTitle({text, alwaysShow}) {
     } else if (currentPage) {
       setTitleText(currentPage.PageTitle);
     }
-  }, [pageData, currentPage, setTitleText]);
+  }, [pageData, currentPage, setTitleText, text]);
 
   function onTitleChanged({textContent, textAlign}) {
     if (pageData) {

@@ -6,7 +6,6 @@ import {useSiteContext} from "./Site";
 import Page from "./Page";
 import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router";
-import {useAuth} from "../../auth/AuthProvider";
 
 export default function PageSwiper(props) {
 
@@ -14,7 +13,6 @@ export default function PageSwiper(props) {
   const {outlineData, error, currentPage} = useSiteContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const {hasPermission} = useAuth();
 
   // states
   const [swipePages, setSwipePages] = useState(/** @type {OutlineData[]} */ []);

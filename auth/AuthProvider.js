@@ -123,7 +123,7 @@ export default function AuthProvider(props) {
         console.error(`Unknown error checking token: ${JSON.stringify(error)}`);
       }
     }
-  }, [Auth, setUser, refreshAuthToken]);
+  }, [Auth, setUser, refreshAuthToken, cookies.token?.access_token]);
 
   useEffect(() => {
     if (cookies.token) {

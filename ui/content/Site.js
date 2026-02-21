@@ -222,7 +222,7 @@ export default function Site(props) {
       setPrevPage(before);
       setNextPage(after);
     }
-  }, [outlineData, currentPage]);
+  }, [outlineData, currentPage, hasPermission]);
 
 
   /**
