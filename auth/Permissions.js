@@ -1,4 +1,11 @@
 /**
+ * Permissions declarations and utility for checking user permissions.
+ *
+ * Note, this module is declared with universal syntax to be compatible with
+ * ESM or CJS projects.
+ */
+
+/**
  * Resource types.
  * @enum {string}
  */
@@ -28,7 +35,7 @@ const Permission = {
 /**
  * Map of resources to their associated permissions.
  * Permissions lists are hierarchical, meaning that if a permission
- * is declared first, it includes all subsequent permissions.
+ * is declared first, it includes and supersedes all subsequent permissions.
  */
 const ResourcePermissions = {
   [Resource.SITE]: [
@@ -58,6 +65,16 @@ const ResourcePermissions = {
   ]
 }
 
+/**
+ * Check if the provided user has permission to access
+ * the specified resource at the permission level provided.
+ *
+ * @param user {UserData}       User to check permissons for.
+ * @param resource {string}     Resource, i.e. Resource.SITE or Resource.PAGE
+ * @param permission {string}   Permission level requested, i.e. Permission.ADMIN
+ *
+ * @returns {boolean}   True if the user has permission
+ */
 const checkPermission = (user, resource, permission) => {
   const permissionList = ResourcePermissions[resource];
   if (permissionList) {
@@ -82,8 +99,11 @@ const checkPermission = (user, resource, permission) => {
       default:
         break;
     }
-    return userIndex >= 0 && requestedIndex >= 0 && userIndex <= requestedIndex;
+    const canEdit = userIndex >= 0 && requestedIndex >= 0 && userIndex <= requestedIndex;
+    console.debug(`Permission for ${resource}:${permission} = ${canEdit}.`);
+    return canEdit;
   } else {
+    console.error(`Unknown resource ${resource}.`);
     return false;
   }
 }
@@ -91,7 +111,7 @@ const checkPermission = (user, resource, permission) => {
 module.exports = {
   Resource: Resource,
   Permission: Permission,
-  ResourcePermissions : ResourcePermissions,
-  checkPermission : checkPermission,
+  ResourcePermissions: ResourcePermissions,
+  checkPermission: checkPermission,
 }
 

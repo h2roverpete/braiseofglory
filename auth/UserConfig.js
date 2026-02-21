@@ -4,7 +4,7 @@ import {Col, Form, Row} from "react-bootstrap";
 import CrudButtons from "../ui/editor/CrudButtons";
 import {useRestApi} from "../api/RestApi";
 import {Resource, ResourcePermissions} from "./Permissions";
-import {isValidEmail} from "../ui/forms/EmailField";
+import {isValidEmail} from "../util/Validators";
 import PhoneNumberField from "../ui/forms/PhoneNumberField";
 
 export default function UserConfig({className, style, userData, onCancel, onUpdate, onDelete}) {
@@ -273,6 +273,7 @@ export default function UserConfig({className, style, userData, onCancel, onUpda
         </Col>
       </Row>
       <CrudButtons
+        data={userData}
         keyName={'UserID'}
         type={'User'}
         onUpdate={handleUpdate}

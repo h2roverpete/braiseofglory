@@ -1,4 +1,5 @@
-import EmailField, {isValidEmail} from "../forms/EmailField";
+import EmailField from "../forms/EmailField";
+import {isValidEmail, isValidInstagramHandle, isValidYouTubeUrl} from "../../util/Validators";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
 import {usePageContext} from "../content/Page";
@@ -216,14 +217,6 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
       default:
         return false;
     }
-  }
-
-  function isValidInstagramHandle(value) {
-    return value && /^@[a-zA-Z0-9\-.]+$/.test(value);
-  }
-
-  function isValidYouTubeUrl(url) {
-    return /^https:\/\/www.youtube.com\/watch\?v=/.test(url);
   }
 
   function onCancel() {

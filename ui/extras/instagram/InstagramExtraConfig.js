@@ -4,6 +4,7 @@ import EditorPanel from "../../editor/EditorPanel";
 import {useFormData} from "../../editor/FormEditor";
 import {useEffect} from "react";
 import InstagramExtraFields from "./InstagramExtraFields";
+import {isValidInstagramHandle} from "../../../util/Validators";
 
 export default function InstagramExtraConfig({extraData, setExtraData, buttonRef}) {
 
@@ -16,10 +17,6 @@ export default function InstagramExtraConfig({extraData, setExtraData, buttonRef
   useEffect(() => {
     formData.setData(extraData);
   }, [extraData, formData]);
-
-  function isValidInstagramHandle(value) {
-    return value && /^@[a-zA-Z0-9\-.]+$/.test(value);
-  }
 
   function onUpdate() {
     console.debug(`Updating instagram extra.`);

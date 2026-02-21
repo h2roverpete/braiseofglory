@@ -1,6 +1,7 @@
 import {Col, Form, Row} from "react-bootstrap";
 import {useFormData} from "../../editor/FormEditor";
 import {useEffect} from "react";
+import {isValidYouTubeUrl} from "../../../util/Validators";
 
 export default function YouTubeExtraFields() {
 
@@ -15,9 +16,6 @@ export default function YouTubeExtraFields() {
     }
   },[formData]);
 
-  function isValidYouTubeUrl(url) {
-    return /^https:\/\/www.youtube.com\/watch\?v=/.test(url);
-  }
   return (<>
     <Row>
       <Col sm={12}>

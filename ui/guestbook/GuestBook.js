@@ -5,7 +5,7 @@ import '../forms/Forms.css'
 import {useRestApi} from "../../api/RestApi";
 import {Button} from "react-bootstrap";
 import GuestBookConfig from "./GuestBookConfig";
-import {isValidEmail} from "../forms/EmailField";
+import {isValidEmail} from "../../util/Validators";
 import FormEditor from "../editor/FormEditor";
 import {useTouchContext} from "../../util/TouchProvider";
 import {useAuth} from "../../auth/AuthProvider";

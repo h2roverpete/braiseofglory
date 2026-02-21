@@ -8,14 +8,11 @@ import {useAuth} from "./AuthProvider";
 import {useCookies} from "react-cookie";
 import {useRestApi} from "../api/RestApi";
 import {Button, Col, Form, Row} from "react-bootstrap";
-import {isValidEmail} from "../ui/forms/EmailField";
-import {isValidPassword} from "./UserConfig";
-
+import {isValidEmail, isValidPassword} from "../util/Validators";
 
 /**
  * Login UI component.
  *
- * @param {LoginProps} props
  * @returns {JSX.Element}
  * @constructor
  */

@@ -1,8 +1,10 @@
 import {useSiteContext} from "../content/Site";
-import {Col, Form, Row, Button} from "react-bootstrap";
+import {Col, Form, Row} from "react-bootstrap";
 import {useRestApi} from "../../api/RestApi";
 import {useFormData} from "./FormEditor";
 import {useEffect} from "react";
+import CrudButtons from "./CrudButtons";
+import {isValidUrl, isValidBucketName} from "../../util/Validators";
 
 /**
  * @typedef SiteConfigProps
@@ -68,16 +70,8 @@ export default function SiteConfig(props) {
 
   function isDataValid() {
     return formData.edits?.SiteName?.length > 0
-      && isValidUrl(formData.edits?.SiteRootUrl)
-      && isValidBucket(formData.edits?.SiteBucketName)
-  }
-
-  function isValidUrl(url) {
-    return /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/.test(url);
-  }
-
-  function isValidBucket(bucketName) {
-    return bucketName && /[a-z.]*/.test(bucketName);
+      && (!formData.edits.SiteRootUrl || isValidUrl(formData.edits?.SiteRootUrl))
+      && (!formData.edits.SiteBucketName ||isValidBucketName(formData.edits?.SiteBucketName))
   }
 
   return (<>
@@ -102,12 +96,12 @@ export default function SiteConfig(props) {
         </Row>
         <Row>
           <Col>
-            <Form.Label column={'sm'} className={'required'} htmlFor={'SiteRootUrl'}>URL</Form.Label>
+            <Form.Label column={'sm'} htmlFor={'SiteRootUrl'}>URL</Form.Label>
             <Form.Control
               size={'sm'}
               id={'SiteRootUrl'}
               isValid={formData.isTouched('SiteRootUrl') && isValidUrl(formData.edits?.SiteRootUrl)}
-              isInvalid={formData.isTouched('SiteRootUrl') && !isValidUrl(formData.edits?.SiteRootUrl)}
+              isInvalid={formData.isTouched('SiteRootUrl') && formData.edits.SiteRootUrl?.length && !isValidUrl(formData.edits?.SiteRootUrl)}
               value={formData.edits?.SiteRootUrl || ''}
               onChange={(e) => formData.onDataChanged({name: 'SiteRootUrl', value: e.target.value})}
             />
@@ -130,12 +124,12 @@ export default function SiteConfig(props) {
         </Row>
         <Row>
           <Col>
-            <Form.Label column={'sm'} className={'required'} htmlFor={'SiteBucketName'}>S3 Bucket</Form.Label>
+            <Form.Label column={'sm'} htmlFor={'SiteBucketName'}>S3 Bucket</Form.Label>
             <Form.Control
               size={'sm'}
               id={'SiteBucketName'}
-              isValid={formData.isTouched('SiteRootUrl') && isValidBucket(formData.edits?.SiteBucketName)}
-              isInvalid={formData.isTouched('SiteRootUrl') && !isValidBucket(formData.edits?.SiteBucketName)}
+              isValid={formData.isTouched('SiteBucketName') && isValidBucketName(formData.edits?.SiteBucketName)}
+              isInvalid={formData.isTouched('SiteBucketName') && !isValidBucketName(formData.edits?.SiteBucketName)}
               value={formData.edits?.SiteBucketName || ''}
               onChange={(e) => formData.onDataChanged({name: 'SiteBucketName', value: e.target.value})}
             />
@@ -153,48 +147,15 @@ export default function SiteConfig(props) {
             />
           </Col>
         </Row>
-        <Row className="mt-4">
-          <Col>
-            <Button
-              size={'sm'}
-              variant={'primary'}
-              className={'me-2'}
-              onClick={onUpdate}
-              disabled={!formData.isDataChanged() || !isDataValid()}
-            >
-              {formData.edits.SiteID ? 'Update' : 'Add'}</Button>
-            <Button
-              size={'sm'}
-              variant={'secondary'}
-              disabled={!formData.isDataChanged()}
-              onClick={() => formData.revert()}
-            >
-              Revert</Button>
-          </Col>
-          {(props.onCancel || props.onDelete) && (
-            <Col className={'text-end ps-0'}>
-              {props.onCancel && (
-                <Button
-                  size={'sm'}
-                  variant={'secondary'}
-                  onClick={() => props.onCancel()}
-                >
-                  Cancel
-                </Button>
-              )}
-              {props.onDelete && formData.edits.SiteID >= 0 && (
-                <Button
-                  className={'ms-2'}
-                  size={'sm'}
-                  variant={'danger'}
-                  onClick={() => onDelete()}
-                >
-                  Delete
-                </Button>
-              )}
-            </Col>
-          )}
-        </Row>
+        <CrudButtons
+          data={formData.edits}
+          keyName={'SiteID'}
+          type={'Site'}
+          onCancel={props.onCancel}
+          onUpdate={onUpdate}
+          onDelete={props.onDelete ? onDelete : undefined}
+          isDataValid={isDataValid}
+        />
       </div>
     )}
   </>);

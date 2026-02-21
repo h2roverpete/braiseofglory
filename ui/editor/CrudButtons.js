@@ -1,7 +1,23 @@
 import {Button, Col, Row} from "react-bootstrap";
 import {useFormData} from "./FormEditor";
 
-export default function CrudButtons({keyName, type, onUpdate, onCancel, onDelete, isDataValid, extraButtons}) {
+/**
+ * Standard action buttons for data edit panels & dialogs.
+ * @template T
+ *
+ * @param data {T}                            Data being edited.
+ * @param keyName {string}                    Primary key name in data, used to detect insert (no primary key) vs update (primary key exists).
+ * @param type {string}                       User readable type for data, added to button names.
+ * @param onUpdate {function(T)}              Update button was pressed. (Update button hidden if this prop is missing.)
+ * @param onCancel {function()}               Cancel button was pressed.
+ * @param onDelete {function(T)}              Delete button was pressed. (Delete button hidden if this prop is missing.)
+ * @param isDataValid{function(T):boolean}    Callback to check if form data is valid.
+ * @param extraButtons {JSX.Element}          Extra buttons to add to UI.
+ *
+ * @returns {JSX.Element} Returns a Bootstrap <Row> containing the button UI.
+ * @constructor
+ */
+export default function CrudButtons({data, keyName, type, onUpdate, onCancel, onDelete, isDataValid, extraButtons}) {
 
   const formData = useFormData();
 
@@ -17,7 +33,7 @@ export default function CrudButtons({keyName, type, onUpdate, onCancel, onDelete
           }}
           disabled={!isDataValid(formData.edits) || !formData.isDataChanged()}
         >
-          {formData.edits[keyName] ? `Update ${type ? type : ''}` : `Add ${type ? type : ''}`}
+          {data?.[keyName] ? `Update ` : `Add `}<span className={`d-none d-sm-inline`}>{type}</span>
         </Button>
       )}
       <Button
@@ -41,13 +57,13 @@ export default function CrudButtons({keyName, type, onUpdate, onCancel, onDelete
           Cancel
         </Button>
       )}
-      {onDelete && formData.edits[keyName] && (
+      {onDelete && data?.[keyName] && (
         <Button
           size={'sm'}
           variant="danger"
           onClick={() => onDelete(formData.edits)}
         >
-          Delete
+          Delete <span className={`d-none d-sm-inline`}>{type}</span>
         </Button>
       )}
     </Col>

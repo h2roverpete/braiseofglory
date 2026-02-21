@@ -1,5 +1,6 @@
 import {Form} from "react-bootstrap";
 import {useState} from "react";
+import {isValidEmail} from "../../util/Validators";
 
 /**
  * Insert a form control that validates a user-entered email address.
@@ -31,10 +32,4 @@ export default function EmailField(props) {
       isInvalid={(props.value === '' && props.required) || (props.value?.length > 0 && !isValidEmail(props.value))}
     />
   )
-}
-
-export function isValidEmail(email) {
-  // A common regex pattern for email validation
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  return emailRegex.test(email);
 }
