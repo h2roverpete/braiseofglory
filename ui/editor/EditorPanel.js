@@ -48,7 +48,6 @@ export default function EditorPanel(
 
   return (<div
     className={`Editor EditorPanel ${expanded ? 'expanded' : 'collapsed'}`}
-    data-bs-theme={'light'}
     style={{
       display: 'flex',
       flexDirection: 'column',

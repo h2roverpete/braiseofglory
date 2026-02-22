@@ -1,6 +1,6 @@
 /* All editor elements */
 .Editor {
-  color: black;
+  color: var(--bs-body-color);
   font-size: 10pt;
   font-weight: normal;
   font-family: Arial, Helvetica, sans-serif;
@@ -17,7 +17,13 @@
 .Editor div.form-control-sm label,
 .Editor input.form-control-sm,
 .Editor select.form-select-sm,
-.Editor textarea.form-control-sm,
+.Editor textarea.form-control-sm{
+  font-size: 10pt;
+  line-height: 1.2em;
+  color: var(--bs-body-color);
+}
+
+/** Editor panel standard buttons */
 .Editor .btn-sm {
   font-size: 10pt;
   line-height: 1.2em;
@@ -49,15 +55,15 @@
 
 /* Editor panel body */
 .EditorPanel.Body {
-  background-color: #e0e0e0;
-  border: 1px solid #00000040;
+  background-color: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
   padding: 15px 10px 10px 10px;
 }
 
 /* Editor panel toggle button */
 button.EditorToggle.btn.expanded,
 button.EditorToggle.btn {
-  color: black;
+  color: var(--bs-button-color);
   background: transparent;
   border: none;
   border-radius: 0;
@@ -79,10 +85,20 @@ div.EditButtons {
 
 /* All editing buttons */
 button.EditButton {
+  color: var(--bs-body-color);
   width: 25px;
   height: 25px;
   padding: 0;
   font-size: 10pt;
+  background-color: var(--bs-body-bg);
+  border-color: var(--bs-border-color);
+}
+button.EditButton:hover,
+button.EditButton:active,
+button.EditButton:focus
+{
+  color: var(--bs-body-color) !important;
+  background-color: var(--bs-secondary-bg) !important;
 }
 
 .EditGalleryPhoto.Editor.dropdown {
@@ -100,7 +116,6 @@ div.AlignButtons {
 
 /* Editor drop down menus */
 div.dropdown-menu.Editor {
-  background-color: white;
   padding: 10px 0;
   cursor: pointer;
   line-height: 200%;
@@ -109,12 +124,10 @@ div.dropdown-menu.Editor {
 /* Editor drop down menu items */
 .Editor .dropdown-item {
   font-size: 12pt;
-  color: black;
 }
 
 /* Editor drop down menu item hover */
 .Editor .dropdown-item:hover {
-  background-color: lightgray;
 }
 
 /* Button for add page dropdown, needs margin for hover */
@@ -218,14 +231,14 @@ div.SiteEditor {
 .SiteConfigPanel .EditorPanel.Body {
   padding: 0;
   border: none;
-  border-right: 1px solid #00000040;
+  border-right: 1px solid var(--bs-border-color);
 }
 
 /* Body of page editor */
 .PageConfigPanel .EditorPanel.Body {
   padding: 20px 10px 10px 15px;
   border: none;
-  border-bottom: 1px solid #00000040;
+  border-bottom: 1px solid var(--bs-border-color);
 }
 
 /* Outline editor inside site editor */
@@ -237,7 +250,7 @@ div.SiteEditor {
 .SiteConfigPanel .EditorPanel.Body .EditorPanel.Body {
   padding: 20px 10px 10px 15px;
   border: none;
-  border-top: 1px solid #00000040;
+  border-top: 1px solid var(--bs-border-color);
 }
 
 /* Page editor toggle arrow collapsed */
