@@ -103,8 +103,8 @@ button.EditButton:focus
 
 .EditGalleryPhoto.Editor.dropdown {
   position: absolute;
-  top: 0;
-  right: 5px;
+  top: 2px;
+  right: 2px;
 }
 
 /* Text alignment buttons for editing */
@@ -132,18 +132,10 @@ div.dropdown-menu.Editor {
 
 /* Button for add page dropdown, needs margin for hover */
 button.AddPageButton {
-  margin: 10px 0 10px 0;
-}
-
-/* Dropdown menu position next to NavBar to add page or page section */
-.navbar-collapse div.AddPageMenu {
   position: absolute;
   right: -30px;
   top: 50%;
   transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  z-index: 100;
 }
 
 /* Dropdown position in non-expanded state, sm breakpoint */
@@ -160,6 +152,9 @@ button.AddPageButton {
   }
 }
 
+div.Editor.dropdown {
+  line-height:100%;
+}
 
 /* Position dropdown menu for editing section contents */
 div.EditSectionMenu {
@@ -186,12 +181,12 @@ div.Editor.EmptyElement {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: gray;
-  font-size: 12pt;
-  position: absolute;
-  top: 0;
-  left: 0;
-  border: 1px dotted gray;
+  color: var(--bs-secondary-color);
+  border: 1px dotted var(--bs-secondary-color);
+  font-size: 0.9rem;
+  padding: 0;
+  line-height: 150%;
+  min-height: 30px;
 }
 
 /* Drop file UI */

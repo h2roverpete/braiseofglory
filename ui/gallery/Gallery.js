@@ -250,12 +250,7 @@ export default function Gallery({galleryId, extraId}) {
     )}
     {canAddPhotos && (<>
         {images?.length === 0 && (
-          <div style={{
-            position: 'relative',
-            height: '100px',
-          }}>
-            <div className={'Editor EmptyElement'}>(Empty Gallery)</div>
-          </div>
+          <div className={'Editor EmptyElement'}>(Empty Gallery)</div>
         )}
         <FileDropTarget
           ref={fileDropRef}
@@ -270,7 +265,7 @@ export default function Gallery({galleryId, extraId}) {
           ref={buttonRef}
         >
           <Button
-            className={`EditButton btn-light mt-1`}
+            className={`EditButton`}
             type="button"
             variant={'secondary'}
             size={'sm'}

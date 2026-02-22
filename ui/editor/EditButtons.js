@@ -22,20 +22,20 @@ export default function EditButtons({editing, callback, showEditButton, hidden})
         onClick={() => callback(EditAction.CONFIRM)}
         variant={'secondary'}
         size={'sm'}
-        className={`EditButton me-1 border text-primary border-primary btn-light ${!editing ? ' d-none' : ''}`}
+        className={`EditButton me-1 text-primary border-primary ${!editing ? ' d-none' : ''}`}
       ><BsCheck/></Button>
       <Button
         onClick={() => callback(EditAction.CANCEL)}
         variant={'secondary'}
         size={'sm'}
-        className={`EditButton me-1 border border-danger text-danger btn-light ${!editing ? ' d-none' : ''}`}
+        className={`EditButton me-1 border-danger text-danger ${!editing ? ' d-none' : ''}`}
       ><BsX/></Button>
       {showEditButton && !editing && (
         <Button
           onClick={() => callback(EditAction.EDIT)}
           variant={'secondary'}
           size={'sm'}
-          className={`EditButton border btn-light`}
+          className={`EditButton`}
         ><BsPencil/></Button>
       )}
     </div>

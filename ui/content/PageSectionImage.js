@@ -188,7 +188,7 @@ export default function PageSectionImage({pageSectionData, imageRef, dropRef, on
               <Button
                 variant="secondary"
                 size="sm"
-                className={`EditButton EditImageButton border btn-light`}
+                className={`EditButton EditImageButton`}
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"

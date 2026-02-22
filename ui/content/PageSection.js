@@ -330,7 +330,6 @@ export default function PageSection({pageSectionData, canEdit = false}) {
         }}
         style={{
           position: 'relative',
-          minHeight: '30px',
         }}
         data-testid={`PageSection-${pageSectionData.PageSectionID}`}
         ref={sectionRef}
@@ -388,14 +387,14 @@ export default function PageSection({pageSectionData, canEdit = false}) {
           <Button
             variant="secondary"
             size="sm"
-            className={`EditButton border btn-light`}
+            className={`EditButton EditSectionButton`}
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
             ref={editButtonRef}
             hidden={supportsHover}
           ><BsThreeDotsVertical/></Button>
-          <div className="EditSectionButton dropdown-menu Editor" style={{cursor: 'pointer'}}>
+          <div className="dropdown-menu Editor" style={{cursor: 'pointer'}}>
               <span className="dropdown-item"
                     onClick={onEditTitle}>{`${pageSectionData?.SectionTitle?.length > 0 ? 'Edit' : 'Add'} Section Title`}</span>
             <span className="dropdown-item"
