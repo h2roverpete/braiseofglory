@@ -7,7 +7,7 @@ import {useAuth} from "../../auth/AuthProvider";
 import {useRestApi} from "../../api/RestApi";
 import React from 'react';
 import {useTouchContext} from "../../util/TouchProvider";
-import AddPageMenu from "../editor/AddPageMenu";
+import AddPageButton from "../editor/AddPageButton";
 import {Resource, Permission} from "../../auth/Permissions";
 
 /**
@@ -370,7 +370,7 @@ export default function NavBar(props) {
             )}</>
           </Nav>
           {canEdit && (
-            <AddPageMenu editButtonRef={editButtonRef}/>
+            <AddPageButton ref={editButtonRef}/>
           )}
         </Navbar.Collapse>
       </div>

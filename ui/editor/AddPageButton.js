@@ -4,21 +4,23 @@ import React, {lazy, Suspense, useEffect, useState} from "react";
 import FormEditor from "./FormEditor";
 import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
+import {useTouchContext} from "../../util/TouchProvider";
 
 const NewPageModal = lazy(() => import("../editor/NewPageModal"));
 
 /**
  * Dropdown menu for adding a new page or page section.
  *
- * @param {RefObject<HTMLButtonElement>} [editButtonRef]  Receive a reference to the dropdown button div.
+ * @param {RefObject<HTMLButtonElement>} [ref]  Receive a reference to the dropdown button div.
  *
  * @returns {Element}
  * @constructor
  */
-export default function AddPageMenu({editButtonRef}) {
+export default function AddPageButton({ref}) {
 
   // imports
   const {hasPermission} = useAuth();
+  const {supportsHover} = useTouchContext();
 
   // states
   const [showNewPage, setShowNewPage] = useState(false);
@@ -35,10 +37,12 @@ export default function AddPageMenu({editButtonRef}) {
         variant="secondary"
         type="button"
         size={'sm'}
-        ref={editButtonRef}
+        ref={ref}
         onClick={() => {
           setShowNewPage(true)
-        }}>
+        }}
+        hidden={supportsHover}
+      >
         <BsPlus/>
       </Button>
       {showNewPage && (<Suspense fallback={<></>}>
