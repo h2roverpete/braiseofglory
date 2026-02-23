@@ -1,5 +1,6 @@
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
+import './PhoneNumberField.css'
 
 /**
  * @callback StringCallback
@@ -22,13 +23,20 @@ function PhoneNumberField({name, id, value, onChange}) {
         name: name,
         required: false
       }}
+      id={id}
       value={value}
       country={'us'}
       onChange={(value, country, e, formattedValue) => {
-        onChange(formattedValue)
+        onChange({
+          name: name,
+          value: formattedValue
+        })
       }}
       dropdownClass={'dropdown'}
       inputClass={'phone'}
+      inputStyle={{backgroundColor: 'var(--bs-body-bg)', width: '100%'}}
+      buttonStyle={{backgroundColor: 'var(--bs-body-bg)'}}
+      dropdownStyle={{backgroundColor: 'var(--bs-body-bg)'}}
     />
   )
 }

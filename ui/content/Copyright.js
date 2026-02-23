@@ -2,28 +2,23 @@ import {useContext} from "react";
 import {SiteContext} from "./Site";
 
 /**
- * @typedef CopyrightProps
- *
- * @property {string} [startYear]   Starting year for copyright.
- * @property {string} [siteName]    Overrise site name in content configuration.
- */
-
-/**
  * Insert a copyright element.
  *
  * Style: A <div> element with class name "Copyright"
  *
- * @param props{CopyrightProps}
+ * @property {string} [startYear]   Starting year for copyright.
+ * @property {string} [siteName]    Override site name in content configuration.
+ 
  * @returns {JSX.Element}
  * @constructor
  */
-function Copyright(props) {
+function Copyright({startYear, siteName}) {
 
   const {siteData} = useContext(SiteContext);
 
   return (
     <div className="Copyright">
-      &copy;{props.startYear ? `${props.startYear}-` : ''}{new Date().getFullYear()} {props.siteName ? props.siteName : siteData?.SiteName}.<br/>All
+      &copy;{startYear ? `${startYear}-` : ''}{new Date().getFullYear()} {siteName ? siteName : siteData?.SiteName}.<br/>All
       rights
       reserved.
     </div>

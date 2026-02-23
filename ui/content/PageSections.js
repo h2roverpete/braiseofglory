@@ -1,27 +1,59 @@
 import PageSection from './PageSection';
-import React, {useContext} from "react";
-import {PageContext} from "./Page";
+import React, {Fragment, useEffect, useState} from "react";
+import {usePageContext} from "./Page";
+import Login from "../../auth/Login";
+import {useAuth} from "../../auth/AuthProvider";
+import {Permission, Resource} from "../../auth/Permissions";
 
 /**
- * Element to show page content
+ * Element to show all the sections on a page
  *
  * A <div> element with class names "content container"
  *
- * @param children{[JSX.Element]}   Elements to add at the end of page content.
+ * @param props {PageSectionProps}
  * @constructor
  */
 export default function PageSections({children}) {
-  const {pageData, sectionData} = useContext(PageContext);
+
+  const {sectionData, login, error} = usePageContext();
+  const {hasPermission} = useAuth();
+
+  const [canEdit, setCanEdit] = useState(false);
+  useEffect(() => {
+    setCanEdit(hasPermission?.(Resource.PAGE, Permission.EDIT));
+  }, [setCanEdit, hasPermission]);
+
+  useEffect(() => {
+    if (canEdit) {
+      // attach drag and drop related window scripts
+      window.addEventListener("drop", windowDropHandler);
+    }
+  }, [canEdit]);
+
+  function windowDropHandler(e) {
+    if ([...e.dataTransfer.items].some((item) => item.kind === "file" || item.type.match("^text/uri-list"))) {
+      e.preventDefault();
+    }
+  }
+
   return (
-    <>
-      {pageData && sectionData && (
-        <>
-          {pageData && sectionData && sectionData.map(section => (
-            <PageSection sectionData={section} key={section.PageSectionID}/>
-          ))}
+    <>{error ? (
+      <div className={'PageSection'} dangerouslySetInnerHTML={{__html: error.description}}></div>
+    ) : (<>
+      {login ? (<>
+        <Login/>
+      </>) : (<>
+        {sectionData && (<>
+          {sectionData.map(section => (<Fragment key={section.PageSectionID + "_" + section.Modified}>
+            <PageSection
+              pageSectionData={section}
+              data-testid={`PageSection-section.PageSectionID`}
+              canEdit={canEdit}
+            />
+          </Fragment>))}
           {children}
-        </>
-      )}
-    </>
-  )
+        </>)}
+      </>)}
+    </>)}
+    </>)
 }
