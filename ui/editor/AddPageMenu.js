@@ -31,11 +31,10 @@ export default function AddPageMenu({editButtonRef}) {
   return (<>
     {canEditSite && (<>
       <Button
-        className={`AddPageButton EditButton btn-light`}
+        className={`AddPageButton EditButton`}
         variant="secondary"
         type="button"
         size={'sm'}
-        aria-expanded="false"
         ref={editButtonRef}
         onClick={() => {
           setShowNewPage(true)
