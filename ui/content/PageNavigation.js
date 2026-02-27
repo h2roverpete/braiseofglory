@@ -1,5 +1,6 @@
-import {Link} from "react-router";
+import {useNavigate} from "react-router";
 import {useSiteContext} from "./Site";
+import {Button} from "react-bootstrap";
 
 /**
  * Display next/previous page navigation elements.
@@ -10,10 +11,11 @@ import {useSiteContext} from "./Site";
 export default function PageNavigation() {
 
   const {nextPage, prevPage} = useSiteContext();
+  const navigate = useNavigate();
 
   return (
     <div
-      className="PageNavigation"
+      className="PageNavigation nav-pills"
       style={{
         display: "flex",
         flexDirection: "row",
@@ -21,18 +23,28 @@ export default function PageNavigation() {
       }}
     >
       {prevPage && (
-        <Link to={prevPage.PageRoute}>
+        <div
+          className="nav nav-item nav-link"
+          style={{cursor: "pointer"}}
+          onClick={() => navigate(prevPage.PageRoute)}
+        >
           <>&nbsp;&laquo;&nbsp;</>
           {prevPage.NavTitle ? prevPage.NavTitle : prevPage.PageTitle}
-        </Link>
+        </div>
       )}
       <span style={{flexGrow: 1}}></span>
-      {nextPage && (
-        <Link to={nextPage.PageRoute}>
-          {nextPage.NavTitle ? nextPage.NavTitle : nextPage.PageTitle}
-          <>&nbsp;&raquo;&nbsp;</>
-        </Link>
-      )}
+      {
+        nextPage && (
+          <div
+            className="nav nav-item nav-link"
+            style={{cursor: "pointer"}}
+            onClick={() => navigate(nextPage.PageRoute)}
+          >
+            {nextPage.NavTitle ? nextPage.NavTitle : nextPage.PageTitle}
+            <>&nbsp;&raquo;&nbsp;</>
+          </div>
+        )
+      }
     </div>
   )
 }

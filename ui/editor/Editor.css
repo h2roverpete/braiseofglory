@@ -1,6 +1,5 @@
 /* All editor elements */
 .Editor {
-  color: var(--bs-body-color);
   font-size: 10pt;
   font-weight: normal;
   font-family: Arial, Helvetica, sans-serif;
@@ -20,7 +19,6 @@
 .Editor textarea.form-control-sm{
   font-size: 10pt;
   line-height: 1.2em;
-  color: var(--bs-body-color);
 }
 
 /** Editor panel standard buttons */
@@ -63,7 +61,6 @@
 /* Editor panel toggle button */
 button.EditorToggle.btn.expanded,
 button.EditorToggle.btn {
-  color: var(--bs-button-color);
   background: transparent;
   border: none;
   border-radius: 0;
@@ -85,20 +82,15 @@ div.EditButtons {
 
 /* All editing buttons */
 button.EditButton {
-  color: var(--bs-body-color);
   width: 25px;
   height: 25px;
   padding: 0;
   font-size: 10pt;
-  background-color: var(--bs-body-bg);
-  border-color: var(--bs-border-color);
 }
 button.EditButton:hover,
 button.EditButton:active,
 button.EditButton:focus
 {
-  color: var(--bs-body-color) !important;
-  background-color: var(--bs-secondary-bg) !important;
 }
 
 .EditGalleryPhoto.Editor.dropdown {
@@ -128,7 +120,6 @@ div.dropdown-menu.Editor {
 
 /* Editor drop down menu item hover */
 .Editor .dropdown-item:hover {
-  background-color: var(--bs-secondary-bg);
 }
 
 /* Button for add page dropdown, needs margin for hover */
@@ -182,8 +173,7 @@ div.Editor.EmptyElement {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--bs-secondary-color);
-  border: 1px dotted var(--bs-secondary-color);
+  border: 1px solid var(--bs-border-color);
   font-size: 0.9rem;
   padding: 0;
   line-height: 150%;
@@ -199,7 +189,7 @@ div.Editor.EmptyElement {
   height: 100%;
   align-content: center;
   justify-content: center;
-  background-color: #ffffff88;
+  background-color: var(--bs-secondary-color);
   text-align: center;
   font-size: 14pt;
   overflow: hidden;
