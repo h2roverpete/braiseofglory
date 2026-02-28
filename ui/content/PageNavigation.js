@@ -1,6 +1,5 @@
 import {useNavigate} from "react-router";
 import {useSiteContext} from "./Site";
-import {Button} from "react-bootstrap";
 
 /**
  * Display next/previous page navigation elements.

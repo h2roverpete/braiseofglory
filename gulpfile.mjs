@@ -53,6 +53,7 @@ gulp.task("buildIndex", async function () {
 });
 
 gulp.task("createInvalidation", async function () {
+  console.log(`Creating CloudFront invalidation...`);
   const config = {}; // type is CloudFrontClientConfig
   const client = new CloudFrontClient(config);
   const input = { // CreateInvalidationRequest
@@ -69,5 +70,5 @@ gulp.task("createInvalidation", async function () {
   };
   const command = new CreateInvalidationCommand(input);
   const response = await client.send(command);
-  console.log(`Create invalidation response:\n${JSON.stringify(response)}`.green);
+  console.log(`Response: ${JSON.stringify(response)}`.green);
 });
