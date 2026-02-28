@@ -46,7 +46,7 @@ export function isValidBucketName(bucketName) {
 }
 
 export function isValidInstagramHandle(handle) {
-  return handle && /^@[a-zA-Z0-9\-.]+$/.test(handle);
+  return handle && /^@[a-zA-Z0-9\-_.]+$/.test(handle);
 }
 
 export function isValidYouTubeUrl(url) {

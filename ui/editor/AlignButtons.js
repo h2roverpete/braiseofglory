@@ -1,6 +1,7 @@
 import {Button} from "react-bootstrap";
 import {BsTextCenter, BsTextLeft, BsTextRight} from "react-icons/bs";
 import {useEffect, useState} from "react";
+import {useSiteContext} from "../content/Site";
 
 /**
  * Display left/center/right alignment buttons.
@@ -13,6 +14,9 @@ import {useEffect, useState} from "react";
  * @constructor
  */
 export default function AlignButtons({editing, callback, align}) {
+
+  const {siteData} = useSiteContext();
+
   const [alignment, setAlignment] = useState(null);
   useEffect(() => {
     if (alignment === null && align) {
@@ -30,7 +34,7 @@ export default function AlignButtons({editing, callback, align}) {
             }}
             name={'align'}
             type="radio"
-            variant={'secondary'}
+            variant={siteData?.SiteTheme}
             size={'sm'}
             checked={alignment === 'left'}
             className={`EditButton border border-secondary ${alignment === 'left' ? 'text-light bg-primary' : ''}`}
@@ -41,7 +45,7 @@ export default function AlignButtons({editing, callback, align}) {
               callback(AlignAction.ALIGN_CENTER);
             }}
             type="radio"
-            variant={'secondary'}
+            variant={siteData?.SiteTheme}
             size={'sm'}
             name={'align'}
             checked={alignment === 'center'}
@@ -53,7 +57,7 @@ export default function AlignButtons({editing, callback, align}) {
               callback(AlignAction.ALIGN_RIGHT);
             }}
             type="radio"
-            variant={'secondary'}
+            variant={siteData?.SiteTheme}
             size={'sm'}
             name={'align'}
             checked={alignment === 'right'}

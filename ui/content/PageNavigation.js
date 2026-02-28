@@ -15,7 +15,7 @@ export default function PageNavigation() {
 
   return (
     <div
-      className="PageNavigation nav-pills"
+      className="PageNavigation"
       style={{
         display: "flex",
         flexDirection: "row",
@@ -24,11 +24,10 @@ export default function PageNavigation() {
     >
       {prevPage && (
         <div
-          className="nav nav-item nav-link"
+          className="nav nav-item nav-link previous"
           style={{cursor: "pointer"}}
           onClick={() => navigate(prevPage.PageRoute)}
         >
-          <>&nbsp;&laquo;&nbsp;</>
           {prevPage.NavTitle ? prevPage.NavTitle : prevPage.PageTitle}
         </div>
       )}
@@ -36,12 +35,11 @@ export default function PageNavigation() {
       {
         nextPage && (
           <div
-            className="nav nav-item nav-link"
+            className="nav nav-item nav-link next"
             style={{cursor: "pointer"}}
             onClick={() => navigate(nextPage.PageRoute)}
           >
             {nextPage.NavTitle ? nextPage.NavTitle : nextPage.PageTitle}
-            <>&nbsp;&raquo;&nbsp;</>
           </div>
         )
       }

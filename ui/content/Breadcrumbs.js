@@ -15,16 +15,10 @@ export default function Breadcrumbs({delimiter}) {
 
   return (<>{breadcrumbs?.length > 0 && !error && !login && (
     <ol className="breadcrumb">
-      {siteData?.SiteName}
-      <>&nbsp;&raquo;&nbsp;</>
+      <li className="breadcrumb-item">{siteData?.SiteName}</li>
       {breadcrumbs.map(page => (
         <li key={page.PageID} className="breadcrumb-item">
           {page.NavTitle ? page.NavTitle : page.PageTitle}
-          <>{delimiter ? (
-            <>{delimiter}</>
-          ) : (
-            <>&nbsp;&raquo;&nbsp;</>
-          )}</>
         </li>
       ))}
     </ol>

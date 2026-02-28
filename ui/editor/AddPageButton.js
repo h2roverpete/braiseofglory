@@ -5,6 +5,7 @@ import FormEditor from "./FormEditor";
 import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
 import {useTouchContext} from "../../util/TouchProvider";
+import {useSiteContext} from "../content/Site";
 
 const NewPageModal = lazy(() => import("../editor/NewPageModal"));
 
@@ -21,6 +22,7 @@ export default function AddPageButton({ref}) {
   // imports
   const {hasPermission} = useAuth();
   const {supportsHover} = useTouchContext();
+  const {siteData} = useSiteContext();
 
   // states
   const [showNewPage, setShowNewPage] = useState(false);
@@ -34,7 +36,7 @@ export default function AddPageButton({ref}) {
     {canEditSite && (<>
       <Button
         className={`AddPageButton EditButton`}
-        variant="secondary"
+        variant={siteData?.SiteTheme}
         type="button"
         size={'sm'}
         ref={ref}
