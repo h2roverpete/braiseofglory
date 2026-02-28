@@ -267,7 +267,7 @@ export default function Gallery({galleryId, extraId}) {
           <Button
             className={`EditButton`}
             type="button"
-            variant={'secondary'}
+            variant={siteData?.SiteTheme}
             size={'sm'}
             aria-expanded="false"
             data-bs-toggle="dropdown"

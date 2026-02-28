@@ -31,7 +31,7 @@ export default function PageSection({pageSectionData, canEdit = false}) {
     updatePageSection,
     addExtraModal,
   } = usePageContext();
-  const {showErrorAlert} = useSiteContext();
+  const {showErrorAlert, siteData} = useSiteContext();
 
   // states
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -385,7 +385,7 @@ export default function PageSection({pageSectionData, canEdit = false}) {
         )}
         <div className="Editor EditSectionMenu dropdown">
           <Button
-            variant="secondary"
+            variant={siteData?.SiteTheme}
             size="sm"
             className={`EditButton EditSectionButton`}
             type="button"

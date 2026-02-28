@@ -252,7 +252,7 @@ export default function NavBar(props) {
   return (
     <Navbar
       expand={props.expand ? props.expand : 'sm'}
-      className={`NavBar ${!props.expand ? 'navbar-expand' : ''}`}
+      className={`NavBar ${!props.expand ? 'navbar-expand' : ''} bg-primary navbar-dark`}
       fixed={props.fixed ? props.fixed : undefined}
       data-testid="NavBar"
       onMouseOver={() => {

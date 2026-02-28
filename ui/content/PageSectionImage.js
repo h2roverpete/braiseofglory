@@ -186,7 +186,7 @@ export default function PageSectionImage({pageSectionData, imageRef, dropRef, on
               hidden={supportsHover}
             >
               <Button
-                variant="secondary"
+                variant={siteData?.SiteTheme}
                 size="sm"
                 className={`EditButton EditImageButton`}
                 type="button"

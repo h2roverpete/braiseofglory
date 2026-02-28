@@ -34,7 +34,7 @@ export default function InstagramExtra({extraData, canEdit = false}) {
     >
       {data && (
         <InstagramEmbed
-          url={`https://www.instagram.com/${data.InstagramHandle.replaceAll(/[^a-zA-Z0-9-\-.]/g, '')}`}
+          url={`https://www.instagram.com/${data.InstagramHandle.replaceAll(/[^a-zA-Z0-9-\-_.]/g, '')}`}
           width={'100%'}/>
       )}
       {canEdit && (

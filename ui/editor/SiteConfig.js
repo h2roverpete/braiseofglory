@@ -71,7 +71,7 @@ export default function SiteConfig(props) {
   function isDataValid() {
     return formData.edits?.SiteName?.length > 0
       && (!formData.edits.SiteRootUrl || isValidUrl(formData.edits?.SiteRootUrl))
-      && (!formData.edits.SiteBucketName ||isValidBucketName(formData.edits?.SiteBucketName))
+      && (!formData.edits.SiteBucketName || isValidBucketName(formData.edits?.SiteBucketName))
   }
 
   return (<>
@@ -109,6 +109,32 @@ export default function SiteConfig(props) {
         </Row>
         <Row>
           <Col>
+            <Form.Label column={'sm'} htmlFor={'SiteStyle'}>Style</Form.Label>
+            <Form.Select
+              size={'sm'}
+              name={'SiteStyle'}
+              value={formData.edits?.SiteStyle || ''}
+              onChange={(e) => formData.onDataChanged({name: 'SiteStyle', value: e.target.value})}
+            >
+              <option value={``}>none</option>
+              <option value={`bootstrap.min.css`}>Bootstrap</option>
+              <option value={`superhero.min.css`}>Superhero</option>
+              <option value={`cyborg.min.css`}>Cyborg</option>
+              <option value={`sandstone.min.css`}>Sandstone</option>
+              <option value={`yeti.min.css`}>Yeti</option>
+              <option value={`darkly.min.css`}>Darkly</option>
+              <option value={`pulse.min.css`}>Pulse</option>
+              <option value={`simplex.min.css`}>Simplex</option>
+              <option value={`solar.min.css`}>Solar</option>
+              <option value={`cosmo.min.css`}>Cosmo</option>
+              <option value={`flatly.min.css`}>Flatly</option>
+              <option value={`minty.min.css`}>Minty</option>
+              <option value={`sketchy.min.css`}>Sketchy</option>
+            </Form.Select>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
             <Form.Label column={'sm'} htmlFor={'SiteTheme'}>Theme</Form.Label>
             <Form.Select
               size={'sm'}
@@ -116,9 +142,8 @@ export default function SiteConfig(props) {
               value={formData.edits?.SiteTheme || ''}
               onChange={(e) => formData.onDataChanged({name: 'SiteTheme', value: e.target.value})}
             >
-              <option value={``}>none</option>
-              <option value={`light`}>Bootstrap-Light</option>
-              <option value={`dark`}>Bootstrap-Dark</option>
+              <option value={`light`}>Light</option>
+              <option value={`dark`}>Dark</option>
             </Form.Select>
           </Col>
         </Row>

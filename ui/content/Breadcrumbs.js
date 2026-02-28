@@ -14,19 +14,13 @@ export default function Breadcrumbs({delimiter}) {
   const {breadcrumbs, error, login} = usePageContext();
 
   return (<>{breadcrumbs?.length > 0 && !error && !login && (
-    <div className="Breadcrumbs">
-      {siteData?.SiteName}
-      <>&nbsp;&raquo;&nbsp;</>
+    <ol className="breadcrumb">
+      <li className="breadcrumb-item">{siteData?.SiteName}</li>
       {breadcrumbs.map(page => (
-        <span key={page.PageID}>
+        <li key={page.PageID} className="breadcrumb-item">
           {page.NavTitle ? page.NavTitle : page.PageTitle}
-          <>{delimiter ? (
-            <>{delimiter}</>
-          ) : (
-            <>&nbsp;&raquo;&nbsp;</>
-          )}</>
-        </span>
+        </li>
       ))}
-    </div>
+    </ol>
   )}</>);
 }

@@ -1,6 +1,5 @@
 import React, {createContext, useCallback, useContext, useEffect, useState} from 'react';
 import ReactGA from 'react-ga4';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.js';
 import {Route, Routes, useLocation, useNavigate} from "react-router";
 import {useRestApi} from "../../api/RestApi";
@@ -66,8 +65,9 @@ export default function Site(props) {
   let cfmPageId = parseInt(params.get('pageid'));
 
   useEffect(() => {
-    if (siteData?.SiteTheme)
-      document.body.setAttribute('data-bs-theme', siteData.SiteTheme);
+    if (siteData?.SiteTheme) {
+      document.documentElement.setAttribute('data-bs-theme', siteData.SiteTheme);
+    }
   }, [siteData]);
 
   useEffect(() => {
