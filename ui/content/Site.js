@@ -231,16 +231,16 @@ export default function Site(props) {
    */
   function updateOutlineData(pageData) {
     if (outlineData) {
-      const newOutlineData = [];
-      outlineData.map((item) => {
-        newOutlineData.push(item);
+      const newOutlineData = outlineData.map((item) => {
         if (item.PageID === pageData.PageID) {
-          item.PageTitle = pageData.PageTitle;
-          item.NavTitle = pageData.NavTitle;
-          item.PageHidden = pageData.PageHidden;
+          return {...pageData};
+        } else {
+          return item;
         }
-        return item;
       })
+      if (pageData.PageID === currentPage?.PageID) {
+        setCurrentPage({...pageData});
+      }
       setOutlineData(buildOutline(newOutlineData));
     }
   }

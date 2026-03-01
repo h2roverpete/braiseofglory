@@ -1,6 +1,6 @@
 {
   "name": "framework",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "React framework for managed web sites",
   "main": "index.js",
   "scripts": {
@@ -36,6 +36,7 @@
     "swiper": "^12.1.2"
   },
   "devDependencies": {
+    "@aws-sdk/client-cloudfront": "^3.1000.0",
     "colors": "^1.4.0",
     "dotenv": "^17.3.1",
     "gulp": "^5.0.1",
