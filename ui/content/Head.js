@@ -16,7 +16,7 @@ export default function Head() {
       {siteData?.SiteStyle && (
         <link
           rel={'stylesheet'}
-          href={`css/${siteData.SiteStyle}`}
+          href={`https://resources.h2rover.net/css/${siteData.SiteStyle}`}
         />
       )}
       {error ? (
