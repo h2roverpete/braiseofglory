@@ -80,7 +80,7 @@ export default function SiteConfigPanel() {
           <BsXLg
             style={{
               position: 'absolute',
-              top: '10px',
+              top: '25px',
               right: '10px',
               fontSize: '14pt',
               cursor: 'pointer',
