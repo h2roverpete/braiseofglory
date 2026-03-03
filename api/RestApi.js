@@ -17,10 +17,28 @@ export default function RestApi(props) {
     axios.defaults.headers.common["Authorization"] = `Bearer ${cookies.token.access_token}`;
   }
 
+  const getSites = useCallback(async (data) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.get(`${host}/api/v1/content/sites`, data);
+        return response.data;
+      }
+    });
+  }, [host]);
+
   const insertOrUpdateSite = useCallback(async (data) => {
     return await adminApiCall(() => {
       return async () => {
         const response = await axios.post(`${host}/api/v1/content/sites`, data);
+        return response.data;
+      }
+    });
+  }, [host]);
+
+  const deleteSite = useCallback(async (siteId) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.delete(`${host}/api/v1/content/sites/${siteId}`);
         return response.data;
       }
     });
@@ -263,6 +281,33 @@ export default function RestApi(props) {
     });
   }, [host]);
 
+  const getUsers = useCallback(async () => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.get(`${host}/api/v1/users`);
+        return response.data;
+      }
+    });
+  }, [host]);
+
+  const insertOrUpdateUser = useCallback(async (data) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.post(`${host}/api/v1/users`, data);
+        return response.data;
+      }
+    });
+  }, [host]);
+
+  const deleteUser = useCallback(async (userId) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.delete(`${host}/api/v1/users/${userId}`);
+        return response.data;
+      }
+    });
+  }, [host]);
+
   const getAuthToken = useCallback(async (clientId, redirectUrl, authCode) => {
     const response = await axios.post(`${host}/oauth/token?client_id=${clientId}&redirect_uri=${redirectUrl}&code=${authCode}&grant_type=authorization_code`);
     return response.data;
@@ -277,6 +322,22 @@ export default function RestApi(props) {
     const response = await axios.get(`${host}/oauth/check`);
     return response.data;
   }, [host]);
+
+  const getAuthClients = useCallback(async () => {
+    const response = await axios.get(`${host}/oauth/clients`);
+    return response.data;
+  }, [host]);
+
+  const insertOrUpdateAuthClient = useCallback(async (data) => {
+    const response = await axios.post(`${host}/oauth/clients`, data);
+    return response.data;
+  }, [host]);
+
+  const deleteAuthClient = useCallback(async (client_id) => {
+    const response = await axios.delete(`${host}/oauth/clients/${client_id}`);
+    return response.data;
+  }, [host]);
+
 
   /**
    * @callback RestApiCall
@@ -334,6 +395,8 @@ export default function RestApi(props) {
   return (
     <RestApiContext value={{
       Sites: {
+        getSites: getSites,
+        deleteSite: deleteSite,
         insertOrUpdateSite: insertOrUpdateSite,
         getSite: getSite,
         getSiteOutline: getSiteOutline,
@@ -384,7 +447,15 @@ export default function RestApi(props) {
         refreshToken: refreshToken,
         checkToken: checkToken,
         refreshAuthTokenRef: refreshAuthTokenRef,
+        getAuthClients: getAuthClients,
+        insertOrUpdateAuthClient: insertOrUpdateAuthClient,
+        deleteAuthClient: deleteAuthClient,
       },
+      Users: {
+        getUsers: getUsers,
+        insertOrUpdateUser: insertOrUpdateUser,
+        deleteUser: deleteUser,
+      }
     }}>
       {props.children}
     </RestApiContext>

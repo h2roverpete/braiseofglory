@@ -5,6 +5,8 @@ import RestAPI from './api/api.mjs'
 import * as fs from "node:fs";
 import 'dotenv/config';
 import mustache from "mustache";
+import { CloudFrontClient, CreateInvalidationCommand } from "@aws-sdk/client-cloudfront"; // ES Modules import
+
 
 /**
  * Gulpfile for building sitemap and index.html in React public folder.
@@ -48,4 +50,25 @@ gulp.task("buildIndex", async function () {
   }
   fs.writeFileSync(`./public/index.html`, index);
   console.log(`index.html generated.`.green);
+});
+
+gulp.task("createInvalidation", async function () {
+  console.log(`Creating CloudFront invalidation...`);
+  const config = {}; // type is CloudFrontClientConfig
+  const client = new CloudFrontClient(config);
+  const input = { // CreateInvalidationRequest
+    DistributionId: process.env.CLOUDFRONT_DISTRIBUTION_ID, // required
+    InvalidationBatch: { // InvalidationBatch
+      Paths: { // Paths
+        Quantity: Number(1), // required
+        Items: [ // PathList
+          "/*",
+        ],
+      },
+      CallerReference: Date.now().toString(), // required
+    },
+  };
+  const command = new CreateInvalidationCommand(input);
+  const response = await client.send(command);
+  console.log(`Response: ${JSON.stringify(response)}`.green);
 });

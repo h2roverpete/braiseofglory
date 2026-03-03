@@ -5,6 +5,7 @@ import {useRestApi} from "../../../api/RestApi";
 import {useSiteContext} from "../../content/Site";
 import {usePageContext} from "../../content/Page";
 import YouTubeExtraFields from "./YouTubeExtraFields";
+import {isValidYouTubeUrl} from "../../../util/Validators";
 
 export default function YouTubeExtraConfig({buttonRef, data}) {
 
@@ -43,10 +44,6 @@ export default function YouTubeExtraConfig({buttonRef, data}) {
 
   function isDataValid() {
     return isValidYouTubeUrl(formData.edits.YouTubeVideoUrl);
-  }
-
-  function isValidYouTubeUrl(url) {
-    return /^https:\/\/www.youtube.com\/watch\?v=/.test(url);
   }
 
   return (

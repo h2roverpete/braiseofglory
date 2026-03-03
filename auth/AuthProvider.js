@@ -1,32 +1,21 @@
 import {useContext, createContext, useState, useEffect, useImperativeHandle, useCallback} from "react";
 import {useCookies} from 'react-cookie';
 import {useRestApi} from "../api/RestApi";
-import EditProvider from "../ui/editor/EditProvider";
+import {jwtDecode} from 'jwt-decode';
+import {checkPermission} from "./Permissions";
 
 export const AuthContext = createContext({});
 
-/**
- * Site permissions.
- *
- * @enum {string}
- */
-export const Permission = {
-  ADMIN: "admin",
-  EDIT: "edit",
-  VIEW: "view",
-  NONE: "none"
-}
-
 export default function AuthProvider(props) {
+
   const [cookies, setCookie] = useCookies();
-  const [scope, setScope] = useState(null);
-  const [username, setUsername] = useState(null);
+  const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const {Auth} = useRestApi();
 
   useEffect(() => {
-    setIsAuthenticated(cookies.token && username && scope);
-  }, [cookies.token, username, scope]);
+    setIsAuthenticated(cookies.token && user);
+  }, [cookies.token, user, setIsAuthenticated]);
 
   useImperativeHandle(Auth.refreshAuthTokenRef, () => {
     return {
@@ -35,30 +24,47 @@ export default function AuthProvider(props) {
   });
 
   /**
-   * Check if a permission is present.
-   * Fails until token is verified.
+   * Check if the current user has the requested permission.
+   * Fails until token is verified and current user is set.
    *
-   * @param permission
-   * @returns {Promise<boolean>}
+   * @param resource {string}     Resource being checked, i.e. Resource.PAGE, Resource.SITE, etc.
+   * @param permission {string}   Permission being checked, i.e. Permission.ADMIN, etc.
+   *
+   * @returns {boolean} True if the user is logged in and has permission.
    */
-  const hasPermission = useCallback(async (permission) => {
-    console.debug(`Check permission '${permission}' for current user.`);
-    if (scope) {
-      return checkScopes(scope, `${document.location.host}:${permission}`);
+  const hasPermission = useCallback((resource, permission) => {
+    console.debug(`Check permission '${resource}:${permission}' for current user.`);
+    if (user) {
+      if (user.SiteID !== '0' && user.SiteID !== process.env.REACT_APP_SITE_ID) {
+        console.error(`User not authorized for this site.`);
+        return false;
+      } else {
+        return checkPermission(user, resource, permission);
+      }
     } else {
+      console.debug(`User not logged in.`);
       return false;
     }
-  }, [scope]);
+  }, [user]);
 
   const setToken = useCallback((newToken) => {
     console.debug(`Set token: ${JSON.stringify(newToken)}`);
     // update token value
     setCookie('token', newToken);
-    // clear username and scope
-    setUsername(null);
-    setScope(null);
-  }, [setCookie, setUsername, setScope]);
+    if (newToken) {
+      // decode token and set user
+      const decoded = jwtDecode(newToken.access_token);
+      setUser(decoded);
+    } else {
+      // clear user
+      setUser(null);
+    }
+  }, [setCookie, setUser]);
 
+  /**
+   * Refresh expired auth token.
+   * @type {(function(): Promise<*|null>)|*}
+   */
   const refreshAuthToken = useCallback(async () => {
     if (cookies.token?.refresh_token) {
       console.debug(`Refreshing auth token...`);
@@ -72,11 +78,11 @@ export default function AuthProvider(props) {
 
   const validateToken = useCallback(async () => {
     try {
-      console.debug(`Validating token...`);
-      const decoded = await Auth.checkToken();
-      console.debug(`Token data: ${JSON.stringify(decoded)}`);
-      setUsername(decoded.user);
-      setScope(decoded.scope);
+      console.debug(`Validating access token...`);
+      await Auth.checkToken();
+      const decoded = jwtDecode(cookies.token.access_token);
+      setUser(decoded);
+      console.debug(`Access token is valid, setting user.`);
     } catch (error) {
       if (error.status === 401) {
         try {
@@ -89,7 +95,7 @@ export default function AuthProvider(props) {
         console.error(`Unknown error checking token: ${JSON.stringify(error)}`);
       }
     }
-  }, [Auth, setUsername, setScope, refreshAuthToken]);
+  }, [Auth, setUser, refreshAuthToken, cookies.token?.access_token]);
 
   useEffect(() => {
     if (cookies.token) {
@@ -107,37 +113,11 @@ export default function AuthProvider(props) {
         isAuthenticated: isAuthenticated,
         refreshAuthToken: refreshAuthToken,
       }}>
-      <EditProvider>
-        {props.children}
-      </EditProvider>
+      {props.children}
     </AuthContext>
   );
 };
 
-
 export const useAuth = () => {
   return useContext(AuthContext);
 };
-
-/**
- * Check a requested scope against a list of allowed scopes.
- *
- * @param {string} allowedScopes      Comma delimited list of allowed scopes (or one scope).
- * @param {string} requestedScopes    Comma delimited list of requested scopes (or one scope).
- */
-function checkScopes(allowedScopes, requestedScopes) {
-  const allowed = allowedScopes.split(",");
-  if (allowed.includes('*')) {
-    // all allowed
-    return true;
-  }
-  const requested = requestedScopes.split(",");
-  for (const requestedScope of requested) {
-    if (!allowedScopes.includes(requestedScope)) {
-      // not matched
-      return false;
-    }
-  }
-  // all matched
-  return true;
-}

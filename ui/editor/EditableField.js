@@ -1,6 +1,5 @@
 import {useCallback, useEffect, useState} from "react";
 import EditButtons, {EditAction} from "./EditButtons";
-import {useEdit} from "./EditProvider";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "react-bootstrap";
 import AlignButtons, {AlignAction} from "./AlignButtons";
 import {useTouchContext} from "../../util/TouchProvider";
@@ -47,12 +46,12 @@ export default function EditableField(
     allowEnterKey,
     showEditButton,
     alwaysShow,
-    api
+    api,
+    canEdit = false,
   }
 ) {
 
   // imports
-  const {canEdit} = useEdit();
   const {supportsHover} = useTouchContext();
 
   // states
@@ -210,6 +209,7 @@ export default function EditableField(
       // undo edit modifications to field
       fieldRef.current.classList.remove('border');
       fieldRef.current.classList.remove('rounded-2');
+      fieldRef.current.classList.remove('border-secondary');
       fieldRef.current.onkeydown = undefined;
       if (!fieldRef.current.innerText) {
         fieldRef.current.style.minHeight = '39px';
@@ -224,6 +224,7 @@ export default function EditableField(
       // show border around editable item while editing
       fieldRef.current.classList.add('border');
       fieldRef.current.classList.add('rounded-2');
+      fieldRef.current.classList.add('border-secondary');
       fieldRef.current.onkeydown = (evt) => onKeyDown(evt);
       fieldRef.current.style.minHeight = '39px';
       fieldRef.current.style.verticalAlign = 'middle';

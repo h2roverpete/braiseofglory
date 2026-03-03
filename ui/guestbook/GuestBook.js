@@ -5,10 +5,11 @@ import '../forms/Forms.css'
 import {useRestApi} from "../../api/RestApi";
 import {Button} from "react-bootstrap";
 import GuestBookConfig from "./GuestBookConfig";
-import {isValidEmail} from "../forms/EmailField";
+import {isValidEmail} from "../../util/Validators";
 import FormEditor from "../editor/FormEditor";
 import {useTouchContext} from "../../util/TouchProvider";
-import {useEdit} from "../editor/EditProvider";
+import {useAuth} from "../../auth/AuthProvider";
+import {Permission, Resource} from "../../auth/Permissions";
 
 
 export const GuestBookContext = createContext({
@@ -43,21 +44,24 @@ export function useGuestBook() {
  */
 function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
 
+  // imports
   const {GuestBooks} = useRestApi();
+  const {hasPermission} = useAuth();
+  const {supportsHover} = useTouchContext();
 
-  // guest book configuration
+  // states
   const [guestBookConfig, setGuestBookConfig] = useState(null);
-
-  // user entered values
   const [guestData, setGuestData] = useState({});
   const [guestFeedbackData, setGuestFeedbackData] = useState({});
-
-  // has form been submitted?
   const [submitted, setSubmitted] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
 
-  const {supportsHover} = useTouchContext();
+  // refs
   const expandButtonRef = useRef(null);
-  const {canEdit} = useEdit();
+
+  useEffect(() => {
+    setCanEdit(hasPermission?.(Resource.GUESTBOOK, Permission.ADMIN));
+  }, [setCanEdit, hasPermission]);
 
   // load guest book configuration when initialized
   useEffect(() => {

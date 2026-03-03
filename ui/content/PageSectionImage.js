@@ -1,7 +1,6 @@
 import {BsArrowsMove} from "react-icons/bs";
 import {useRestApi} from "../../api/RestApi";
 import {usePageContext} from "./Page";
-import {useEdit} from "../editor/EditProvider";
 import {useSiteContext} from "./Site";
 import FileDropTarget, {DropState} from "../editor/FileDropTarget";
 import {Button} from "react-bootstrap";
@@ -22,12 +21,11 @@ import {useTouchContext} from "../../util/TouchProvider";
  * @returns {JSX.Element}
  * @constructor
  */
-export default function PageSectionImage({pageSectionData, imageRef, dropRef, onFileSelected, onFilesSelected}) {
+export default function PageSectionImage({pageSectionData, imageRef, dropRef, onFileSelected, onFilesSelected, canEdit = false}) {
 
   // imports
   const {PageSections} = useRestApi();
   const {updatePageSection} = usePageContext();
-  const {canEdit} = useEdit();
   const {supportsHover} = useTouchContext();
   const {siteData, showErrorAlert} = useSiteContext();
 
@@ -184,14 +182,13 @@ export default function PageSectionImage({pageSectionData, imageRef, dropRef, on
             />
             <div
               className="EditSectionImage Editor dropdown"
-              style={{position: 'absolute', bottom: -5, right: 5, margin:'10px 2px 10px 0'}}
               ref={editButtonRef}
               hidden={supportsHover}
             >
               <Button
-                variant="secondary"
+                variant={siteData?.SiteTheme}
                 size="sm"
-                className={`EditButton border btn-light`}
+                className={`EditButton EditImageButton`}
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"

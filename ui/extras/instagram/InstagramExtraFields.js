@@ -1,13 +1,10 @@
 import {Col, Form, Row} from "react-bootstrap";
 import {useFormData} from "../../editor/FormEditor";
+import {isValidInstagramHandle} from "../../../util/Validators";
 
 export default function InstagramExtraFields() {
 
   const formData = useFormData();
-
-  function isValidInstagramHandle(value) {
-    return value && /^@[a-zA-Z0-9\-.]+$/.test(value);
-  }
 
   const labelCols = 4;
   return (<>

@@ -1,14 +1,13 @@
-import {useEdit} from "../../editor/EditProvider";
 import {useRestApi} from "../../../api/RestApi";
 import {usePageContext} from "../../content/Page";
 import EditorPanel from "../../editor/EditorPanel";
 import {useFormData} from "../../editor/FormEditor";
 import {useEffect} from "react";
 import InstagramExtraFields from "./InstagramExtraFields";
+import {isValidInstagramHandle} from "../../../util/Validators";
 
 export default function InstagramExtraConfig({extraData, setExtraData, buttonRef}) {
 
-  const {canEdit} = useEdit();
   const {Extras} = useRestApi();
   const {removeExtraFromPage} = usePageContext();
 
@@ -18,14 +17,6 @@ export default function InstagramExtraConfig({extraData, setExtraData, buttonRef
   useEffect(() => {
     formData.setData(extraData);
   }, [extraData, formData]);
-
-  if (!canEdit) {
-    return <></>;
-  }
-
-  function isValidInstagramHandle(value) {
-    return value && /^@[a-zA-Z0-9\-.]+$/.test(value);
-  }
 
   function onUpdate() {
     console.debug(`Updating instagram extra.`);

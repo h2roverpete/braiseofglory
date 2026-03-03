@@ -4,46 +4,24 @@ import PasswordField from "../ui/forms/PasswordField";
 import {useSearchParams} from 'react-router';
 import {useSiteContext} from "../ui/content/Site";
 import {useNavigate} from "react-router";
-import {Permission, useAuth} from "./AuthProvider";
+import {useAuth} from "./AuthProvider";
 import {useCookies} from "react-cookie";
 import {useRestApi} from "../api/RestApi";
 import {Button, Col, Form, Row} from "react-bootstrap";
-
-/**
- * @typedef LoginProps
- * @property {Permission | [Permission]} [permission]   Permissions to request
- */
+import {isValidEmail, isValidPassword} from "../util/Validators";
 
 /**
  * Login UI component.
  *
- * @param {LoginProps} props
  * @returns {JSX.Element}
  * @constructor
  */
-const Login = (props) => {
+const Login = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const permissions = [];
-  if (!props.permission) {
-    // default permission to request is admin
-    permissions.push(Permission.ADMIN);
-  } else if (typeof props.permission === "string") {
-    // one permission provided
-    permissions.push(props.permission);
-  } else if (Array.isArray(props.permission)) {
-    // multiple permissions provided
-    for (const permission of props.permission) {
-      permissions.push(permission);
-    }
-  }
-  // prefix all permissions with host name
-  for (let i = 0; i < permissions.length; i++) {
-    permissions[i] = window.location.host + ":" + permissions[i];
-  }
-  const scope = permissions.join(",")
+  const scope = 'profile email phone'
 
   const {Auth} = useRestApi();
   const {setError} = useSiteContext();
@@ -120,15 +98,16 @@ const Login = (props) => {
           <input type="hidden" name="state" value={cookies.loginState ? cookies.loginState : ''}/>
           <input type="hidden" name="scope" value={scope}/>
           <Row className="mt-4">
-            <Form.Label className={'required'} htmlFor="username" column={true} sm={3}>
-              Login
+            <Form.Label className={'required'} htmlFor="email" column={true} sm={3}>
+              Email
             </Form.Label>
             <Col sm={6}>
               <Form.Control
-                name="username"
-                id="username"
-                autoComplete="username"
-                isValid={email?.length > 0}
+                name="email"
+                id="email"
+                autoComplete="email"
+                isValid={email?.length > 0 && isValidEmail(email)}
+                isInvalid={email?.length > 0 && !isValidEmail(email)}
                 value={email || ''}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -143,7 +122,8 @@ const Login = (props) => {
                 name={"password"}
                 id={"password"}
                 value={password || ''}
-                isValid={password?.length > 0}
+                isValid={password?.length > 0 && isValidPassword(password)}
+                isInvalid={password?.length > 0 && !isValidPassword(password)}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </Col>

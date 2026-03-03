@@ -1,6 +1,5 @@
 import {Button, Col, Collapse, Row} from "react-bootstrap";
 import {useState} from "react";
-import {useEdit} from "./EditProvider";
 import {useFormData} from "./FormEditor";
 import {BsChevronCompactDown, BsChevronCompactUp, BsXLg} from "react-icons/bs";
 import {useTouchContext} from "../../util/TouchProvider";
@@ -46,11 +45,6 @@ export default function EditorPanel(
   const formData = useFormData();
   const {supportsHover} = useTouchContext();
   const [expanded, setExpanded] = useState(false);
-  const {canEdit} = useEdit();
-
-  if (!canEdit) {
-    return <></>
-  }
 
   return (<div
     className={`Editor EditorPanel ${expanded ? 'expanded' : 'collapsed'}`}

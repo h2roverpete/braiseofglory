@@ -45,7 +45,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
       console.debug(`Updated page.`);
       formData.update(result)
       Outline.updatePage(result);
-      setPageData(result);
+      setPageData?.(result);
     }).catch((error) => {
       console.error(`Error updating page.`, error);
     });
@@ -157,6 +157,17 @@ export default function PageConfig({onPageUpdated, onPageDeleted}) {
           id={'PageHidden'}
           label={'Hide page from site navigation'}
           onChange={(e) => formData.onDataChanged({name: 'PageHidden', value: e.target.checked})}
+        />
+      </Col>
+    </Row>
+    <Row>
+      <Col>
+        <Form.Check
+          className={'form-control-sm'}
+          checked={formData.edits?.RequiresLogin || false}
+          id={'RequiresLogin'}
+          label={'Requires user login'}
+          onChange={(e) => formData.onDataChanged({name: 'RequiresLogin', value: e.target.checked})}
         />
       </Col>
     </Row>

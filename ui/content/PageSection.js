@@ -1,7 +1,6 @@
 import EditableField from "../editor/EditableField";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
-import {useEdit} from "../editor/EditProvider";
 import {BsThreeDotsVertical} from "react-icons/bs";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "react-bootstrap";
 import {usePageContext} from "./Page";
@@ -20,12 +19,11 @@ import {useTouchContext} from "../../util/TouchProvider";
  * @param sectionData{PageSectionData}  Data for page section.
  * @constructor
  */
-export default function PageSection({pageSectionData}) {
+export default function PageSection({pageSectionData, canEdit = false}) {
 
   // imports
   const {supportsHover} = useTouchContext();
   const {PageSections} = useRestApi();
-  const {canEdit} = useEdit();
   const {
     sectionData,
     setSectionData,
@@ -33,7 +31,7 @@ export default function PageSection({pageSectionData}) {
     updatePageSection,
     addExtraModal,
   } = usePageContext();
-  const {showErrorAlert} = useSiteContext();
+  const {showErrorAlert, siteData} = useSiteContext();
 
   // states
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -332,7 +330,6 @@ export default function PageSection({pageSectionData}) {
         }}
         style={{
           position: 'relative',
-          minHeight: '30px',
         }}
         data-testid={`PageSection-${pageSectionData.PageSectionID}`}
         ref={sectionRef}
@@ -356,12 +353,14 @@ export default function PageSection({pageSectionData}) {
           textAlign={pageSectionData.TitleAlign}
           callback={onTitleChanged}
           onCancel={onEditCanceled}
+          canEdit={canEdit}
         />
         <PageSectionImage
           pageSectionData={pageSectionData}
           imageRef={sectionImageRef}
           dropRef={dropRef}
           onFileSelected={onUploadFile}
+          canEdit={canEdit}
         />
         <EditableField
           field={sectionText}
@@ -372,6 +371,7 @@ export default function PageSection({pageSectionData}) {
           callback={onTextChanged}
           onCancel={onEditCanceled}
           allowEnterKey={true}
+          canEdit={canEdit}
         />
         {!pageSectionData.SectionImage && (
           <FileDropTarget
@@ -385,16 +385,16 @@ export default function PageSection({pageSectionData}) {
         )}
         <div className="Editor EditSectionMenu dropdown">
           <Button
-            variant="secondary"
+            variant={siteData?.SiteTheme}
             size="sm"
-            className={`EditButton border btn-light`}
+            className={`EditButton EditSectionButton`}
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
             ref={editButtonRef}
             hidden={supportsHover}
           ><BsThreeDotsVertical/></Button>
-          <div className="EditSectionButton dropdown-menu Editor" style={{cursor: 'pointer'}}>
+          <div className="dropdown-menu Editor" style={{cursor: 'pointer'}}>
               <span className="dropdown-item"
                     onClick={onEditTitle}>{`${pageSectionData?.SectionTitle?.length > 0 ? 'Edit' : 'Add'} Section Title`}</span>
             <span className="dropdown-item"

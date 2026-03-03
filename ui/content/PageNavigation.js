@@ -1,4 +1,4 @@
-import {Link} from "react-router";
+import {useNavigate} from "react-router";
 import {useSiteContext} from "./Site";
 
 /**
@@ -10,6 +10,7 @@ import {useSiteContext} from "./Site";
 export default function PageNavigation() {
 
   const {nextPage, prevPage} = useSiteContext();
+  const navigate = useNavigate();
 
   return (
     <div
@@ -21,18 +22,26 @@ export default function PageNavigation() {
       }}
     >
       {prevPage && (
-        <Link to={prevPage.PageRoute}>
-          <>&nbsp;&laquo;&nbsp;</>
+        <div
+          className="nav nav-item nav-link previous"
+          style={{cursor: "pointer"}}
+          onClick={() => navigate(prevPage.PageRoute)}
+        >
           {prevPage.NavTitle ? prevPage.NavTitle : prevPage.PageTitle}
-        </Link>
+        </div>
       )}
       <span style={{flexGrow: 1}}></span>
-      {nextPage && (
-        <Link to={nextPage.PageRoute}>
-          {nextPage.NavTitle ? nextPage.NavTitle : nextPage.PageTitle}
-          <>&nbsp;&raquo;&nbsp;</>
-        </Link>
-      )}
+      {
+        nextPage && (
+          <div
+            className="nav nav-item nav-link next"
+            style={{cursor: "pointer"}}
+            onClick={() => navigate(nextPage.PageRoute)}
+          >
+            {nextPage.NavTitle ? nextPage.NavTitle : nextPage.PageTitle}
+          </div>
+        )
+      }
     </div>
   )
 }

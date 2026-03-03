@@ -2,7 +2,8 @@ import {createContext, lazy, Suspense, useCallback, useContext, useEffect, useSt
 import {useSiteContext} from "./Site";
 import {useRestApi} from "../../api/RestApi";
 import FormEditor from "../editor/FormEditor";
-import {useEdit} from "../editor/EditProvider"
+import {useAuth} from "../../auth/AuthProvider";
+import {Permission, Resource} from "../../auth/Permissions";
 
 const AddExtrasModal = lazy(() => import("../extras/AddExtrasModal"));
 
@@ -26,9 +27,9 @@ export const PageContext = createContext(
 export default function Page({children, pageId, error, login}) {
 
   // imports
-  const {canEdit} = useEdit();
   const {outlineData, buildBreadcrumbs} = useSiteContext();
   const {Pages, Extras} = useRestApi();
+  const {hasPermission} = useAuth();
 
   // states
   const [breadcrumbs, setBreadcrumbs] = useState(/** @type {OutlineData[]} */ null);
@@ -36,6 +37,11 @@ export default function Page({children, pageId, error, login}) {
   const [sectionData, setSectionData] = useState(/** @type {PageSectionData[]} */ null);
   const [showAddExtraModal, setShowAddExtraModal] = useState(false);
   const [extraPageSectionId, setExtraPageSectionId] = useState(0);
+  const [canEdit, setCanEdit] = useState(false);
+
+  useEffect(() => {
+    setCanEdit(hasPermission?.(Resource.PAGE, Permission.EDIT));
+  }, [setCanEdit, hasPermission]);
 
   useEffect(() => {
     // extract this page from outline data, don't load from DynamoDB
@@ -52,7 +58,7 @@ export default function Page({children, pageId, error, login}) {
 
   useEffect(() => {
     // load page sections from DynamoDB
-    if (pageId !== pageData?.PageID) {
+    if (pageId && pageId !== pageData?.PageID) {
       Pages.getPageSections(pageId).then((sections) => {
         console.debug(`Loaded page ${pageId} sections.`);
         Extras.getPageExtras(pageId).then((extras) => {
@@ -112,26 +118,41 @@ export default function Page({children, pageId, error, login}) {
   }, [sectionData, setSectionData]);
 
   const addExtraToPage = useCallback((extra) => {
-    sectionData.forEach(section => {
+    sectionData.forEach((section, sectionIndex) => {
       if (section.PageSectionID === extra.PageSectionID) {
+        // update section data
+        if (!section.Extras) {
+          section.Extras = [];
+        }
         section.Extras.push(extra);
+        section.Modified = new Date().toISOString();
+        sectionData[sectionIndex] = {...section};
       }
     })
     setSectionData([...sectionData]);
   }, [setSectionData, sectionData]);
 
   const removeExtraFromPage = useCallback((extraId) => {
-    sectionData.forEach(section => {
-      section.Extras.filter((extra) => extra.ExtraID !== extraId);
+    sectionData.forEach((section, sectionIndex) => {
+      const extras = section.Extras?.filter((extra) => extra.ExtraID !== extraId);
+      if (extras && extras.length < section.Extras?.length) {
+        // update section data
+        section.Extras = extras;
+        section.Modified = new Date().toISOString();
+        sectionData[sectionIndex] = {...section};
+      }
     })
     setSectionData([...sectionData]);
   }, [sectionData, setSectionData]);
 
   const updateExtra = useCallback((newExtra) => {
-    sectionData.forEach(section => {
-      section.Extras.forEach((extra, index) => {
+    sectionData.forEach((section, sectionIndex) => {
+      section.Extras?.forEach((extra, extraIndex) => {
         if (extra.ExtraID === newExtra.ExtraID) {
-          section.Extras[index]=({...newExtra});
+          // update section data
+          section.Extras[extraIndex] = ({...newExtra});
+          section.Modified = new Date().toISOString();
+          sectionData[sectionIndex] = {...section};
         }
       })
     })

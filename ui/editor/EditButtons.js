@@ -1,5 +1,6 @@
 import {Button} from "react-bootstrap";
 import {BsCheck, BsPencil, BsX} from "react-icons/bs";
+import {useSiteContext} from "../content/Site";
 
 /**
  * Display edit/confirm/cancel buttons for an editable text element.
@@ -13,6 +14,9 @@ import {BsCheck, BsPencil, BsX} from "react-icons/bs";
  * @constructor
  */
 export default function EditButtons({editing, callback, showEditButton, hidden}) {
+
+  const {siteData} = useSiteContext();
+
   return (
     <div
       className={'EditButtons'}
@@ -20,22 +24,22 @@ export default function EditButtons({editing, callback, showEditButton, hidden})
     >
       <Button
         onClick={() => callback(EditAction.CONFIRM)}
-        variant={'secondary'}
+        variant={siteData?.SiteTheme}
         size={'sm'}
-        className={`EditButton me-1 border text-primary border-primary btn-light ${!editing ? ' d-none' : ''}`}
+        className={`EditButton me-1 text-primary border-primary ${!editing ? ' d-none' : ''}`}
       ><BsCheck/></Button>
       <Button
         onClick={() => callback(EditAction.CANCEL)}
-        variant={'secondary'}
+        variant={siteData?.SiteTheme}
         size={'sm'}
-        className={`EditButton me-1 border border-danger text-danger btn-light ${!editing ? ' d-none' : ''}`}
+        className={`EditButton me-1 border-danger text-danger ${!editing ? ' d-none' : ''}`}
       ><BsX/></Button>
       {showEditButton && !editing && (
         <Button
           onClick={() => callback(EditAction.EDIT)}
-          variant={'secondary'}
+          variant={siteData?.SiteTheme}
           size={'sm'}
-          className={`EditButton border btn-light`}
+          className={`EditButton`}
         ><BsPencil/></Button>
       )}
     </div>

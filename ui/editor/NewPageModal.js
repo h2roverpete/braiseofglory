@@ -5,7 +5,8 @@ import {useSiteContext} from "../content/Site";
 import {useRestApi} from "../../api/RestApi";
 import {useFormData} from "./FormEditor";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
-import {useEdit} from "./EditProvider";
+import {Permission, Resource} from "../../auth/Permissions";
+import {useAuth} from "../../auth/AuthProvider";
 
 /**
  * Show modal dialog to create a new page
@@ -16,13 +17,20 @@ import {useEdit} from "./EditProvider";
  */
 export default function NewPageModal({show, setShow}) {
 
-  const {canEdit} = useEdit();
   const {siteData, Outline, outlineData} = useSiteContext();
   const {pageData} = usePageContext();
   const {Pages, PageSections} = useRestApi();
   const navigate = useNavigate();
   const formData = useFormData();
+  const {hasPermission} = useAuth();
+
   const [routes, setRoutes] = useState([]);
+  const [canEdit, setCanEdit] = useState(false);
+
+  useEffect(() => {
+    setCanEdit(hasPermission?.(Resource.SITE, Permission.EDIT));
+  }, [setCanEdit, hasPermission]);
+
   useEffect(() => {
     if (canEdit && outlineData && pageData) {
       const routeList = [];

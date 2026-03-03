@@ -1,18 +1,17 @@
 import {useGuestBook} from "./GuestBook";
-import {useEdit} from "../editor/EditProvider";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import {useEffect, useState} from "react";
-import EmailField, {isValidEmail} from "../forms/EmailField";
+import EmailField from "../forms/EmailField";
 import {useRestApi} from "../../api/RestApi";
 import CustomFieldsConfig from "./CustomFieldsConfig";
 import {usePageContext} from "../content/Page";
 import EditorPanel from "../editor/EditorPanel";
 import {useFormData} from "../editor/FormEditor";
+import {isValidEmail} from "../../util/Validators";
 
 export default function GuestBookConfig({extraId, buttonRef}) {
 
   const {guestBookConfig, setGuestBookConfig} = useGuestBook();
-  const {canEdit} = useEdit();
   const {GuestBooks, Extras} = useRestApi();
   const {removeExtraFromPage} = usePageContext();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -23,10 +22,6 @@ export default function GuestBookConfig({extraId, buttonRef}) {
   useEffect(() => {
     formData.setData(guestBookConfig);
   }, [guestBookConfig, formData]);
-
-  if (!canEdit) {
-    return <></>;
-  }
 
   function isDataValid() {
     return formData.edits?.GuestBookName?.length > 0 && isValidEmail(formData.edits?.GuestBookEmail) && areCustomFieldsValid()

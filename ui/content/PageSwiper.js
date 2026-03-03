@@ -2,18 +2,15 @@ import {Swiper, SwiperSlide} from 'swiper/react'
 import {Virtual} from 'swiper/modules';
 import 'swiper/css'
 import 'swiper/css/virtual'
-
 import {useSiteContext} from "./Site";
 import Page from "./Page";
 import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router";
-import {useEdit} from "../editor/EditProvider";
 
 export default function PageSwiper(props) {
 
   // imports
   const {outlineData, error, currentPage} = useSiteContext();
-  const {canEdit} = useEdit();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -44,12 +41,12 @@ export default function PageSwiper(props) {
           currentSlideIndex,
           Math.abs(swiperInstance.realIndex - currentSlideIndex) === 1 ? 500 : 0
         );
-      } else if (currentSlideIndex === -1 && currentPage && canEdit) {
+      } else if (currentSlideIndex === -1 && currentPage) {
         // display a hidden page for editing
         setShowCurrentPage(true);
       }
     }
-  }, [currentPage, swiperInstance, swipePages, canEdit]);
+  }, [currentPage, swiperInstance, swipePages]);
 
   // Function to handle slide change and update the URL
   const onSlideChange = (swiper) => {

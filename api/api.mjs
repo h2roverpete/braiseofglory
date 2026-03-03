@@ -4,51 +4,35 @@ import axios from "axios";
 /**
  * @typedef SiteData
  *
- * @property {Number} SiteID
- * @property {String} SiteName
- * @property {String} SiteRootUrl
- * @property {String} SiteBucketName
- * @property {String} Created
- * @property {String} Modified
- * @property {String} GoogleClientID
+ * @property {Number} SiteID            Unique Site ID.
+ * @property {String} SiteName          Name of the site. Used for brand, breadcrumbs and copyright.
+ * @property {String} SiteRootUrl       Root URL of the site.
+ * @property {String} SiteTheme         Site theme 'light' or 'dark' variant of the selected style.
+ * @property {String} SiteStyle         CSS style sheet for the site at https://resources.h2rover.net/css/
+ * @property {String} SiteBucketName    S3 bucket name for deploying site files.
+ * @property {String} Created           Creation date.
+ * @property {String} Modified          Modification date.
+ * @property {String} GoogleClientID    Google ID for analytics.
  */
 
 /**
  * @typedef PageData
  *
- * @property {Number} PageID
- * @property {Number} SiteID
- * @property {Number} ParentID
- * @property {Number} NavGroupID
- * @property {Number} OutlineSeq
- * @property {String} PageTitle
- * @property {String} PageTitleAlign
- * @property {Boolean} ShowTitle
- * @property {Boolean} DisplayTitle
- * @property {String} NavTitle
- * @property {String} LinkToURL
- * @property {String} PageImage1
- * @property {String} PageImage2
- * @property {String} Created
- * @property {String} Modified
- * @property {String} PageMetaTitle
- * @property {String} PageMetaDescription
- * @property {String} PageMetaKeywords
- * @property {Boolean} PageHidden
- * @property {Boolean} ShowMetaTitle
- * @property {Boolean} ShowMetaDescription
- * @property {Boolean} ShowMetaKeywords
- * @property {Number} Columns
- * @property {Boolean} HasChildren
- * @property {Boolean} PopUpCached
- * @property {String} PopUpMenus
- * @property {String} PopUpURLs
- * @property {String} PopUpDelimiters
- * @property {String} PopUpXML
- * @property {String} PopUpXMLCached
- * @property {Boolean} InheritSecurity
- * @property {String} FacebookPixelID
- * @property {string} PageRoute
+ * @property {Number} PageID                Unique page ID.
+ * @property {Number} SiteID                Site ID the page belongs to.
+ * @property {Number} ParentID              Parent page ID. (0 for root level pages.)
+ * @property {Number} OutlineSeq            Sequence relative to sibling pages in the site outline/nav.
+ * @property {String} PageTitle             Page title displayed on the page as h1.PageTitle.
+ * @property {String} PageTitleAlign        Alignment of page title, 'left', 'right' or 'center'
+ * @property {String} NavTitle              Page title used in navigation bars and menus.
+ * @property {String} PageMetaTitle         Meta title for window title bar.
+ * @property {String} PageMetaDescription   Meta description for search engines.
+ * @property {String} PageMetaKeywords      Meta keywords for search engines.
+ * @property {Boolean} PageHidden           Hide page from site navigation?
+ * @property {string} PageRoute             Unique page route for navigating to page within site.
+ * @property {Boolean} RequiresLogin        Page requires user login and BROWSE_PROTECTED permission to view.
+ * @property {String} Created               Creation timestamp.
+ * @property {String} Modified              Modification timestamp. Used when updating the sitemap XML.
  */
 
 /**

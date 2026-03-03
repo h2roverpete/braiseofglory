@@ -5,12 +5,13 @@ import {useRestApi} from "../../api/RestApi";
 import GalleryConfig from "./GalleryConfig";
 import FormEditor from "../editor/FormEditor";
 import './Gallery.css';
-import {useEdit} from "../editor/EditProvider";
 import FileDropTarget, {DropState} from "../editor/FileDropTarget";
 import {useSiteContext} from "../content/Site";
 import {Button} from "react-bootstrap";
 import {BsThreeDotsVertical} from "react-icons/bs";
 import {useTouchContext} from "../../util/TouchProvider";
+import {Permission, Resource} from "../../auth/Permissions";
+import {useAuth} from "../../auth/AuthProvider";
 
 /**
  * Display a photo gallery
@@ -23,20 +24,29 @@ import {useTouchContext} from "../../util/TouchProvider";
 export default function Gallery({galleryId, extraId}) {
 
   // imports
-  const {canEdit} = useEdit();
   const {Galleries} = useRestApi();
   const {siteData, showErrorAlert} = useSiteContext();
   const {supportsHover} = useTouchContext();
+  const {hasPermission} = useAuth();
 
   // states
   const [galleryConfig, setGalleryConfig] = useState(null);
   const [galleryPhotos, setGalleryPhotos] = useState([]);
   const [currentPhoto, setCurrentPhoto] = useState(null);
+  const [canEdit, setCanEdit] = useState(false);
+  const [canAddPhotos, setCanAddPhotos] = useState(false);
+  const [canAdmin, setCanAdmin] = useState(false);
 
   // refs
   const fileDropRef = useRef(null);
   const buttonRef = useRef(null);
   const expandButtonRef = useRef(null);
+
+  useEffect(() => {
+    setCanEdit(hasPermission?.(Resource.GALLERY, Permission.EDIT));
+    setCanAddPhotos(hasPermission?.(Resource.GALLERY, Permission.ADD));
+    setCanAdmin(hasPermission?.(Resource.GALLERY, Permission.ADMIN));
+  }, [setCanEdit, setCanAddPhotos, setCanAdmin, hasPermission]);
 
   useEffect(() => {
     if (galleryId) {
@@ -202,96 +212,84 @@ export default function Gallery({galleryId, extraId}) {
   }
 
   return (<div
-    style={{
-      position: 'relative',
-      flex: 1,
-      width: '100%'
-    }}
+    className="Gallery"
     onDragEnter={(e) => {
-      if (canEdit) {
+      if (canAddPhotos) {
         fileDropRef.current?.onDragEnter(e, DropState.ADD);
       }
     }}
     onMouseOver={() => {
-      if (canEdit && supportsHover) {
+      if (canAddPhotos && supportsHover) {
         // show editor button and property panel
         buttonRef.current.hidden = false;
-        expandButtonRef.current.hidden = false;
+        if (canAdmin) {
+          expandButtonRef.current.hidden = false;
+        }
       }
     }}
     onMouseOut={() => {
-      if (canEdit && supportsHover) {
+      if (canAddPhotos && supportsHover) {
         // hide editor button and property panel
         buttonRef.current.hidden = true;
-        expandButtonRef.current.hidden = true;
+        if (canAdmin) {
+          expandButtonRef.current.hidden = true;
+        }
       }
     }}
+    onPaste={(e) => {
+      if (canAddPhotos) {
+        onPaste(e)
+      }
+    }}
+    onTouchMove={(e) => {
+      e.stopPropagation()
+    }}
   >
-    <div
-      className="Gallery"
-      style={{
-        position: 'relative',
-      }}
-      onPaste={(e) => {
-        if (canEdit) {
-          onPaste(e)
-        }
-      }}
-      onTouchMove={(e) => {
-        e.stopPropagation()
-      }}
-    >
-      {images?.length > 0 && (
-        <ImageGallery items={images} ref={galleryRef} onSlide={onSlide}/>
-      )}
-      {canEdit && (<>
-          {images?.length === 0 && (
-            <div style={{
-              position: 'relative',
-              height: '100px',
-            }}>
-              <div className={'Editor EmptyElement'}>(Empty Gallery)</div>
-            </div>
-          )}
-          <FileDropTarget
-            ref={fileDropRef}
-            onFileSelected={uploadFile}
-            onFilesSelected={uploadFiles}
-            onError={onDropError}
-            multiple={true}
-          />
-          <div
-            className="EditGalleryPhoto Editor dropdown"
-            hidden={supportsHover}
-            ref={buttonRef}
+    {images?.length > 0 && (
+      <ImageGallery items={images} ref={galleryRef} onSlide={onSlide}/>
+    )}
+    {canAddPhotos && (<>
+        {images?.length === 0 && (
+          <div className={'Editor EmptyElement'}>(Empty Gallery)</div>
+        )}
+        <FileDropTarget
+          ref={fileDropRef}
+          onFileSelected={uploadFile}
+          onFilesSelected={uploadFiles}
+          onError={onDropError}
+          multiple={true}
+        />
+        <div
+          className="EditGalleryPhoto Editor dropdown"
+          hidden={supportsHover}
+          ref={buttonRef}
+        >
+          <Button
+            className={`EditButton`}
+            type="button"
+            variant={siteData?.SiteTheme}
+            size={'sm'}
+            aria-expanded="false"
+            data-bs-toggle="dropdown"
           >
-            <Button
-              className={`EditButton btn-light mt-1`}
-              type="button"
-              variant={'secondary'}
-              size={'sm'}
-              aria-expanded="false"
-              data-bs-toggle="dropdown"
-            >
-              <BsThreeDotsVertical/>
-            </Button>
-            <div
-              className="dropdown-menu Editor border-secondary border-opacity-25"
-              style={{zIndex: 100}}
-            >
-              {currentPhoto && (<span className="dropdown-item" onClick={onDeletePhoto}>
+            <BsThreeDotsVertical/>
+          </Button>
+          <div
+            className="dropdown-menu Editor border-secondary border-opacity-25"
+            style={{zIndex: 100}}
+          >
+            {currentPhoto && canEdit && (<span className="dropdown-item" onClick={onDeletePhoto}>
                 Delete Photo
               </span>)}
-              <span className="dropdown-item" onClick={fileDropRef.current?.selectFile}>
+            <span className="dropdown-item" onClick={fileDropRef.current?.selectFile}>
                 Upload a Photo
               </span>
-            </div>
           </div>
-        </>
-      )}
-    </div>
+        </div>
+      </>
+    )}
     {
-      canEdit && (
+      canAdmin && (
         <FormEditor>
           <GalleryConfig
             galleryConfig={galleryConfig}
