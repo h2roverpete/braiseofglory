@@ -93,6 +93,12 @@ button.EditButton:focus
 {
 }
 
+div.MoveExtra.Editor.dropdown {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
 .EditGalleryPhoto.Editor.dropdown {
   position: absolute;
   top: 2px;

@@ -281,6 +281,24 @@ export default function RestApi(props) {
     });
   }, [host]);
 
+  const moveExtraUp = useCallback(async (extraId) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.post(`${host}/api/v1/content/extras/${extraId}/moveup`);
+        return response.data;
+      }
+    });
+  }, [host]);
+
+  const moveExtraDown = useCallback(async (extraId) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.post(`${host}/api/v1/content/extras/${extraId}/movedown`);
+        return response.data;
+      }
+    });
+  }, [host]);
+
   const getUsers = useCallback(async () => {
     return await adminApiCall(() => {
       return async () => {
@@ -441,6 +459,8 @@ export default function RestApi(props) {
         getPageExtras: getPageExtras,
         insertOrUpdateExtra: insertOrUpdateExtra,
         deleteExtra: deleteExtra,
+        moveUp: moveExtraUp,
+        moveDown: moveExtraDown,
       },
       Auth: {
         getAuthToken: getAuthToken,

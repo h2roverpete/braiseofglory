@@ -1,6 +1,7 @@
 import {Col, Form, Row} from "react-bootstrap";
 import {useFormData} from "../../editor/FormEditor";
 import {useEffect} from "react";
+import FileExtraIcon, {IconList} from "./FileExtraIcon";
 
 export default function FileExtraFields() {
 
@@ -10,7 +11,7 @@ export default function FileExtraFields() {
     if (formData && !formData.edits.DisplayWidth) {
       formData.onDataChanged({name: 'DisplayWidth', value: 6})
     }
-  },[formData]);
+  }, [formData]);
 
   const labelCols = 4;
   return (<>
@@ -48,9 +49,36 @@ export default function FileExtraFields() {
         <Form.Control
           id="ExtraFilePrompt"
           name="ExtraFilePrompt"
+          value={formData.edits.ExtraFilePrompt || ''}
           size="sm"
           onChange={(e) => formData.onDataChanged({name: 'ExtraFilePrompt', value: e.target.value})}
         />
+      </Col>
+    </Row>
+    <Row className="mt-2">
+      <Form.Label
+        column={'sm'}
+        htmlFor={'ExtraFileIcon'}
+        sm={labelCols}
+      >
+        Icon
+      </Form.Label>
+      <Col className="col-1 me-2">
+        <FileExtraIcon type={formData.edits.ExtraFileIcon} size={40}/>
+      </Col>
+      <Col xs='auto' style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <Form.Select
+          type="select"
+          size="sm"
+          name={'ExtraFileIcon'}
+          value={formData.edits.ExtraFileIcon || ''}
+          onChange={(e) => formData.onDataChanged({name: 'ExtraFileIcon', value: e.target.value})}
+        >
+          <option value=''>(none)</option>
+          {IconList.map((item, index) => (
+            <option key={index} value={item.value}>{item.label}</option>
+          ))}
+        </Form.Select>
       </Col>
     </Row>
     <Row className="mt-2">

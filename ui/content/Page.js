@@ -20,6 +20,7 @@ export const PageContext = createContext(
  * @property {number} [pageId]          Specific page ID to display.
  * @property {Error} [error]            Display error instead of page content.
  * @property {boolean} [login]          User is logging in or out.
+ * @property {boolean} [login]          User is logging in or out.
  *
  * @returns {JSX.Element}
  * @constructor
@@ -64,7 +65,7 @@ export default function Page({children, pageId, error, login}) {
         Extras.getPageExtras(pageId).then((extras) => {
           console.debug(`Loaded page ${pageId} extras.`);
           sections.forEach((section) => {
-            section.Extras = extras.filter((extra) => extra.PageSectionID === section.PageSectionID);
+            section.Extras = extras.filter((extra) => extra.PageSectionID === section.PageSectionID).sort((a, b) => a.ExtraSeq - b.ExtraSeq)
           })
           // set new page content
           setSectionData(sections);
@@ -159,6 +160,55 @@ export default function Page({children, pageId, error, login}) {
     setSectionData([...sectionData]);
   }, [sectionData, setSectionData]);
 
+  const moveExtraUp = useCallback((extra) => {
+    const section = sectionData.find((section) => section.PageSectionID === extra.PageSectionID);
+    if (section) {
+      let swap;
+      for (const item of section.Extras) {
+        if (item.ExtraID === extra.ExtraID) {
+          break;
+        } else {
+          swap = item;
+        }
+      }
+      if (swap) {
+        const savedSeq = swap.ExtraSeq;
+        swap.ExtraSeq = extra.ExtraSeq;
+        extra.ExtraSeq = savedSeq;
+        const now = new Date().toISOString();
+        swap.Modified = now;
+        extra.Modified = now;
+        section.Extras.sort((a, b) => a.ExtraSeq - b.ExtraSeq);
+      }
+      updatePageSection({...section});
+    }
+  }, [sectionData, updatePageSection]);
+
+  const moveExtraDown = useCallback((extra) => {
+    const section = sectionData.find((section) => section.PageSectionID === extra.PageSectionID);
+    if (section) {
+      let swap;
+      section.Extras.reverse();
+      for (const item of section.Extras) {
+        if (item.ExtraID === extra.ExtraID) {
+          break;
+        } else {
+          swap = item;
+        }
+      }
+      if (swap) {
+        const savedSeq = swap.ExtraSeq;
+        swap.ExtraSeq = extra.ExtraSeq;
+        extra.ExtraSeq = savedSeq;
+        const now = new Date().toISOString();
+        swap.Modified = now;
+        extra.Modified = now;
+        section.Extras.sort((a, b) => a.ExtraSeq - b.ExtraSeq);
+      }
+      updatePageSection({...section});
+    }
+  }, [sectionData, updatePageSection]);
+
   const addExtraModal = useCallback(({pageSectionId}) => {
     setShowAddExtraModal(true);
     setExtraPageSectionId(pageSectionId);
@@ -182,6 +232,8 @@ export default function Page({children, pageId, error, login}) {
         addExtraToPage: addExtraToPage,
         removeExtraFromPage: removeExtraFromPage,
         updateExtra: updateExtra,
+        moveExtraUp: moveExtraUp,
+        moveExtraDown: moveExtraDown,
       }}
     >
       {canEdit && showAddExtraModal && (

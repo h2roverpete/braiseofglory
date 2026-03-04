@@ -12,22 +12,23 @@ import {BsThreeDotsVertical} from "react-icons/bs";
 import {useTouchContext} from "../../util/TouchProvider";
 import {Permission, Resource} from "../../auth/Permissions";
 import {useAuth} from "../../auth/AuthProvider";
+import {useExtrasContext} from "../extras/Extras";
 
 /**
  * Display a photo gallery
  *
  * @property {number} galleryId
- * @property {number} extraId
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Gallery({galleryId, extraId}) {
+export default function Gallery({galleryId, extraData, sectionExtras}) {
 
   // imports
   const {Galleries} = useRestApi();
   const {siteData, showErrorAlert} = useSiteContext();
   const {supportsHover} = useTouchContext();
   const {hasPermission} = useAuth();
+  const {moveExtraUp, moveExtraDown} = useExtrasContext();
 
   // states
   const [galleryConfig, setGalleryConfig] = useState(null);
@@ -284,6 +285,12 @@ export default function Gallery({galleryId, extraId}) {
             <span className="dropdown-item" onClick={fileDropRef.current?.selectFile}>
                 Upload a Photo
               </span>
+            {extraData.ExtraID !== sectionExtras[0].ExtraID && (
+              <span className="dropdown-item" onClick={() => moveExtraUp(extraData)}>Move Up</span>
+            )}
+            {extraData.ExtraID !== sectionExtras[sectionExtras.length - 1].ExtraID && (
+              <span className="dropdown-item" onClick={() => moveExtraDown(extraData)}>Move Down</span>
+            )}
           </div>
         </div>
       </>
@@ -294,7 +301,7 @@ export default function Gallery({galleryId, extraId}) {
           <GalleryConfig
             galleryConfig={galleryConfig}
             setGalleryConfig={setGalleryConfig}
-            extraId={extraId}
+            extraId={extraData.ExtraID}
             buttonRef={expandButtonRef}
           />
         </FormEditor>

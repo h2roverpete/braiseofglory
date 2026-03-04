@@ -10,6 +10,7 @@ import FormEditor from "../editor/FormEditor";
 import {useTouchContext} from "../../util/TouchProvider";
 import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
+import MoveExtraMenu from "../extras/MoveExtraMenu";
 
 
 export const GuestBookContext = createContext({
@@ -35,14 +36,13 @@ export function useGuestBook() {
 /**
  * Guest Book component
  * @property {number} guestBookId         Guest book ID.
- * @property {number} extraId             Extra that this guest book is linked to.
  * @property {number} guestId             Guest ID to populate fields with.
  * @property {number} guestFeedbackId     Guest Feedback ID to populate fields with.
  * @property {DataCallback} [onChange]    Receives notification that guest ID or guest feedback ID was updated
  * @returns {JSX.Element}
  * @constructor
  */
-function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
+function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbackId, onChange}) {
 
   // imports
   const {GuestBooks} = useRestApi();
@@ -57,7 +57,8 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
   const [canEdit, setCanEdit] = useState(false);
 
   // refs
-  const expandButtonRef = useRef(null);
+  const buttonRef = useRef(null);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     setCanEdit(hasPermission?.(Resource.GUESTBOOK, Permission.ADMIN));
@@ -204,12 +205,22 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
     }>
       {guestBookConfig && (<div
         className="GuestBook"
-        style={{width: '100%'}}
+        style={{width: '100%', position: 'relative'}}
         onMouseOver={() => {
-          if (canEdit && supportsHover) expandButtonRef.current.hidden = false;
+          if (supportsHover && canEdit) {
+            buttonRef.current.hidden = false;
+            if (menuRef.current) {
+              menuRef.current.hidden = false;
+            }
+          }
         }}
         onMouseOut={() => {
-          if (canEdit && supportsHover) expandButtonRef.current.hidden = true;
+          if (supportsHover && canEdit) {
+            buttonRef.current.hidden = true;
+            if (menuRef.current) {
+              menuRef.current.hidden = true;
+            }
+          }
         }}
       >
         {submitted ? (
@@ -260,11 +271,12 @@ function GuestBook({guestBookId, extraId, guestId, guestFeedbackId, onChange}) {
             </form>
           </>
         )}
-        {canEdit && (
+        {canEdit && (<>
           <FormEditor>
-            <GuestBookConfig extraId={extraId} buttonRef={expandButtonRef}/>
+            <GuestBookConfig extraId={extraData.ExtraID} buttonRef={buttonRef}/>
           </FormEditor>
-        )}
+          <MoveExtraMenu extraData={extraData} sectionExtras={sectionExtras} buttonRef={menuRef}/>
+        </>)}
       </div>)}
     </GuestBookContext>
   )
