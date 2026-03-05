@@ -10,7 +10,7 @@ export default function Logout(props) {
       console.debug(`Log out.`);
       setToken(null);
     } else {
-      console.warn(`Log out: no current token.`);
+      console.debug(`Log out: no current token.`);
     }
     navigate('/');
   }, [token, navigate, setToken]);

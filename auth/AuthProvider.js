@@ -112,6 +112,7 @@ export default function AuthProvider(props) {
         hasPermission: hasPermission,
         isAuthenticated: isAuthenticated,
         refreshAuthToken: refreshAuthToken,
+        currentUser: user,
       }}>
       {props.children}
     </AuthContext>

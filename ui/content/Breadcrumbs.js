@@ -11,9 +11,9 @@ import {usePageContext} from "./Page";
 export default function Breadcrumbs({delimiter}) {
 
   const {siteData} = useSiteContext();
-  const {breadcrumbs, error, login} = usePageContext();
+  const {breadcrumbs} = usePageContext();
 
-  return (<>{breadcrumbs?.length > 0 && !error && !login && (
+  return (<>{breadcrumbs?.length > 0 && (
     <ol className="breadcrumb">
       <li className="breadcrumb-item">{siteData?.SiteName}</li>
       {breadcrumbs.map(page => (

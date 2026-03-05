@@ -9,6 +9,10 @@ import {Alert} from "react-bootstrap";
 import Head from "./Head";
 import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
+import Login from "../../auth/Login";
+import Error404 from "../../util/Error404";
+import SiteUsers from "../../auth/SiteUsers";
+import UserProfilePanel from "../../auth/UserProfilePanel";
 
 /**
  * @typedef ErrorData
@@ -18,6 +22,13 @@ import {Permission, Resource} from "../../auth/Permissions";
  */
 
 export const SiteContext = createContext({});
+
+/**
+ * @typedef MetaPage
+ * @property {string} name
+ * @property {string} path
+ * @property {JSX.Element} content
+ */
 
 /**
  * @typedef SiteProps
@@ -55,6 +66,13 @@ export default function Site(props) {
   const [breadcrumbs, setBreadcrumbs] = useState([]);
   const [canEdit, setCanEdit] = useState(false);
   const [canBrowseProtected, setCanBrowseProtected] = useState(false);
+  const [MetaPages] = useState([
+    {name: 'user', path: '/admin/user', content: <UserProfilePanel />},
+    {name: 'users', path: '/admin/users', content: <SiteUsers/>},
+    {name: 'login', path: '/login', content: <Login/>},
+    {name: 'logout', path: '/logout', content: <Logout/>},
+    {name: 'error', path: '*', content: <Error404/>},
+  ]);
 
   useEffect(() => {
     setCanEdit(hasPermission?.(Resource.SITE, Permission.EDIT));
@@ -72,10 +90,7 @@ export default function Site(props) {
 
   useEffect(() => {
     // get current page and breadcrumbs from new pathname
-    if (location.pathname === '/login') {
-      setCurrentPage(null);
-      setBreadcrumbs(null);
-    } else if (outlineData) {
+    if (outlineData) {
       console.debug(`Update current page.`);
       if (location.pathname === '/') {
         setCurrentPage(outlineData[0]);
@@ -337,65 +352,42 @@ export default function Site(props) {
   // set up routes (or catchall if outline is not yet loaded)
   const content = outlineData ? (
     <Routes>
-      <Route
-        path="/login"
-        element={<props.pageElement login={true}/>
-        }
-      />
-      <Route
-        path="/logout"
-        element={<Logout/>}
-      />
-      <>{error && (
-        // error page display
-        <Route
-          path="/error"
-          element={<props.pageElement error={error}/>
-          }
-        />
-      )}</>
-      <>{outlineData && (
-        <>
-          <>{cfmPageId && (
-            // legacy coldfusion page
-            <Route
-              path="/page.cfm"
-              element={<props.pageElement pageId={cfmPageId}/>}
-            />
-          )}</>
-          {redirect ? (
-            // redirect root for an alternate domain
+      {outlineData && (<>
+        {cfmPageId && (
+          // legacy coldfusion page
+          <Route
+            path="/page.cfm"
+            element={<props.pageElement pageId={cfmPageId}/>}
+          />
+        )}
+        {redirect ? (
+          // redirect root for an alternate domain
+          <Route
+            path="/"
+            element={<props.pageElement pageId={redirect.pageId}/>}
+          />
+        ) : (<>
+          {outlineData?.length > 0 && (
             <Route
               path="/"
-              element={<props.pageElement pageId={redirect.pageId}/>}
+              element={<props.pageElement pageId={outlineData[0].PageID}/>}
             />
-          ) : (<>
-            {outlineData?.length > 0 && (
-              <Route
-                path="/"
-                element={<props.pageElement pageId={outlineData[0].PageID}/>}
-              />
-            )}
-          </>)}
-          {outlineData.map((page) => (
-            // all pages in site outline
-            <Route
-              path={page.PageRoute}
-              element={<props.pageElement pageId={page.PageID}
-              />}
-            />
-          ))}
-          {/* catchall to display 404 errors when route not matched */}
+          )}
+        </>)}
+        {outlineData.map((page) => (
+          // all pages in site outline
           <Route
-            path="*"
-            element={<props.pageElement
-              error={{
-                title: "404 Not Found",
-                description: "The content you are looking for was not found. Please select a topic on the navigation bar to browse the site."
-              }}/>}
+            path={page.PageRoute}
+            element={<props.pageElement pageId={page.PageID}/>}
           />
-        </>
-      )}</>
+        ))}
+        {MetaPages.map((meta) => (
+          <Route
+            path={meta.path}
+            element={<props.pageElement content={meta.content}/>}
+          />
+        ))}
+      </>)}
       {props.children}
     </Routes>
   ) : (

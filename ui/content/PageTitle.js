@@ -1,4 +1,4 @@
-import {PageContext} from "./Page";
+import {PageContext, usePageContext} from "./Page";
 import {useContext, useEffect, useRef, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
 import EditableField from "../editor/EditableField";
@@ -12,17 +12,16 @@ import {useAuth} from "../../auth/AuthProvider";
  * If the page title has not loaded yet, still displays the
  * tag and reserves its space in the layout.
  *
- * If the site is in a login state, displays "Log In" as the title.
- *
  * Must be located within the <Page> tag to receive context.
  *
+ * @param text {string} Explicit text for title.
  * @param alwaysShow {Boolean} Always show <h1> element, even when text is empty.
- * @returns {JSX.Element}
+ * @returns {JSX.Element}f
  * @constructor
  */
 export default function PageTitle({text, alwaysShow}) {
 
-  const {error, login, pageData} = useContext(PageContext);
+  const {pageData} = usePageContext();
   const {Outline, currentPage} = useSiteContext();
   const {Pages} = useRestApi();
   const {hasPermission} = useAuth();
@@ -72,26 +71,23 @@ export default function PageTitle({text, alwaysShow}) {
       data-testid="PageTitle"
       ref={titleRef}
     >
-      {error?.title ? error.title : login ? `Log In` : titleText ? titleText : (<>&nbsp;</>)}
+      {titleText ? titleText : (<>&nbsp;</>)}
     </h1>
   )
 
-  return (
-    <>{(canEdit && !error) ? (
+  return (<>
+    {canEdit ?
       <EditableField
         field={title}
         fieldRef={titleRef}
         callback={onTitleChanged}
-        textContent={pageData?.PageTitle}
+        textContent={titleText}
         textAlign={pageData?.PageTitleAlign}
         showEditButton={true}
         alwaysShow={alwaysShow === true}
         canEdit={canEdit}
       />
-    ) : (
-      <>{(pageData?.PageTitle.length || error?.title.length || alwaysShow || login) && (
-        <>{title}</>
-      )}</>
-    )}</>
-  )
+      : (<>{title}</>)
+    }
+  </>)
 }

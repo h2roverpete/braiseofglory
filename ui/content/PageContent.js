@@ -4,6 +4,7 @@ import {useAuth} from "../../auth/AuthProvider";
 import {Button} from "react-bootstrap";
 import PageTitle from "./PageTitle";
 import {usePageContext} from "./Page";
+import RestrictedContent from "../../auth/RestrictedContent";
 
 /**
  * Element to show page content
@@ -29,13 +30,7 @@ export default function PageContent({children}) {
         {children}
       </div>
     ) : (
-      <div className="PageContent container-fluid" data-testid="PageContent">
-        <PageTitle text={"Protected Content"}/>
-        <div className="PageSection">
-          <p>You don't have permission to access this page.</p>
-          {!isAuthenticated && (<Button href={'/login'}>Log In</Button>)}
-        </div>
-      </div>
+      <RestrictedContent/>
     )}
   </>);
 }

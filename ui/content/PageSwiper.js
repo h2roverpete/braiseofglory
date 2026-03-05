@@ -56,8 +56,8 @@ export default function PageSwiper(props) {
     }
   };
 
-  return (<>{error || props.login || showCurrentPage ? (
-    <Page {...props}/>
+  return (<>{props.content ? (
+    <Page content={props.content}/>
   ) : (
     <Swiper
       modules={[Virtual]}

@@ -9,6 +9,7 @@ import React from 'react';
 import {useTouchContext} from "../../util/TouchProvider";
 import AddPageButton from "../editor/AddPageButton";
 import {Resource, Permission} from "../../auth/Permissions";
+import UserMenu from "./UserMenu";
 
 /**
  * @typedef NavBarProps
@@ -321,7 +322,7 @@ export default function NavBar(props) {
           id="MainNavigation"
           style={{position: 'relative'}}
         >
-          <Nav>
+          <Nav style={{position: 'relative'}}>
             {getChildren(0).map((item) => (
               <React.Fragment
                 key={item.PageID}
@@ -347,31 +348,15 @@ export default function NavBar(props) {
                 )}
               </React.Fragment>
             ))}
-            <>{props.showLogin === true && (
-              <>{isAuthenticated ? (
-                <Nav.Link
-                  onClick={() => navigateTo('/logout')}
-                  className={`NavItem text-nowrap`}
-                  key={`Logout`}
-                  data-testid={`NavItem-Logout`}
-                >
-                  Log Out
-                </Nav.Link>
-              ) : (
-                <Nav.Link
-                  onClick={() => navigateTo('/login')}
-                  className={`NavItem text-nowrap${location.pathname === '/login' ? ' active' : ''}`}
-                  key={`Login`}
-                  data-testid={`NavItem-Login`}
-                >
-                  Log In
-                </Nav.Link>
-              )}</>
-            )}</>
+            {canEdit && (
+              <AddPageButton ref={editButtonRef}/>
+            )}
           </Nav>
-          {canEdit && (
-            <AddPageButton ref={editButtonRef}/>
-          )}
+          <>{props.showLogin === true && (
+            <div className="flex-grow-1 d-flex justify-content-start justify-content-sm-end">
+              <UserMenu/>
+            </div>
+          )}</>
         </Navbar.Collapse>
       </div>
     </Navbar>

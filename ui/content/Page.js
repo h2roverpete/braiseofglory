@@ -17,15 +17,13 @@ export const PageContext = createContext(
  * Provides page related data in a PageContext to children.
  *
  * @property {[JSX.Element]} children   Child elements.
+ * @property {JSX.Element} [content]    Display provided content instead of children.
  * @property {number} [pageId]          Specific page ID to display.
- * @property {Error} [error]            Display error instead of page content.
- * @property {boolean} [login]          User is logging in or out.
- * @property {boolean} [login]          User is logging in or out.
  *
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Page({children, pageId, error, login}) {
+export default function Page({children, pageId, content}) {
 
   // imports
   const {outlineData, buildBreadcrumbs} = useSiteContext();
@@ -221,8 +219,6 @@ export default function Page({children, pageId, error, login}) {
         pageData: pageData,
         sectionData: sectionData,
         breadcrumbs: breadcrumbs,
-        login: login === true,
-        error: error,
         setPageData: setPageData,
         setSectionData: setSectionData,
         updatePageSection: updatePageSection,
@@ -248,7 +244,7 @@ export default function Page({children, pageId, error, login}) {
         </FormEditor>
       )}
       <div className="Page" data-testid="Page">
-        {children}
+        {content ? <>{content}</> : <>{children}</>}
       </div>
     </PageContext>
   );

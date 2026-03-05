@@ -37,21 +37,11 @@ import axios from "axios";
 
 /**
  * @typedef OutlineData
+ * @augments PageData
  *
- * @property {Number} PageID
- * @property {Number} SiteID
- * @property {Number} ParentID
- * @property {Number} OutlineSeq
- * @property {String} PageTitle
- * @property {Boolean} DisplayTitle
- * @property {Boolean} PageHidden
- * @property {String} Modified
- * @property {String} NavTitle
- * @property {String} LinkToURL
  * @property {Boolean} HasChildren
  * @property {String} OutlineSort
  * @property {number} OutlineLevel
- * @property {string} PageRoute
  */
 
 /**
