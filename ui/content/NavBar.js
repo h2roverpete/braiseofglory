@@ -1,8 +1,8 @@
 import {useEffect, useRef, useState} from "react";
 import {useSiteContext} from "./Site";
 import Navbar from 'react-bootstrap/Navbar';
-import {Nav, NavDropdown} from "react-bootstrap";
-import {useLocation, useNavigate} from "react-router";
+  import {Nav, NavDropdown} from "react-bootstrap";
+import {useNavigate} from "react-router";
 import {useAuth} from "../../auth/AuthProvider";
 import {useRestApi} from "../../api/RestApi";
 import React from 'react';
@@ -34,8 +34,7 @@ export default function NavBar(props) {
   // imports
   const {siteData, getChildren, Outline, currentPage, breadcrumbs} = useSiteContext();
   const navigate = useNavigate();
-  const location = useLocation();
-  const {isAuthenticated, hasPermission} = useAuth();
+  const {hasPermission} = useAuth();
   const {Pages} = useRestApi();
   const {supportsHover} = useTouchContext();
 

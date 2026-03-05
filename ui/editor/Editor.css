@@ -199,6 +199,7 @@ div.Editor.EmptyElement {
   text-align: center;
   font-size: 14pt;
   overflow: hidden;
+  color: var(--bs-dark);
 }
 
 div.SiteEditor {

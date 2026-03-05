@@ -1,4 +1,4 @@
-import {createContext, lazy, Suspense, useCallback, useContext, useEffect, useState} from "react";
+import {createContext, lazy, Suspense, useCallback, useContext, useEffect, useRef, useState} from "react";
 import {useSiteContext} from "./Site";
 import {useRestApi} from "../../api/RestApi";
 import FormEditor from "../editor/FormEditor";
@@ -23,7 +23,7 @@ export const PageContext = createContext(
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Page({children, pageId, content}) {
+export default function Page({children, pageId, content, overflow}) {
 
   // imports
   const {outlineData, buildBreadcrumbs} = useSiteContext();
@@ -37,6 +37,9 @@ export default function Page({children, pageId, content}) {
   const [showAddExtraModal, setShowAddExtraModal] = useState(false);
   const [extraPageSectionId, setExtraPageSectionId] = useState(0);
   const [canEdit, setCanEdit] = useState(false);
+
+  // refs
+  const scrollRef = useRef();
 
   useEffect(() => {
     setCanEdit(hasPermission?.(Resource.PAGE, Permission.EDIT));
@@ -230,6 +233,7 @@ export default function Page({children, pageId, content}) {
         updateExtra: updateExtra,
         moveExtraUp: moveExtraUp,
         moveExtraDown: moveExtraDown,
+        scrollRef: scrollRef,
       }}
     >
       {canEdit && showAddExtraModal && (
@@ -243,7 +247,7 @@ export default function Page({children, pageId, content}) {
           </Suspense>
         </FormEditor>
       )}
-      <div className="Page" data-testid="Page">
+      <div className="Page" data-testid="Page" ref={scrollRef}>
         {content ? <>{content}</> : <>{children}</>}
       </div>
     </PageContext>

@@ -10,14 +10,13 @@ import {useLocation, useNavigate} from "react-router";
 export default function PageSwiper(props) {
 
   // imports
-  const {outlineData, error, currentPage} = useSiteContext();
+  const {outlineData, currentPage} = useSiteContext();
   const navigate = useNavigate();
   const location = useLocation();
 
   // states
   const [swipePages, setSwipePages] = useState(/** @type {OutlineData[]} */ []);
   const [swiperInstance, setSwiperInstance] = useState(null);
-  const [showCurrentPage, setShowCurrentPage] = useState(false);
 
   useEffect(() => {
     if (outlineData) {
@@ -26,7 +25,6 @@ export default function PageSwiper(props) {
   }, [outlineData, setSwipePages]);
 
   useEffect(() => {
-    setShowCurrentPage(false);
     if (swiperInstance && currentPage) {
       let currentSlideIndex = -1;
       // find a swiper page to display
@@ -41,9 +39,6 @@ export default function PageSwiper(props) {
           currentSlideIndex,
           Math.abs(swiperInstance.realIndex - currentSlideIndex) === 1 ? 500 : 0
         );
-      } else if (currentSlideIndex === -1 && currentPage) {
-        // display a hidden page for editing
-        setShowCurrentPage(true);
       }
     }
   }, [currentPage, swiperInstance, swipePages]);

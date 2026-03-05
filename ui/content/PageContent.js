@@ -1,8 +1,6 @@
 import {useEffect, useState} from "react";
 import {Permission, Resource} from "../../auth/Permissions";
 import {useAuth} from "../../auth/AuthProvider";
-import {Button} from "react-bootstrap";
-import PageTitle from "./PageTitle";
 import {usePageContext} from "./Page";
 import RestrictedContent from "../../auth/RestrictedContent";
 
@@ -16,7 +14,7 @@ import RestrictedContent from "../../auth/RestrictedContent";
  */
 export default function PageContent({children}) {
 
-  const {hasPermission, isAuthenticated} = useAuth();
+  const {hasPermission} = useAuth();
   const {pageData} = usePageContext();
 
   const [canView, setCanView] = useState(true);

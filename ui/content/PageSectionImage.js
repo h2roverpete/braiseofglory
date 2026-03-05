@@ -1,12 +1,10 @@
-import {BsArrowsMove} from "react-icons/bs";
-import {useRestApi} from "../../api/RestApi";
-import {usePageContext} from "./Page";
 import {useSiteContext} from "./Site";
 import FileDropTarget, {DropState} from "../editor/FileDropTarget";
-import {Button} from "react-bootstrap";
 import {useRef} from "react";
 import {useTouchContext} from "../../util/TouchProvider";
-import './PageSectionImage.css';
+import PageSectionImageMenu from "./PageSectionImageMenu";
+import {motion, useScroll, useTransform} from 'motion/react';
+import {usePageContext} from "./Page";
 
 /**
  * Display a page section image.
@@ -22,84 +20,30 @@ import './PageSectionImage.css';
  * @returns {JSX.Element}
  * @constructor
  */
-export default function PageSectionImage({
-                                           pageSectionData,
-                                           imageRef,
-                                           dropRef,
-                                           onFileSelected,
-                                           onFilesSelected,
-                                           canEdit = false
-                                         }) {
+export default function PageSectionImage(
+  {
+    pageSectionData,
+    imageRef,
+    dropRef,
+    onFileSelected,
+    onFilesSelected,
+    canEdit = false
+  }) {
 
   // imports
-  const {PageSections} = useRestApi();
-  const {updatePageSection} = usePageContext();
   const {supportsHover} = useTouchContext();
   const {siteData, showErrorAlert} = useSiteContext();
+  const {scrollRef} = usePageContext();
 
   // refs
   const editButtonRef = useRef(null);
 
+  // scroll calculation for parallax
+  const {scrollYProgress} = useScroll({container: scrollRef, target: imageRef, offset: ["start end", "end start"]});
+  const y = useTransform(scrollYProgress, [0, 1], ['0', '100%']);
+
   if (!pageSectionData.SectionImage) {
     return <></>;
-  }
-
-  function setImageAlign(align) {
-    pageSectionData.ImageAlign = align;
-    console.debug(`Updating image alignment...`);
-    PageSections.insertOrUpdatePageSection(pageSectionData)
-      .then(() => {
-        console.debug(`Updated image alignment.`)
-      })
-      .catch(error => showErrorAlert(`Error updating image alignment.`, error));
-    updatePageSection(pageSectionData);
-  }
-
-  function setImagePosition(position) {
-    pageSectionData.ImagePosition = position;
-    if (position === 'beside' && pageSectionData.ImageAlign !== 'left' && pageSectionData.ImageAlign !== 'right') {
-      // fix alignment to be side by side
-      pageSectionData.ImageAlign = 'right';
-    }
-    console.debug(`Updating image position...`);
-    PageSections.insertOrUpdatePageSection(pageSectionData)
-      .then(() => {
-        console.debug(`Updated image position.`)
-      })
-      .catch(error => showErrorAlert(`Error updating image position.`, error));
-    updatePageSection(pageSectionData);
-  }
-
-  function hideImageFrame(hide) {
-    pageSectionData.HideImageFrame = hide;
-    console.debug(`Updating image frame...`);
-    PageSections.insertOrUpdatePageSection(pageSectionData)
-      .then(() => {
-        console.debug(`Updated image frame.`)
-      })
-      .catch(error => showErrorAlert(`Error updating image frame.`, error));
-    updatePageSection(pageSectionData);
-  }
-
-  function deleteImage() {
-    console.debug(`Deleting section image...`);
-    PageSections.deleteSectionImage(pageSectionData.PageID, pageSectionData.PageSectionID)
-      .then(() => {
-        console.debug(`Deleted section image.`)
-      })
-      .catch(error => showErrorAlert(`Error deleting section image.`, error));
-    pageSectionData.SectionImage = null;
-    updatePageSection(pageSectionData);
-  }
-
-  function setImageWidth(width) {
-    console.debug(`Setting image width to ${width}...`);
-    pageSectionData.ImageWidth = width;
-    PageSections.insertOrUpdatePageSection(pageSectionData)
-      .then(() => {
-        console.debug(`Updated image width.`)
-      }).catch(error => showErrorAlert(`Error updating image width.`, error));
-    updatePageSection(pageSectionData);
   }
 
   /**
@@ -119,15 +63,6 @@ export default function PageSectionImage({
   let imageDivClassName = 'SectionImage';
   const imageStyle = {};
   let imageClassName = 'img-fluid';
-  if (pageSectionData.ImagePosition === 'parallax') {
-    // make full width parallax image
-    imageDivClassName += ` col-sm-12 mb-3 parallax`;
-    imageDivStyle.display = 'flex';
-    imageDivStyle.flexDirection = 'column';
-    imageDivStyle.backgroundSize = 'cover';
-    imageDivStyle.paddingBottom = '50%';
-    imageDivStyle.backgroundImage = `url(${siteData?.SiteRootUrl}/images/${pageSectionData.SectionImage})`;
-  }
   if (pageSectionData.ImagePosition === 'beside') {
     // align image left or right beside text
     const w = getImageWidth();
@@ -166,31 +101,36 @@ export default function PageSectionImage({
   }
 
   return (
-    <>{pageSectionData?.SectionImage && (
-      <div
-        style={imageDivStyle}
-        className={imageDivClassName}
-        data-testid={`SectionImageDiv-${pageSectionData.PageSectionID}`}
-        onMouseOver={() => {
-          if (canEdit && supportsHover) editButtonRef.current.hidden = false;
-        }}
-        onMouseLeave={() => {
-          if (canEdit && supportsHover) editButtonRef.current.hidden = true;
-        }}
-      >
-        {pageSectionData.ImagePosition !== 'parallax' && (
-          <img
-            className={imageClassName}
-            style={imageStyle}
-            src={`${siteData?.SiteRootUrl}/images/` + pageSectionData.SectionImage}
-            alt={pageSectionData.SectionTitle}
-            data-testid={`SectionImage-${pageSectionData.PageSectionID}`}
-            ref={imageRef}
+    <>
+      {pageSectionData.ImagePosition === 'parallax' ? (
+        <div
+          style={{position: 'relative'}}
+          ref={imageRef}
+          onMouseOver={() => {
+            if (canEdit && supportsHover) editButtonRef.current.hidden = false;
+          }}
+          onMouseLeave={() => {
+            if (canEdit && supportsHover) editButtonRef.current.hidden = true;
+          }}>
+          <motion.div
+            className={`SectionImage col-sm-12 mb-3 parallax`}
+            style={{
+              width: '100%',
+              paddingBottom: '50%',
+              backgroundSize: 'cover',
+              backgroundPositionX: 'center',
+              backgroundPositionY: y,
+              backgroundRepeat: 'no-repeat',
+              backgroundImage: `url(${siteData?.SiteRootUrl}/images/${pageSectionData.SectionImage})`,
+            }}
+            onMouseOver={() => {
+              if (canEdit && supportsHover) editButtonRef.current.hidden = false;
+            }}
+            onMouseLeave={() => {
+              if (canEdit && supportsHover) editButtonRef.current.hidden = true;
+            }}
           />
-        )}
-
-        {canEdit && (
-          <>
+          {canEdit && (<>
             <FileDropTarget
               ref={dropRef}
               onFileSelected={onFileSelected}
@@ -200,48 +140,44 @@ export default function PageSectionImage({
                 dropRef.current.setDropState(DropState.HIDDEN);
               }}
             />
-            <div
-              className="EditSectionImage Editor dropdown"
-              ref={editButtonRef}
-              hidden={supportsHover}
-            >
-              <Button
-                variant={siteData?.SiteTheme}
-                size="sm"
-                className={`EditButton EditImageButton`}
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              ><BsArrowsMove/></Button>
-              <div className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
-                {pageSectionData.ImageAlign !== 'left' && (
-                  <span className="dropdown-item" onClick={() => setImageAlign('left')}>Align Left</span>)}
-                {pageSectionData.ImageAlign !== 'center' && pageSectionData.ImagePosition === 'above' && (
-                  <span className="dropdown-item" onClick={() => setImageAlign('center')}>Align Center</span>)}
-                {pageSectionData.ImageAlign !== 'right' && (
-                  <span className="dropdown-item" onClick={() => setImageAlign('right')}>Align Right</span>)}
-                {pageSectionData.ImagePosition !== 'above' && (
-                  <span className="dropdown-item" onClick={() => setImagePosition('above')}>Above Text</span>)}
-                {pageSectionData.ImagePosition !== 'beside' && (
-                  <span className="dropdown-item" onClick={() => setImagePosition('beside')}>Beside Text</span>)}
-                {pageSectionData.ImagePosition !== 'parallax' && (
-                  <span className="dropdown-item" onClick={() => setImagePosition('parallax')}>Parallax</span>)}
-                {getImageWidth() > 1 && (
-                  <span className="dropdown-item"
-                        onClick={() => setImageWidth(getImageWidth() - 1)}>Make Smaller</span>)}
-                {getImageWidth() < 12 && (
-                  <span className="dropdown-item"
-                        onClick={() => setImageWidth(getImageWidth() + 1)}>Make Larger</span>)}
-                {pageSectionData.HideImageFrame ?
-                  (<span className="dropdown-item" onClick={() => hideImageFrame(false)}>Show Image Frame</span>) :
-                  (<span className="dropdown-item" onClick={() => hideImageFrame(true)}>Hide Image Frame</span>)
-                }
-                <span className="dropdown-item" onClick={() => deleteImage()}>Delete Image</span>
-              </div>
-            </div>
-          </>
+            <PageSectionImageMenu pageSectionData={pageSectionData} buttonRef={editButtonRef}/>
+          </>)}
+        </div>) : (<>
+        {pageSectionData?.SectionImage && (
+          <div
+            style={imageDivStyle}
+            className={imageDivClassName}
+            data-testid={`SectionImageDiv-${pageSectionData.PageSectionID}`}
+            onMouseOver={() => {
+              if (canEdit && supportsHover) editButtonRef.current.hidden = false;
+            }}
+            onMouseLeave={() => {
+              if (canEdit && supportsHover) editButtonRef.current.hidden = true;
+            }}
+          >
+            <img
+              className={imageClassName}
+              style={imageStyle}
+              src={`${siteData?.SiteRootUrl}/images/` + pageSectionData.SectionImage}
+              alt={pageSectionData.SectionTitle}
+              data-testid={`SectionImage-${pageSectionData.PageSectionID}`}
+              ref={imageRef}
+            />
+
+            {canEdit && (<>
+              <FileDropTarget
+                ref={dropRef}
+                onFileSelected={onFileSelected}
+                onFilesSelected={onFilesSelected}
+                onError={(err) => {
+                  showErrorAlert(err);
+                  dropRef.current.setDropState(DropState.HIDDEN);
+                }}
+              />
+              <PageSectionImageMenu pageSectionData={pageSectionData} buttonRef={editButtonRef}/>
+            </>)}
+          </div>
         )}
-      </div>
-    )}</>
-  )
+      </>)}
+    </>);
 }

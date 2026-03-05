@@ -24,7 +24,7 @@ export default function UserFields() {
         UserPhone: currentUser.UserPhone,
       });
     }
-  }, [currentUser]);
+  }, [currentUser, formData]);
 
   const labelCols = 3;
   return (<>
