@@ -256,12 +256,6 @@ export default function NavBar(props) {
       className={`NavBar ${!props.expand ? 'navbar-expand' : ''} bg-primary navbar-dark`}
       fixed={props.fixed ? props.fixed : undefined}
       data-testid="NavBar"
-      onMouseOver={() => {
-        if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = false
-      }}
-      onMouseLeave={() => {
-        if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = true
-      }}
     >
       <div
         className="NavBarContents
@@ -322,7 +316,15 @@ export default function NavBar(props) {
           id="MainNavigation"
           style={{position: 'relative'}}
         >
-          <Nav style={{position: 'relative'}}>
+          <Nav
+            style={{position: 'relative'}}
+            onMouseOver={() => {
+              if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = false
+            }}
+            onMouseLeave={() => {
+              if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = true
+            }}
+          >
             {getChildren(0).map((item) => (
               <React.Fragment
                 key={item.PageID}
