@@ -315,15 +315,15 @@ export default function NavBar(props) {
           className="NavbarCollapse"
           id="MainNavigation"
           style={{position: 'relative'}}
+          onMouseOver={() => {
+            if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = false
+          }}
+          onMouseLeave={() => {
+            if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = true
+          }}
         >
           <Nav
             style={{position: 'relative'}}
-            onMouseOver={() => {
-              if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = false
-            }}
-            onMouseLeave={() => {
-              if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = true
-            }}
           >
             {getChildren(0).map((item) => (
               <React.Fragment

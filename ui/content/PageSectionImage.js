@@ -6,6 +6,7 @@ import FileDropTarget, {DropState} from "../editor/FileDropTarget";
 import {Button} from "react-bootstrap";
 import {useRef} from "react";
 import {useTouchContext} from "../../util/TouchProvider";
+import './PageSectionImage.css';
 
 /**
  * Display a page section image.
@@ -21,7 +22,14 @@ import {useTouchContext} from "../../util/TouchProvider";
  * @returns {JSX.Element}
  * @constructor
  */
-export default function PageSectionImage({pageSectionData, imageRef, dropRef, onFileSelected, onFilesSelected, canEdit = false}) {
+export default function PageSectionImage({
+                                           pageSectionData,
+                                           imageRef,
+                                           dropRef,
+                                           onFileSelected,
+                                           onFilesSelected,
+                                           canEdit = false
+                                         }) {
 
   // imports
   const {PageSections} = useRestApi();
@@ -111,6 +119,15 @@ export default function PageSectionImage({pageSectionData, imageRef, dropRef, on
   let imageDivClassName = 'SectionImage';
   const imageStyle = {};
   let imageClassName = 'img-fluid';
+  if (pageSectionData.ImagePosition === 'parallax') {
+    // make full width parallax image
+    imageDivClassName += ` col-sm-12 mb-3 parallax`;
+    imageDivStyle.display = 'flex';
+    imageDivStyle.flexDirection = 'column';
+    imageDivStyle.backgroundSize = 'cover';
+    imageDivStyle.paddingBottom = '50%';
+    imageDivStyle.backgroundImage = `url(${siteData?.SiteRootUrl}/images/${pageSectionData.SectionImage})`;
+  }
   if (pageSectionData.ImagePosition === 'beside') {
     // align image left or right beside text
     const w = getImageWidth();
@@ -161,14 +178,17 @@ export default function PageSectionImage({pageSectionData, imageRef, dropRef, on
           if (canEdit && supportsHover) editButtonRef.current.hidden = true;
         }}
       >
-        <img
-          className={imageClassName}
-          style={imageStyle}
-          src={`${siteData?.SiteRootUrl}/images/` + pageSectionData.SectionImage}
-          alt={pageSectionData.SectionTitle}
-          data-testid={`SectionImage-${pageSectionData.PageSectionID}`}
-          ref={imageRef}
-        />
+        {pageSectionData.ImagePosition !== 'parallax' && (
+          <img
+            className={imageClassName}
+            style={imageStyle}
+            src={`${siteData?.SiteRootUrl}/images/` + pageSectionData.SectionImage}
+            alt={pageSectionData.SectionTitle}
+            data-testid={`SectionImage-${pageSectionData.PageSectionID}`}
+            ref={imageRef}
+          />
+        )}
+
         {canEdit && (
           <>
             <FileDropTarget
@@ -204,6 +224,8 @@ export default function PageSectionImage({pageSectionData, imageRef, dropRef, on
                   <span className="dropdown-item" onClick={() => setImagePosition('above')}>Above Text</span>)}
                 {pageSectionData.ImagePosition !== 'beside' && (
                   <span className="dropdown-item" onClick={() => setImagePosition('beside')}>Beside Text</span>)}
+                {pageSectionData.ImagePosition !== 'parallax' && (
+                  <span className="dropdown-item" onClick={() => setImagePosition('parallax')}>Parallax</span>)}
                 {getImageWidth() > 1 && (
                   <span className="dropdown-item"
                         onClick={() => setImageWidth(getImageWidth() - 1)}>Make Smaller</span>)}

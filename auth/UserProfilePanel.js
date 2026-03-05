@@ -7,6 +7,7 @@ import EditorButtons from "../ui/editor/EditorButtons";
 import {useRestApi} from "../api/RestApi";
 import {useSiteContext} from "../ui/content/Site";
 import {isValidEmail, isValidPassword} from "../util/Validators"
+import {Container} from "react-bootstrap";
 
 /**
  * Display message that the user doesn't have permission to view the content.
@@ -28,19 +29,21 @@ export default function UserProfilePanel() {
 
   function isDataValid(data) {
     return data.UserName?.length > 0
-    && isValidEmail(data.UserEmail)
-    && (isValidPassword(data.Password) || !data.Password)
+      && isValidEmail(data.UserEmail)
+      && (isValidPassword(data.Password) || !data.Password)
   }
 
   return (<>
     {isAuthenticated ? (
-      <div className="PageContent">
+      <Container fluid className="PageContent">
         <PageTitle text={"User Profile"}/>
         <FormEditor>
-          <UserFields/>
-          <EditorButtons onUpdate={handleUpdate} isDataValid={isDataValid}/>
+          <form>
+            <UserFields/>
+            <EditorButtons onUpdate={handleUpdate} isDataValid={isDataValid}/>
+          </form>
         </FormEditor>
-      </div>
+      </Container>
     ) : <RestrictedContent/>}
   </>);
 }
