@@ -5,6 +5,7 @@ import FormEditor from "../../editor/FormEditor";
 import {useTouchContext} from "../../../util/TouchProvider";
 import FileExtraIcon from "./FileExtraIcon";
 import MoveExtraMenu from "../MoveExtraMenu";
+import {Col, Container, Row} from "react-bootstrap";
 
 export default function FileExtra({extraData, sectionExtras, canEdit = false}) {
 
@@ -15,20 +16,24 @@ export default function FileExtra({extraData, sectionExtras, canEdit = false}) {
   const moveButtonRef = useRef(null);
 
   useEffect(() => {
-    if (siteData && extraData) {
+    if (siteData && extraData && extraData.ExtraFile) {
       const parts = extraData.ExtraFile.split("/");
       const fileUrl = `${siteData?.SiteRootUrl}/${extraData.ExtraFile}`;
       const fileName = parts[parts.length - 1];
       switch (extraData.ExtraFileMimeType) {
         case 'audio/mpeg':
           setContent(
-            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'start'}}>
-              <FileExtraIcon type={extraData.ExtraFileIcon} className={'me-2'} />
-              <div className={'text-nowrap me-2'}>{extraData.ExtraFilePrompt}</div>
-              <audio controls>
-                <source src={fileUrl}/>
-              </audio>
-            </div>
+            <Row>
+              <Col className="pt-2 col-12 col-sm-auto d-flex align-items-center justify-content-start flex-grow-1">
+                <FileExtraIcon type={extraData.ExtraFileIcon} className={'me-2'}/>
+                <div className={'text-nowrap me-2 flex-grow-1'}>{extraData.ExtraFilePrompt}</div>
+              </Col>
+              <Col className={'pt-2 col-12 col-sm-auto'}>
+                <audio controls>
+                  <source src={fileUrl}/>
+                </audio>
+              </Col>
+            </Row>
           );
           break;
         case 'text/plain':
@@ -63,6 +68,12 @@ export default function FileExtra({extraData, sectionExtras, canEdit = false}) {
           );
           break;
       }
+    } else {
+      setContent(
+        <div className="bg-danger d-flex align-items-center justify-content-center p-4">
+          ERROR: No file to display.
+        </div>
+      );
     }
   }, [siteData, extraData]);
 

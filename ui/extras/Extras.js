@@ -60,8 +60,8 @@ export default function Extras({extras}) {
     moveExtraUp: handleMoveUp,
     moveExtraDown: handleMoveDown,
   }}>
-    <Container fluid={true} className="p-0">
-      <Row className="ExtrasRow m-0">
+    <Container fluid={true} className="Extras p-0">
+      <Row className="ExtrasRow m-0 justify-content-start align-items-center">
         {extras?.map((extra) => (<React.Fragment key={extra.ExtraID + '_' + extra.Modified}>
             {extra.ExtraType === 'guestbook' && (
               <GuestBook guestBookId={extra.GuestBookID} extraData={extra} sectionExtras={extras} extraId={extra.ExtraID}/>

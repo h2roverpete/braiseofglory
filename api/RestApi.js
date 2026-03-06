@@ -260,6 +260,30 @@ export default function RestApi(props) {
   const insertOrUpdateExtra = useCallback(async (data) => {
     return await adminApiCall(() => {
       return async () => {
+        if (data.ExtraFile.name) {
+          // file selected for upload, get an S3 pre-signed URL
+          const response = await axios.post(`${host}/api/v1/content/extras/file`, {
+            SiteID: data.SiteID,
+            FileName: data.ExtraFile.name,
+            MimeType: data.ExtraFile.type
+          });
+          // upload directly to S3
+          const uploadResult = await fetch(
+            response.data.PresignedUrl, {
+              method: 'PUT',
+              body: data.ExtraFile, // Send the raw file object, not FormData
+              headers: {
+                'Content-Type': data.ExtraFile.type,
+              }
+            }
+          );
+          console.log(`Upload result: ${JSON.stringify(uploadResult)}`);
+          // copy file info to data
+          data.ExtraFileName = response.data.FileName;
+          data.ExtraFileMimeType = data.ExtraFile.type;
+          // delete file upload data
+          delete data.ExtraFile;
+        }
         const formData = new FormData();
         for (const fieldName in data) {
           if (data[fieldName] !== undefined && data[fieldName] !== null) {

@@ -252,7 +252,7 @@ import axios from "axios";
  * Each extra can store its own specific configuration data
  * in addition to the fields below.
  *
- * @property {Number} ExtraID
+ * @property {Number} ExtraID           Unique ID for extra.
  * @property {Number} [PageID]          Page to insert the extra into.
  * @property {Number} [PageSectionID]   Page section to insert the extra into.
  * @property {String} ExtraType         Type of extra, i.e. "gallery" or "guestbook" or "instagram" or "html"
@@ -267,6 +267,25 @@ import axios from "axios";
  * @property {String} Modified          Modification date in ISO format.
  */
 
+/**
+ * @typedef PresignedUrlRequest
+ *
+ * @property {number} SiteID
+ * @property {string} FileName
+ * @property {string} MimeType
+ */
+
+/**
+ * @typedef PresignedUrlResponse
+ *
+ * @property {string} PresignedUrl
+ */
+
+/**
+ * @typedef SignedUrl
+ *
+ * @property {string} SignedURL
+ */
 
 /**
  * @class RestAPI

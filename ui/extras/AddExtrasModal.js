@@ -3,8 +3,8 @@ import {isValidEmail, isValidInstagramHandle, isValidYouTubeUrl} from "../../uti
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
 import {usePageContext} from "../content/Page";
-import {useEffect, useState} from "react";
-import {Button, Col, Form, Modal, Row} from "react-bootstrap";
+import {useEffect, useRef, useState} from "react";
+import {Button, Col, Form, Modal, Row, Spinner} from "react-bootstrap";
 import {useFormData} from "../editor/FormEditor";
 import YouTubeExtraFields from "./youtube/YouTubeExtraFields";
 import InstagramExtraFields from "./instagram/InstagramExtraFields";
@@ -29,7 +29,7 @@ import {Permission, Resource} from "../../auth/Permissions";
  */
 export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) {
 
-  const {siteData} = useSiteContext();
+  const {siteData, showErrorAlert} = useSiteContext();
   const {pageData, addExtraToPage} = usePageContext();
   const {GuestBooks, Galleries, Extras} = useRestApi();
   const {hasPermission} = useAuth();
@@ -37,10 +37,15 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
   /** @type FormDataAPI<ExtraData> */
   const formData = useFormData();
 
-  // lists of existing extras
+  // states
   const [guestBookList, setGuestBookList] = useState([]);
   const [galleryList, setGalleryList] = useState([]);
   const [canEdit, setCanEdit] = useState(false);
+
+  // refs
+  const uploadingRef = useRef(null);
+  const submitRef = useRef(null);
+  const cancelRef = useRef(null);
 
   useEffect(() => {
     setCanEdit(hasPermission?.(Resource.PAGE, Permission.EDIT));
@@ -59,7 +64,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
         console.debug(`List of ${siteGalleries.length} galleries loaded.`);
         setGalleryList(siteGalleries);
       }).catch((err) => {
-        console.error(`Error getting gallery list.`, err);
+        showErrorAlert(`Error getting gallery list.`, err);
       })
     }
   }, [canEdit, siteData, Galleries]);
@@ -77,7 +82,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
         console.debug(`List of ${siteGuestBooks.length} guest books loaded.`);
         setGuestBookList(siteGuestBooks);
       }).catch((err) => {
-        console.error(`Error getting guest book list.`, err);
+        showErrorAlert(`Error getting guest book list.`, err);
       })
     }
   }, [canEdit, siteData, GuestBooks]);
@@ -87,6 +92,8 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
   }
 
   function onAddExtra() {
+    submitRef.current.disabled = true;
+    cancelRef.current.disabled = true;
     switch (formData.edits.ExtraType) {
       case 'gallery':
         if (formData.edits.GalleryID) {
@@ -101,7 +108,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
             console.debug(`Extra added.`);
             onExtraAdded(extra);
           }).catch((err) => {
-            console.error(`Error adding extra.`, err);
+            showErrorAlert(`Error adding extra.`, err);
           });
         } else {
           Galleries.insertOrUpdateGallery({
@@ -119,10 +126,10 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
               console.debug(`Extra added.`);
               onExtraAdded(extra);
             }).catch((err) => {
-              console.error(`Error adding extra.`, err);
+              showErrorAlert(`Error adding extra.`, err);
             });
           }).catch((err) => {
-            console.error(`Error adding gallery.`, err);
+            showErrorAlert(`Error adding gallery.`, err);
           });
         }
         break;
@@ -148,10 +155,10 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
               console.debug(`Extra added.`);
               onExtraAdded(extra);
             }).catch((err) => {
-              console.error(`Error adding extra.`, err);
+              showErrorAlert(`Error adding extra.`, err);
             });
           }).catch((error) => {
-            console.error(`Error adding guest book.`, error);
+            showErrorAlert(`Error adding guest book.`, error);
           })
         } else {
           // create an Extra for an existing guest book
@@ -165,13 +172,14 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
             console.debug(`Extra added.`);
             onExtraAdded(extra);
           }).catch((err) => {
-            console.error(`Error adding extra.`, err);
+            showErrorAlert(`Error adding extra.`, err);
           });
         }
         break;
       case 'file':
       case 'instagram':
       case 'youtube':
+        uploadingRef.current?.classList.remove('d-none');
         console.debug(`Adding extra.`);
         Extras.insertOrUpdateExtra({
           ...formData.edits,
@@ -181,10 +189,10 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
         }).then((extra) => {
           console.debug(`Extra added.`);
           onExtraAdded(extra);
-        }).catch((err) => console.error(`Error adding extra.`, err));
+        }).catch((err) => showErrorAlert(`Error adding extra.`, err));
         break;
       default:
-        console.error(`Unsupported extra type ${formData.edits.ExtraType}`)
+        showErrorAlert(`Unsupported extra type ${formData.edits.ExtraType}`)
     }
   }
 
@@ -227,7 +235,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
   const labelCols = 4;
 
   return (
-    <Modal show={show} onHide={onCancel}>
+    <Modal show={show}>
       <Modal.Header><h5>Add an Extra</h5></Modal.Header>
       <Modal.Body>
         <Row>
@@ -406,7 +414,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
           )}
         </>)}
         {formData.edits.ExtraType === 'instagram' && (
-          <InstagramExtraFields />
+          <InstagramExtraFields/>
         )}
         {formData.edits.ExtraType === 'youtube' && (
           <YouTubeExtraFields/>
@@ -416,7 +424,13 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
         )}
       </Modal.Body>
       <Modal.Footer>
-        <Button size="sm" variant="secondary" onClick={onCancel}>Cancel</Button>
+        <div
+          ref={uploadingRef}
+          className="d-flex align-items-center justify-content-start small flex-grow-1 d-none"
+        >
+          <Spinner animation="border" role="status" className='me-2'/> Uploading...<br/>
+        </div>
+        <Button size="sm" variant="secondary" onClick={onCancel} ref={cancelRef}>Cancel</Button>
         <Button
           size="sm"
           variant="primary"
@@ -424,6 +438,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
           onClick={() => {
             onAddExtra();
           }}
+          ref={submitRef}
         >Add Extra</Button>
       </Modal.Footer>
     </Modal>

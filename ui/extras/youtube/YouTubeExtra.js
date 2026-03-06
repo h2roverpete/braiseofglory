@@ -24,7 +24,7 @@ export default function YouTubeExtra({extraData, sectionExtras, canEdit = false}
 
   return (
     <div
-      className={`YouTubeVideo col-sm-${extraData.DisplayWidth} col-12`}
+      className={`YouTubeVideo col-sm-${extraData.DisplayWidth} col-12 pe-2 pt-4 ps-2`}
       style={{display: "flex", flexDirection: "column", position: "relative"}}
       onMouseOver={() => {
         if (supportsHover && canEdit) {

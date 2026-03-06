@@ -4,11 +4,13 @@ import {usePageContext} from "../../content/Page";
 import {useFormData} from "../../editor/FormEditor";
 import {useEffect} from "react";
 import FileExtraFields from "./FileExtraFields";
+import {useSiteContext} from "../../content/Site";
 
 export default function FileExtraConfig({extraData, buttonRef}) {
 
   const {Extras} = useRestApi();
   const {updateExtra, removeExtraFromPage} = usePageContext();
+  const {showErrorAlert} = useSiteContext();
 
   /** @type FormDataAPI<ExtraData> */
   const formData = useFormData();
@@ -23,7 +25,7 @@ export default function FileExtraConfig({extraData, buttonRef}) {
       console.debug(`Extra updated.`);
       formData.update(extra);
     }).catch((err) => {
-      console.error(`Error updating extra.`, err);
+      showErrorAlert(`Error updating extra.`, err);
     });
     updateExtra(formData.edits);
   }
@@ -33,7 +35,7 @@ export default function FileExtraConfig({extraData, buttonRef}) {
     Extras.deleteExtra(extraData.ExtraID).then(() => {
       console.debug(`Extra deleted.`);
     }).catch((err) => {
-      console.error(`Error deleting extra.`, err);
+      showErrorAlert(`Error deleting extra.`, err);
     });
     removeExtraFromPage(extraData.ExtraID);
   }
