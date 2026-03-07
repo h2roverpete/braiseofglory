@@ -37,29 +37,36 @@ export default function FileExtra({extraData, sectionExtras, canEdit = false}) {
           );
           break;
         case 'text/plain':
-          // embed HTML on the page
-          fetch(fileUrl)
-            .then(response => response.text())
-            .then(data => setContent(<>
-              <pre className={'FileExtra'}>{data}</pre>
-            </>))
-            .catch(error => console.error(`Error fetching HTML ${fileUrl}:`, error));
-          break;
+          if (extraData.ExtraDisplay === 'embed') {
+            // embed HTML on the page
+            fetch(fileUrl)
+              .then(response => response.text())
+              .then(data => setContent(<>
+                <pre className={'FileExtra'}>{data}</pre>
+              </>))
+              .catch(error => console.error(`Error fetching HTML ${fileUrl}:`, error));
+            break;
+          }
+          // else fall through
         case 'text/html':
-          // embed HTML on the page
-          fetch(fileUrl)
-            .then(response => response.text())
-            .then(data => setContent(<>
-              <div className={'FileExtra'} dangerouslySetInnerHTML={{__html: data}}/>
-            </>))
-            .catch(error => console.error(`Error fetching HTML ${fileUrl}:`, error));
-          break;
+          if (extraData.ExtraDisplay === 'embed') {
+            // embed HTML on the page
+            fetch(fileUrl)
+              .then(response => response.text())
+              .then(data => setContent(<>
+                <div className={'FileExtra'} dangerouslySetInnerHTML={{__html: data}}/>
+              </>))
+              .catch(error => console.error(`Error fetching HTML ${fileUrl}:`, error));
+            break;
+          }
+          // else fall through
         default:
           // display a link to the file
           setContent(
             <a
               style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}
               href={fileUrl}
+              target={extraData.ExtraDisplay === 'blank' ? '_blank' : '_self'}
             >
               <div style={{paddingRight: '5px'}}><FileExtraIcon type={extraData.ExtraFileIcon}/></div>
               <div

@@ -104,7 +104,10 @@ export default function PageSection({pageSectionData, canEdit = false}) {
       .then((result) => {
         console.debug(`Image uploaded successfully.`);
         dropRef.current.setDropState(DropState.HIDDEN);
-        updatePageSection(result);
+        updatePageSection({
+          ...pageSectionData,
+          SectionImage: result.SectionImage,
+        });
       })
       .catch(e => {
         showErrorAlert(`Error uploading image.`, e);

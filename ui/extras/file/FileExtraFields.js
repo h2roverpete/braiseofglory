@@ -13,6 +13,25 @@ export default function FileExtraFields() {
     }
   }, [formData]);
 
+  useEffect(() => {
+    if (!formData.edits.ExtraDisplay) {
+      // set default display
+      switch (formData.edits.ExtraFile?.type) {
+        case 'audio/mpeg':
+        case 'text/html':
+        case 'text/plain':
+          formData.onDataChanged({name: 'ExtraDisplay', value: 'embed'});
+          break;
+        case 'image/jpeg':
+        case 'image/png':
+        case 'image/gif':
+        default:
+          formData.onDataChanged({name: 'ExtraDisplay', value: 'link'});
+          break;
+      }
+    }
+  }, [formData.edits.ExtraFile])
+
   const labelCols = 4;
   return (<>
     <Row className="mt-2">
@@ -34,16 +53,41 @@ export default function FileExtraFields() {
         />
       </Col>
     </Row>
+    <Row className="mt-2">
+      <Form.Label
+        className='required'
+        column={'sm'}
+        htmlFor={'ExtraDisplay'}
+        sm={labelCols}
+      >
+        Display File
+      </Form.Label>
+      <Col>
+        <Form.Select
+          id="ExtraDisplay"
+          name="ExtraDisplay"
+          size="sm"
+          value={formData.edits.ExtraDisplay || ''}
+          onChange={(e) => formData.onDataChanged({name: 'ExtraDisplay', value: e.target.value})}
+        >
+          <option value='link'>as a link in the same window</option>
+          <option value='blank'>as a link to a new window</option>
+          <option value='embed'
+                  hidden={formData.edits.ExtraFile?.type !== 'text/html' && formData.edits.ExtraFile?.type !== 'text/plain' && formData.edits.ExtraFile?.type !== 'audio/mpeg'}>on
+            the page
+          </option>
+        </Form.Select>
+      </Col>
+    </Row>
     <Row
       className="mt-2"
-      hidden={!formData.edits.ExtraFile || formData.edits.ExtraFile.type?.startsWith('text/')}
     >
       <Form.Label
         column={'sm'}
         htmlFor={'ExtraFile'}
         sm={labelCols}
       >
-        Prompt for Links
+        Label
       </Form.Label>
       <Col>
         <Form.Control
