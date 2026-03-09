@@ -5,7 +5,7 @@ import FormEditor from "../../editor/FormEditor";
 import {useTouchContext} from "../../../util/TouchProvider";
 import FileExtraIcon from "./FileExtraIcon";
 import MoveExtraMenu from "../MoveExtraMenu";
-import {Col, Container, Row} from "react-bootstrap";
+import {Col, Row} from "react-bootstrap";
 
 export default function FileExtra({extraData, sectionExtras, canEdit = false}) {
 
@@ -66,6 +66,7 @@ export default function FileExtra({extraData, sectionExtras, canEdit = false}) {
             <a
               style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}
               href={fileUrl}
+              rel="noopener noreferrer"
               target={extraData.ExtraDisplay === 'blank' ? '_blank' : '_self'}
             >
               <div style={{paddingRight: '5px'}}><FileExtraIcon type={extraData.ExtraFileIcon}/></div>

@@ -30,7 +30,7 @@ export default function FileExtraFields() {
           break;
       }
     }
-  }, [formData.edits.ExtraFile])
+  }, [formData])
 
   const labelCols = 4;
   return (<>
