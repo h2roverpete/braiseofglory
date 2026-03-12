@@ -5,7 +5,7 @@ import RestAPI from './api/api.mjs'
 import * as fs from "node:fs";
 import 'dotenv/config';
 import mustache from "mustache";
-import { CloudFrontClient, CreateInvalidationCommand } from "@aws-sdk/client-cloudfront"; // ES Modules import
+import {CloudFrontClient, CreateInvalidationCommand} from "@aws-sdk/client-cloudfront"; // ES Modules import
 
 
 /**
@@ -57,7 +57,7 @@ gulp.task("createInvalidation", async function () {
   const config = {}; // type is CloudFrontClientConfig
   const client = new CloudFrontClient(config);
   const input = { // CreateInvalidationRequest
-    DistributionId: process.env.CLOUDFRONT_DISTRIBUTION_ID, // required
+    DistributionId: process.env.REACT_APP_CLOUDFRONT_DISTRIBUTION_ID, // required
     InvalidationBatch: { // InvalidationBatch
       Paths: { // Paths
         Quantity: Number(1), // required

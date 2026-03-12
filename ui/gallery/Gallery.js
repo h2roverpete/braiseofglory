@@ -80,7 +80,7 @@ export default function Gallery({galleryId, extraData, sectionExtras}) {
   function uploadFile(file) {
     console.debug(`Uploading photo...`);
     fileDropRef.current?.setDropState(DropState.UPLOADING);
-    Galleries.uploadPhoto(galleryId, file)
+    Galleries.uploadPhoto(siteData.SiteID, galleryId, file)
       .then((result) => {
         console.debug(`Photo uploaded successfully.`);
         fileDropRef.current?.setDropState(DropState.HIDDEN);
@@ -108,7 +108,7 @@ export default function Gallery({galleryId, extraData, sectionExtras}) {
     for (const file of files) {
       promises.push(
         new Promise((resolve, reject) => {
-            Galleries.uploadPhoto(galleryId, file)
+            Galleries.uploadPhoto(siteData.SiteID, galleryId, file)
               .then((result) => {
                 console.debug(`Photo uploaded successfully.`);
                 progress.now++;
@@ -250,51 +250,48 @@ export default function Gallery({galleryId, extraData, sectionExtras}) {
       <ImageGallery items={images} ref={galleryRef} onSlide={onSlide}/>
     )}
     {canAddPhotos && (<>
-        {images?.length === 0 && (
-          <div className={'Editor EmptyElement'}>(Empty Gallery)</div>
-        )}
-        <FileDropTarget
-          ref={fileDropRef}
-          onFileSelected={uploadFile}
-          onFilesSelected={uploadFiles}
-          onError={onDropError}
-          multiple={true}
-        />
-        <div
-          className="EditGalleryPhoto Editor dropdown"
-          hidden={supportsHover}
-          ref={buttonRef}
+      {images?.length === 0 && (
+        <div className={'Editor EmptyElement'} style={{height: '100px'}}>(Empty Gallery)</div>
+      )}
+      <FileDropTarget
+        ref={fileDropRef}
+        onFileSelected={uploadFile}
+        onFilesSelected={uploadFiles}
+        onError={onDropError}
+        multiple={true}
+      />
+      <div
+        className="EditGalleryPhoto Editor dropdown"
+        hidden={supportsHover}
+        ref={buttonRef}
+      >
+        <Button
+          className={`EditButton`}
+          type="button"
+          variant={siteData?.SiteTheme}
+          size={'sm'}
+          aria-expanded="false"
+          data-bs-toggle="dropdown"
         >
-          <Button
-            className={`EditButton`}
-            type="button"
-            variant={siteData?.SiteTheme}
-            size={'sm'}
-            aria-expanded="false"
-            data-bs-toggle="dropdown"
-          >
-            <BsThreeDotsVertical/>
-          </Button>
-          <div
-            className="dropdown-menu Editor border-secondary border-opacity-25"
-            style={{zIndex: 100}}
-          >
-            {currentPhoto && canEdit && (<span className="dropdown-item" onClick={onDeletePhoto}>
-                Delete Photo
-              </span>)}
-            <span className="dropdown-item" onClick={fileDropRef.current?.selectFile}>
-                Upload a Photo
-              </span>
-            {extraData.ExtraID !== sectionExtras[0].ExtraID && (
-              <span className="dropdown-item" onClick={() => moveExtraUp(extraData)}>Move Up</span>
-            )}
-            {extraData.ExtraID !== sectionExtras[sectionExtras.length - 1].ExtraID && (
-              <span className="dropdown-item" onClick={() => moveExtraDown(extraData)}>Move Down</span>
-            )}
-          </div>
+          <BsThreeDotsVertical/>
+        </Button>
+        <div
+          className="dropdown-menu Editor border-secondary border-opacity-25"
+          style={{zIndex: 100}}
+        >
+          {currentPhoto && canEdit && (
+            <span className="dropdown-item" onClick={onDeletePhoto}>Delete Photo</span>
+          )}
+          <span className="dropdown-item" onClick={fileDropRef.current?.selectFile}>Upload Photos</span>
+          {extraData.ExtraID !== sectionExtras[0].ExtraID && (
+            <span className="dropdown-item" onClick={() => moveExtraUp(extraData)}>Move Up</span>
+          )}
+          {extraData.ExtraID !== sectionExtras[sectionExtras.length - 1].ExtraID && (
+            <span className="dropdown-item" onClick={() => moveExtraDown(extraData)}>Move Down</span>
+          )}
         </div>
-      </>
-    )}
+      </div>
+    </>)}
     {
       canAdmin && (
         <FormEditor>

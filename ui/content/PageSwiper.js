@@ -6,6 +6,8 @@ import {useSiteContext} from "./Site";
 import Page from "./Page";
 import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router";
+import {useAuth} from "../../auth/AuthProvider";
+import {Resource, Permission} from "../../auth/Permissions";
 
 export default function PageSwiper(props) {
 
@@ -13,6 +15,7 @@ export default function PageSwiper(props) {
   const {outlineData, currentPage} = useSiteContext();
   const navigate = useNavigate();
   const location = useLocation();
+  const {hasPermission} = useAuth();
 
   // states
   const [swipePages, setSwipePages] = useState(/** @type {OutlineData[]} */ []);
@@ -20,9 +23,9 @@ export default function PageSwiper(props) {
 
   useEffect(() => {
     if (outlineData) {
-      setSwipePages(outlineData.filter((page) => !page.PageHidden && !page.HasChildren));
+      setSwipePages(outlineData.filter((page) => !page.PageHidden && !page.HasChildren && (!page.RequiresLogin || hasPermission(Resource.PAGE, Permission.BROWSE_PROTECTED))));
     }
-  }, [outlineData, setSwipePages]);
+  }, [outlineData, setSwipePages, hasPermission]);
 
   useEffect(() => {
     if (swiperInstance && currentPage) {

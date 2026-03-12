@@ -1,14 +1,14 @@
-import React, {useCallback, useRef} from 'react';
+import React, {useCallback, useContext, useRef} from 'react';
 import {useCookies} from "react-cookie";
-import {useContext} from "react";
 import axios from "axios";
 
 export const RestApiContext = React.createContext({});
 
+const host = process.env.REACT_APP_BACKEND_HOST;
+
 export default function RestApi(props) {
 
   const siteId = parseInt(process.env.REACT_APP_SITE_ID);
-  const host = process.env.REACT_APP_BACKEND_HOST;
   const apiKey = process.env.REACT_APP_API_KEY;
   const [cookies] = useCookies(); // can't use auth context, access directly
 
@@ -24,7 +24,7 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const insertOrUpdateSite = useCallback(async (data) => {
     return await adminApiCall(() => {
@@ -33,7 +33,7 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const deleteSite = useCallback(async (siteId) => {
     return await adminApiCall(() => {
@@ -42,17 +42,17 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const getPage = useCallback(async (pageId) => {
     const response = await axios.get(`${host}/api/v1/content/pages/${pageId}`);
     return response.data;
-  }, [host]);
+  }, []);
 
   const getPageSections = useCallback(async (pageId) => {
     const response = await axios.get(`${host}/api/v1/content/pages/${pageId}/sections`);
     return response.data;
-  }, [host]);
+  }, []);
 
   const insertOrUpdatePageSection = useCallback(async (data) => {
     return await adminApiCall(() => {
@@ -63,18 +63,30 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
-  const uploadSectionImage = useCallback(async (pageId, pageSectionId, file) => {
+  const uploadSectionImage = useCallback(async (siteId, pageSectionData, file) => {
     return await adminApiCall(() => {
+      // remove Extras array from section data sent to API
+      const {Extras, ...newData} = pageSectionData;
       return async () => {
-        const formData = new FormData();
-        formData.append('SectionImage', file);
-        const response = await axios.post(`${host}/api/v1/content/pages/${pageId}/sections/${pageSectionId}/image`, formData);
+        // upload image
+        const newFile = await uploadFileToS3({
+          siteId: siteId,
+          file: file,
+          path: 'images/',
+          prefix: 'image',
+          counter: 'ImageID',
+          extension: getFileExtension(file.type)
+        });
+        // update section record
+        const parts = newFile.split('/');
+        newData.SectionImage = parts[parts.length - 1]; // remove path from file name
+        const response = await axios.post(`${host}/api/v1/content/pages/${pageSectionData.PageID}/sections/`, newData);
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const deleteSectionImage = useCallback(async (pageId, pageSectionId) => {
     return await adminApiCall(() => {
@@ -83,7 +95,7 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const deletePageSection = useCallback(async (pageId, pageSectionId) => {
     return await adminApiCall(() => {
@@ -92,7 +104,7 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const insertOrUpdatePage = useCallback(async (data) => {
     return await adminApiCall(() => {
@@ -102,7 +114,7 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const deletePage = useCallback(async (pageId) => {
     return await adminApiCall(() => {
@@ -111,7 +123,7 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const movePageBefore = useCallback(async (pageId, beforePageId) => {
     return await adminApiCall(() => {
@@ -120,7 +132,7 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const movePageAfter = useCallback(async (pageId, afterPageId) => {
     return await adminApiCall(() => {
@@ -129,7 +141,7 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const makePageChildOf = useCallback(async (pageId, parentId) => {
     return await adminApiCall(() => {
@@ -138,32 +150,32 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const getSite = useCallback(async () => {
     const response = await axios.get(`${host}/api/v1/content/sites/${siteId}`);
     return response.data;
-  }, [host, siteId]);
+  }, [siteId]);
 
   const getSiteOutline = useCallback(async () => {
     const response = await axios.get(`${host}/api/v1/content/sites/${siteId}/outline`);
     return response.data;
-  }, [host, siteId]);
+  }, [siteId]);
 
   const getSitemap = useCallback(async () => {
     const response = await axios.get(`${host}/api/v1/content/sites/${siteId}/sitemap`);
     return response.data;
-  }, [host, siteId]);
+  }, [siteId]);
 
   const getGuestBooks = useCallback(async () => {
     const response = await axios.get(`${host}/api/v1/guestbooks`);
     return response.data;
-  }, [host]);
+  }, []);
 
   const getGuestBook = useCallback(async (guestBookId) => {
     const response = await axios.get(`${host}/api/v1/guestbook/${guestBookId}`);
     return response.data;
-  }, [host]);
+  }, []);
 
   const insertOrUpdateGuestBook = useCallback(async (data) => {
     return await adminApiCall(() => {
@@ -172,42 +184,42 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const deleteGuestBook = useCallback(async (guestBookId) => {
     const response = await axios.delete(`${host}/api/v1/guestbook/${guestBookId}`);
     return response.data;
-  }, [host]);
+  }, []);
 
   const getGuest = useCallback(async (guestId) => {
     const response = await axios.get(`${host}/api/v1/guestbook/guest/${guestId}`);
     return response.data;
-  }, [host]);
+  }, []);
 
   const insertOrUpdateGuest = useCallback(async (guestBookId, data) => {
     const response = await axios.post(`${host}/api/v1/guestbook/${guestBookId}/guest`, data);
     return response.data;
-  }, [host]);
+  }, []);
 
   const getGuestFeedback = useCallback(async (guestFeedbackId) => {
     const response = await axios.get(`${host}/api/v1/guestbook/feedback/${guestFeedbackId}`);
     return response.data;
-  }, [host]);
+  }, []);
 
   const insertOrUpdateGuestFeedback = useCallback(async (guestId, data) => {
     const response = await axios.post(`${host}/api/v1/guestbook/guest/${guestId}/feedback`, data);
     return response.data;
-  }, [host]);
+  }, []);
 
   const getGallery = useCallback(async (galleryId) => {
     const response = await axios.get(`${host}/api/v1/galleries/${galleryId}`);
     return response.data;
-  }, [host]);
+  }, []);
 
   const getGalleries = useCallback(async () => {
     const response = await axios.get(`${host}/api/v1/galleries`);
     return response.data;
-  }, [host]);
+  }, []);
 
   const insertOrUpdateGallery = useCallback(async (data) => {
     return adminApiCall(() => {
@@ -216,7 +228,7 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const deleteGallery = useCallback(async (galleryId) => {
     return adminApiCall(() => {
@@ -225,23 +237,34 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const getPhotos = useCallback(async (galleryId) => {
     const response = await axios.get(`${host}/api/v1/galleries/${galleryId}/photos`);
     return response.data;
-  }, [host]);
+  }, []);
 
-  const uploadPhoto = useCallback(async (galleryId, file) => {
+  const uploadPhoto = useCallback(async (siteId, galleryId, file) => {
     return await adminApiCall(() => {
       return async () => {
+        // upload file to S3
+        const parts = file.name.split('.');
+        const extension = parts[parts.length - 1];
+        const newFile = await uploadFileToS3({
+          siteId: siteId,
+          file: file,
+          path: 'photos/',
+          prefix: 'photo',
+          counter: 'PhotoID',
+          extension: extension,
+        });
         const formData = new FormData();
-        formData.append('PhotoFile', file);
+        formData.append('PhotoFileName', newFile);
         const response = await axios.post(`${host}/api/v1/galleries/${galleryId}/photos`, formData);
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const deletePhoto = useCallback(async (galleryId, photoId) => {
     return await adminApiCall(() => {
@@ -250,38 +273,28 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const getPageExtras = useCallback(async (pageId) => {
     const response = await axios.get(`${host}/api/v1/content/pages/${pageId}/extras`);
     return response.data;
-  }, [host]);
+  }, []);
 
   const insertOrUpdateExtra = useCallback(async (data) => {
     return await adminApiCall(() => {
       return async () => {
-        if (data.ExtraFile.name) {
-          // file selected for upload, get an S3 pre-signed URL
-          const response = await axios.post(`${host}/api/v1/content/extras/file`, {
-            SiteID: data.SiteID,
-            FileName: data.ExtraFile.name,
-            MimeType: data.ExtraFile.type
+        if (data.ExtraFile?.name) {
+          // user selected a file
+          // upload file to S3 and set name
+          data.ExtraFileName = await uploadFileToS3({
+            siteId: data.SiteID,
+            file: data.ExtraFile,
+            name: data.ExtraFile.name,
+            path: 'files/',
+            invalidate: true,
           });
-          // upload directly to S3
-          const uploadResult = await fetch(
-            response.data.PresignedUrl, {
-              method: 'PUT',
-              body: data.ExtraFile, // Send the raw file object, not FormData
-              headers: {
-                'Content-Type': data.ExtraFile.type,
-              }
-            }
-          );
-          console.log(`Upload result: ${JSON.stringify(uploadResult)}`);
-          // copy file info to data
-          data.ExtraFileName = response.data.FileName;
           data.ExtraFileMimeType = data.ExtraFile.type;
-          // delete file upload data
+          // delete file from data, it has already been uploaded
           delete data.ExtraFile;
         }
         const formData = new FormData();
@@ -294,7 +307,7 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const deleteExtra = useCallback(async (extraId) => {
     return await adminApiCall(() => {
@@ -303,7 +316,7 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const moveExtraUp = useCallback(async (extraId) => {
     return await adminApiCall(() => {
@@ -312,7 +325,7 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const moveExtraDown = useCallback(async (extraId) => {
     return await adminApiCall(() => {
@@ -321,7 +334,7 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const getUsers = useCallback(async () => {
     return await adminApiCall(() => {
@@ -330,7 +343,7 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const insertOrUpdateUser = useCallback(async (data) => {
     return await adminApiCall(() => {
@@ -339,7 +352,7 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const deleteUser = useCallback(async (userId) => {
     return await adminApiCall(() => {
@@ -348,37 +361,37 @@ export default function RestApi(props) {
         return response.data;
       }
     });
-  }, [host]);
+  }, []);
 
   const getAuthToken = useCallback(async (clientId, redirectUrl, authCode) => {
     const response = await axios.post(`${host}/oauth/token?client_id=${clientId}&redirect_uri=${redirectUrl}&code=${authCode}&grant_type=authorization_code`);
     return response.data;
-  }, [host]);
+  }, []);
 
   const refreshToken = useCallback(async (refreshToken, clientId) => {
     const response = await axios.post(`${host}/oauth/token?client_id=${clientId}&grant_type=refresh_token&refresh_token=${refreshToken}`);
     return response.data;
-  }, [host]);
+  }, []);
 
   const checkToken = useCallback(async () => {
     const response = await axios.get(`${host}/oauth/check`);
     return response.data;
-  }, [host]);
+  }, []);
 
   const getAuthClients = useCallback(async () => {
     const response = await axios.get(`${host}/oauth/clients`);
     return response.data;
-  }, [host]);
+  }, []);
 
   const insertOrUpdateAuthClient = useCallback(async (data) => {
     const response = await axios.post(`${host}/oauth/clients`, data);
     return response.data;
-  }, [host]);
+  }, []);
 
   const deleteAuthClient = useCallback(async (client_id) => {
     const response = await axios.delete(`${host}/oauth/clients/${client_id}`);
     return response.data;
-  }, [host]);
+  }, []);
 
 
   /**
@@ -509,3 +522,112 @@ export default function RestApi(props) {
 export function useRestApi() {
   return useContext(RestApiContext);
 }
+
+/**
+ * Upload a file from a file input field to an S3 bucket.
+ *
+ * If 'prefix' 'counter' and 'extension' params are provided, the file will be auto-numbered.
+ *
+ * Otherwise, the original file name from the file field will be requested. If the name
+ * contains uppercase letters, spaces, or special characters, they will be transformed.
+ *
+ * @param siteId {number}       SiteID the file belongs to. The site must have SiteBucketName defined or the request will fail.
+ * @param file {File}           Form field containing file data.
+ * @param path {string}         Path to the file, relative to site/bucket root, i.e. 'files/'. (Do not provide an initial slash.)
+ * @param [prefix] {string}     Prefix for auto-numbering, along with 'extension'. File name format will be 'prefix0000.ext'
+ * @param [counter] {string}    DynamoDB counter to use for auto-numbering, i.e. 'FileID', 'PhotoID'
+ * @param [extension] {string}  Extension for auto-numbering, along with 'prefix'. File name format will be 'prefix0000.ext'
+ * @param invalidate {string}   True to create an invalidation for the uploaded file. Don't use this for batch uploads, or a rate error will occur.
+ * @returns {Promise<string>}   The S3 "key" (path + file name) to the uploaded file.
+ */
+async function uploadFileToS3({file, siteId, path, prefix, counter, extension, invalidate}) {
+  /** @type {axios.AxiosResponse<PresignedUrlResponse>} */
+  console.debug(`Upload file to S3...`)
+  const urlResponse = await axios.post(`${host}/api/v1/content/files/url`, {
+    SiteID: siteId,
+    CloudFrontDistributionID: invalidate ? process.env.REACT_APP_CLOUDFRONT_DISTRIBUTION_ID : undefined,
+    FilePath: path,
+    FileName: (prefix && extension && counter) ? undefined : file.name, // send file name if not auto-numbering
+    FilePrefix: prefix, // for auto-numbering
+    FileCounter: counter, // for auto-numbering
+    FileExt: extension, // for auto-numbering
+  });
+  console.debug(`Presigned URL response: ${JSON.stringify(urlResponse)}`);
+  const uploadResponse = await fetch( // use fetch for sending raw form data
+    urlResponse.data.PresignedUrl, {
+      method: 'PUT',
+      body: file, // Send the raw file data
+      headers: {
+        'Content-Type': file.type,
+      }
+    }
+  );
+  console.log(`S3 Upload response: ${JSON.stringify(uploadResponse)}`);
+  return urlResponse.data.Key;
+}
+
+/**
+ * Get the file extension to use for a given MIME type.
+ *
+ * @param mimeType {string} Mime type, i.e. 'image/jpg'
+ * @returns {string} File extension to use, i.e. 'jpg'
+ * @throws {Error} if the MIME type is unknown.
+ */
+export function getFileExtension(mimeType) {
+  const entry = fileMap.find((entry) => entry.type === mimeType);
+  if (entry) {
+    return entry.extension;
+  } else {
+    throw new Error('Unsupported MIME type.');
+  }
+}
+
+/**
+ * Return the MIME type of the file based on the file name (extension).
+ *
+ * @param fileName {string} File name with extension, i.e. 'file.txt'
+ * @returns {string} MIME type of the file, i.e. 'text/plain'
+ * @throws {Error} if file name isn't formatted properly, or type is not found.
+ */
+export function getMimeType(fileName) {
+  const parts = fileName.split('.');
+  if (parts.length !== 2) {
+    throw new Error(`Can't parse file name.`);
+  }
+  const extension = parts[parts.length - 1];
+  const entry = fileMap.find((entry) => entry.extension === extension);
+  if (entry) {
+    return entry.type;
+  } else {
+    throw new Error('Unsupported file type.');
+  }
+}
+
+/**
+ * Map of extensions to MIME types.
+ */
+const fileMap = [
+  {type: 'image/png', extension: 'png'},
+  {type: 'image/gif', extension: 'gif'},
+  {type: 'image/jpeg', extension: 'jpg'},
+  {type: 'image/jpeg', extension: 'jpeg'},
+  {type: 'image/svg+xml', extension: 'svg'},
+  {type: 'image/webp', extension: 'webp'},
+  {type: 'text/html', extension: 'html'},
+  {type: 'text/html', extension: 'htm'},
+  {type: 'text/plain', extension: 'txt'},
+  {type: 'audio/mpeg', extension: 'mp3'},
+  {type: 'audio/ogg', extension: 'ogg'},
+  {type: 'audio/ogg', extension: 'oga'},
+  {type: 'audio/wav', extension: 'wav'},
+  {type: 'audio/webm', extension: 'weba'},
+  {type: 'audio/mp4', extension: 'mp4a'},
+  {type: 'video/mp4', extension: 'mp4'},
+  {type: 'video/mp4', extension: 'm4v'},
+  {type: 'video/webm', extension: 'webm'},
+  {type: 'video/ogg', extension: 'ogv'},
+  {type: 'video/x-msvideo', extension: 'avi'},
+  {type: 'video/quicktime', extension: 'mov'},
+  {type: 'video/mpeg', extension: 'mpeg'},
+  {type: 'application/pdf', extension: 'pdf'},
+]

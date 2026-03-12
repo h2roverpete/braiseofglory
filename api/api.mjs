@@ -255,14 +255,15 @@ import axios from "axios";
  * @property {Number} ExtraID           Unique ID for extra.
  * @property {Number} [PageID]          Page to insert the extra into.
  * @property {Number} [PageSectionID]   Page section to insert the extra into.
- * @property {String} ExtraType         Type of extra, i.e. "gallery" or "guestbook" or "instagram" or "html"
+ * @property {String} ExtraType         Type of extra, i.e. "gallery" or "guestbook" or "instagram" or "youtube" or "file"
  * @property {String} [InstagramHandle] Handle for Instagram when ExtraType == 'instagram'
  * @property {String} [ExtraFile]       S3 path to file attached to the Extra
  * @property {String} [GalleryID]       Gallery ID when ExtraType == 'gallery'
  * @property {String} [GuestBookID]     Guest book ID when ExtraType == 'guestbook'
  * @property {String} [YouTubeVideoURL] Video URL when ExtraType == 'youtube'
  * @property {String} [AspectRatio]     Aspect ratio for display, i.e. 4 / 3 or  16 / 9.
- * @property {number} [DisplayWidth]    Display width in columns.
+ * @property {number} [DisplayWidth]    Display width in columns when ExtraDisplay is 'embed'
+ * @property {string} ExtraDisplay      Display style: 'link', 'embed' or 'blank'
  * @property {String} Created           Creation date in ISO format.
  * @property {String} Modified          Modification date in ISO format.
  */
@@ -270,21 +271,24 @@ import axios from "axios";
 /**
  * @typedef PresignedUrlRequest
  *
- * @property {number} SiteID
- * @property {string} FileName
- * @property {string} MimeType
+ * Request a presigned file upload url.
+ *
+ * POST data to [host]/api/v1/content/files/url
+ *
+ * @property {number} SiteID                      Site to add file to. User needs site admin privileges to upload files.
+ * @property {string} FilePath                    Path to file relative to site root, i.e. 'files/'. Don't use an initial '/' in the path.
+ * @property {string} CloudFrontDistributionID    Used to invalidate the existing file (if any) in CloudFront.
+ * @property {string} [FileName]                  Requested file name to use. Note that uppercase, spaces and special characters will be transformed or removed.
+ * @property {string} [FilePrefix]                Use in combination with FileExt to have the server auto-number a file. File name format is 'base00000.ext'
+ * @property {string} [FileCounter]               Dynamo Counter to use for unique IDs, i.e. 'FileID'
+ * @property {string} [FileExt]                   File extension for use with BaseFileName when auto-numbering a file. File name format is 'base00000.ext'
  */
 
 /**
  * @typedef PresignedUrlResponse
  *
- * @property {string} PresignedUrl
- */
-
-/**
- * @typedef SignedUrl
- *
- * @property {string} SignedURL
+ * @property {string}   PresignedUrl  S3 presigned URL to receive a PUT request containing binary file data in the body.
+ * @property {string}   Key           S3 key for the file once uploaded, i.e. 'path/to/file.ext'
  */
 
 /**

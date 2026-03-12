@@ -1,9 +1,13 @@
 import {Col, Form, Row} from "react-bootstrap";
 import {useFormData} from "../../editor/FormEditor";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import FileExtraIcon, {IconList} from "./FileExtraIcon";
+import {getMimeType} from "../../../api/RestApi";
 
 export default function FileExtraFields() {
+
+  // states
+  const [baseFileType, setBaseFileType] = useState(null);
 
   const formData = useFormData();
   useEffect(() => {
@@ -14,23 +18,35 @@ export default function FileExtraFields() {
   }, [formData]);
 
   useEffect(() => {
+    if (formData.edits.ExtraFile) {
+      let mimeType;
+      if (formData.edits.ExtraFile && !formData.edits.ExtraFile.type) {
+        mimeType = getMimeType(formData.edits.ExtraFile);
+      } else {
+        mimeType = formData.edits.ExtraFile.type
+      }
+      const parts = mimeType.split('/');
+      const baseType = parts[0];
+      setBaseFileType(baseType);
+    }
+  }, [formData.edits.ExtraFile, setBaseFileType]);
+
+  useEffect(() => {
     if (!formData.edits.ExtraDisplay) {
-      // set default display
-      switch (formData.edits.ExtraFile?.type) {
-        case 'audio/mpeg':
-        case 'text/html':
-        case 'text/plain':
+      switch (baseFileType) {
+        case 'audio':
+        case 'text':
           formData.onDataChanged({name: 'ExtraDisplay', value: 'embed'});
           break;
-        case 'image/jpeg':
-        case 'image/png':
-        case 'image/gif':
+        case 'image':
+        case 'video':
+        case 'application':
         default:
           formData.onDataChanged({name: 'ExtraDisplay', value: 'link'});
           break;
       }
     }
-  }, [formData])
+  }, [formData, baseFileType])
 
   const labelCols = 4;
   return (<>
@@ -81,10 +97,11 @@ export default function FileExtraFields() {
     </Row>
     <Row
       className="mt-2"
+      hidden={formData.edits.ExtraDisplay !== 'link' && formData.edits.ExtraDisplay !== 'blank'}
     >
       <Form.Label
         column={'sm'}
-        htmlFor={'ExtraFile'}
+        htmlFor={'ExtraFilePrompt'}
         sm={labelCols}
       >
         Label
@@ -99,7 +116,10 @@ export default function FileExtraFields() {
         />
       </Col>
     </Row>
-    <Row className="mt-2">
+    <Row
+      className="mt-2"
+      hidden={formData.edits.ExtraDisplay !== 'link' && formData.edits.ExtraDisplay !== 'blank'}
+    >
       <Form.Label
         column={'sm'}
         htmlFor={'ExtraFileIcon'}
@@ -125,7 +145,10 @@ export default function FileExtraFields() {
         </Form.Select>
       </Col>
     </Row>
-    <Row className="mt-2">
+    <Row
+      className="mt-2"
+      hidden={formData.edits.ExtraDisplay !== 'embed'}
+    >
       <Form.Label
         htmlFor={"DisplayWidth"}
         column={'sm'}

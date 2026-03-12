@@ -93,6 +93,13 @@ button.EditButton:focus
 {
 }
 
+div.Gallery {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100px;
+}
+
 div.MoveExtra.Editor.dropdown {
   position: absolute;
   top: 5px;

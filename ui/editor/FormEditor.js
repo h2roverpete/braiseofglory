@@ -87,8 +87,8 @@ export default function FormEditor({children}) {
    * @type {function(T): void}
    */
   const update = useCallback((data) => {
-    setEdits(data);
-    setOriginalData(data);
+    setEdits({...data});
+    setOriginalData({...data});
     setTouched([]);
   }, [setEdits, setOriginalData, setTouched]);
 

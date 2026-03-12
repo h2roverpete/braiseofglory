@@ -1,5 +1,5 @@
-import {Row, Form, Col, Button, Modal} from "react-bootstrap";
-import {useEffect, useState} from "react";
+import {Row, Form, Col, Button, Modal, Spinner} from "react-bootstrap";
+import {useEffect, useRef, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
 import {usePageContext} from "../content/Page";
 import EditorPanel from "../editor/EditorPanel";
@@ -10,6 +10,9 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId,
   const {Galleries, Extras} = useRestApi();
   const {removeExtraFromPage} = usePageContext();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const progressRef = useRef(null);
+  const confirmRef = useRef(null);
+  const cancelRef = useRef(null);
 
   /** @type FormDataAPI<GalleryData> */
   const formData = useFormData();
@@ -42,6 +45,9 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId,
 
   function onDeleteGallery() {
     console.debug(`Delete gallery....`);
+    progressRef.current?.classList.remove('d-none');
+    cancelRef.current.disabled = true;
+    confirmRef.current.disabled = true;
     Galleries.deleteGallery(galleryConfig.GalleryID).then(() => {
       console.debug(`Gallery deleted.`);
       if (extraId) {
@@ -65,8 +71,14 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId,
       <Modal.Body>Are you sure you want to delete '{galleryConfig?.GalleryName}' gallery? This action can't be
         undone.</Modal.Body>
       <Modal.Footer>
-        <Button size="sm" variant="secondary" onClick={() => setShowDeleteConfirmation(false)}>Cancel</Button>
-        <Button size="sm" variant="danger" onClick={onDeleteGallery}>Delete
+        <div
+          ref={progressRef}
+          className="d-flex align-items-center justify-content-start small flex-grow-1 d-none"
+        >
+          <Spinner animation="border" role="status" className='me-2'/> Deleting...<br/>
+        </div>
+        <Button size="sm" variant="secondary" ref={cancelRef} onClick={() => setShowDeleteConfirmation(false)}>Cancel</Button>
+        <Button size="sm" variant="danger" ref={confirmRef} onClick={onDeleteGallery}>Delete
         </Button>
       </Modal.Footer>
     </Modal>

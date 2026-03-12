@@ -100,7 +100,7 @@ export default function PageSection({pageSectionData, canEdit = false}) {
     // upload a file that has been dropped, selected from a file dialog
     // or pasted from the clipboard
     dropRef.current.setDropState(DropState.UPLOADING);
-    PageSections.uploadSectionImage(pageSectionData.PageID, pageSectionData.PageSectionID, file)
+    PageSections.uploadSectionImage(siteData.SiteID, pageSectionData, file)
       .then((result) => {
         console.debug(`Image uploaded successfully.`);
         dropRef.current.setDropState(DropState.HIDDEN);
@@ -113,7 +113,7 @@ export default function PageSection({pageSectionData, canEdit = false}) {
         showErrorAlert(`Error uploading image.`, e);
         dropRef.current.setDropState(DropState.HIDDEN);
       });
-  }, [PageSections, pageSectionData, updatePageSection, showErrorAlert]);
+  }, [PageSections, pageSectionData, updatePageSection, showErrorAlert, siteData.SiteID]);
 
   const sectionTitle = useMemo(() => (
     <h2
