@@ -68,7 +68,7 @@ export default function GalleryConfig({galleryConfig, setGalleryConfig, extraId,
       className={'Editor'}
     >
       <Modal.Header><h5>Delete Gallery</h5></Modal.Header>
-      <Modal.Body>Are you sure you want to delete '{galleryConfig?.GalleryName}' gallery? This action can't be
+      <Modal.Body>Are you sure you want to delete '{galleryConfig?.GalleryName}' and all photos? This action can't be
         undone.</Modal.Body>
       <Modal.Footer>
         <div
