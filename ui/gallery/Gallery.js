@@ -275,21 +275,21 @@ export default function Gallery({galleryId, extraData, sectionExtras}) {
         >
           <BsThreeDotsVertical/>
         </Button>
-        <div
-          className="dropdown-menu Editor border-secondary border-opacity-25"
+        <ul
+          className="dropdown-menu Editor"
           style={{zIndex: 100}}
         >
           {currentPhoto && canEdit && (
-            <span className="dropdown-item" onClick={onDeletePhoto}>Delete Photo</span>
+            <li><a className="dropdown-item" onClick={onDeletePhoto}>Delete Photo</a></li>
           )}
-          <span className="dropdown-item" onClick={fileDropRef.current?.selectFile}>Upload Photos</span>
+          <li><a className="dropdown-item" onClick={fileDropRef.current?.selectFile}>Upload Photos</a></li>
           {extraData.ExtraID !== sectionExtras[0].ExtraID && (
-            <span className="dropdown-item" onClick={() => moveExtraUp(extraData)}>Move Up</span>
+            <li><a className="dropdown-item" onClick={() => moveExtraUp(extraData)}>Move Up</a></li>
           )}
           {extraData.ExtraID !== sectionExtras[sectionExtras.length - 1].ExtraID && (
-            <span className="dropdown-item" onClick={() => moveExtraDown(extraData)}>Move Down</span>
+            <li><a className="dropdown-item" onClick={() => moveExtraDown(extraData)}>Move Down</a></li>
           )}
-        </div>
+        </ul>
       </div>
     </>)}
     {

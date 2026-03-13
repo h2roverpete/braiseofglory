@@ -97,6 +97,24 @@ export default function RestApi(props) {
     });
   }, []);
 
+  const generateSectionImages = useCallback(async (pageId, pageSectionId, data) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.post(`${host}/api/v1/content/pages/${pageId}/sections/${pageSectionId}/image/generate`, data);
+        return response.data;
+      }
+    });
+  }, []);
+
+  const deleteGeneratedImage = useCallback(async (pageId, pageSectionId, generatedImageId) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.delete(`${host}/api/v1/content/pages/${pageId}/sections/${pageSectionId}/image/generated/${generatedImageId}`);
+        return response.data;
+      }
+    });
+  }, []);
+
   const deletePageSection = useCallback(async (pageId, pageSectionId) => {
     return await adminApiCall(() => {
       return async () => {
@@ -468,6 +486,8 @@ export default function RestApi(props) {
       },
       PageSections: {
         insertOrUpdatePageSection: insertOrUpdatePageSection,
+        generateSectionImages: generateSectionImages,
+        deleteGeneratedImage: deleteGeneratedImage,
         uploadSectionImage: uploadSectionImage,
         deleteSectionImage: deleteSectionImage,
         deletePageSection: deletePageSection,

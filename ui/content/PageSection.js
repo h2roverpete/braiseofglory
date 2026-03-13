@@ -1,15 +1,13 @@
 import EditableField from "../editor/EditableField";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
-import {BsThreeDotsVertical} from "react-icons/bs";
-import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "react-bootstrap";
 import {usePageContext} from "./Page";
 import PageSectionImage from "./PageSectionImage";
 import {DropState, FileDropTarget} from "../editor/FileDropTarget";
 import Extras from "../extras/Extras";
 import {useSiteContext} from "./Site";
-import {loremIpsum} from "lorem-ipsum";
 import {useTouchContext} from "../../util/TouchProvider";
+import EditSectionMenu from "../editor/EditSectionMenu";
 
 /**
  * Display a page section.
@@ -25,16 +23,11 @@ export default function PageSection({pageSectionData, canEdit = false}) {
   const {supportsHover} = useTouchContext();
   const {PageSections} = useRestApi();
   const {
-    sectionData,
-    setSectionData,
-    deletePageSection,
     updatePageSection,
-    addExtraModal,
   } = usePageContext();
   const {showErrorAlert, siteData} = useSiteContext();
 
   // states
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [editing, setEditing] = useState(false);
   const [titleApi, setTitleApi] = useState(null);
   const [textApi, setTextApi] = useState(null);
@@ -133,159 +126,6 @@ export default function PageSection({pageSectionData, canEdit = false}) {
       ref={sectionTextRef}
     />
   ), [pageSectionData]);
-
-  function onInsertLoremIpsum() {
-    const textContent = loremIpsum(
-      {
-        format: 'html',
-        count: 4,
-        units: 'paragraphs'
-      });
-    onTextChanged({textContent: textContent, textAlign: pageSectionData.TextAlign});
-  }
-
-  function onDeleteSection() {
-    if (pageSectionData) {
-      PageSections.deletePageSection(pageSectionData.PageID, pageSectionData.PageSectionID)
-        .then((result) => {
-          console.debug(`Page section deleted.`)
-          deletePageSection(result.PageSectionID);
-        })
-        .catch(error => {
-          showErrorAlert(`Error deleting page section.`, error)
-        });
-    }
-  }
-
-  function onMoveUp() {
-    if (sectionData && pageSectionData) {
-      let before;
-      let current;
-      for (const section of sectionData) {
-        if (section.PageSectionID === pageSectionData.PageSectionID) {
-          current = section;
-          break;
-        } else {
-          before = section;
-        }
-      }
-      if (current && before) {
-        let seq = current.PageSectionSeq;
-        current.PageSectionSeq = before.PageSectionSeq;
-        before.PageSectionSeq = seq;
-        console.debug(`Moving section up...`);
-        updatePageSection(current);
-        updatePageSection(before);
-        PageSections.insertOrUpdatePageSection(before)
-          .then(() => {
-            PageSections.insertOrUpdatePageSection(current)
-              .then(() => {
-                console.debug(`Section moved up.`);
-              })
-              .catch(error => showErrorAlert(`Error moving page section up.`, error));
-          })
-          .catch(error => showErrorAlert(`Error moving page section up.`, error));
-      } else {
-        showErrorAlert(`Section sequence error, can't move up.`);
-      }
-    }
-  }
-
-  function onMoveDown() {
-    if (sectionData && pageSectionData) {
-      let current;
-      let next;
-      for (const section of sectionData) {
-        if (section.PageSectionID === pageSectionData.PageSectionID) {
-          current = section;
-        } else if (current) {
-          next = section;
-          break;
-        }
-      }
-      if (current && next) {
-        let seq = current.PageSectionSeq;
-        current.PageSectionSeq = next.PageSectionSeq;
-        next.PageSectionSeq = seq;
-        console.debug(`Moving section down...`);
-        updatePageSection(next);
-        updatePageSection(current);
-        PageSections.insertOrUpdatePageSection(next)
-          .then(() => {
-            PageSections.insertOrUpdatePageSection(current)
-              .then(() => {
-                console.debug(`Section moved down.`);
-              })
-              .catch(error => showErrorAlert(`Error moving page section down.`, error));
-          })
-          .catch(error => showErrorAlert(`Error moving page section down.`, error));
-      } else {
-        showErrorAlert(`Section sequence error, can't move down.`);
-      }
-    }
-  }
-
-  function onNewSectionAbove() {
-    if (sectionData && pageSectionData) {
-      console.debug(`Adding page section above...`);
-      PageSections.insertOrUpdatePageSection({
-        PageID: pageSectionData.PageID,
-        PageSectionSeq: pageSectionData.PageSectionSeq,
-      }).then((newSection) => {
-        console.debug(`Added page section.`);
-        for (const section of sectionData) {
-          if (section.PageSectionSeq >= newSection.PageSectionSeq) {
-            console.debug(`Updating section sequence.`);
-            section.PageSectionSeq++;
-            PageSections.insertOrUpdatePageSection(section).then((result) => {
-              console.debug(`Updated section ${result.PageSectionID} sequence.`);
-            }).catch(error => showErrorAlert(`Error updating section sequence.`, error));
-          }
-        }
-        const newSectionData = [...sectionData, newSection]
-        newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
-        setSectionData(newSectionData);
-      }).catch(error => showErrorAlert(`Error adding section.`, error));
-    }
-  }
-
-  function onNewSectionBelow() {
-    if (sectionData && pageSectionData) {
-      console.debug(`Adding page section below...`);
-      PageSections.insertOrUpdatePageSection({
-        PageID: pageSectionData.PageID,
-        PageSectionSeq: pageSectionData.PageSectionSeq + 1,
-      }).then((newSection) => {
-        console.debug(`Added page section.`);
-        for (const section of sectionData) {
-          if (section.PageSectionSeq >= newSection.PageSectionSeq) {
-            console.debug(`Updating section sequence.`);
-            section.PageSectionSeq++;
-            PageSections.insertOrUpdatePageSection(section).then((result) => {
-              console.debug(`Updated section ${result.PageSectionID} sequence.`);
-            }).catch(error => showErrorAlert(`Error updating section sequence.`, error));
-          }
-        }
-        const newSectionData = [...sectionData, newSection]
-        newSectionData.sort((a, b) => a.PageSectionSeq - b.PageSectionSeq);
-        setSectionData(newSectionData);
-      }).catch(error => showErrorAlert(`Error adding section.`, error));
-    }
-  }
-
-  function onEditTitle() {
-    // start editing section title
-    titleApi.startEditing();
-    editButtonRef.current.hidden = true;
-    setEditing(true);
-  }
-
-  function onEditText() {
-    // start editing section text
-    textApi.startEditing();
-    editButtonRef.current.hidden = true;
-    setEditing(true);
-  }
 
   /**
    * See if user is pasting image data.
@@ -386,64 +226,17 @@ export default function PageSection({pageSectionData, canEdit = false}) {
             }}
           />
         )}
-        <div className="Editor EditSectionMenu dropdown">
-          <Button
-            variant={siteData?.SiteTheme}
-            size="sm"
-            className={`EditButton EditSectionButton`}
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            ref={editButtonRef}
-            hidden={supportsHover}
-          ><BsThreeDotsVertical/></Button>
-          <div className="dropdown-menu Editor" style={{cursor: 'pointer'}}>
-              <span className="dropdown-item"
-                    onClick={onEditTitle}>{`${pageSectionData?.SectionTitle?.length > 0 ? 'Edit' : 'Add'} Section Title`}</span>
-            <span className="dropdown-item"
-                  onClick={onEditText}>{`${pageSectionData?.SectionText?.length > 0 ? 'Edit' : 'Add'} Section Text`}</span>
-            {!pageSectionData.SectionText && (
-              <span className="dropdown-item"
-                    onClick={() => onInsertLoremIpsum()}>Add Placeholder Text</span>
-            )}
-            <span className="dropdown-item"
-                  onClick={() => dropRef.current?.selectFile()}>{`${pageSectionData?.SectionImage?.length > 0 ? 'Update' : 'Add'} Section Image`}</span>
-            <span className="dropdown-item"
-                  onClick={() => addExtraModal({pageSectionId: pageSectionData.PageSectionID})}>Add Extra</span>
-            {pageSectionData.PageSectionID !== sectionData[0].PageSectionID && (
-              <span className="dropdown-item" onClick={onMoveUp}>Move Up</span>
-            )}
-            {pageSectionData.PageSectionID !== sectionData[sectionData.length - 1].PageSectionID && (
-              <span className="dropdown-item" style={{marginLeft: '0'}} onClick={onMoveDown}>Move
-                  Down</span>
-            )}
-            <span className="dropdown-item" style={{marginLeft: '0'}}
-                  onClick={onNewSectionAbove}>New Section Above</span>
-            <span className="dropdown-item" style={{marginLeft: '0'}}
-                  onClick={onNewSectionBelow}>New Section Below</span>
-            <span className="dropdown-item" onClick={() => setShowDeleteConfirmation(true)}> Delete Section</span>
-          </div>
-        </div>
-        <Modal
-          show={showDeleteConfirmation}
-          onHide={() => setShowDeleteConfirmation(false)}
-          className={'Editor'}
-        >
-          <ModalHeader><h5>Delete Page Section</h5></ModalHeader>
-          <ModalBody>Are you sure you want to delete this section of the page? This action cannot be
-            undone.</ModalBody>
-          <ModalFooter>
-            <Button size="sm" variant="secondary" onClick={() => setShowDeleteConfirmation(false)}>Cancel
-            </Button>
-            <Button size="sm" variant="danger" onClick={() => {
-              onDeleteSection();
-              setShowDeleteConfirmation(false)
-            }}>Delete Section
-            </Button>
-          </ModalFooter>
-        </Modal>
+        <EditSectionMenu
+          pageSectionData={pageSectionData}
+          editButtonRef={editButtonRef}
+          titleApi={titleApi}
+          textApi={textApi}
+          setEditing={setEditing}
+          onTextChanged={onTextChanged}
+          dropRef={dropRef}
+        />
       </div>
-      <Extras extras={pageSectionData.Extras} />
+      <Extras extras={pageSectionData.Extras}/>
     </>);
   }
 }

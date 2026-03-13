@@ -78,6 +78,28 @@ import axios from "axios";
  */
 
 /**
+ * @typedef GenerateImageRequest
+ *
+ * @property ImageSize {string}             Image width x height, i.e. '4096x4096'
+ * @property ImagePrompt {string}           Prompt for generating image.
+ * @property ImageNegativePrompt {string}   Negative prompt (things not to generate).
+ * @property ImageStyle {string}            Style of image, i.e. 'PHOTOREALISM'.
+ * @property ImageCount {number}            Number of images to return.
+ * @property ImagePath {string}             Path to image relative to site root
+ */
+
+/**
+ * @property GeneratedImageData
+ * @extends GenerateImageRequest
+ *
+ * @property GeneratedImageID {number}      Generated Image ID
+ * @property PageSectionID {number}         Page Section ID
+ * @property PageID {number}                Page ID
+ * @property SiteID {number}                Site ID
+ * @property Image {string}                 Path to image from site root.
+ */
+
+/**
  * @typedef GuestBookConfig
  *
  * @property {Number} GuestBookID

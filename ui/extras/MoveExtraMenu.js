@@ -26,14 +26,14 @@ export default function MoveExtraMenu({buttonRef, extraData, sectionExtras}) {
           data-bs-toggle="dropdown"
           aria-expanded="false"
         ><BsArrowsMove/></Button>
-        <div className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
+        <ul className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
           {extraData.ExtraID !== sectionExtras[0].ExtraID && (
-            <span className="dropdown-item" onClick={() => moveExtraUp(extraData)}>Move Up</span>
+            <li><a className="dropdown-item" onClick={() => moveExtraUp(extraData)}>Move Up</a></li>
           )}
           {extraData.ExtraID !== sectionExtras[sectionExtras.length - 1].ExtraID && (
-            <span className="dropdown-item" onClick={() => moveExtraDown(extraData)}>Move Down</span>
+            <li><a className="dropdown-item" onClick={() => moveExtraDown(extraData)}>Move Down</a></li>
           )}
-        </div>
+        </ul>
       </div>
     }
   </>);

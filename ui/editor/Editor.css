@@ -126,6 +126,14 @@ div.dropdown-menu.Editor {
   line-height: 200%;
 }
 
+.Editor .dropdown-menu {
+  border-color: var(--bs-border-color);
+}
+.Editor a.dropdown-item {
+  text-decoration: none;
+}
+
+
 /* Editor drop down menu items */
 .Editor .dropdown-item {
   font-size: 12pt;

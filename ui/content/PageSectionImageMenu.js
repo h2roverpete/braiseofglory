@@ -92,31 +92,34 @@ export default function PageSectionImageMenu({pageSectionData, buttonRef}) {
         data-bs-toggle="dropdown"
         aria-expanded="false"
       ><BsArrowsMove/></Button>
-      <div className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
+      <ul className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
         {pageSectionData.ImageAlign !== 'left' && (
-          <span className="dropdown-item" onClick={() => setImageAlign('left')}>Align Left</span>)}
+          <li><a className="dropdown-item" onClick={() => setImageAlign('left')}>Align Left</a></li>)}
         {pageSectionData.ImageAlign !== 'center' && pageSectionData.ImagePosition === 'above' && (
-          <span className="dropdown-item" onClick={() => setImageAlign('center')}>Align Center</span>)}
+          <li><a className="dropdown-item" onClick={() => setImageAlign('center')}>Align Center</a></li>)}
         {pageSectionData.ImageAlign !== 'right' && (
-          <span className="dropdown-item" onClick={() => setImageAlign('right')}>Align Right</span>)}
+          <li><a className="dropdown-item" onClick={() => setImageAlign('right')}>Align Right</a></li>)}
         {pageSectionData.ImagePosition !== 'above' && (
-          <span className="dropdown-item" onClick={() => setImagePosition('above')}>Above Text</span>)}
+          <li><a className="dropdown-item" onClick={() => setImagePosition('above')}>Above Text</a></li>)}
         {pageSectionData.ImagePosition !== 'beside' && (
-          <span className="dropdown-item" onClick={() => setImagePosition('beside')}>Beside Text</span>)}
+          <li><a className="dropdown-item" onClick={() => setImagePosition('beside')}>Beside Text</a></li>)}
         {pageSectionData.ImagePosition !== 'parallax' && (
-          <span className="dropdown-item" onClick={() => setImagePosition('parallax')}>Parallax</span>)}
+          <li><a className="dropdown-item" onClick={() => setImagePosition('parallax')}>Parallax</a></li>)}
         {getImageWidth() > 1 && (
-          <span className="dropdown-item"
-                onClick={() => setImageWidth(getImageWidth() - 1)}>Make Smaller</span>)}
-        {getImageWidth() < 12 && (
-          <span className="dropdown-item"
-                onClick={() => setImageWidth(getImageWidth() + 1)}>Make Larger</span>)}
-        {pageSectionData.HideImageFrame ?
-          (<span className="dropdown-item" onClick={() => hideImageFrame(false)}>Show Image Frame</span>) :
-          (<span className="dropdown-item" onClick={() => hideImageFrame(true)}>Hide Image Frame</span>)
+          <li><a className="dropdown-item"
+                 onClick={() => setImageWidth(getImageWidth() - 1)}>Make Smaller</a></li>)
         }
-        <span className="dropdown-item" onClick={() => deleteImage()}>Delete Image</span>
-      </div>
+        {getImageWidth() < 12 && (
+          <li><a className="dropdown-item"
+                 onClick={() => setImageWidth(getImageWidth() + 1)}>Make Larger</a></li>)
+        }
+        {
+          pageSectionData.HideImageFrame ?
+            (<li><a className="dropdown-item" onClick={() => hideImageFrame(false)}>Show Image Frame</a></li>) :
+            (<li><a className="dropdown-item" onClick={() => hideImageFrame(true)}>Hide Image Frame</a></li>)
+        }
+        <li><a className="dropdown-item" onClick={() => deleteImage()}>Delete Image</a></li>
+      </ul>
     </div>
   )
 }
