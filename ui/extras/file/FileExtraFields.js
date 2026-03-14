@@ -88,16 +88,12 @@ export default function FileExtraFields() {
         >
           <option value='link'>as a link in the same window</option>
           <option value='blank'>as a link to a new window</option>
-          <option value='embed'
-                  hidden={formData.edits.ExtraFile?.type !== 'text/html' && formData.edits.ExtraFile?.type !== 'text/plain' && formData.edits.ExtraFile?.type !== 'audio/mpeg'}>on
-            the page
-          </option>
+          <option value='embed'>on the page</option>
         </Form.Select>
       </Col>
     </Row>
     <Row
       className="mt-2"
-      hidden={formData.edits.ExtraDisplay !== 'link' && formData.edits.ExtraDisplay !== 'blank'}
     >
       <Form.Label
         column={'sm'}
@@ -118,7 +114,6 @@ export default function FileExtraFields() {
     </Row>
     <Row
       className="mt-2"
-      hidden={formData.edits.ExtraDisplay !== 'link' && formData.edits.ExtraDisplay !== 'blank'}
     >
       <Form.Label
         column={'sm'}
@@ -147,7 +142,6 @@ export default function FileExtraFields() {
     </Row>
     <Row
       className="mt-2"
-      hidden={formData.edits.ExtraDisplay !== 'embed'}
     >
       <Form.Label
         htmlFor={"DisplayWidth"}
