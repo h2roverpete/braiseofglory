@@ -88,6 +88,9 @@ export default function FileExtra({extraData, sectionExtras, canEdit = false}) {
                 break;
             }
             break;
+          default:
+            // not a supported type
+            break;
         }
       } else {
         // display a link to the file

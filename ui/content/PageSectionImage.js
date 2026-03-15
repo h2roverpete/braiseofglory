@@ -35,6 +35,7 @@ export default function PageSectionImage(
   const {siteData, showErrorAlert} = useSiteContext();
   const {scrollRef} = usePageContext();
 
+
   // refs
   const editButtonRef = useRef(null);
 

@@ -28,10 +28,10 @@ export default function MoveExtraMenu({buttonRef, extraData, sectionExtras}) {
         ><BsArrowsMove/></Button>
         <ul className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
           {extraData.ExtraID !== sectionExtras[0].ExtraID && (
-            <li><a className="dropdown-item" onClick={() => moveExtraUp(extraData)}>Move Up</a></li>
+            <li><button className="dropdown-item" onClick={() => moveExtraUp(extraData)}>Move Up</button></li>
           )}
           {extraData.ExtraID !== sectionExtras[sectionExtras.length - 1].ExtraID && (
-            <li><a className="dropdown-item" onClick={() => moveExtraDown(extraData)}>Move Down</a></li>
+            <li><button className="dropdown-item" onClick={() => moveExtraDown(extraData)}>Move Down</button></li>
           )}
         </ul>
       </div>

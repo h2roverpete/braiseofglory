@@ -284,10 +284,28 @@ export default function RestApi(props) {
     });
   }, []);
 
+  const updatePhoto = useCallback(async (galleryId, photoId, data) => {
+    return adminApiCall(() => {
+      return async () => {
+        const response = await axios.post(`${host}/api/v1/galleries/${galleryId}/photos/${photoId}`, data);
+        return response.data;
+      }
+    });
+  }, []);
+
   const deletePhoto = useCallback(async (galleryId, photoId) => {
     return await adminApiCall(() => {
       return async () => {
         const response = await axios.delete(`${host}/api/v1/galleries/${galleryId}/photos/${photoId}`);
+        return response.data;
+      }
+    });
+  }, []);
+
+  const generateImageDescription = useCallback(async (s3uri, prompt) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.post(`${host}/api/v1/images/describe`, {s3uri: s3uri, prompt: prompt});
         return response.data;
       }
     });
@@ -510,6 +528,7 @@ export default function RestApi(props) {
         insertOrUpdateGallery: insertOrUpdateGallery,
         deleteGallery: deleteGallery,
         uploadPhoto: uploadPhoto,
+        updatePhoto: updatePhoto,
         deletePhoto: deletePhoto,
       },
       Extras: {
@@ -532,6 +551,9 @@ export default function RestApi(props) {
         getUsers: getUsers,
         insertOrUpdateUser: insertOrUpdateUser,
         deleteUser: deleteUser,
+      },
+      Images: {
+        generateImageDescription: generateImageDescription,
       }
     }}>
       {props.children}

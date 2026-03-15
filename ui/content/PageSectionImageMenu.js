@@ -4,6 +4,8 @@ import {useRestApi} from "../../api/RestApi";
 import {usePageContext} from "./Page";
 import {useSiteContext} from "./Site";
 import {useTouchContext} from "../../util/TouchProvider";
+import DescribeImageModal from "../images/DescribeImageModal";
+import React, {useState} from "react";
 
 export default function PageSectionImageMenu({pageSectionData, buttonRef}) {
 
@@ -11,6 +13,9 @@ export default function PageSectionImageMenu({pageSectionData, buttonRef}) {
   const {updatePageSection} = usePageContext();
   const {supportsHover} = useTouchContext();
   const {siteData, showErrorAlert} = useSiteContext();
+
+  // states
+  const [showDescribeImageModal, setShowDescribeImageModal] = useState(false);
 
   function setImageAlign(align) {
     pageSectionData.ImageAlign = align;
@@ -78,7 +83,11 @@ export default function PageSectionImageMenu({pageSectionData, buttonRef}) {
     }
   }
 
-  return (
+  function onSubmitDescription() {
+    setShowDescribeImageModal(false);
+  }
+
+  return (<>
     <div
       className="EditSectionImage Editor dropdown"
       ref={buttonRef}
@@ -94,32 +103,65 @@ export default function PageSectionImageMenu({pageSectionData, buttonRef}) {
       ><BsArrowsMove/></Button>
       <ul className="dropdown-menu Editor" style={{cursor: 'pointer', zIndex: 100}}>
         {pageSectionData.ImageAlign !== 'left' && (
-          <li><a className="dropdown-item" onClick={() => setImageAlign('left')}>Align Left</a></li>)}
+          <li>
+            <button className="dropdown-item" onClick={() => setImageAlign('left')}>Align Left</button>
+          </li>)}
         {pageSectionData.ImageAlign !== 'center' && pageSectionData.ImagePosition === 'above' && (
-          <li><a className="dropdown-item" onClick={() => setImageAlign('center')}>Align Center</a></li>)}
+          <li>
+            <button className="dropdown-item" onClick={() => setImageAlign('center')}>Align Center</button>
+          </li>)}
         {pageSectionData.ImageAlign !== 'right' && (
-          <li><a className="dropdown-item" onClick={() => setImageAlign('right')}>Align Right</a></li>)}
+          <li>
+            <button className="dropdown-item" onClick={() => setImageAlign('right')}>Align Right</button>
+          </li>)}
         {pageSectionData.ImagePosition !== 'above' && (
-          <li><a className="dropdown-item" onClick={() => setImagePosition('above')}>Above Text</a></li>)}
+          <li>
+            <button className="dropdown-item" onClick={() => setImagePosition('above')}>Above Text</button>
+          </li>)}
         {pageSectionData.ImagePosition !== 'beside' && (
-          <li><a className="dropdown-item" onClick={() => setImagePosition('beside')}>Beside Text</a></li>)}
+          <li>
+            <button className="dropdown-item" onClick={() => setImagePosition('beside')}>Beside Text</button>
+          </li>)}
         {pageSectionData.ImagePosition !== 'parallax' && (
-          <li><a className="dropdown-item" onClick={() => setImagePosition('parallax')}>Parallax</a></li>)}
+          <li>
+            <button className="dropdown-item" onClick={() => setImagePosition('parallax')}>Parallax</button>
+          </li>)}
         {getImageWidth() > 1 && (
-          <li><a className="dropdown-item"
-                 onClick={() => setImageWidth(getImageWidth() - 1)}>Make Smaller</a></li>)
+          <li>
+            <button className="dropdown-item"
+                    onClick={() => setImageWidth(getImageWidth() - 1)}>Make Smaller
+            </button>
+          </li>)
         }
         {getImageWidth() < 12 && (
-          <li><a className="dropdown-item"
-                 onClick={() => setImageWidth(getImageWidth() + 1)}>Make Larger</a></li>)
+          <li>
+            <button className="dropdown-item"
+                    onClick={() => setImageWidth(getImageWidth() + 1)}>Make Larger
+            </button>
+          </li>)
         }
         {
           pageSectionData.HideImageFrame ?
-            (<li><a className="dropdown-item" onClick={() => hideImageFrame(false)}>Show Image Frame</a></li>) :
-            (<li><a className="dropdown-item" onClick={() => hideImageFrame(true)}>Hide Image Frame</a></li>)
+            (<li>
+              <button className="dropdown-item" onClick={() => hideImageFrame(false)}>Show Image Frame</button>
+            </li>) :
+            (<li>
+              <button className="dropdown-item" onClick={() => hideImageFrame(true)}>Hide Image Frame</button>
+            </li>)
         }
-        <li><a className="dropdown-item" onClick={() => deleteImage()}>Delete Image</a></li>
+        <li>
+          <button className="dropdown-item" onClick={() => setShowDescribeImageModal(true)}>Describe Image</button>
+        </li>
+        <li>
+          <button className="dropdown-item" onClick={() => deleteImage()}>Delete Image</button>
+        </li>
       </ul>
     </div>
-  )
+    <DescribeImageModal
+      show={showDescribeImageModal}
+      onHide={() => setShowDescribeImageModal(false)}
+      onSubmit={onSubmitDescription}
+      s3uri={`s3://${siteData?.SiteBucketName}/images/${pageSectionData.SectionImage}`}
+    />
+  </>)
 }

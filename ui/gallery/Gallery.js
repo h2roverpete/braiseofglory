@@ -13,6 +13,7 @@ import {useTouchContext} from "../../util/TouchProvider";
 import {Permission, Resource} from "../../auth/Permissions";
 import {useAuth} from "../../auth/AuthProvider";
 import {useExtrasContext} from "../extras/Extras";
+import DescribeImageModal from "../images/DescribeImageModal";
 
 /**
  * Display a photo gallery
@@ -37,6 +38,7 @@ export default function Gallery({galleryId, extraData, sectionExtras}) {
   const [canEdit, setCanEdit] = useState(false);
   const [canAddPhotos, setCanAddPhotos] = useState(false);
   const [canAdmin, setCanAdmin] = useState(false);
+  const [showDescribeImageModal, setShowDescribeImageModal] = useState(false);
 
   // refs
   const fileDropRef = useRef(null);
@@ -212,6 +214,18 @@ export default function Gallery({galleryId, extraData, sectionExtras}) {
     }
   }
 
+  function onSubmitDescription(description) {
+    console.debug(`Set image description to '${description}'.`);
+    const newData = {
+      ...currentPhoto,
+      PhotoDescription: description,
+    }
+    Galleries.updatePhoto(newData.GalleryID, newData.PhotoID, newData)
+      .then(() => console.debug(`Updated photo description.`))
+      .catch(error => showErrorAlert(`Error updating photo description.`, error));
+    setShowDescribeImageModal(false);
+  }
+
   return (<div
     className="Gallery"
     onDragEnter={(e) => {
@@ -277,23 +291,34 @@ export default function Gallery({galleryId, extraData, sectionExtras}) {
         </Button>
         <ul
           className="dropdown-menu Editor"
-          style={{zIndex: 100}}
+          style={{zIndex: 100, cursor: 'pointer'}}
         >
-          {currentPhoto && canEdit && (
-            <li><a className="dropdown-item" onClick={onDeletePhoto}>Delete Photo</a></li>
-          )}
-          <li><a className="dropdown-item" onClick={fileDropRef.current?.selectFile}>Upload Photos</a></li>
+          {currentPhoto && canEdit && (<>
+            <li>
+              <button className="dropdown-item" onClick={() => setShowDescribeImageModal(true)}>Describe Photo</button>
+            </li>
+            <li>
+              <button className="dropdown-item" onClick={onDeletePhoto}>Delete Photo</button>
+            </li>
+          </>)}
+          <li>
+            <button className="dropdown-item" onClick={fileDropRef.current?.selectFile}>Upload Photos</button>
+          </li>
           {extraData.ExtraID !== sectionExtras[0].ExtraID && (
-            <li><a className="dropdown-item" onClick={() => moveExtraUp(extraData)}>Move Up</a></li>
+            <li>
+              <button className="dropdown-item" onClick={() => moveExtraUp(extraData)}>Move Up</button>
+            </li>
           )}
           {extraData.ExtraID !== sectionExtras[sectionExtras.length - 1].ExtraID && (
-            <li><a className="dropdown-item" onClick={() => moveExtraDown(extraData)}>Move Down</a></li>
+            <li>
+              <button className="dropdown-item" onClick={() => moveExtraDown(extraData)}>Move Down</button>
+            </li>
           )}
         </ul>
       </div>
     </>)}
     {
-      canAdmin && (
+      canAdmin && (<>
         <FormEditor>
           <GalleryConfig
             galleryConfig={galleryConfig}
@@ -302,7 +327,15 @@ export default function Gallery({galleryId, extraData, sectionExtras}) {
             buttonRef={expandButtonRef}
           />
         </FormEditor>
-      )
+        <FormEditor>
+          <DescribeImageModal
+            show={showDescribeImageModal}
+            onHide={() => setShowDescribeImageModal(false)}
+            onSubmit={onSubmitDescription}
+            s3uri={`s3://${siteData?.SiteBucketName}/${currentPhoto?.PhotoFile}`}
+          />
+        </FormEditor>
+      </>)
     }
   </div>)
 }

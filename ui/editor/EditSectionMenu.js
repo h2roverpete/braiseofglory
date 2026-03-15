@@ -220,36 +220,57 @@ export default function EditSectionMenu(
         hidden={supportsHover}
       ><BsThreeDotsVertical/></Button>
       <ul className="dropdown-menu Editor" style={{cursor: 'pointer'}}>
-        <li><a className="dropdown-item"
-               onClick={onEditTitle}>{`${pageSectionData?.SectionTitle?.length > 0 ? 'Edit' : 'Add'} Section Title`}</a>
+        <li>
+          <button className="dropdown-item"
+                  onClick={onEditTitle}>{`${pageSectionData?.SectionTitle?.length > 0 ? 'Edit' : 'Add'} Section Title`}</button>
         </li>
-        <li><a className="dropdown-item"
-               onClick={onEditText}>{`${pageSectionData?.SectionText?.length > 0 ? 'Edit' : 'Add'} Section Text`}</a>
+        <li>
+          <button className="dropdown-item"
+                  onClick={onEditText}>{`${pageSectionData?.SectionText?.length > 0 ? 'Edit' : 'Add'} Section Text`}</button>
         </li>
         {!pageSectionData.SectionText && (
-          <li><a className="dropdown-item"
-                 onClick={() => onInsertLoremIpsum()}>Add Placeholder Text</a></li>
+          <li>
+            <button className="dropdown-item" onClick={() => onInsertLoremIpsum()}>Add Placeholder Text</button>
+          </li>
         )}
-        <li><a className="dropdown-item"
-               onClick={() => dropRef.current?.selectFile()}>{`${pageSectionData?.SectionImage?.length > 0 ? 'Replace' : 'Add'} Section Image`}</a>
+        <li>
+          <button className="dropdown-item"
+                  onClick={() => dropRef.current?.selectFile()}>{`${pageSectionData?.SectionImage?.length > 0 ? 'Replace' : 'Add'} Section Image`}</button>
         </li>
-        <li><a className="dropdown-item"
-               onClick={() => setShowGenerateImageModal(true)}>{`${pageSectionData?.SectionImage?.length > 0 ? 'Replace with' : 'Insert'} Generated Image`}</a>
+        <li>
+          <button className="dropdown-item"
+                  onClick={() => setShowGenerateImageModal(true)}>{`${pageSectionData?.SectionImage?.length > 0 ? 'Replace with' : 'Insert'} Generated Image`}</button>
         </li>
-        <li><a className="dropdown-item"
-               onClick={() => addExtraModal({pageSectionId: pageSectionData.PageSectionID})}>Add Extra</a></li>
+        <li>
+          <button className="dropdown-item"
+                  onClick={() => addExtraModal({pageSectionId: pageSectionData.PageSectionID})}>Add Extra
+          </button>
+        </li>
         {pageSectionData.PageSectionID !== sectionData[0].PageSectionID && (
-          <li><a className="dropdown-item" onClick={onMoveUp}>Move Up</a></li>
+          <li>
+            <button className="dropdown-item" onClick={onMoveUp}>Move Up</button>
+          </li>
         )}
         {pageSectionData.PageSectionID !== sectionData[sectionData.length - 1].PageSectionID && (
-          <li><a className="dropdown-item" style={{marginLeft: '0'}} onClick={onMoveDown}>Move
-            Down</a></li>
+          <li>
+            <button className="dropdown-item" style={{marginLeft: '0'}} onClick={onMoveDown}>Move
+              Down
+            </button>
+          </li>
         )}
-        <li><a className="dropdown-item" style={{marginLeft: '0'}}
-               onClick={onNewSectionAbove}>New Section Above</a></li>
-        <li><a className="dropdown-item" style={{marginLeft: '0'}}
-               onClick={onNewSectionBelow}>New Section Below</a></li>
-        <li><a className="dropdown-item" onClick={() => setShowDeleteConfirmation(true)}> Delete Section</a></li>
+        <li>
+          <button className="dropdown-item" style={{marginLeft: '0'}}
+                  onClick={onNewSectionAbove}>New Section Above
+          </button>
+        </li>
+        <li>
+          <button className="dropdown-item" style={{marginLeft: '0'}}
+                  onClick={onNewSectionBelow}>New Section Below
+          </button>
+        </li>
+        <li>
+          <button className="dropdown-item" onClick={() => setShowDeleteConfirmation(true)}> Delete Section</button>
+        </li>
       </ul>
     </div>
     <Modal
