@@ -6,6 +6,7 @@ import {useSiteContext} from "./Site";
 import {useTouchContext} from "../../util/TouchProvider";
 import DescribeImageModal from "../images/DescribeImageModal";
 import React, {useState} from "react";
+import FormEditor from "../editor/FormEditor";
 
 export default function PageSectionImageMenu({pageSectionData, buttonRef}) {
 
@@ -83,8 +84,18 @@ export default function PageSectionImageMenu({pageSectionData, buttonRef}) {
     }
   }
 
-  function onSubmitDescription() {
+  function onSubmitDescription(result) {
     setShowDescribeImageModal(false);
+    const newData = {
+      ...pageSectionData,
+      SectionImageKeywords: result.keywords,
+      SectionImageDescription: result.description,
+    }
+    const {Extras, ...submitData} = newData;
+    PageSections.insertOrUpdatePageSection(submitData)
+      .then(() => console.debug(`Image description updated.`))
+      .catch(err => showErrorAlert(`Error updating image description.`, err));
+    updatePageSection(newData);
   }
 
   return (<>
@@ -157,11 +168,15 @@ export default function PageSectionImageMenu({pageSectionData, buttonRef}) {
         </li>
       </ul>
     </div>
-    <DescribeImageModal
-      show={showDescribeImageModal}
-      onHide={() => setShowDescribeImageModal(false)}
-      onSubmit={onSubmitDescription}
-      s3uri={`s3://${siteData?.SiteBucketName}/images/${pageSectionData.SectionImage}`}
-    />
+    <FormEditor>
+      <DescribeImageModal
+        show={showDescribeImageModal}
+        onHide={() => setShowDescribeImageModal(false)}
+        onSubmit={onSubmitDescription}
+        s3uri={`s3://${siteData?.SiteBucketName}/images/${pageSectionData.SectionImage}`}
+        description={pageSectionData.SectionImageDescription}
+        keywords={pageSectionData.SectionImageKeywords}
+      />
+    </FormEditor>
   </>)
 }

@@ -160,7 +160,7 @@ export default function PageSectionImage(
               className={imageClassName}
               style={imageStyle}
               src={`${siteData?.SiteRootUrl}/images/` + pageSectionData.SectionImage}
-              alt={pageSectionData.SectionTitle}
+              alt={pageSectionData.SectionImageDescription}
               data-testid={`SectionImage-${pageSectionData.PageSectionID}`}
               ref={imageRef}
             />

@@ -50,7 +50,7 @@ export default function FormEditor({children}) {
         onDataChanged(change);
       }
     } else if (name && edits[name] !== value) {
-      console.debug(`Form data changed: {name:${name} value: ${value}}.`);
+      console.debug(`Form data changed: {name: '${name}' value: '${value}}'.`);
       if ((value === undefined || value === null) && edits[name]) {
         const copy = {...edits};
         delete copy[name];

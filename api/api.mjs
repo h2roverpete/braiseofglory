@@ -286,6 +286,8 @@ import axios from "axios";
  * @property {String} [AspectRatio]     Aspect ratio for display, i.e. 4 / 3 or  16 / 9.
  * @property {number} [DisplayWidth]    Display width in columns when ExtraDisplay is 'embed'
  * @property {string} ExtraDisplay      Display style: 'link', 'embed' or 'blank'
+ * @property {string} ExtraDescription  Description of extra content.
+ * @property {string} ExtraKeywords     Keywords for extra content.
  * @property {String} Created           Creation date in ISO format.
  * @property {String} Modified          Modification date in ISO format.
  */

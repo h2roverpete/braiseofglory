@@ -79,6 +79,19 @@ export default function Gallery({galleryId, extraData, sectionExtras}) {
     }
   }, [galleryId, galleryConfig, showErrorAlert, Galleries, galleryPhotos.length]);
 
+  function updateCurrentPhoto(data) {
+    setCurrentPhoto(data);
+    setGalleryPhotos(
+      galleryPhotos.map((photo) => {
+        if (photo.PhotoID === data.PhotoID) {
+          return {...data};
+        } else {
+          return photo;
+        }
+      })
+    );
+  }
+
   function uploadFile(file) {
     console.debug(`Uploading photo...`);
     fileDropRef.current?.setDropState(DropState.UPLOADING);
@@ -214,16 +227,18 @@ export default function Gallery({galleryId, extraData, sectionExtras}) {
     }
   }
 
-  function onSubmitDescription(description) {
-    console.debug(`Set image description to '${description}'.`);
+  function onSubmitDescription(result) {
+    console.debug(`Updating photo description.`);
     const newData = {
       ...currentPhoto,
-      PhotoDescription: description,
+      PhotoDescription: result.description,
+      PhotoKeywords: result.keywords,
     }
     Galleries.updatePhoto(newData.GalleryID, newData.PhotoID, newData)
       .then(() => console.debug(`Updated photo description.`))
       .catch(error => showErrorAlert(`Error updating photo description.`, error));
     setShowDescribeImageModal(false);
+    updateCurrentPhoto(newData);
   }
 
   return (<div
@@ -333,6 +348,8 @@ export default function Gallery({galleryId, extraData, sectionExtras}) {
             onHide={() => setShowDescribeImageModal(false)}
             onSubmit={onSubmitDescription}
             s3uri={`s3://${siteData?.SiteBucketName}/${currentPhoto?.PhotoFile}`}
+            description={currentPhoto?.PhotoDescription}
+            keywords={currentPhoto?.PhotoKeywords}
           />
         </FormEditor>
       </>)

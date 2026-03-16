@@ -302,10 +302,10 @@ export default function RestApi(props) {
     });
   }, []);
 
-  const generateImageDescription = useCallback(async (s3uri, prompt) => {
+  const describeFile = useCallback(async (s3uri, prompt) => {
     return await adminApiCall(() => {
       return async () => {
-        const response = await axios.post(`${host}/api/v1/images/describe`, {s3uri: s3uri, prompt: prompt});
+        const response = await axios.post(`${host}/api/v1/files/describe`, {s3uri: s3uri, prompt: prompt});
         return response.data;
       }
     });
@@ -552,8 +552,8 @@ export default function RestApi(props) {
         insertOrUpdateUser: insertOrUpdateUser,
         deleteUser: deleteUser,
       },
-      Images: {
-        generateImageDescription: generateImageDescription,
+      Files: {
+        describeFile: describeFile,
       }
     }}>
       {props.children}
