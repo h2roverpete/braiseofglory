@@ -67,7 +67,7 @@ export default function Site(props) {
   const [canEdit, setCanEdit] = useState(false);
   const [canBrowseProtected, setCanBrowseProtected] = useState(false);
   const [MetaPages] = useState([
-    {name: 'user', path: '/admin/user', content: <UserProfilePanel />},
+    {name: 'user', path: '/admin/user', content: <UserProfilePanel/>},
     {name: 'users', path: '/admin/users', content: <SiteUsers/>},
     {name: 'login', path: '/login', content: <Login/>},
     {name: 'logout', path: '/logout', content: <Logout/>},
