@@ -49,6 +49,11 @@ export default function RestApi(props) {
     return response.data;
   }, []);
 
+  const describePage = useCallback(async (pageId) => {
+    const response = await axios.get(`${host}/api/v1/content/pages/${pageId}/describe`);
+    return response.data;
+  }, []);
+
   const getPageSections = useCallback(async (pageId) => {
     const response = await axios.get(`${host}/api/v1/content/pages/${pageId}/sections`);
     return response.data;
@@ -170,13 +175,15 @@ export default function RestApi(props) {
     });
   }, []);
 
-  const getSite = useCallback(async () => {
-    const response = await axios.get(`${host}/api/v1/content/sites/${siteId}`);
+  const getSite = useCallback(async (altSiteId) => {
+    const id = altSiteId ? altSiteId : siteId;
+    const response = await axios.get(`${host}/api/v1/content/sites/${id}`);
     return response.data;
   }, [siteId]);
 
-  const getSiteOutline = useCallback(async () => {
-    const response = await axios.get(`${host}/api/v1/content/sites/${siteId}/outline`);
+  const getSiteOutline = useCallback(async (altSiteId) => {
+    const id = altSiteId ? altSiteId : siteId;
+    const response = await axios.get(`${host}/api/v1/content/sites/${id}/outline`);
     return response.data;
   }, [siteId]);
 
@@ -501,6 +508,7 @@ export default function RestApi(props) {
         makePageChildOf: makePageChildOf,
         insertOrUpdatePage: insertOrUpdatePage,
         getPageSections: getPageSections,
+        describePage: describePage,
       },
       PageSections: {
         insertOrUpdatePageSection: insertOrUpdatePageSection,

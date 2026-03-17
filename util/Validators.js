@@ -52,3 +52,15 @@ export function isValidInstagramHandle(handle) {
 export function isValidYouTubeUrl(url) {
   return url && /^https:\/\/www.youtube.com\/watch\?v=/.test(url);
 }
+
+export function isValidRoute(pageData, outlineData) {
+  if (!pageData.PageRoute || pageData.PageRoute.charAt(0) !== '/' || pageData.PageRoute.match(/^\/[a-z0-9]+$/) === null) {
+    return false;
+  }
+  for (const page of outlineData) {
+    if (page.PageRoute === pageData.PageRoute && pageData.PageID !== page.PageID) {
+      return false;
+    }
+  }
+  return true;
+}
