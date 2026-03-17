@@ -4,6 +4,7 @@ import PageFields from "./PageFields";
 import {useFormData} from "./FormEditor";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
+import {isValidRoute} from "../../util/Validators";
 
 export default function PageConfigModal({pageData, outlineData, show, onHide, onUpdated, onDeleted, onAdded}) {
 
@@ -13,13 +14,13 @@ export default function PageConfigModal({pageData, outlineData, show, onHide, on
   const [describing, setDescribing] = useState(false);
 
   useEffect(() => {
-    if (formData.edits.PageID !== pageData?.PageID) {
+    if (formData.edits.PageID !== pageData?.PageID || formData.edits.SiteID !== pageData?.SiteID) {
       formData.update(pageData);
     }
   }, [formData, pageData]);
 
   function isDataValid() {
-    return formData.edits.SiteID > 0 && formData.edits.PageTitle?.length > 0 && formData.edits.PageRoute?.length > 0;
+    return formData.edits.SiteID > 0 && formData.edits.PageTitle?.length > 0 && isValidRoute(formData.edits, outlineData);
   }
 
   function handleUpdate() {
@@ -28,6 +29,7 @@ export default function PageConfigModal({pageData, outlineData, show, onHide, on
       Pages.insertOrUpdatePage(formData.edits)
         .then(result => {
           console.debug(`Updated page ${pageData?.PageID}.`);
+          formData.update(result);
           onUpdated?.(result);
         })
         .catch(error => showErrorAlert(error));
@@ -36,6 +38,7 @@ export default function PageConfigModal({pageData, outlineData, show, onHide, on
       Pages.insertOrUpdatePage(formData.edits)
         .then(result => {
           console.debug(`Added page ${result.PageID}.`);
+          formData.update(result);
           onAdded?.(result);
         })
         .catch(error => showErrorAlert(error));
@@ -44,14 +47,13 @@ export default function PageConfigModal({pageData, outlineData, show, onHide, on
 
   function handleDelete() {
     console.debug(`Deleting page ${pageData?.PageID}...`);
-    Pages.insertOrUpdatePage(formData.edits)
+    Pages.deletePage(formData.edits.PageID)
       .then(result => {
         console.debug(`Deleted page ${pageData?.PageID}.`);
         onDeleted?.(result);
       })
       .catch(error => showErrorAlert(error));
   }
-
 
   const handleDescribe = useCallback(() => {
     console.debug(`Describe page ${formData.edits?.PageID}...`);
@@ -69,7 +71,7 @@ export default function PageConfigModal({pageData, outlineData, show, onHide, on
         setDescribing(false);
       })
       .catch(error => showErrorAlert(`Error describing page.`, error));
-  }, [formData, setDescribing, pageData, Pages, showErrorAlert]);
+  }, [formData, setDescribing, Pages, showErrorAlert]);
 
   return (
     <Modal show={show}>
@@ -123,6 +125,7 @@ export default function PageConfigModal({pageData, outlineData, show, onHide, on
             size="sm"
             variant="danger"
             onClick={handleDelete}
+            hidden={!formData.edits.PageID > 0}
           >
             Delete
           </Button>

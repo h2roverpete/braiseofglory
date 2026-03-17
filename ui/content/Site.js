@@ -13,6 +13,7 @@ import Login from "../../auth/Login";
 import Error404 from "../../util/Error404";
 import SiteUsers from "../../auth/SiteUsers";
 import UserProfilePanel from "../../auth/UserProfilePanel";
+import {Outline} from "framework/util/OutlineUtil"
 
 /**
  * @typedef ErrorData
@@ -67,7 +68,7 @@ export default function Site(props) {
   const [canEdit, setCanEdit] = useState(false);
   const [canBrowseProtected, setCanBrowseProtected] = useState(false);
   const [MetaPages] = useState([
-    {name: 'user', path: '/admin/user', content: <UserProfilePanel />},
+    {name: 'user', path: '/admin/user', content: <UserProfilePanel/>},
     {name: 'users', path: '/admin/users', content: <SiteUsers/>},
     {name: 'login', path: '/login', content: <Login/>},
     {name: 'logout', path: '/logout', content: <Logout/>},
@@ -167,26 +168,6 @@ export default function Site(props) {
     }
   }, [props.error, setError]);
 
-  /**
-   * Retrieve child pages of the specified page.
-   *
-   * @param pageId {number}         Page ID to get children from.
-   * @param [showHidden] {boolean}  Return hidden pages? (default=false)
-   * @returns {[OutlineData]}       Children, or an empty array if no child pages.
-   */
-  function getChildren(pageId, showHidden) {
-    const result = [];
-    if (outlineData) {
-      outlineData.map((item) => {
-        if (item.ParentID === pageId && ((!item.PageHidden) || showHidden) && (!item.RequiresLogin || canBrowseProtected)) {
-          result.push(item);
-        }
-        return item;
-      })
-    }
-    return result;
-  }
-
   useEffect(() => {
     if (!siteData) {
       // load site data
@@ -238,116 +219,6 @@ export default function Site(props) {
       setNextPage(after);
     }
   }, [outlineData, currentPage, hasPermission]);
-
-
-  /**
-   * Refresh a page in the site outline.
-   * @param {PageData} pageData
-   */
-  function updateOutlineData(pageData) {
-    if (outlineData) {
-      const newOutlineData = outlineData.map((item) => {
-        if (item.PageID === pageData.PageID) {
-          return {...pageData};
-        } else {
-          return item;
-        }
-      })
-      if (pageData.PageID === currentPage?.PageID) {
-        setCurrentPage({...pageData});
-      }
-      setOutlineData(buildOutline(newOutlineData));
-    }
-  }
-
-  const deletePageFromOutline = useCallback((pageId) => {
-    if (outlineData) {
-      const newOutlineData = [];
-      outlineData.map((item) => {
-        if (item.PageID !== pageId) {
-          newOutlineData.push(item);
-        }
-        return item;
-      })
-      setOutlineData(buildOutline(newOutlineData));
-    }
-  }, [outlineData, setOutlineData]);
-
-  const addPageToOutline = useCallback((pageData) => {
-    if (outlineData && pageData) {
-      console.debug(`Add page ${pageData.PageID} to outline.`)
-      const newOutlineData = [...outlineData, pageData];
-      setOutlineData(buildOutline(newOutlineData));
-    } else {
-      console.error(`Can't add page to outline. Outline or page data are null.`);
-    }
-  }, [outlineData, setOutlineData]);
-
-  const movePageBefore = useCallback((pageData, beforePageData) => {
-    console.debug(`Move page '${pageData.PageTitle} (${pageData.ParentID},${pageData.OutlineSeq})' before '${beforePageData.PageTitle} (${beforePageData.ParentID},${beforePageData.OutlineSeq})'`);
-    const newOutlineData = outlineData.map((item) => {
-      if (item.PageID === pageData.PageID) {
-        const changedItem = {...item};
-        changedItem.OutlineSeq = beforePageData.OutlineSeq;
-        changedItem.ParentID = beforePageData.ParentID;
-        changedItem.OutlineLevel = beforePageData.OutlineLevel;
-        return changedItem;
-      } else if (item.ParentID === beforePageData.ParentID && item.OutlineSeq >= beforePageData.OutlineSeq) {
-        // increment outline sequence
-        const changedItem = {...item};
-        changedItem.OutlineSeq++;
-        return changedItem;
-      } else {
-        // no change
-        return item;
-      }
-    });
-    setOutlineData(buildOutline(newOutlineData));
-  }, [outlineData]);
-
-  const movePageAfter = useCallback((pageData, afterPageData) => {
-    console.debug(`Move page '${pageData.PageTitle} (${pageData.ParentID},${pageData.OutlineSeq})' after '${afterPageData.PageTitle} (${afterPageData.ParentID},${afterPageData.OutlineSeq})'`);
-    const newOutlineData = outlineData.map((item) => {
-      if (item.PageID === pageData.PageID) {
-        const changedItem = {...item};
-        changedItem.OutlineSeq = afterPageData.OutlineSeq + 1;
-        changedItem.ParentID = afterPageData.ParentID;
-        changedItem.OutlineLevel = afterPageData.OutlineLevel;
-        return changedItem;
-      } else if (item.ParentID === afterPageData.ParentID && item.OutlineSeq > afterPageData.OutlineSeq) {
-        // increment outline sequence
-        const changedItem = {...item};
-        changedItem.OutlineSeq++;
-        return changedItem;
-      } else {
-        // no change
-        return item;
-      }
-    });
-    setOutlineData(buildOutline(newOutlineData));
-  }, [outlineData, setOutlineData]);
-
-  const makeChildOf = useCallback((pageData, parentPageData) => {
-    console.debug(`Make page '${pageData.PageTitle} (${pageData.ParentID},${pageData.OutlineSeq})' child of '${parentPageData.PageTitle} (${parentPageData.ParentID},${parentPageData.OutlineSeq})'`);
-    const newOutlineData = outlineData.map((item) => {
-      if (item.PageID === pageData.PageID) {
-        const changedItem = {...item};
-        changedItem.OutlineSeq = 1;
-        changedItem.ParentID = parentPageData.PageID;
-        changedItem.OutlineLevel = parentPageData.OutlineLevel + 1;
-        return changedItem;
-      } else if (item.ParentID === parentPageData.PageID) {
-        // increment outline sequence
-        const changedItem = {...item};
-        changedItem.OutlineSeq++;
-        return changedItem;
-      } else {
-        // no change
-        return item;
-      }
-    });
-    setOutlineData(buildOutline(newOutlineData));
-  }, [outlineData, setOutlineData]);
 
   // set up routes (or catchall if outline is not yet loaded)
   const content = outlineData ? (
@@ -404,18 +275,18 @@ export default function Site(props) {
     siteData: siteData,
     setSiteData: setSiteData,
     Outline: {
-      deletePage: deletePageFromOutline,
-      addPage: addPageToOutline,
-      movePageBefore: movePageBefore,
-      movePageAfter: movePageAfter,
-      makeChildOf: makeChildOf,
-      updatePage: updateOutlineData,
+      deletePage: (pageData) => setOutlineData(Outline.deletePage(pageData, outlineData)),
+      addPage: (pageData) => setOutlineData(Outline.addPage(pageData, outlineData)),
+      movePageBefore: (page1, page2) => setOutlineData(Outline.movePageBefore(page1, page2, outlineData)),
+      movePageAfter: (page1, page2) => setOutlineData(Outline.movePageAfter(page1, page2, outlineData)),
+      makeChildOf: (page1, page2) => setOutlineData(Outline.makeChildOf(page1, page2, outlineData)),
+      updatePage: (pageData) => setOutlineData(Outline.updatePage(pageData, outlineData))
     },
     outlineData: outlineData,
     error: error,
     setError: setError,
     showErrorAlert: showErrorAlert,
-    getChildren: getChildren,
+    getChildren: (pageId) => Outline.getChildren(pageId, outlineData, false, canBrowseProtected),
     currentPage: currentPage,
     prevPage: prevPage,
     nextPage: nextPage,

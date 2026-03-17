@@ -1,21 +1,10 @@
 import {Col, Form, Row} from "react-bootstrap";
 import {useFormData} from "./FormEditor";
+import {isValidRoute} from "../../util/Validators";
 
 export default function PageFields({outlineData}) {
 
   const formData = useFormData();
-
-  function isValidRoute(route) {
-    if (!route || route.charAt(0) !== '/') {
-      return false;
-    }
-    for (const page of outlineData) {
-      if (page.PageRoute === route && formData.edits.PageID !== page.PageID) {
-        return false;
-      }
-    }
-    return true;
-  }
 
   return (<>
     <Row>
@@ -50,8 +39,8 @@ export default function PageFields({outlineData}) {
         <Form.Control
           size={'sm'}
           name={'PageRoute'}
-          isValid={formData.isTouched('PageRoute') && isValidRoute(formData.edits?.PageRoute)}
-          isInvalid={formData.isTouched('PageRoute') && !isValidRoute(formData.edits?.PageRoute)}
+          isValid={formData.isTouched('PageRoute') && isValidRoute(formData.edits, outlineData)}
+          isInvalid={formData.isTouched('PageRoute') && !isValidRoute(formData.edits, outlineData)}
           value={formData.edits?.PageRoute || ''}
           onChange={(e) => formData.onDataChanged({name: 'PageRoute', value: e.target.value})}
         />
