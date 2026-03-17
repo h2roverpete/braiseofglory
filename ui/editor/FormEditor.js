@@ -45,28 +45,26 @@ export default function FormEditor({children}) {
    * @type DataCallback
    */
   function onDataChanged({name, value, changes}) {
+    const editsCopy = {...edits};
+    const touchedCopy = [...touched];
     if (changes && Array.isArray(changes)) {
       for (const change of changes) {
-        onDataChanged(change);
+        console.debug(`Form data changed: {name: '${change.name}' value: '${change.value}}'.`);
+        editsCopy[change.name] = change.value;
+        touchedCopy.push(change.name);
       }
     } else if (name && edits[name] !== value) {
       console.debug(`Form data changed: {name: '${name}' value: '${value}}'.`);
       if ((value === undefined || value === null) && edits[name]) {
-        const copy = {...edits};
-        delete copy[name];
-        setEdits(copy);
+        delete editsCopy[name];
       } else {
-        setEdits({
-          ...edits,
-          [name]: value
-        });
+        editsCopy[name] = value;
       }
-      setTouched([
-        ...touched,
-        name
-      ]);
-      console.debug(`Form edits: ${JSON.stringify(edits)}`);
+      touchedCopy.push(name);
     }
+    setEdits(editsCopy);
+    setTouched(touchedCopy);
+    console.debug(`Form edits: ${JSON.stringify(editsCopy)}`);
   }
 
   /**
