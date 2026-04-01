@@ -4,7 +4,7 @@ import GuestFeedbackFields from "./GuestFeedbackFields";
 import '../forms/Forms.css'
 import {useRestApi} from "../../api/RestApi";
 import {Button} from "react-bootstrap";
-import GuestBookConfig from "./GuestBookConfig";
+import GuestBookConfigPanel from "./GuestBookConfigPanel";
 import {isValidEmail} from "../../util/Validators";
 import FormEditor from "../editor/FormEditor";
 import {useTouchContext} from "../../util/TouchProvider";
@@ -273,7 +273,7 @@ function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbac
         )}
         {canEdit && (<>
           <FormEditor>
-            <GuestBookConfig extraId={extraData.ExtraID} buttonRef={buttonRef}/>
+            <GuestBookConfigPanel extraId={extraData.ExtraID} buttonRef={buttonRef}/>
           </FormEditor>
           <MoveExtraMenu extraData={extraData} sectionExtras={sectionExtras} buttonRef={menuRef}/>
         </>)}
