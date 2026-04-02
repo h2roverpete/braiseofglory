@@ -11,7 +11,7 @@ import {useTouchContext} from "../../util/TouchProvider";
 import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
 import MoveExtraMenu from "../extras/MoveExtraMenu";
-
+import {useSiteContext} from "../content/Site";
 
 export const GuestBookContext = createContext({
   guestBookConfig: null
@@ -48,6 +48,7 @@ function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbac
   const {GuestBooks} = useRestApi();
   const {hasPermission} = useAuth();
   const {supportsHover} = useTouchContext();
+  const {showErrorAlert} = useSiteContext();
 
   // states
   const [guestBookConfig, setGuestBookConfig] = useState(null);
@@ -75,7 +76,7 @@ function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbac
         console.debug(`Guest book configuration loaded.`);
         setGuestBookConfig(data);
       }).catch(error => {
-        console.error(`Error loading guest book: ${error}`);
+        showErrorAlert(`Error loading guest book.`, error);
       });
     }
   }, [GuestBooks, guestBookId, guestBookConfig]);
@@ -92,7 +93,7 @@ function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbac
         });
         console.debug(`Guest data loaded.`)
       }).catch(error => {
-        console.error(`Error getting guest data: ${error}`);
+        showErrorAlert(`Error getting guest data`, error);
       });
     }
   }, [GuestBooks, guestId, guestBookId, guestData])
@@ -109,7 +110,7 @@ function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbac
         });
         console.debug(`Guest feedback loaded.`)
       }).catch(error => {
-        console.error(`Error getting feedback: ${error}`);
+        showErrorAlert(`Error getting feedback`, error);
       });
     }
   }, [GuestBooks, guestFeedbackId, guestFeedbackData])
