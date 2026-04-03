@@ -16,7 +16,7 @@ export default function Head() {
     if (siteData?.SiteStyle) {
       const elements = document.head.querySelectorAll('link[rel="stylesheet"]');
       for (const element of elements) {
-        if (element.href !== `https://resources.h2rover.net/css/${siteData.SiteStyle}`) {
+        if (element.href.startsWith('https://resources.h2rover.net/css/') && element.href !== `https://resources.h2rover.net/css/${siteData.SiteStyle}`) {
           // remove old style sheet from head
           document.head.removeChild(element);
         }
