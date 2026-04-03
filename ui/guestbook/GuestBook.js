@@ -79,7 +79,7 @@ function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbac
         showErrorAlert(`Error loading guest book.`, error);
       });
     }
-  }, [GuestBooks, guestBookId, guestBookConfig]);
+  }, [GuestBooks, guestBookId, guestBookConfig, showErrorAlert]);
 
   useEffect(() => {
     if (!guestData && guestId) {
@@ -96,7 +96,7 @@ function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbac
         showErrorAlert(`Error getting guest data`, error);
       });
     }
-  }, [GuestBooks, guestId, guestBookId, guestData])
+  }, [GuestBooks, guestId, guestBookId, guestData, showErrorAlert])
 
   useEffect(() => {
     if (!guestFeedbackData && guestFeedbackId) {
@@ -113,7 +113,7 @@ function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbac
         showErrorAlert(`Error getting feedback`, error);
       });
     }
-  }, [GuestBooks, guestFeedbackId, guestFeedbackData])
+  }, [GuestBooks, guestFeedbackId, guestFeedbackData, showErrorAlert])
 
   /**
    * Handle changes in response to data entry.
