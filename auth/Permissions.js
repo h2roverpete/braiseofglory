@@ -15,6 +15,7 @@ const Resource = {
   GALLERY: "gallery",
   GUESTBOOK: "guestbook",
   USERS: "users",
+  SMS: "sms",
 }
 
 /**
@@ -29,6 +30,7 @@ const Permission = {
   UPDATE: "update",
   ADD: "add",
   DELETE: "delete",
+  SEND: "send",
   NONE: "none",
 }
 
@@ -62,6 +64,10 @@ const ResourcePermissions = {
   [Resource.USERS]: [
     {permission: Permission.ADMIN, description: 'Administrator'},
     {permission: Permission.NONE, description: 'None'},
+  ],
+  [Resource.SMS]: [
+    {permission: Permission.ADMIN, description: 'Administrator'},
+    {permission: Permission.SEND, description: 'Send Messages'},
   ]
 }
 
@@ -95,6 +101,9 @@ const checkPermission = (user, resource, permission) => {
         break;
       case Resource.USERS:
         userIndex = permissionList.findIndex((item) => item.permission === user.UserPermission);
+        break;
+      case Resource.SMS:
+        userIndex = permissionList.findIndex((item) => item.permission === user.SmsPermission);
         break;
       default:
         break;

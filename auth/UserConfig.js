@@ -272,6 +272,29 @@ export default function UserConfig({className, style, userData, onCancel, onUpda
           </Form.Select>
         </Col>
       </Row>
+      <Row className={'mt-2'}>
+        <Form.Label
+          column={'sm'}
+          sm={labelCols}
+          className={'required'}
+          htmlFor={'SmsPermission'}
+        >
+          User Management
+        </Form.Label>
+        <Col>
+          <Form.Select
+            name={'SmsPermission'}
+            size={'sm'}
+            value={formData.edits.SmsPermission || ''}
+            onChange={(e) => formData.onDataChanged({name: 'SmsPermission', value: e.target.value})}
+          >
+            <option value={''}>(select)</option>
+            {[...ResourcePermissions[Resource.SMS]].reverse().map(item => (
+              <option key={item.permission} value={item.permission}>{item.description}</option>
+            ))}
+          </Form.Select>
+        </Col>
+      </Row>
       <CrudButtons
         data={userData}
         keyName={'UserID'}

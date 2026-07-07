@@ -9,6 +9,7 @@ import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
 import {useRestApi} from "../../api/RestApi";
 import {usePageContext} from "../content/Page";
+import SmsCampaign from "../sms/SmsCampaign";
 
 const ExtrasContext = createContext({});
 
@@ -64,10 +65,15 @@ export default function Extras({extras}) {
       <Row className="ExtrasRow m-0 justify-content-start align-items-start">
         {extras?.map((extra) => (<React.Fragment key={extra.ExtraID + '_' + extra.Modified}>
             {extra.ExtraType === 'guestbook' && (
-              <GuestBook guestBookId={extra.GuestBookID} extraData={extra} sectionExtras={extras} extraId={extra.ExtraID}/>
+              <GuestBook guestBookId={extra.GuestBookID} extraData={extra} sectionExtras={extras}
+                         extraId={extra.ExtraID}/>
             )}
             {extra.ExtraType === 'gallery' && (
               <Gallery galleryId={extra.GalleryID} extraData={extra} sectionExtras={extras} extraId={extra.ExtraID}/>
+            )}
+            {extra.ExtraType === 'sms' && (
+              <SmsCampaign smsCampaignId={extra.SMSCampaignID} extraData={extra} sectionExtras={extras}
+                           extraId={extra.ExtraID}/>
             )}
             {extra.ExtraType === 'instagram' && (
               <InstagramExtra extraData={extra} sectionExtras={extras} canEdit={canEdit}/>
