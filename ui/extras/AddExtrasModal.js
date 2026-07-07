@@ -31,7 +31,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
 
   const {siteData, showErrorAlert} = useSiteContext();
   const {pageData, addExtraToPage} = usePageContext();
-  const {GuestBooks, Galleries, Extras} = useRestApi();
+  const {GuestBooks, Galleries, Extras, SMS} = useRestApi();
   const {hasPermission} = useAuth();
 
   /** @type FormDataAPI<ExtraData> */
@@ -40,6 +40,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
   // states
   const [guestBookList, setGuestBookList] = useState([]);
   const [galleryList, setGalleryList] = useState([]);
+  const [smsCampaignsList, setSmsCampaignsList] = useState([]);
   const [canEdit, setCanEdit] = useState(false);
 
   // refs
@@ -86,6 +87,24 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
       })
     }
   }, [canEdit, siteData, GuestBooks, showErrorAlert]);
+
+  useEffect(() => {
+    if (canEdit && siteData) {
+      // load list of existing sms campaigns
+      SMS.getSmsCampaigns().then((result) => {
+        const siteCampaigns = [];
+        for (const campaign of result) {
+          if (!campaign.SiteID || campaign.SiteID === siteData.SiteID) {
+            siteCampaigns.push(campaign);
+          }
+        }
+        console.debug(`List of ${siteCampaigns.length} SMS caampaigns loaded.`);
+        setSmsCampaignsList(siteCampaigns);
+      }).catch((err) => {
+        showErrorAlert(`Error getting SMS campaigns list.`, err);
+      })
+    }
+  }, [canEdit, siteData, Galleries, showErrorAlert]);
 
   if (!canEdit) {
     return <></>;
@@ -176,6 +195,25 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
           });
         }
         break;
+      case 'sms':
+        if (!formData.edits.SMSCampaignID) {
+          // TODO create new SMS campaign
+        } else {
+          // create an Extra for an existing SMS campaign
+          Extras.insertOrUpdateExtra({
+            ExtraType: formData.edits.ExtraType,
+            SiteID: siteData.SiteID,
+            PageID: pageData.PageID,
+            PageSectionID: pageSectionId,
+            SMSCampaignID: formData.edits.SMSCampaignID
+          }).then((extra) => {
+            console.debug(`Extra added.`);
+            onExtraAdded(extra);
+          }).catch((err) => {
+            showErrorAlert(`Error adding extra.`, err);
+          });
+        }
+        break;
       case 'file':
       case 'instagram':
       case 'youtube':
@@ -222,6 +260,8 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
         return isValidYouTubeUrl(formData.edits.YouTubeVideoUrl);
       case 'file':
         return formData.edits.ExtraFile !== null
+      case 'sms':
+        return formData.edits.SMSCampaignID > 0 || formData.edits.CampaignName?.length > 0
       default:
         return false;
     }
@@ -260,6 +300,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
               <option value='instagram'>Instagram Gallery</option>
               <option value='youtube'>YouTube Video</option>
               <option value='file'>File</option>
+              <option value='sms'>SMS Campaign</option>
             </Form.Select>
           </Col>
         </Row>
@@ -408,6 +449,74 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
                   isInvalid={formData.isTouched('GalleryName') && formData.edits.GalleryName.length === 0}
                   onChange={(e) => formData.onDataChanged({name: 'GalleryName', value: e.target.value})}
                   value={formData.edits.GalleryName || ''}
+                />
+              </Col>
+            </Row>
+          )}
+        </>)}
+        {formData.edits.ExtraType === 'sms' && (<>
+          <Row className="mt-2">
+            <Col sm={labelCols}></Col>
+            <Col hidden={smsCampaignsList?.length === 0}>
+              <Form.Check
+                type='radio'
+                name={'NewSmsCampaign'}
+                className='form-control-sm'
+                label='Create new SMS campaign'
+                checked={formData.edits.SMSCampaignID === undefined}
+                onChange={() => {
+                  formData.onDataChanged({name: 'SMSCampaignID', value: undefined});
+                }}
+              />
+              <Form.Check
+                type='radio'
+                name={'NewSmsCampaign'}
+                value={'true'}
+                className='form-control-sm'
+                label='Use existing SMS campaign'
+                checked={formData.edits.SMSCampaignID !== undefined}
+                onChange={() => {
+                  formData.onDataChanged({name: 'SMSCampaignID', value: 0});
+                }}
+              />
+            </Col>
+          </Row>
+          {formData.edits.SMSCampaignID !== undefined ? (
+            <Row className="mt-2">
+              <Form.Label
+                className='required'
+                column={'sm'}
+                htmlFor={'SMSCampaign'}
+                sm={labelCols}
+              >SMS Campaign
+              </Form.Label>
+              <Col>
+                <Form.Select
+                  id="SMSCampaign"
+                  size="sm"
+                  onChange={(e) => formData.onDataChanged({name: 'SMSCampaignID', value: parseInt(e.target.value)})}
+                  value={formData.edits.SMSCampaignID}
+                >
+                  <option key={''} value={0}>(Select an SMS campaign)</option>
+                  {smsCampaignsList.map((campaign) => (
+                    <option key={campaign.SMSCampaignID} value={campaign.SMSCampaignID}>{campaign.CampaignName}</option>
+                  ))}
+                </Form.Select>
+              </Col>
+            </Row>
+          ) : (
+            <Row className="mt-2">
+              <Form.Label className='required' column={'sm'} htmlFor={'CampaignName'} sm={labelCols}>
+                Campaign Name</Form.Label>
+              <Col>
+                <Form.Control
+                  id="CampaignName"
+                  name="CampaignName"
+                  size="sm"
+                  isValid={formData.isTouched('CampaignName') && formData.edits.CampaignName.length > 0}
+                  isInvalid={formData.isTouched('CampaignName') && formData.edits.CampaignName.length === 0}
+                  onChange={(e) => formData.onDataChanged({name: 'CampaignName', value: e.target.value})}
+                  value={formData.edits.CampaignName || ''}
                 />
               </Col>
             </Row>
