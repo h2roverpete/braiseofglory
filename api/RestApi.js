@@ -529,10 +529,15 @@ export default function RestApi(props) {
     return response.data;
   }, []);
 
+  const insertOrUpdateSmsCampaign = useCallback(async (data) => {
+    const response = await axios.post(`${host}/api/v1/sms/campaigns`, data);
+    return response.data;
+  },[]);
+
   const insertOrUpdateSmsSubscriber = useCallback(async (data) => {
     const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/subscribers`, data);
     return response.data;
-  })
+  },[]);
 
   /**
    * @callback RestApiCall
@@ -665,6 +670,7 @@ export default function RestApi(props) {
       SMS: {
         getSmsCampaigns: getSmsCampaigns,
         getSmsCampaign: getSmsCampaign,
+        insertOrUpdateSmsCampaign: insertOrUpdateSmsCampaign,
         insertOrUpdateSmsSubscriber: insertOrUpdateSmsSubscriber,
       }
     }}>
