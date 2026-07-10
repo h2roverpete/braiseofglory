@@ -14,7 +14,9 @@ import './SmsSignupFields.css';
  */
 export default function SmsSignupFields({smsCampaignId}) {
 
+  /** @type {[SMSCampaignData,React.Dispatch<React.SetStateAction<SMSCampaignData>>]} */
   const [smsCampaignConfig, setSmsCampaignConfig] = useState();
+
   const {SMS} = useRestApi();
   const [submitted, setSubmitted] = useState(false);
   const {showErrorAlert} = useSiteContext();
@@ -42,10 +44,9 @@ export default function SmsSignupFields({smsCampaignId}) {
       SubscriberMobileNumber: formData.edits.SubscriberMobileNumber.replaceAll(/[^0-9+]/g, "")
     }
     SMS.insertOrUpdateSmsSubscriber(data).then((response) => {
+      formData.setData(response)
       setSubmitted(true);
-    }).catch(error => {
-      showErrorAlert(`This number is already subscribed.`)
-    });
+    }).catch(showErrorAlert(`This number is already subscribed.`));
   }
 
   function handleReset() {
@@ -73,7 +74,7 @@ export default function SmsSignupFields({smsCampaignId}) {
       <>
         <Row className={'mt-2'}>
           <Col>
-            <div className="SectionText" dangerouslySetInnerHTML={{__html: smsCampaignConfig.CampaignDescription}} />
+            <div className="SectionText" dangerouslySetInnerHTML={{__html: smsCampaignConfig.CampaignDescription}}/>
           </Col>
         </Row>
         <Row className={'mt-2'}>
@@ -125,7 +126,7 @@ export default function SmsSignupFields({smsCampaignId}) {
             />
           </Col>
           <Col>
-            <div className="SectionText" dangerouslySetInnerHTML={{__html: smsCampaignConfig.CampaignAgreementCheckBox}}/>
+            <div className="SectionText" dangerouslySetInnerHTML={{__html: smsCampaignConfig.CampaignAgreement}}/>
           </Col>
         </Row>
         <Row className="form-group mt-4">

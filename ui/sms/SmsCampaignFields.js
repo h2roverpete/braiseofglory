@@ -1,6 +1,6 @@
 import {useFormData} from "../editor/FormEditor";
 import {useEffect, useState} from "react";
-import {Accordion, Button, Col, Form, Row} from "react-bootstrap";
+import {Accordion, Col, Form, Row} from "react-bootstrap";
 import {useRestApi} from "../../api/RestApi"
 import {useSiteContext} from "../content/Site";
 import CrudButtons from "../editor/CrudButtons";
@@ -56,7 +56,6 @@ export default function SmsCampaignFields(props) {
       && isValidEmail(formData.edits.CampaignAdminEmail)
       && formData.edits.CampaignDescription?.length > 0
       && formData.edits.CampaignAgreement?.length > 0
-      && formData.edits.CampaignAgreementCheckBox?.length > 0
       && formData.edits.CampaignSubmitButton?.length > 0
       && formData.edits.CampaignConfirmation?.length > 0
       && formData.edits.CampaignResubmitButton?.length > 0
@@ -151,7 +150,7 @@ export default function SmsCampaignFields(props) {
             </Form.Label>
             <Col>
               <Form.Control
-                as={'textarea'}
+                as='textarea'
                 rows={8}
                 size={'sm'}
                 name={'CampaignDescription'}
@@ -173,7 +172,7 @@ export default function SmsCampaignFields(props) {
             </Form.Label>
             <Col>
               <Form.Control
-                as={'textarea'}
+                as='textarea'
                 rows={6}
                 size={'sm'}
                 name={'CampaignAgreement'}
@@ -181,27 +180,6 @@ export default function SmsCampaignFields(props) {
                 isInvalid={formData.isTouched('CampaignAgreement') && !(formData.edits.CampaignAgreement?.length > 0)}
                 value={formData.edits?.CampaignAgreement || ''}
                 onChange={(e) => formData.onDataChanged({name: 'CampaignAgreement', value: e.target.value})}
-              />
-            </Col>
-          </Row>
-          <Row className={'mt-2'}>
-            <Form.Label
-              column={'sm'}
-              sm={labelCols}
-              className={'required'}
-              htmlFor={'CampaignAgreementCheckBox'}
-            >
-              Checkbox
-            </Form.Label>
-            <Col>
-              <Form.Control
-                size={'sm'}
-                name={'CampaignAgreementCheckBox'}
-                isValid={formData.isTouched('CampaignAgreementCheckBox') && formData.edits.CampaignAgreementCheckBox?.length > 0}
-                isInvalid={formData.isTouched('CampaignAgreementCheckBox') && !(formData.edits.CampaignAgreementCheckBox?.length > 0)}
-                value={formData.edits?.CampaignAgreementCheckBox || ''}
-                placeholder={'I Agree'}
-                onChange={(e) => formData.onDataChanged({name: 'CampaignAgreementCheckBox', value: e.target.value})}
               />
             </Col>
           </Row>
@@ -237,7 +215,7 @@ export default function SmsCampaignFields(props) {
             </Form.Label>
             <Col>
               <Form.Control
-                as={'textarea'}
+                as='textarea'
                 rows={3}
                 size={'sm'}
                 name={'CampaignConfirmation'}
@@ -288,7 +266,7 @@ export default function SmsCampaignFields(props) {
             </Form.Label>
             <Col>
               <Form.Control
-                as={'textarea'}
+                as='textarea'
                 rows={3}
                 size={'sm'}
                 name={'CampaignConfirmationMessage'}
@@ -310,7 +288,7 @@ export default function SmsCampaignFields(props) {
             </Form.Label>
             <Col>
               <Form.Control
-                as={'textarea'}
+                as='textarea'
                 rows={3}
                 size={'sm'}
                 name={'CampaignHelpMessage'}
@@ -332,7 +310,7 @@ export default function SmsCampaignFields(props) {
             </Form.Label>
             <Col>
               <Form.Control
-                as={'textarea'}
+                as='textarea'
                 rows={3}
                 size={'sm'}
                 name={'CampaignStopMessage'}
