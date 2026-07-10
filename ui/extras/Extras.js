@@ -9,7 +9,7 @@ import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
 import {useRestApi} from "../../api/RestApi";
 import {usePageContext} from "../content/Page";
-import SmsCampaign from "../sms/SmsCampaign";
+import SmsSignup from "../sms/SmsSignup";
 
 const ExtrasContext = createContext({});
 
@@ -72,8 +72,8 @@ export default function Extras({extras}) {
               <Gallery galleryId={extra.GalleryID} extraData={extra} sectionExtras={extras} extraId={extra.ExtraID}/>
             )}
             {extra.ExtraType === 'sms' && (
-              <SmsCampaign smsCampaignId={extra.SMSCampaignID} extraData={extra} sectionExtras={extras}
-                           extraId={extra.ExtraID}/>
+              <SmsSignup smsCampaignId={extra.SMSCampaignID} extraData={extra} sectionExtras={extras}
+                         extraId={extra.ExtraID}/>
             )}
             {extra.ExtraType === 'instagram' && (
               <InstagramExtra extraData={extra} sectionExtras={extras} canEdit={canEdit}/>

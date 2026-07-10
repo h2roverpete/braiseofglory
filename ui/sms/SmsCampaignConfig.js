@@ -1,5 +1,5 @@
 import FormEditor from "../editor/FormEditor";
-import SmsCampaignPanel from "./SmsCampaignPanel";
+import SmsSignupFields from "./SmsSignupFields";
 import SmsCampaignFields from "./SmsCampaignFields";
 
 /**
