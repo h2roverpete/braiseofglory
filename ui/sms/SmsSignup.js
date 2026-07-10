@@ -1,5 +1,5 @@
 import FormEditor from "../editor/FormEditor";
-import SmsCampaignPanel from "./SmsCampaignPanel";
+import SmsSignupFields from "./SmsSignupFields";
 
 /**
  * Display UI for SMS Campaign, add a user's mobile number
@@ -7,8 +7,8 @@ import SmsCampaignPanel from "./SmsCampaignPanel";
  * @returns {JSX.Element}
  * @constructor
  */
-export default function SmsCampaign({smsCampaignId}) {
+export default function SmsSignup({smsCampaignId}) {
     return <FormEditor>
-      <SmsCampaignPanel smsCampaignId={smsCampaignId} />
+      <SmsSignupFields smsCampaignId={smsCampaignId} />
     </FormEditor>
 }

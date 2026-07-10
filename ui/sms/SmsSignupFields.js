@@ -4,7 +4,7 @@ import {Button, Col, Form, Row} from "react-bootstrap";
 import PhoneNumberField from "../forms/PhoneNumberField";
 import {useRestApi} from "../../api/RestApi"
 import {useSiteContext} from "../content/Site";
-
+import './SmsSignupFields.css';
 
 /**
  * Display message that the user doesn't have permission to view the content.
@@ -12,7 +12,7 @@ import {useSiteContext} from "../content/Site";
  * @returns {JSX.Element}
  * @constructor
  */
-export default function SmsCampaignPanel({smsCampaignId}) {
+export default function SmsSignupFields({smsCampaignId}) {
 
   const [smsCampaignConfig, setSmsCampaignConfig] = useState();
   const {SMS} = useRestApi();
@@ -64,14 +64,17 @@ export default function SmsCampaignPanel({smsCampaignId}) {
           variant={'primary'}
           onClick={(e) => handleReset()}
         >
-          {smsCampaignConfig.CampaignResubmitButton ? <>{smsCampaignConfig.CampaignResubmitButton}</> : <>Submit Again</>}
+          {smsCampaignConfig.CampaignResubmitButton ? <>{smsCampaignConfig.CampaignResubmitButton}</> : <>Submit
+            Again</>}
         </Button>
         </p>
       </>
       :
       <>
         <Row className={'mt-2'}>
-          <p className="SectionText" dangerouslySetInnerHTML={{__html: smsCampaignConfig.CampaignDescription}}></p>
+          <Col>
+            <div className="SectionText" dangerouslySetInnerHTML={{__html: smsCampaignConfig.CampaignDescription}} />
+          </Col>
         </Row>
         <Row className={'mt-2'}>
           <Form.Label
@@ -113,29 +116,29 @@ export default function SmsCampaignPanel({smsCampaignId}) {
           </Col>
         </Row>
         <Row className={'mt-4'}>
-          <p className="SectionText" dangerouslySetInnerHTML={{__html:smsCampaignConfig.CampaignAgreement}}></p>
-        </Row>
-        <Row className={'mt-2'}>
-          <Col sm={12}>
+          <Col xs={1} className={'text-center'}>
             <Form.Check
               type={'checkbox'}
               name={`Accept`}
-              label={smsCampaignConfig.CampaignAgreementCheckBox}
               checked={formData.edits?.Accept || 0}
               onChange={(e) => formData.onDataChanged({name: 'Accept', value: e.target.checked})}
-              inline
             />
           </Col>
+          <Col>
+            <div className="SectionText" dangerouslySetInnerHTML={{__html: smsCampaignConfig.CampaignAgreementCheckBox}}/>
+          </Col>
         </Row>
-        <div className="form-group mt-4">
-          <Button
-            variant={'primary'}
-            disabled={!isDataValid()}
-            onClick={(e) => handleSubmit(e)}
-          >
-            {smsCampaignConfig.CampaignSubmitButton ? <>{smsCampaignConfig.CampaignSubmitButton}</> : <>Submit</>}
-          </Button>
-        </div>
+        <Row className="form-group mt-4">
+          <Col>
+            <Button
+              variant={'primary'}
+              disabled={!isDataValid()}
+              onClick={(e) => handleSubmit(e)}
+            >
+              {smsCampaignConfig.CampaignSubmitButton ? <>{smsCampaignConfig.CampaignSubmitButton}</> : <>Submit</>}
+            </Button>
+          </Col>
+        </Row>
       </>}
   </div>;
 }
