@@ -279,7 +279,7 @@ export default function UserConfig({className, style, userData, onCancel, onUpda
           className={'required'}
           htmlFor={'SmsPermission'}
         >
-          User Management
+          SMS Campaigns
         </Form.Label>
         <Col>
           <Form.Select
