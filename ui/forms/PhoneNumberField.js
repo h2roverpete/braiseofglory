@@ -13,7 +13,7 @@ import './PhoneNumberField.css'
  * @param name{String}
  * @param id{String}
  * @param value{String}
- * @param onChange{StringCallback}
+ * @param onChange{DataCallback}
  * @constructor
  */
 function PhoneNumberField({name, id, value, onChange}) {
@@ -21,9 +21,10 @@ function PhoneNumberField({name, id, value, onChange}) {
     <PhoneInput
       inputProps={{
         name: name,
-        required: false
+        id: id,
+        required: true,
+        isValid: true,
       }}
-      id={id}
       value={value}
       country={'us'}
       onChange={(value, country, e, formattedValue) => {

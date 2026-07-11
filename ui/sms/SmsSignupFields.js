@@ -1,10 +1,12 @@
 import {useFormData} from "../editor/FormEditor";
 import {useEffect, useState} from "react";
-import {Button, Col, Form, Row} from "react-bootstrap";
+import {Button, Col, Form, Row, Spinner} from "react-bootstrap";
 import PhoneNumberField from "../forms/PhoneNumberField";
 import {useRestApi} from "../../api/RestApi"
 import {useSiteContext} from "../content/Site";
 import './SmsSignupFields.css';
+import EmailField from "../forms/EmailField";
+import {isValidEmail} from "../../util/Validators";
 
 /**
  * Display message that the user doesn't have permission to view the content.
@@ -19,6 +21,7 @@ export default function SmsSignupFields({smsCampaignId}) {
 
   const {SMS} = useRestApi();
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const {showErrorAlert} = useSiteContext();
 
   const formData = useFormData();
@@ -33,20 +36,36 @@ export default function SmsSignupFields({smsCampaignId}) {
   function isDataValid() {
     const number = formData.edits.SubscriberMobileNumber?.replaceAll(/[^0-9+]/g, "");
     return formData.edits.SubscriberName?.length > 0
-      && number?.length === 12 && number.startsWith('+1')
-      && formData.edits.Accept;
+      && (
+        (number?.length === 12 && number.startsWith('+1') && formData.edits.Accept && formData.edits.NotificationMethod !== 'email')
+        || (isValidEmail(formData.edits.SubscriberEmail) && formData.edits.NotificationMethod === 'email')
+      )
+      ;
   }
 
   function handleSubmit() {
+    setSubmitting(true);
     const data = {
       SMSCampaignID: parseInt(smsCampaignId),
       SubscriberName: formData.edits.SubscriberName,
-      SubscriberMobileNumber: formData.edits.SubscriberMobileNumber.replaceAll(/[^0-9+]/g, "")
+    }
+    if (formData.edits.NotificationMethod !== 'email') {
+      data.SubscriberMobileNumber = formData.edits.SubscriberMobileNumber.replaceAll(/[^0-9+]/g, "")
+    } else {
+      data.SubscriberEmail = formData.edits.SubscriberEmail;
     }
     SMS.insertOrUpdateSmsSubscriber(data).then((response) => {
       formData.setData(response)
       setSubmitted(true);
-    }).catch(showErrorAlert(`This number is already subscribed.`));
+      setSubmitting(false);
+    }).catch(() => {
+      if (formData.edits.NotificationMethod !== 'email') {
+        showErrorAlert(`This mobile number is already subscribed.`);
+      } else {
+        showErrorAlert(`This email address is already subscribed.`);
+      }
+      setSubmitting(false);
+    });
   }
 
   function handleReset() {
@@ -57,15 +76,15 @@ export default function SmsSignupFields({smsCampaignId}) {
   const labelCols = 3;
   if (!smsCampaignConfig) {
     return <></>
-  } else return <div className="container-fluid SMSCampaign">
+  } else return <div className="container-fluid SmsSignupFields">
     {submitted ?
       <>
-        <p className="SectionText">{smsCampaignConfig.CampaignConfirmation}</p>
+        <p className="SectionText">{smsCampaignConfig?.CampaignConfirmation}</p>
         <p><Button
           variant={'primary'}
-          onClick={(e) => handleReset()}
+          onClick={() => handleReset()}
         >
-          {smsCampaignConfig.CampaignResubmitButton ? <>{smsCampaignConfig.CampaignResubmitButton}</> : <>Submit
+          {smsCampaignConfig?.CampaignResubmitButton ? <>{smsCampaignConfig.CampaignResubmitButton}</> : <>Submit
             Again</>}
         </Button>
         </p>
@@ -74,12 +93,12 @@ export default function SmsSignupFields({smsCampaignId}) {
       <>
         <Row className={'mt-2'}>
           <Col>
-            <div className="SectionText" dangerouslySetInnerHTML={{__html: smsCampaignConfig.CampaignDescription}}/>
+            <div className="SectionText" dangerouslySetInnerHTML={{__html: smsCampaignConfig?.CampaignDescription}}/>
           </Col>
         </Row>
         <Row className={'mt-2'}>
           <Form.Label
-            column={'sm'}
+            column={true}
             sm={labelCols}
             className={'required'}
             htmlFor={'SubscriberName'}
@@ -88,8 +107,7 @@ export default function SmsSignupFields({smsCampaignId}) {
           </Form.Label>
           <Col>
             <Form.Control
-              size={'sm'}
-              name={'SubscriberName'}
+              id={'SubscriberName'}
               isValid={formData.isTouched('SubscriberName') && formData.edits.SubscriberName?.length > 0}
               isInvalid={formData.isTouched('SubscriberName') && !(formData.edits.SubscriberName?.length > 0)}
               value={formData.edits?.SubscriberName || ''}
@@ -99,44 +117,104 @@ export default function SmsSignupFields({smsCampaignId}) {
         </Row>
         <Row className={'mt-2'}>
           <Form.Label
-            column={'sm'}
+            column={true}
             sm={labelCols}
-            htmlFor={'SubscriberMobileNumber'}
             className={'required'}
+            htmlFor={'NotificationMethod'}
           >
-            Mobile Number
+            Notify By
           </Form.Label>
-          <Col sm={7}>
-            <PhoneNumberField
-              size={'sm'}
-              name={'SubscriberMobileNumber'}
-              id={'SubscriberMobileNumber'}
-              value={formData.edits?.SubscriberMobileNumber || ''}
-              onChange={(data) => formData.onDataChanged(data)}
-            />
-          </Col>
-        </Row>
-        <Row className={'mt-4'}>
-          <Col xs={1} className={'text-center'}>
+          <Col className={'d-flex align-items-center'}>
             <Form.Check
-              type={'checkbox'}
-              name={`Accept`}
-              checked={formData.edits?.Accept || 0}
-              onChange={(e) => formData.onDataChanged({name: 'Accept', value: e.target.checked})}
+              type={'radio'}
+              label={'Text Message'}
+              value={'text'}
+              id={'NotificationMethod'}
+              onChange={(e) => {
+                formData.onDataChanged({name: 'NotificationMethod', value: e.target.value})
+              }}
+              checked={formData.edits.NotificationMethod !== 'email'}
+              inline
+            />
+            <Form.Check
+              type={'radio'}
+              label={'Email'}
+              value={'email'}
+              id={'NotificationMethod'}
+              onChange={(e) => {
+                formData.onDataChanged({name: 'NotificationMethod', value: e.target.value})
+              }}
+              checked={formData.edits.NotificationMethod === 'email'}
+              inline
             />
           </Col>
-          <Col>
-            <div className="SectionText" dangerouslySetInnerHTML={{__html: smsCampaignConfig.CampaignAgreement}}/>
-          </Col>
         </Row>
+        {formData.edits.NotificationMethod !== 'email' ?
+          <>
+            <Row className={'mt-2'}>
+              <Form.Label
+                column={true}
+                sm={labelCols}
+                htmlFor={'SubscriberMobileNumber'}
+                className={'required'}
+              >
+                Mobile Number
+              </Form.Label>
+              <Col sm={7}>
+                <PhoneNumberField
+                  name={'SubscriberMobileNumber'}
+                  id={'SubscriberMobileNumber'}
+                  value={formData.edits?.SubscriberMobileNumber || ''}
+                  onChange={(data) => formData.onDataChanged(data)}
+                />
+              </Col>
+            </Row>
+            <Row className={'mt-4'}>
+              <Col xs={1} className={'text-center'}>
+                <Form.Check
+                  type={'checkbox'}
+                  name={`Accept`}
+                  checked={formData.edits?.Accept || 0}
+                  onChange={(e) => formData.onDataChanged({name: 'Accept', value: e.target.checked})}
+                />
+              </Col>
+              <Col>
+                <div className="SectionText" dangerouslySetInnerHTML={{__html: smsCampaignConfig?.CampaignAgreement}}/>
+              </Col>
+            </Row>
+          </>
+          :
+          <Row className={'mt-2'}>
+            <Form.Label
+              column={true}
+              sm={labelCols}
+              htmlFor={'SubscriberEmail'}
+              className={'required'}
+            >
+              Email Address
+            </Form.Label>
+            <Col sm={7}>
+              <EmailField
+                id={'SubscriberEmail'}
+                value={formData.edits?.SubscriberEmail || ''}
+                onChange={(e) => formData.onDataChanged({name: 'SubscriberEmail', value: e.target.value})}
+              />
+            </Col>
+          </Row>
+        }
         <Row className="form-group mt-4">
           <Col>
             <Button
               variant={'primary'}
               disabled={!isDataValid()}
               onClick={(e) => handleSubmit(e)}
+              style={{width: '100px'}}
             >
-              {smsCampaignConfig.CampaignSubmitButton ? <>{smsCampaignConfig.CampaignSubmitButton}</> : <>Submit</>}
+              {submitting ?
+                <Spinner size={'sm'} />
+                :
+                <>{smsCampaignConfig?.CampaignSubmitButton ? <>{smsCampaignConfig.CampaignSubmitButton}</> : <>Submit</>}</>
+              }
             </Button>
           </Col>
         </Row>
