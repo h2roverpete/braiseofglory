@@ -23,8 +23,8 @@ export default function SmsSignupFields({smsCampaignId}) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const {showErrorAlert} = useSiteContext();
-
   const formData = useFormData();
+
   useEffect(() => {
     if (!smsCampaignConfig) {
       SMS.getSmsCampaign(smsCampaignId).then((response) => {
@@ -32,6 +32,19 @@ export default function SmsSignupFields({smsCampaignId}) {
       }).catch((error) => showErrorAlert(error));
     }
   })
+
+  useEffect(() => {
+    // set up default notification method
+    if (smsCampaignConfig && !formData.edits.NotificationMethod) {
+      if (smsCampaignConfig?.TextCampaign && smsCampaignConfig.EmailCampaign) {
+        formData.edits.NotificationMethod = 'text'; // default to text
+      } else if (smsCampaignConfig?.TextCampaign) {
+        formData.edits.NotificationMethod = 'text'; // text only
+      } else {
+        formData.edits.NotificationMethod = 'email'; // email only
+      }
+    }
+  }, [smsCampaignConfig, formData]);
 
   function isDataValid() {
     const number = formData.edits.SubscriberMobileNumber?.replaceAll(/[^0-9+]/g, "");
@@ -105,7 +118,7 @@ export default function SmsSignupFields({smsCampaignId}) {
           >
             Name
           </Form.Label>
-          <Col>
+          <Col sm={7}>
             <Form.Control
               id={'SubscriberName'}
               isValid={formData.isTouched('SubscriberName') && formData.edits.SubscriberName?.length > 0}
@@ -115,41 +128,43 @@ export default function SmsSignupFields({smsCampaignId}) {
             />
           </Col>
         </Row>
-        <Row className={'mt-2'}>
-          <Form.Label
-            column={true}
-            sm={labelCols}
-            className={'required'}
-            htmlFor={'NotificationMethod'}
-          >
-            Notify By
-          </Form.Label>
-          <Col className={'d-flex align-items-center'}>
-            <Form.Check
-              type={'radio'}
-              label={'Text Message'}
-              value={'text'}
-              id={'NotificationMethod'}
-              onChange={(e) => {
-                formData.onDataChanged({name: 'NotificationMethod', value: e.target.value})
-              }}
-              checked={formData.edits.NotificationMethod !== 'email'}
-              inline
-            />
-            <Form.Check
-              type={'radio'}
-              label={'Email'}
-              value={'email'}
-              id={'NotificationMethod'}
-              onChange={(e) => {
-                formData.onDataChanged({name: 'NotificationMethod', value: e.target.value})
-              }}
-              checked={formData.edits.NotificationMethod === 'email'}
-              inline
-            />
-          </Col>
-        </Row>
-        {formData.edits.NotificationMethod !== 'email' ?
+        {smsCampaignConfig?.EmailCampaign && smsCampaignConfig?.TextCampaign &&
+          <Row className={'mt-2'}>
+            <Form.Label
+              column={true}
+              sm={labelCols}
+              className={'required'}
+              htmlFor={'NotificationMethod'}
+            >
+              Notify Me By
+            </Form.Label>
+            <Col className={'d-flex align-items-center'}>
+              <Form.Check
+                type={'radio'}
+                label={'Text Message'}
+                value={'text'}
+                id={'NotificationMethod'}
+                onChange={(e) => {
+                  formData.onDataChanged({name: 'NotificationMethod', value: e.target.value})
+                }}
+                checked={formData.edits.NotificationMethod === 'text'}
+                inline
+              />
+              <Form.Check
+                type={'radio'}
+                label={'Email'}
+                value={'email'}
+                id={'NotificationMethod'}
+                onChange={(e) => {
+                  formData.onDataChanged({name: 'NotificationMethod', value: e.target.value})
+                }}
+                checked={formData.edits.NotificationMethod === 'email'}
+                inline
+              />
+            </Col>
+          </Row>
+        }
+        {smsCampaignConfig?.TextCampaign && formData.edits.NotificationMethod === 'text' &&
           <>
             <Row className={'mt-2'}>
               <Form.Label
@@ -183,7 +198,8 @@ export default function SmsSignupFields({smsCampaignId}) {
               </Col>
             </Row>
           </>
-          :
+        }
+        {smsCampaignConfig?.EmailCampaign && formData.edits.NotificationMethod === 'email' &&
           <Row className={'mt-2'}>
             <Form.Label
               column={true}
@@ -198,6 +214,7 @@ export default function SmsSignupFields({smsCampaignId}) {
                 id={'SubscriberEmail'}
                 value={formData.edits?.SubscriberEmail || ''}
                 onChange={(e) => formData.onDataChanged({name: 'SubscriberEmail', value: e.target.value})}
+                className={'w-100'}
               />
             </Col>
           </Row>
@@ -211,7 +228,7 @@ export default function SmsSignupFields({smsCampaignId}) {
               style={{width: '100px'}}
             >
               {submitting ?
-                <Spinner size={'sm'} />
+                <Spinner size={'sm'}/>
                 :
                 <>{smsCampaignConfig?.CampaignSubmitButton ? <>{smsCampaignConfig.CampaignSubmitButton}</> : <>Submit</>}</>
               }

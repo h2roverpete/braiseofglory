@@ -30,6 +30,7 @@ export default function EmailField(props) {
       }}
       isValid={touched && isValidEmail(props.value)}
       isInvalid={(props.value === '' && props.required) || (props.value?.length > 0 && !isValidEmail(props.value))}
+      className={props.className}
     />
   )
 }
