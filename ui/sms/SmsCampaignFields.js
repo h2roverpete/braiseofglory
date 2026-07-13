@@ -59,6 +59,7 @@ export default function SmsCampaignFields(props) {
       && formData.edits.CampaignSubmitButton?.length > 0
       && formData.edits.CampaignConfirmation?.length > 0
       && formData.edits.CampaignResubmitButton?.length > 0
+    && (formData.edits.TextCampaign || formData.edits.EmailCampaign)
 
   }
 
@@ -132,7 +133,33 @@ export default function SmsCampaignFields(props) {
         />
       </Col>
     </Row>
-
+    <Row className={'mt-2'}>
+      <Form.Label
+        column={'sm'}
+        sm={labelCols}
+        className={'required'}
+      >
+        Type
+      </Form.Label>
+      <Col>
+        <Form.Check
+          name={'TextCampaign'}
+          checked={formData.edits?.TextCampaign}
+          onChange={(e) => formData.onDataChanged({name: 'TextCampaign', value: e.target.checked})}
+          label={'Text Message'}
+          inline
+          className={'form-control-sm'}
+        />
+        <Form.Check
+          name={'EmailCampaign'}
+          checked={formData.edits?.EmailCampaign}
+          onChange={(e) => formData.onDataChanged({name: 'EmailCampaign', value: e.target.checked})}
+          label={'Email'}
+          inline
+          className={'form-control-sm'}
+        />
+      </Col>
+    </Row>
     <Accordion defaultActiveKey={'0'} className={'mt-4'}>
       <Accordion.Item eventKey={'2'}>
         <Accordion.Header>
@@ -146,7 +173,7 @@ export default function SmsCampaignFields(props) {
               className={'required'}
               htmlFor={'CampaignDescription'}
             >
-              Description (above input fields)
+              Description
             </Form.Label>
             <Col>
               <Form.Control
@@ -168,7 +195,7 @@ export default function SmsCampaignFields(props) {
               className={'required'}
               htmlFor={'CampaignAgreement'}
             >
-              Agreement (below input fields)
+              SMS Agreement Checkbox
             </Form.Label>
             <Col>
               <Form.Control
