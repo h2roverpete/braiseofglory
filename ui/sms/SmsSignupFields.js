@@ -37,11 +37,11 @@ export default function SmsSignupFields({smsCampaignId}) {
     // set up default notification method
     if (smsCampaignConfig && !formData.edits.NotificationMethod) {
       if (smsCampaignConfig?.TextCampaign && smsCampaignConfig.EmailCampaign) {
-        formData.edits.NotificationMethod = 'text'; // default to text
-      } else if (smsCampaignConfig?.TextCampaign) {
-        formData.edits.NotificationMethod = 'text'; // text only
+        formData.onDataChanged({name:'NotificationMethod', value:'text'}); // default to text
+      } else if (smsCampaignConfig?.EmailCampaign) {
+        formData.onDataChanged({name:'NotificationMethod', value:'email'}); // email only
       } else {
-        formData.edits.NotificationMethod = 'email'; // email only
+        formData.onDataChanged({name:'NotificationMethod', value:'text'}); // text only
       }
     }
   }, [smsCampaignConfig, formData]);
