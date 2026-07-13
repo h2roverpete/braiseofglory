@@ -23,7 +23,6 @@ function PhoneNumberField({name, id, value, onChange}) {
         name: name,
         id: id,
         required: true,
-        isValid: true,
       }}
       value={value}
       country={'us'}
