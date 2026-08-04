@@ -1,13 +1,37 @@
 import {BsPersonCircle} from "react-icons/bs";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {useAuth} from "../../auth/AuthProvider";
 import {useNavigate} from "react-router";
 import {Nav} from "react-bootstrap";
+import {Resource, Permission} from "../../auth/Permissions";
+import {useRestApi} from "../../api/RestApi";
 
 export default function UserMenu({buttonRef}) {
 
   const {isAuthenticated, currentUser} = useAuth();
   const navigate = useNavigate();
+  const [hasSmsCampaign, setHasSmsCampaign] = useState(false);
+  const [hasSmsPermission, setHasSmsPermission] = useState(false);
+  const {SMS} = useRestApi();
+  const {hasPermission} = useAuth();
+
+  useEffect(() => {
+    SMS.getSmsCampaigns().then((response) => {
+      for (const campaign of response) {
+        if (campaign.SiteID === parseInt(process.env.REACT_APP_SITE_ID)) {
+          setHasSmsCampaign(true);
+          break;
+        }
+      }
+    }).catch((err) => {
+      console.error(err);
+    })
+  }, [setHasSmsCampaign]);
+
+  useEffect(() => {
+    const result = hasPermission(Resource.SMS, Permission.SEND);
+    setHasSmsPermission(result);
+  }, [hasPermission, setHasSmsPermission])
 
   return (<>
     <div
@@ -25,10 +49,13 @@ export default function UserMenu({buttonRef}) {
         {isAuthenticated && (
           <span className="dropdown-item" onClick={() => navigate('/admin/user')}>User Profile</span>
         )}
+        {isAuthenticated && hasSmsCampaign && hasSmsPermission && (
+          <span className="dropdown-item" onClick={() => navigate('/admin/sms')}>Send Messages</span>
+        )}
         {!isAuthenticated && (
           <span className="dropdown-item" onClick={() => navigate('/login')}>Log In</span>
         )}
-        {isAuthenticated && (
+       {isAuthenticated && (
           <span className="dropdown-item" onClick={() => navigate('/logout')}>Log Out</span>
         )}
       </div>
