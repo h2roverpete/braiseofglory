@@ -539,6 +539,11 @@ export default function RestApi(props) {
     return response.data;
   },[]);
 
+  const sendSmsMessage = useCallback(async (data) => {
+    const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/send`, data);
+    return response.data;
+  }, []);
+
   /**
    * @callback RestApiCall
    * @return {Promise<any>}
@@ -672,6 +677,7 @@ export default function RestApi(props) {
         getSmsCampaign: getSmsCampaign,
         insertOrUpdateSmsCampaign: insertOrUpdateSmsCampaign,
         insertOrUpdateSmsSubscriber: insertOrUpdateSmsSubscriber,
+        sendSmsMessage: sendSmsMessage,
       }
     }}>
       {props.children}
