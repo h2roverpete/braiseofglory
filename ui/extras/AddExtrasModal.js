@@ -98,13 +98,13 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
             siteCampaigns.push(campaign);
           }
         }
-        console.debug(`List of ${siteCampaigns.length} SMS caampaigns loaded.`);
+        console.debug(`List of ${siteCampaigns.length} SMS campaigns loaded.`);
         setSmsCampaignsList(siteCampaigns);
       }).catch((err) => {
         showErrorAlert(`Error getting SMS campaigns list.`, err);
       })
     }
-  }, [canEdit, siteData, Galleries, showErrorAlert]);
+  }, [canEdit, siteData, Galleries, showErrorAlert, SMS]);
 
   if (!canEdit) {
     return <></>;

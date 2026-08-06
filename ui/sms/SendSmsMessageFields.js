@@ -9,6 +9,7 @@ import {useEffect, useState} from "react";
 import {useAuth} from "../../auth/AuthProvider";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
+import './SendSmsMessageFields.css';
 
 /**
  *
@@ -33,7 +34,7 @@ export default function SendSmsMessageFields(props) {
   const smsSuffix = `Reply STOP to unsubscribe.`;
 
   function isDataValid() {
-    return formData.edits.title?.length > 0 && formData.edits.message?.length > 0 && formData.edits.message.at(-1) === '.';
+    return formData.edits.title?.length > 0 && formData.edits.message?.length > 0 && formData.edits.message?.match(/[.?!]$/);
   }
 
   function sendMessage() {
@@ -132,31 +133,31 @@ export default function SendSmsMessageFields(props) {
               size={'sm'}
               name={'message'}
               value={formData.edits.message?.length > 0 ? formData.edits.message : ''}
-              isValid={formData.isTouched('message') && formData.edits.message?.length > 0 && formData.edits.message?.at(-1) === "."}
-              isInvalid={formData.isTouched('message') && (!(formData.edits.message?.length > 0) || formData.edits.message?.at(-1) !== ".")}
+              isValid={formData.isTouched('message') && formData.edits.message?.length > 0 && formData.edits.message?.match(/[.?!]$/)}
+              isInvalid={formData.isTouched('message') && (!(formData.edits.message?.length > 0) || !formData.edits.message?.match(/[.?!]$/))}
               onChange={(e) => formData.onDataChanged({name: 'message', value: e.target.value})}
             />
           </Col>
         </Row>
+        <Row><Col className={"small text-secondary"}>End your message with punctuation (.?!) to ensure readability.</Col></Row>
         <Row>
-          <Col sm={6} className={'mt-2'}>
+          <Col sm={6} className={'mt-3'}>
             <h6>SMS Preview</h6>
-            <div style={{border: '1px solid #606060', padding: '15px', marginRight: '10px'}}
-                 className={'small text-dark'}>
-              {campaign.CampaignName}: <span className={'text-light'}>{formData.edits.message}</span> {smsSuffix}
+            <div style={{padding: '15px', marginRight: '10px', backgroundColor: '#606060'}}
+                 className={'small text-light rounded-3 position-relative bubble-bottom-right'}>
+              {campaign.CampaignName}: <span className={'text-light'} dangerouslySetInnerHTML={{__html:formData.edits.message?.replaceAll('\n','<br/>')}}></span> {smsSuffix}
             </div>
           </Col>
-          <Col sm={6} className={'mt-2'}>
+          <Col sm={6} className={'mt-3'}>
             <h6>Email Preview</h6>
-            <div style={{border: '1px solid #606060', padding: '15px'}} className={'small text-dark'}>
-              <div><strong>To: Subscriber &lt;subscriber@provider.com&gt;</strong></div>
+            <div style={{backgroundColor: '#dddddd', padding: '15px'}} className={'small text-black'}>
+              <div><strong>To: Subscriber &lt;subscriber@whatever.com&gt;</strong></div>
               <div className={'mt-2'}><strong>From: {campaign.CampaignName} &lt;{campaign.CampaignEmail}&gt;</strong>
               </div>
-              <div className={'mt-2'}><strong>Subject: [{campaign.CampaignName}] <span
-                className={'text-light'}>{formData.edits.title}</span></strong></div>
-              <div className={'mt-2 text-light'}>{formData.edits.message}</div>
+              <div className={'mt-2'}><strong>Subject: [{campaign.CampaignName}] {formData.edits.title}</strong></div>
+              <div className={'mt-2'}>{formData.edits.message}</div>
               <div className={'mt-2'}>You are receiving this email because you opted in to
-                receive {campaign.CampaignName} notifications. <span className={'text-decoration-underline'}>Click here to unsubscribe.</span>
+                receive {campaign.CampaignName} notifications. <span className={'text-decoration-underline text-dark'}>Click here to unsubscribe.</span>
               </div>
             </div>
           </Col>
