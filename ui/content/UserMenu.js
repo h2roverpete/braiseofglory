@@ -16,17 +16,19 @@ export default function UserMenu({buttonRef}) {
   const {hasPermission} = useAuth();
 
   useEffect(() => {
-    SMS.getSmsCampaigns().then((response) => {
-      for (const campaign of response) {
-        if (campaign.SiteID === parseInt(process.env.REACT_APP_SITE_ID)) {
-          setHasSmsCampaign(true);
-          break;
+    if (hasSmsPermission) {
+      SMS.getSmsCampaigns().then((response) => {
+        for (const campaign of response) {
+          if (campaign.SiteID === parseInt(process.env.REACT_APP_SITE_ID)) {
+            setHasSmsCampaign(true);
+            return;
+          }
         }
-      }
-    }).catch((err) => {
-      console.error(err);
-    })
-  }, [setHasSmsCampaign]);
+      }).catch((err) => {
+        console.error(err);
+      })
+    }
+  }, [setHasSmsCampaign, hasPermission, hasSmsPermission, SMS]);
 
   useEffect(() => {
     const result = hasPermission(Resource.SMS, Permission.SEND);
@@ -43,7 +45,7 @@ export default function UserMenu({buttonRef}) {
         data-bs-toggle="dropdown"
       >
         <div className={`pe-2`}>{currentUser?.UserName}</div>
-        <BsPersonCircle size="20" />
+        <BsPersonCircle size="20"/>
       </Nav.Link>
       <div className="dropdown-menu dropdown-menu-end" style={{cursor: 'pointer', zIndex: 100}}>
         {isAuthenticated && (
@@ -55,7 +57,7 @@ export default function UserMenu({buttonRef}) {
         {!isAuthenticated && (
           <span className="dropdown-item" onClick={() => navigate('/login')}>Log In</span>
         )}
-       {isAuthenticated && (
+        {isAuthenticated && (
           <span className="dropdown-item" onClick={() => navigate('/logout')}>Log Out</span>
         )}
       </div>

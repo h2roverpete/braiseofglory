@@ -1,0 +1,21 @@
+/* Bottom-left arrow (Received) */
+.bubble-bottom-left::before {
+  content: "";
+  position: absolute;
+  bottom: -10px; /* Pulls the arrow below the bubble boundary */
+  left: 20px;    /* Offsets it from the left edge */
+  border-width: 10px 10px 0 10px;
+  border-style: solid;
+  border-color: #606060 transparent transparent transparent; /* Matches bg-light */
+}
+
+/* Bottom-right arrow (Sent) */
+.bubble-bottom-right::before {
+  content: "";
+  position: absolute;
+  bottom: -10px; /* Pulls the arrow below the bubble boundary */
+  right: 20px;   /* Offsets it from the right edge */
+  border-width: 10px 10px 0 10px;
+  border-style: solid;
+  border-color: #606060 transparent transparent transparent; /* Matches bg-primary */
+}
