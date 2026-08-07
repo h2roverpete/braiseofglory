@@ -22,6 +22,10 @@ export default function UserProfilePanel() {
   const {showErrorAlert} = useSiteContext();
 
   function handleUpdate(data) {
+    if (data.UserPhone) {
+      // remove formatting from phone number
+      data.UserPhone = data.UserPhone.replaceAll(/[^0-9+]/g, "");
+    }
     Users.insertOrUpdateUser(data).then(() => {
       console.debug("User updated successfully.");
     }).catch(err => showErrorAlert(err));
