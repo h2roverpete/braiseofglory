@@ -1,11 +1,12 @@
-import {useFormData} from "../editor/FormEditor";
+import FormEditor, {useFormData} from "../editor/FormEditor";
 import {useEffect, useState} from "react";
-import {Accordion, Col, Form, Row} from "react-bootstrap";
+import {Accordion, Button, Col, Form, Modal, Row} from "react-bootstrap";
 import {useRestApi} from "../../api/RestApi"
 import {useSiteContext} from "../content/Site";
-import CrudButtons from "../editor/CrudButtons";
 import EmailField from "../forms/EmailField";
 import './SmsCampaignFields.css'
+import SmsWhitelist from "./SmsWhitelist";
+import CrudButtons from "../editor/CrudButtons";
 import {isValidEmail} from "../../util/Validators";
 
 /**
@@ -14,12 +15,15 @@ import {isValidEmail} from "../../util/Validators";
  * @returns {JSX.Element}
  * @constructor
  */
-export default function SmsCampaignFields(props) {
+export default function SmsCampaignFields({campaign, onAdd, onUpdate, onDelete, onCancel}) {
 
-  const {SMS, Sites} = useRestApi();
+  const {Sites} = useRestApi();
   const {showErrorAlert} = useSiteContext();
   const formData = useFormData();
+  const {SMS} = useRestApi();
+
   const [sites, setSites] = useState();
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   useEffect(() => {
     if (!sites) {
@@ -28,149 +32,290 @@ export default function SmsCampaignFields(props) {
         setSites(response);
       }).catch((error) => showErrorAlert(error));
     }
-  }, [sites, Sites])
+  }, [sites, Sites, showErrorAlert]);
 
   useEffect(() => {
-    if (props.campaignData) {
-      formData.setData(props.campaignData);
+    if (campaign && campaign.SandboxMode === undefined) {
+      campaign.SandboxMode = true;
     }
-  }, [props, formData]);
+    formData.update(campaign);
+  }, [campaign])
 
-  function onUpdate() {
-    SMS.insertOrUpdateSmsCampaign(formData.edits)
-      .then((result) => {
-        if (props.onUpdate) {
-          props.onUpdate(result);
-        }
-      })
-      .catch((error) => showErrorAlert(error));
-  }
-
-  function onDelete() {
-
-  }
-
+  /**
+   * Handle validation event from CrudButtons.
+   */
   function isDataValid() {
     return formData.edits.CampaignName?.length > 0
       && formData.edits.SiteID > 0
       && isValidEmail(formData.edits.CampaignAdminEmail)
-      && formData.edits.CampaignDescription?.length > 0
-      && formData.edits.CampaignAgreement?.length > 0
-      && formData.edits.CampaignSubmitButton?.length > 0
-      && formData.edits.CampaignConfirmation?.length > 0
-      && formData.edits.CampaignResubmitButton?.length > 0
-    && (formData.edits.TextCampaign || formData.edits.EmailCampaign)
-
+      && (formData.edits.TextCampaign || formData.edits.EmailCampaign)
   }
 
-  const labelCols = 3;
-  return <div className="container-fluid mb-2">
-    <Row className={'mt-2'}>
-      <Col>
-        <h5>SMS Campaign Configuration</h5>
-      </Col>
-    </Row>
-    <Row className={'mt-2'}>
-      <Form.Label
-        column={'sm'}
-        sm={labelCols}
-        className={'required'}
-        htmlFor={'CampaignName'}
-      >
-        Name
-      </Form.Label>
-      <Col>
-        <Form.Control
-          size={'sm'}
-          name={'CampaignName'}
-          isValid={formData.isTouched('CampaignName') && formData.edits.CampaignName?.length > 0}
-          isInvalid={formData.isTouched('CampaignName') && !(formData.edits.CampaignName?.length > 0)}
-          value={formData.edits?.CampaignName || ''}
-          onChange={(e) => formData.onDataChanged({name: 'CampaignName', value: e.target.value})}
-        />
-      </Col>
-    </Row>
-    <Row className={'mt-2'}>
-      <Form.Label
-        column={'sm'}
-        sm={labelCols}
-        className={'required'}
-        htmlFor={'SiteID'}
-      >
-        Site
-      </Form.Label>
-      <Col>
-        <Form.Select
-          size={'sm'}
-          name={'SiteID'}
-          value={formData.edits?.SiteID || 0}
-          onChange={(e) => formData.onDataChanged({name: 'SiteID', value: e.target.value})}
-        >
-          <option value={0}>(select a site)</option>
-          {sites?.map((site) =>
-            <option key={site.SiteID} value={site.SiteID}>
-              {site.SiteName}
-            </option>
-          )}
-        </Form.Select>
-      </Col>
-    </Row>
-    <Row className={'mt-2'}>
-      <Form.Label
-        column={'sm'}
-        sm={labelCols}
-        className={'required'}
-        htmlFor={'CampaignAdminEmail'}
-      >
-        Admin Email
-      </Form.Label>
-      <Col>
-        <EmailField
-          size={'sm'}
-          name={'CampaignAdminEmail'}
-          value={formData.edits?.CampaignAdminEmail || ''}
-          onChange={(e) => formData.onDataChanged({name: 'CampaignAdminEmail', value: e.target.value})}
-        />
-      </Col>
-    </Row>
-    <Row className={'mt-2'}>
-      <Form.Label
-        column={'sm'}
-        sm={labelCols}
-        className={'required'}
-      >
-        Type
-      </Form.Label>
-      <Col>
-        <Form.Check
-          name={'TextCampaign'}
-          checked={formData.edits?.TextCampaign}
-          onChange={(e) => formData.onDataChanged({name: 'TextCampaign', value: e.target.checked})}
-          label={'Text Message'}
-          inline
-          className={'form-control-sm'}
-        />
-        <Form.Check
-          name={'EmailCampaign'}
-          checked={formData.edits?.EmailCampaign}
-          onChange={(e) => formData.onDataChanged({name: 'EmailCampaign', value: e.target.checked})}
-          label={'Email'}
-          inline
-          className={'form-control-sm'}
-        />
-      </Col>
-    </Row>
-    <Accordion defaultActiveKey={'0'} className={'mt-4'}>
-      <Accordion.Item eventKey={'2'}>
+  /**
+   * Handle update event from CrudButtons.
+   */
+  function handleUpdate() {
+    SMS.insertOrUpdateSmsCampaign(formData.edits).then((result) => {
+      if (campaign.SMSCampaignID > 0) {
+        onUpdate(result);
+      } else {
+        onAdd(result);
+      }
+    }).catch(error => {
+      showErrorAlert(error);
+    })
+  }
+
+  /**
+   * Handle cancel event from CrudButtons.
+   */
+  function handleCancel() {
+    onCancel();
+  }
+
+  /**
+   * Handle delete event from CrudButtons.
+   */
+  function handleDelete() {
+    setShowDeleteConfirmation(false);
+    SMS.deleteSmsCampaign(formData.edits.SMSCampaignID).then((result) => {
+      onDelete(result);
+    });
+  }
+
+  const labelCols = 2;
+  return <>
+    <Accordion defaultActiveKey={'config'} className={'mt-4'}>
+      <Accordion.Item eventKey={'config'}>
         <Accordion.Header>
-          Signup
+          Configuration
         </Accordion.Header>
-        <Accordion.Body>
+        <Accordion.Body className="p-2">
+          <Row className={'mt-1'}>
+            <Form.Label
+              column={'sm'}
+              sm={labelCols}
+              htmlFor={'CampaignName'}
+            >
+              Name
+            </Form.Label>
+            <Col>
+              <Form.Control
+                size={'sm'}
+                name={'CampaignName'}
+                isValid={formData.isTouched('CampaignName') && formData.edits.CampaignName?.length > 0}
+                isInvalid={formData.isTouched('CampaignName') && !(formData.edits.CampaignName?.length > 0)}
+                value={formData.edits?.CampaignName || ''}
+                onChange={(e) => formData.onDataChanged({name: 'CampaignName', value: e.target.value})}
+              />
+            </Col>
+          </Row>
           <Row className={'mt-2'}>
             <Form.Label
               column={'sm'}
               sm={labelCols}
-              className={'required'}
+              htmlFor={'SiteID'}
+            >
+              Site
+            </Form.Label>
+            <Col>
+              <Form.Select
+                size={'sm'}
+                name={'SiteID'}
+                value={formData.edits?.SiteID || 0}
+                onChange={(e) => formData.onDataChanged({name: 'SiteID', value: e.target.value})}
+              >
+                <option value={0}>(select a site)</option>
+                {sites?.map((site) =>
+                  <option key={site.SiteID} value={site.SiteID}>
+                    {site.SiteName}
+                  </option>
+                )}
+              </Form.Select>
+            </Col>
+          </Row>
+          <Row className={'mt-2'}>
+            <Form.Label
+              column={'sm'}
+              sm={labelCols}
+              htmlFor={'CampaignAdminEmail'}
+            >
+              Admin Email
+            </Form.Label>
+            <Col className={'col-sm-6'}>
+              <EmailField
+                size={'sm'}
+                name={'CampaignAdminEmail'}
+                value={formData.edits?.CampaignAdminEmail || ''}
+                onChange={(e) => formData.onDataChanged({name: 'CampaignAdminEmail', value: e.target.value})}
+              />
+            </Col>
+          </Row>
+          <Row className={'mt-2'}>
+            <Form.Label
+              column={'sm'}
+              sm={labelCols}
+            >
+              Message Formats
+            </Form.Label>
+            <Col className={'col-sm-6'}>
+              <Form.Check
+                name={'TextCampaign'}
+                checked={formData.edits?.TextCampaign}
+                onChange={(e) => formData.onDataChanged({name: 'TextCampaign', value: e.target.checked})}
+                label={'Text Message'}
+                inline
+                className={'form-control-sm'}
+              />
+              <Form.Check
+                name={'EmailCampaign'}
+                checked={formData.edits?.EmailCampaign}
+                onChange={(e) => formData.onDataChanged({name: 'EmailCampaign', value: e.target.checked})}
+                label={'Email From'}
+                inline
+                className={'form-control-sm'}
+              />
+              <EmailField
+                size={'sm'}
+                name={'CampaignEmail'}
+                disabled={!formData.edits?.EmailCampaign}
+                value={formData.edits?.CampaignEmail || ''}
+                onChange={(e) => formData.onDataChanged({name: 'CampaignEmail', value: e.target.value})}
+              />
+            </Col>
+          </Row>
+        </Accordion.Body>
+      </Accordion.Item>
+      <Accordion.Item eventKey={'sandbox'}>
+        <Accordion.Header>
+          Sandbox
+        </Accordion.Header>
+        <Accordion.Body className="p-2">
+          <Row className={'mt-0'}>
+            <Col className={'d-flex align-items-top gap-3'}>
+              <Form.Label
+                className={'p-1'}
+                column={'sm'}
+                sm={'auto'}
+                htmlFor={'CampaignMode'}
+              >
+                Campaign Mode:
+              </Form.Label>
+              <Form.Check
+                inline
+                type={'radio'}
+                id={'CampaignMode'}
+                name={'CampaignMode'}
+                label={'Sandbox'}
+                onChange={(e) => formData.onDataChanged({name: 'SandboxMode', value: true})}
+                checked={formData.edits?.SandboxMode === true}
+              />
+              <Form.Check
+                inline
+                type={'radio'}
+                id={'CampaignMode'}
+                name={'CampaignMode'}
+                label={'Production'}
+                onChange={(e) => formData.onDataChanged({name: 'SandboxMode', value: false})}
+                checked={formData.edits?.SandboxMode === false}
+              />
+            </Col>
+          </Row>
+          <Row hidden={formData.edits.SandboxMode}>
+            <Col className={'text-light mt-1 ps-3'}>
+              In Production Mode, all emails and phone numbers are active for sending.
+            </Col>
+          </Row>
+          <Row hidden={!formData.edits.SandboxMode}>
+            <Col className={'text-light ps-3 mt-1'}>
+              In Sandbox Mode, emails and SMS messages will only be sent to members of the whitelist below.
+            </Col>
+          </Row>
+          <Row hidden={!formData.edits.SandboxMode}>
+            <Col>
+              <FormEditor>
+                <SmsWhitelist campaignId={formData.edits.SMSCampaignID}/>
+              </FormEditor>
+            </Col>
+          </Row>
+        </Accordion.Body>
+      </Accordion.Item>
+      <Accordion.Item eventKey={'numbers'}>
+        <Accordion.Header>
+          Numbers
+        </Accordion.Header>
+        <Accordion.Body className="p-2">
+          <Row className={'mt-1'}>
+            <Form.Label
+              column={'sm'}
+              sm={labelCols}
+              htmlFor={'CampaignOriginationIdentity'}
+            >
+              Origination
+            </Form.Label>
+            <Col className={'col-sm-4'}>
+              <Form.Control
+                size={'sm'}
+                name={'CampaignOriginationIdentity'}
+                isValid={formData.isTouched('CampaignOriginationIdentity') && formData.edits.CampaignName?.length > 0}
+                isInvalid={formData.isTouched('CampaignOriginationIdentity') && !(formData.edits.CampaignName?.length > 0)}
+                value={formData.edits?.CampaignOriginationIdentity || ''}
+                onChange={(e) => formData.onDataChanged({name: 'CampaignOriginationIdentity', value: e.target.value})}
+              />
+            </Col>
+          </Row>
+          <Row className={'mt-2'}>
+            <Form.Label
+              column={'sm'}
+              sm={2}
+              htmlFor={'CampaignAdminOriginationIdentity'}
+            >
+              Admin Origination
+            </Form.Label>
+            <Col className={'col-sm-4'}>
+              <Form.Control
+                size={'sm'}
+                name={'CampaignAdminOriginationIdentity'}
+                isValid={formData.isTouched('CampaignAdminOriginationIdentity') && formData.edits.CampaignName?.length > 0}
+                isInvalid={formData.isTouched('CampaignAdminOriginationIdentity') && !(formData.edits.CampaignName?.length > 0)}
+                value={formData.edits?.CampaignOriginationIdentity || ''}
+                onChange={(e) => formData.onDataChanged({
+                  name: 'CampaignAdminOriginationIdentity',
+                  value: e.target.value
+                })}
+              />
+            </Col>
+          </Row>
+          <Row className={'mt-2'}>
+            <Form.Label
+              column={'sm'}
+              sm={labelCols}
+              htmlFor={'CampaignSnsTopicArn'}
+            >
+              Reply Topic ARN
+            </Form.Label>
+            <Col>
+              <Form.Control
+                size={'sm'}
+                name={'CampaignSnsTopicArn'}
+                isValid={formData.isTouched('CampaignSnsTopicArn') && formData.edits.CampaignName?.length > 0}
+                isInvalid={formData.isTouched('CampaignSnsTopicArn') && !(formData.edits.CampaignName?.length > 0)}
+                value={formData.edits?.CampaignSnsTopicArn || ''}
+                onChange={(e) => formData.onDataChanged({name: 'CampaignSnsTopicArn', value: e.target.value})}
+              />
+            </Col>
+          </Row>
+        </Accordion.Body>
+      </Accordion.Item>
+      <Accordion.Item eventKey={'signup'}>
+        <Accordion.Header>
+          Signup
+        </Accordion.Header>
+        <Accordion.Body className="p-2">
+          <Row className={'mt-1'}>
+            <Form.Label
+              column={'sm'}
+              sm={12}
               htmlFor={'CampaignDescription'}
             >
               Description
@@ -178,7 +323,7 @@ export default function SmsCampaignFields(props) {
             <Col>
               <Form.Control
                 as='textarea'
-                rows={8}
+                rows={3}
                 size={'sm'}
                 name={'CampaignDescription'}
                 isValid={formData.isTouched('CampaignDescription') && formData.edits.CampaignDescription?.length > 0}
@@ -191,8 +336,7 @@ export default function SmsCampaignFields(props) {
           <Row className={'mt-2'}>
             <Form.Label
               column={'sm'}
-              sm={labelCols}
-              className={'required'}
+              sm={12}
               htmlFor={'CampaignAgreement'}
             >
               SMS Agreement Checkbox
@@ -200,7 +344,7 @@ export default function SmsCampaignFields(props) {
             <Col>
               <Form.Control
                 as='textarea'
-                rows={6}
+                rows={8}
                 size={'sm'}
                 name={'CampaignAgreement'}
                 isValid={formData.isTouched('CampaignAgreement') && formData.edits.CampaignAgreement?.length > 0}
@@ -214,12 +358,11 @@ export default function SmsCampaignFields(props) {
             <Form.Label
               column={'sm'}
               sm={labelCols}
-              className={'required'}
               htmlFor={'CampaignSubmitButton'}
             >
               Submit Button
             </Form.Label>
-            <Col>
+            <Col className={"col-sm-4"}>
               <Form.Control
                 size={'sm'}
                 name={'CampaignSubmitButton'}
@@ -234,8 +377,7 @@ export default function SmsCampaignFields(props) {
           <Row className={'mt-2'}>
             <Form.Label
               column={'sm'}
-              sm={labelCols}
-              className={'required'}
+              sm={12}
               htmlFor={'CampaignConfirmation'}
             >
               Confirmation
@@ -257,12 +399,11 @@ export default function SmsCampaignFields(props) {
             <Form.Label
               column={'sm'}
               sm={labelCols}
-              className={'required'}
               htmlFor={'CampaignResubmitButton'}
             >
               Resubmit Button
             </Form.Label>
-            <Col>
+            <Col className={"col-sm-4"}>
               <Form.Control
                 size={'sm'}
                 name={'CampaignResubmitButton'}
@@ -277,19 +418,18 @@ export default function SmsCampaignFields(props) {
         </Accordion.Body>
       </Accordion.Item>
 
-      <Accordion.Item eventKey={'1'}>
+      <Accordion.Item eventKey={'sms-messages'}>
         <Accordion.Header>
           SMS Messages
         </Accordion.Header>
-        <Accordion.Body>
-          <Row className={'mt-2'}>
+        <Accordion.Body className={'p-2'}>
+          <Row className={'mt-1'}>
             <Form.Label
               column={'sm'}
-              sm={labelCols}
-              className={'required'}
+              sm={12}
               htmlFor={'CampaignConfirmationMessage'}
             >
-              Confirmation
+              Confirmation SMS
             </Form.Label>
             <Col>
               <Form.Control
@@ -307,11 +447,10 @@ export default function SmsCampaignFields(props) {
           <Row className={'mt-2'}>
             <Form.Label
               column={'sm'}
-              sm={labelCols}
-              className={'required'}
+              sm={12}
               htmlFor={'CampaignHelpMessage'}
             >
-              Help
+              Help SMS
             </Form.Label>
             <Col>
               <Form.Control
@@ -329,11 +468,10 @@ export default function SmsCampaignFields(props) {
           <Row className={'mt-2'}>
             <Form.Label
               column={'sm'}
-              sm={labelCols}
-              className={'required'}
+              sm={12}
               htmlFor={'CampaignStopMessage'}
             >
-              Stop
+              Stop SMS
             </Form.Label>
             <Col>
               <Form.Control
@@ -348,17 +486,81 @@ export default function SmsCampaignFields(props) {
               />
             </Col>
           </Row>
+          <Row className={'mt-2'}>
+            <Form.Label
+              column={'sm'}
+              sm={12}
+              htmlFor={'CampaignStopMessage'}
+            >
+              Default SMS
+            </Form.Label>
+            <Col>
+              <Form.Control
+                as='textarea'
+                rows={7}
+                size={'sm'}
+                name={'CampaignDefaultMessage'}
+                isValid={formData.isTouched('CampaignDefaultMessage') && formData.edits.CampaignDefaultMessage?.length > 0}
+                isInvalid={formData.isTouched('CampaignDefaultMessage') && !(formData.edits.CampaignDefaultMessage?.length > 0)}
+                value={formData.edits?.CampaignDefaultMessage || ''}
+                onChange={(e) => formData.onDataChanged({name: 'CampaignDefaultMessage', value: e.target.value})}
+              />
+            </Col>
+          </Row>
+        </Accordion.Body>
+      </Accordion.Item>
+      <Accordion.Item eventKey={'email-messages'}>
+        <Accordion.Header>
+          Email Messages
+        </Accordion.Header>
+        <Accordion.Body className={'p-2'}>
+          <Row className={'mt-1'}>
+            <Form.Label
+              column={'sm'}
+              sm={12}
+              htmlFor={'CampaignConfirmationEmail'}
+            >
+              Confirmation Email
+            </Form.Label>
+            <Col>
+              <Form.Control
+                as='textarea'
+                rows={10}
+                size={'sm'}
+                name={'CampaignConfirmationEmail'}
+                isValid={formData.isTouched('CampaignConfirmationEmail') && formData.edits.CampaignConfirmationEmail?.length > 0}
+                isInvalid={formData.isTouched('CampaignConfirmationEmail') && !(formData.edits.CampaignConfirmationEmail?.length > 0)}
+                value={formData.edits?.CampaignConfirmationEmail || ''}
+                onChange={(e) => formData.onDataChanged({name: 'CampaignConfirmationEmail', value: e.target.value})}
+              />
+            </Col>
+          </Row>
         </Accordion.Body>
       </Accordion.Item>
     </Accordion>
     <CrudButtons
       data={formData.edits}
+      type="Campaign"
       keyName={'SMSCampaignID'}
-      type={'Campaign'}
-      onCancel={props.onCancel}
-      onUpdate={onUpdate}
-      onDelete={props.onDelete ? onDelete : undefined}
+      onUpdate={handleUpdate}
+      onCancel={handleCancel}
+      onDelete={() => setShowDeleteConfirmation(true)}
       isDataValid={isDataValid}
     />
-  </div>;
+    <Modal
+      show={showDeleteConfirmation}
+      onHide={() => setShowDeleteConfirmation(false)}
+      className={'Editor'}
+      size={'sm'}
+    >
+      <Modal.Body>
+        <h5>Delete Campaign</h5>
+        <div>Are you sure you want to delete {campaign?.CampaignName}? This action can't be undone.</div>
+        <div className='mt-2 d-flex justify-content-end gap-2'>
+          <Button size="sm" variant="secondary" onClick={() => setShowDeleteConfirmation(false)}>Cancel</Button>
+          <Button size="sm" variant="danger" onClick={handleDelete}>Delete</Button>
+        </div>
+      </Modal.Body>
+    </Modal>
+  </>;
 }
