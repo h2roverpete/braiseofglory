@@ -105,9 +105,11 @@ export default function Site(props) {
             const crumbs = buildBreadcrumbs(outlineData, page.ParentID);
             setBreadcrumbs(crumbs);
             console.debug(`Set current page to ${page.PageID}.`);
-            break;
+            return;
           }
         }
+        // page not found
+        setCurrentPage({PageID:0});
       }
     }
   }, [location.pathname, outlineData, setCurrentPage, cfmPageId]);
@@ -257,7 +259,7 @@ export default function Site(props) {
         {MetaPages.map((meta) => (
           <Route
             path={meta.path}
-            element={<props.pageElement content={meta.content}/>}
+            element={<props.pageElement content={meta.content} pageId={0}/>}
           />
         ))}
       </>)}

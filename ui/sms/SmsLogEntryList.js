@@ -1,0 +1,169 @@
+import {useCallback, useEffect, useState} from "react";
+import {Table} from "react-bootstrap";
+import {BsSortDown, BsSortUp} from "react-icons/bs";
+import {useRestApi} from "../../api/RestApi";
+import {useSiteContext} from "../content/Site";
+
+/**
+ *
+ * @param {SMSCampaignData} campaign
+ * @param {SMSMessageData | null} [message]
+ * @constructor
+ */
+export default function SmsLogEntryList({campaign, message}) {
+
+  const [listItems, setListItems] = useState(/** @type {[SMSLogData]} */ null);
+  const {SMS} = useRestApi();
+  const {showErrorAlert} = useSiteContext();
+
+  useEffect(() => {
+    if (campaign && !listItems) {
+      SMS.getSmsCampaignLog(campaign.SMSCampaignID).then((result) => {
+        setListItems(result.sort(sortFunction));
+      }).catch((error) => {
+        showErrorAlert(error);
+      })
+    }
+  }, [message, listItems, setListItems]);
+
+  const [sortKey, setSortKey] = useState('Created');
+  const [sortAscending, setSortAscending] = useState(false);
+
+  const sortFunction = useCallback((a, b) => {
+    if (a[sortKey] !== undefined && b[sortKey] !== undefined) {
+      switch (typeof a[sortKey]) {
+        case 'number':
+          return sortAscending ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
+        case 'string':
+          return sortAscending ? a[sortKey].localeCompare(b[sortKey]) : b[sortKey].localeCompare(a[sortKey]);
+        default:
+          return 0;
+      }
+    } else if (a[sortKey] === undefined && b[sortKey] !== undefined) {
+      return sortAscending ? 1 : -1;
+    } else if (a[sortKey] !== undefined && b[sortKey] === undefined) {
+      return sortAscending ? -1 : 1;
+    } else {
+      return 0
+    }
+  }, [sortKey, sortAscending]);
+
+  function arraysAreEqual(a, b) {
+    return a && b && a.length === b.length && a.every((v, i) => v === b[i]);
+  }
+
+  useEffect(() => {
+    if (listItems) {
+      const sorted = listItems.toSorted(sortFunction);
+      if (!arraysAreEqual(listItems, sorted)) {
+        setListItems(sorted);
+      }
+    }
+  }, [setListItems, listItems, sortKey, sortAscending, sortFunction]);
+
+
+  function sortBy(key) {
+    if (sortKey !== key) {
+      setSortKey(key);
+      setSortAscending(true);
+    } else {
+      setSortAscending(!sortAscending);
+    }
+  }
+
+  return <>{listItems?.length > 0 && <Table
+    hover
+    responsive
+    style={{
+      height: 'auto',
+      flexGrow: 1,
+      overflowY: 'scroll'
+    }}
+  >
+    <thead style={{position: 'sticky', top: 0,}}>
+    <tr>
+      <th
+        className={'text-nowrap'}
+        role={'button'}
+        onClick={() => sortBy('Created')}
+      >
+        Timestamp
+        {sortKey === 'Created' &&
+          <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+        }
+      </th>
+      <th
+        className={'text-nowrap'}
+        role={'button'}
+        onClick={() => sortBy('Action')}
+      >
+        Action
+        {sortKey === 'Action' &&
+          <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+        }
+      </th>
+      <th
+        className={'text-nowrap'}
+        role={'button'}
+        onClick={() => sortBy('Subscriber')}
+      >
+        Subscriber
+        {sortKey === 'Subscriber' &&
+          <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+        }
+      </th>
+      <th
+        className={'text-nowrap'}
+        role={'button'}
+        onClick={() => sortBy('Error')}
+      >
+        Result
+        {sortKey === 'Error' &&
+          <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+        }
+      </th>
+      <th
+        className={'text-nowrap'}
+        role={'button'}
+        onClick={() => sortBy('UserID')}
+      >
+        User
+        {sortKey === 'UserID' &&
+          <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+        }
+      </th>
+      <th
+        className={'text-nowrap'}
+        role={'button'}
+        onClick={() => sortBy('SMSMessageID')}
+      >
+        Message
+        {sortKey === 'SMSMessageID' &&
+          <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+        }
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    {listItems.map((listItem) =>
+      <tr key={listItem.SMSLogID}>
+        <td className={'text-nowrap'}>{Intl.DateTimeFormat('en-US', {
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        }).format(Date.parse(listItem.Created))}</td>
+        <td>{listItem.Action}</td>
+        <td>{listItem.Subscriber}</td>
+        <td
+          className={listItem.Error ? 'text-danger' : 'text-success'}>{listItem.Error ? listItem.Error : 'Sent'}</td>
+        <td>{listItem.UserID}</td>
+        <td>{listItem.SMSMessageID}</td>
+      </tr>
+    )}
+    </tbody>
+  </Table>}</>
+}

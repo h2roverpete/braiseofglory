@@ -10,25 +10,20 @@ export default function UserMenu({buttonRef}) {
 
   const {isAuthenticated, currentUser} = useAuth();
   const navigate = useNavigate();
-  const [hasSmsCampaign, setHasSmsCampaign] = useState(false);
+  const [campaigns, setCampaigns] = useState(/** @type {[SMSCampaignData]} */ null);
   const [hasSmsPermission, setHasSmsPermission] = useState(false);
   const {SMS} = useRestApi();
   const {hasPermission} = useAuth();
 
   useEffect(() => {
-    if (hasSmsPermission) {
+    if (hasSmsPermission && !campaigns) {
       SMS.getSmsCampaigns().then((response) => {
-        for (const campaign of response) {
-          if (campaign.SiteID === parseInt(process.env.REACT_APP_SITE_ID)) {
-            setHasSmsCampaign(true);
-            return;
-          }
-        }
+        setCampaigns(response);
       }).catch((err) => {
         console.error(err);
       })
     }
-  }, [setHasSmsCampaign, hasPermission, hasSmsPermission, SMS]);
+  }, [campaigns, setCampaigns, hasPermission, hasSmsPermission, SMS]);
 
   useEffect(() => {
     const result = hasPermission(Resource.SMS, Permission.SEND);
@@ -51,9 +46,14 @@ export default function UserMenu({buttonRef}) {
         {isAuthenticated && (
           <span className="dropdown-item" onClick={() => navigate('/admin/user')}>User Profile</span>
         )}
-        {isAuthenticated && hasSmsCampaign && hasSmsPermission && (
-          <span className="dropdown-item" onClick={() => navigate('/admin/sms')}>Send Messages</span>
-        )}
+        {hasSmsPermission && campaigns && <>
+          {campaigns.map((campaign) =>
+            <div key={campaign.SMSCampaignID}>{campaign.SiteID === parseInt(process.env.REACT_APP_SITE_ID) &&
+              <span className="dropdown-item" onClick={() => navigate(`/admin/sms?campaignId=${campaign.SMSCampaignID}`)
+              }>{campaign.CampaignName}</span>}
+            </div>
+          )}
+        </>}
         {!isAuthenticated && (
           <span className="dropdown-item" onClick={() => navigate('/login')}>Log In</span>
         )}

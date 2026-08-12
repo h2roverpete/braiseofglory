@@ -52,9 +52,12 @@ export default function Page({children, pageId, content, overflow}) {
         if (page.PageID === pageId) {
           setPageData(page);
           console.debug(`Loaded page ${pageId} data.`);
-          break;
+          return;
         }
       }
+      // page not found
+      setPageData({PageID:0, PageTitle: ''});
+      setSectionData([]);
     }
   }, [pageId, pageData, outlineData]);
 
@@ -248,7 +251,8 @@ export default function Page({children, pageId, content, overflow}) {
         </FormEditor>
       )}
       <div className="Page" data-testid="Page" ref={scrollRef}>
-        {content ? <>{content}</> : <>{children}</>}
+        {content}
+        {children}
       </div>
     </PageContext>
   );

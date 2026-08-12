@@ -532,15 +532,82 @@ export default function RestApi(props) {
   const insertOrUpdateSmsCampaign = useCallback(async (data) => {
     const response = await axios.post(`${host}/api/v1/sms/campaigns`, data);
     return response.data;
-  },[]);
+  }, []);
+
+  const deleteSmsCampaign = useCallback(async (campaignId) => {
+    const response = await axios.delete(`${host}/api/v1/sms/campaigns/${campaignId}`);
+    return response.data;
+  }, []);
+
+  const getSmsCampaignSubscribers = useCallback(async (campaignId) => {
+    const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/subscribers`);
+    return response.data;
+  }, []);
 
   const insertOrUpdateSmsSubscriber = useCallback(async (data) => {
     const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/subscribers`, data);
     return response.data;
-  },[]);
+  }, []);
+
+  const deleteSmsSubscriber = useCallback(async (campaignId, subscriberId) => {
+    const response = await axios.delete(`${host}/api/v1/sms/campaigns/${campaignId}/subscribers/${subscriberId}`);
+    return response.data;
+  }, []);
+
+  const getSmsMessages = useCallback(async (campaignId) => {
+    const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/messages`);
+    return response.data;
+  }, []);
+
+  const getSmsMessage = useCallback(async (campaignId, messageId) => {
+    const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/messages/${messageId}`);
+    return response.data;
+  }, []);
 
   const sendSmsMessage = useCallback(async (data) => {
     const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/send`, data);
+    return response.data;
+  }, []);
+
+  /**
+   * @typedef SMSResendData
+   * @property {Number} SMSCampaignID
+   * @property {Number} SMSMessageID
+   * @property {[Number]} Subscribers
+   */
+
+  /**
+   * Resend an existing SMS message to selected subscribers.
+   *
+   * @type {function(SMSResendData): Promise<[SMSLogData]>}
+   */
+  const resendSmsMessage = useCallback(async (data) => {
+    const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/messages/${data.SMSMessageID}/send`, data);
+    return response.data;
+  }, []);
+
+  const getSmsWhitelist = useCallback(async (campaignId) => {
+    const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/whitelist`);
+    return response.data;
+  }, []);
+
+  const insertOrUpdateSmsWhitelistEntry = useCallback(async (data) => {
+    const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/whitelist/`, data);
+    return response.data;
+  }, []);
+
+  const deleteSmsWhitelistEntry = useCallback(async (smsCampaignId, entryId) => {
+    const response = await axios.delete(`${host}/api/v1/sms/campaigns/${smsCampaignId}/whitelist/${entryId}`);
+    return response.data;
+  }, []);
+
+  const getSmsCampaignLog = useCallback(async (campaignId) => {
+    const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/log`);
+    return response.data;
+  }, []);
+
+  const getSmsMessageLog = useCallback(async (campaignId, messageId) => {
+    const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/messages/${messageId}/log`);
     return response.data;
   }, []);
 
@@ -675,9 +742,20 @@ export default function RestApi(props) {
       SMS: {
         getSmsCampaigns: getSmsCampaigns,
         getSmsCampaign: getSmsCampaign,
+        deleteSmsCampaign: deleteSmsCampaign,
+        getSmsCampaignSubscribers: getSmsCampaignSubscribers,
         insertOrUpdateSmsCampaign: insertOrUpdateSmsCampaign,
         insertOrUpdateSmsSubscriber: insertOrUpdateSmsSubscriber,
+        deleteSmsSubscriber: deleteSmsSubscriber,
         sendSmsMessage: sendSmsMessage,
+        resendSmsMessage: resendSmsMessage,
+        getSmsWhitelist: getSmsWhitelist,
+        insertOrUpdateSmsWhitelistEntry: insertOrUpdateSmsWhitelistEntry,
+        deleteSmsWhitelistEntry: deleteSmsWhitelistEntry,
+        getSmsMessages: getSmsMessages,
+        getSmsMessage: getSmsMessage,
+        getSmsMessageLog: getSmsMessageLog,
+        getSmsCampaignLog: getSmsCampaignLog,
       }
     }}>
       {props.children}
