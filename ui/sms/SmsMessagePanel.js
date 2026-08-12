@@ -1,36 +1,29 @@
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
-import {Table, Form, Button} from "react-bootstrap";
+import {Table, Form, Button, Spinner} from "react-bootstrap";
 import {BsSortDown, BsSortUp} from "react-icons/bs";
+import SmsMessagePreview from "./SmsMessagePreview";
 
-export default function SmsMessagePanel({campaignId, messageId}) {
+export default function SmsMessagePanel({campaign, message}) {
 
-  const [message, setMessage] = useState(/** @type{SMSMessageData} */ null);
-  const [listItems, setListItems] = useState(/** @type{SMSLogData} */ null);
   const {SMS} = useRestApi();
   const {showErrorAlert} = useSiteContext();
+
   const [selectedSubscribers, setSelectedSubscribers] = useState(/** @type {[Number]} */ []);
+  const [sending, setSending] = useState(false);
+
+  const [listItems, setListItems] = useState(/** @type {[SMSLogData]} */ null);
 
   useEffect(() => {
-    if (campaignId && messageId && !message) {
-      SMS.getSmsMessage(campaignId, messageId).then((result) => {
-        setMessage(result);
+    if (message && !listItems) {
+      SMS.getSmsMessageLog(message.SMSCampaignID, message.SMSMessageID).then((result) => {
+        setListItems(result.sort(sortFunction));
       }).catch((error) => {
         showErrorAlert(error);
       })
     }
-  }, [SMS, messageId, message, setMessage]);
-
-  useEffect(() => {
-    if (campaignId && messageId && !listItems) {
-      SMS.getSmsLog(campaignId, messageId).then((result) => {
-        setListItems(result);
-      }).catch((error) => {
-        showErrorAlert(error);
-      })
-    }
-  })
+  }, [message, listItems, setListItems]);
 
   function toggleSubscriber(event, id) {
     event.target.checked = !event.target.checked;
@@ -43,14 +36,18 @@ export default function SmsMessagePanel({campaignId, messageId}) {
 
   function resendMessage() {
     if (selectedSubscribers.length > 0) {
+      setSending(true);
       SMS.resendSmsMessage({
-        SMSCampaignID: campaignId,
-        SMSMessageID: messageId,
+        SMSCampaignID: message.SMSCampaignID,
+        SMSMessageID: message.SMSMessageID,
         Subscribers: selectedSubscribers,
       }).then((result) => {
-        setListItems([...listItems, result]);
+        const newList = [...listItems, ...result];
+        setListItems(newList);
+        setSending(false);
       }).catch((error) => {
         showErrorAlert(error);
+        setSending(false);
       })
     }
   }
@@ -58,7 +55,7 @@ export default function SmsMessagePanel({campaignId, messageId}) {
   const [sortKey, setSortKey] = useState('Created');
   const [sortAscending, setSortAscending] = useState(false);
 
-  function sortFunction(a, b) {
+  const sortFunction = useCallback((a, b) => {
     switch (typeof a[sortKey]) {
       case 'number':
         return sortAscending ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
@@ -67,7 +64,7 @@ export default function SmsMessagePanel({campaignId, messageId}) {
       default:
         return 0;
     }
-  }
+  }, [sortKey, sortAscending]);
 
   function arraysAreEqual(a, b) {
     return a && b && a.length === b.length && a.every((v, i) => v === b[i]);
@@ -93,12 +90,19 @@ export default function SmsMessagePanel({campaignId, messageId}) {
   }
 
   return <>{message && <>
-    <h5>{message.Title}</h5>
-    <p>{message.Message}</p>
-    {listItems && <>
-      <h5>Recipients</h5>
-      <Table responsive>
-        <thead>
+    <SmsMessagePreview message={message} campaign={campaign} />
+    {listItems && <div className={'mt-4'}>
+      <h5>Message Log</h5>
+      <Table
+        hover
+        responsive
+        style={{
+          height: 'auto',
+          flexGrow: 1,
+          overflowY: 'scroll'
+        }}
+      >
+        <thead style={{position: 'sticky', top: 0,}}>
         <tr>
           <th></th>
           <th
@@ -134,15 +138,16 @@ export default function SmsMessagePanel({campaignId, messageId}) {
         </tr>
         </thead>
         <tbody>
-        {listItems.map((log) =>
-          <tr key={log.SMSLogID}>
+        {listItems.map((listItem) =>
+          <tr key={listItem.SMSLogID}>
             <td><Form.Check
               role={"button"}
-              checked={selectedSubscribers.includes(log.SubscriberID)}
-              onChange={e => toggleSubscriber(e, log.SubscriberID)}
+              checked={selectedSubscribers.includes(listItem.SubscriberID)}
+              onChange={e => toggleSubscriber(e, listItem.SubscriberID)}
             /></td>
-            <td>{log.Subscriber}</td>
-            <td className={log.Error ? 'text-danger' : 'text-success'}>{log.Error ? log.Error : 'Sent'}</td>
+            <td>{listItem.Subscriber}</td>
+            <td
+              className={listItem.Error ? 'text-danger' : 'text-success'}>{listItem.Error ? listItem.Error : 'Sent'}</td>
             <td className={'text-nowrap'}>{Intl.DateTimeFormat('en-US', {
               year: 'numeric',
               month: 'numeric',
@@ -151,7 +156,7 @@ export default function SmsMessagePanel({campaignId, messageId}) {
               minute: '2-digit',
               second: '2-digit',
               hour12: true
-            }).format(Date.parse(log.Created))}</td>
+            }).format(Date.parse(listItem.Created))}</td>
           </tr>
         )}
         </tbody>
@@ -159,12 +164,17 @@ export default function SmsMessagePanel({campaignId, messageId}) {
       <div className={"mt-2"}>
         <Button
           variant={'primary'}
-          disabled={selectedSubscribers.length === 0}
+          disabled={selectedSubscribers.length === 0 || sending}
           onClick={resendMessage}
+          style={{width:'200px'}}
         >
-          Resend to {selectedSubscribers.length} Subscriber{selectedSubscribers.length!==1&&'s'}
+          {sending ?
+            <Spinner size={"sm"}/>
+            :
+            <>Resend to {selectedSubscribers.length} Subscriber{selectedSubscribers.length !== 1 && 's'}</>
+          }
         </Button>
       </div>
-    </>}
+    </div>}
   </>}</>;
 }

@@ -569,6 +569,18 @@ export default function RestApi(props) {
     return response.data;
   }, []);
 
+  /**
+   * @typedef SMSResendData
+   * @property {Number} SMSCampaignID
+   * @property {Number} SMSMessageID
+   * @property {[Number]} Subscribers
+   */
+
+  /**
+   * Resend an existing SMS message to selected subscribers.
+   *
+   * @type {function(SMSResendData): Promise<[SMSLogData]>}
+   */
   const resendSmsMessage = useCallback(async (data) => {
     const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/messages/${data.SMSMessageID}/send`, data);
     return response.data;
@@ -589,7 +601,12 @@ export default function RestApi(props) {
     return response.data;
   }, []);
 
-  const getSmsLog = useCallback(async (campaignId, messageId) => {
+  const getSmsCampaignLog = useCallback(async (campaignId) => {
+    const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/log`);
+    return response.data;
+  }, []);
+
+  const getSmsMessageLog = useCallback(async (campaignId, messageId) => {
     const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/messages/${messageId}/log`);
     return response.data;
   }, []);
@@ -737,7 +754,8 @@ export default function RestApi(props) {
         deleteSmsWhitelistEntry: deleteSmsWhitelistEntry,
         getSmsMessages: getSmsMessages,
         getSmsMessage: getSmsMessage,
-        getSmsLog: getSmsLog,
+        getSmsMessageLog: getSmsMessageLog,
+        getSmsCampaignLog: getSmsCampaignLog,
       }
     }}>
       {props.children}

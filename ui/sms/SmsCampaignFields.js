@@ -57,9 +57,9 @@ export default function SmsCampaignFields({campaign, onAdd, onUpdate, onDelete, 
   function handleUpdate() {
     SMS.insertOrUpdateSmsCampaign(formData.edits).then((result) => {
       if (campaign.SMSCampaignID > 0) {
-        onUpdate(result);
+        onUpdate?.(result);
       } else {
-        onAdd(result);
+        onAdd?.(result);
       }
     }).catch(error => {
       showErrorAlert(error);
@@ -71,6 +71,10 @@ export default function SmsCampaignFields({campaign, onAdd, onUpdate, onDelete, 
    */
   function handleCancel() {
     onCancel();
+  }
+
+  function confirmDelete() {
+    setShowDeleteConfirmation(true);
   }
 
   /**
@@ -85,7 +89,7 @@ export default function SmsCampaignFields({campaign, onAdd, onUpdate, onDelete, 
 
   const labelCols = 2;
   return <>
-    <Accordion defaultActiveKey={'config'} className={'mt-4'}>
+    <Accordion defaultActiveKey={'config'}>
       <Accordion.Item eventKey={'config'}>
         <Accordion.Header>
           Configuration
@@ -543,8 +547,8 @@ export default function SmsCampaignFields({campaign, onAdd, onUpdate, onDelete, 
       type="Campaign"
       keyName={'SMSCampaignID'}
       onUpdate={handleUpdate}
-      onCancel={handleCancel}
-      onDelete={() => setShowDeleteConfirmation(true)}
+      onCancel={onCancel && handleCancel}
+      onDelete={onDelete && confirmDelete}
       isDataValid={isDataValid}
     />
     <Modal

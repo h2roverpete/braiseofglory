@@ -1,33 +1,38 @@
-import {useEffect} from "react";
-import {useRestApi} from "../../api/RestApi";
-import {useState} from "react";
+import {useLocation} from "react-router";
+import {useEffect, useState} from "react";
+import SmsCampaignPanel from "./SmsCampaignPanel";
 import {Container} from "react-bootstrap";
-import SendSmsMessage from "./SendSmsMessage";
+import {useRestApi} from "../../api/RestApi";
+import {useSiteContext} from "../content/Site";
 
-export default function SmsAdmin(props) {
+export default function SmsAdmin() {
 
-  const [smsCampaigns, setSmsCampaigns] = useState([]);
+  const location = useLocation();
   const {SMS} = useRestApi();
+  const {showErrorAlert} = useSiteContext();
+
+  const [campaignId, setCampaignId] = useState(0);
+  const [campaign, setCampaign] = useState(/** @type {SMSCampaignData} */ null);
 
   useEffect(() => {
-    SMS.getSmsCampaigns().then((response) => {
-      let campaigns = [];
-      for (const campaign of response) {
-        if (campaign.SiteID === parseInt(process.env.REACT_APP_SITE_ID)) {
-          campaigns.push(campaign);
-        }
-      }
-      setSmsCampaigns(campaigns);
-    }).catch((err) => {
-      console.error(err);
-    })
-  }, [setSmsCampaigns, SMS]);
+    const params = new URLSearchParams(location.search)
+    if (params.has('campaignId')) {
+      setCampaignId(parseInt(params.get('campaignId')));
+    }
+  }, [location, setCampaignId]);
 
-  return <Container>
-    {smsCampaigns.map((campaign) => {
-      return <span key={campaign.SMSCampaignID}>
-        <SendSmsMessage smsCampaign={campaign}/>
-      </span>
-    })}
-  </Container>
+  useEffect(() => {
+    if (campaignId && !campaign) {
+      SMS.getSmsCampaign(campaignId).then((data) => {
+        setCampaign(data);
+      }).catch((err) => {
+        showErrorAlert(err);
+      })
+    }
+  },[campaignId,setCampaign,SMS]);
+  return <Container fluid className="PageContent">
+    {campaign && <h1>{campaign.CampaignName}</h1>}
+    <SmsCampaignPanel campaignId={campaignId} />
+  </Container>;
+
 }
