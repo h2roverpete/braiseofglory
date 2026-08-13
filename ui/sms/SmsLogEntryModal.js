@@ -122,31 +122,19 @@ export default function SmsLogEntryModal({campaign, logEntry, show, onHide}) {
           </Col>
         </Row>
       }
-      {logEntry?.ForwardedMessage ? <>
+      {logEntry?.EmailMessage &&
           <Row className="mt-2">
             <Col>
-              <TextMessagePreview text={logEntry.ForwardedMessage}/>
-            </Col>
-          </Row></>
-        :
-        <>{logEntry?.MessageID && message ?
-          <Row className="mt-2">
-            <Col>
-              {logEntry.Action.indexOf('Sms') >= 0 ?
-                <TextMessagePreview text={message.Message} campaign={campaign}/>
-                :
-                <EmailPreview message={message} campaign={campaign} subscriber={subscriber}/>
-              }
+              <EmailPreview email={JSON.parse(logEntry.EmailMessage)}/>
             </Col>
           </Row>
-          :
-          <>{logEntry?.Action === 'SendSmsWelcome' && <Row className="mt-2">
-            <Col>
-              <TextMessagePreview text={campaign.CampaignConfirmationMessage}/>
-            </Col>
-          </Row>}</>
-        }
-        </>
+      }
+      {logEntry?.TextMessage &&
+        <Row className="mt-2">
+          <Col>
+            <TextMessagePreview text={logEntry.TextMessage}/>
+          </Col>
+        </Row>
       }
       <Row>
         <Col>
@@ -160,7 +148,6 @@ export default function SmsLogEntryModal({campaign, logEntry, show, onHide}) {
           </Button>
         </Col>
       </Row>
-
     </ModalBody>
   </Modal>
 }

@@ -8,8 +8,6 @@ import './TextMessagePreview.css'
  * @constructor
  */
 export default function TextMessagePreview({campaign, text}) {
-  const smsSuffix = `Reply STOP to unsubscribe.`;
-
   return <>{
     <div className={'bubble-bottom-right'}>
       {campaign && <>[{campaign.CampaignName}] </>}
@@ -17,7 +15,6 @@ export default function TextMessagePreview({campaign, text}) {
         className={'text-light'}
         dangerouslySetInnerHTML={{__html: text?.replaceAll('\n', '<br/>')}}
       />
-      {smsSuffix}
     </div>
   }</>;
 }

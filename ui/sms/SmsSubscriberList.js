@@ -69,7 +69,7 @@ export default function SmsSubscriberList({campaign}) {
   }
 
   function handleAdd(data) {
-    setSubscribers([subscribers, ...[data]]);
+    setSubscribers([...subscribers, data]);
   }
 
   function handleUpdate(data) {

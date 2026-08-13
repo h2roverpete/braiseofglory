@@ -10,8 +10,6 @@ import EmailPreview from "./EmailPreview";
  * @constructor
  */
 export default function SmsMessagePreview({campaign, message}) {
-  const smsSuffix = `Reply STOP to unsubscribe.`;
-
   return <>{campaign && message && <Row>
     <Col sm={6} className={'mt-3'}>
       <h5>SMS</h5>

@@ -1,17 +1,24 @@
 import {useCallback, useEffect, useState} from "react";
-import {Table} from "react-bootstrap";
+import {Table, Form} from "react-bootstrap";
 import {BsSortDown, BsSortUp} from "react-icons/bs";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
 import SmsLogEntryModal from "./SmsLogEntryModal";
 
 /**
+ * @typedef ListAPI
+ *
+ * @property {function([SMSLogData])} addListItems
+ */
+/**
  *
  * @param {SMSCampaignData} campaign
  * @param {SMSMessageData | null} [message]
+ * @param {function(SMSLogData, Boolean)} [onItemChecked]   Callback when a list item is checked or unchecked
+ * @param {RefObject<function(ListAPI)>} [apiRef]                 API for accessing list.
  * @constructor
  */
-export default function SmsLogEntryList({campaign, message}) {
+export default function SmsLogEntryList({campaign, message, onItemChecked, apiRef}) {
 
   const {SMS} = useRestApi();
   const {showErrorAlert} = useSiteContext();
@@ -19,7 +26,13 @@ export default function SmsLogEntryList({campaign, message}) {
   const [listItems, setListItems] = useState(/** @type {[SMSLogData]} */ null);
   const [editItem, setEditItem] = useState( /** @type {SMSLogData} */ null);
   useEffect(() => {
-    if (campaign && !listItems) {
+    if (campaign && message && !listItems) {
+      SMS.getSmsMessageLog(campaign.SMSCampaignID, message.SMSMessageID).then((result) => {
+        setListItems(result.sort(sortFunction));
+      }).catch((error) => {
+        showErrorAlert(error);
+      })
+    } else if (campaign && !listItems) {
       SMS.getSmsCampaignLog(campaign.SMSCampaignID).then((result) => {
         setListItems(result.sort(sortFunction));
       }).catch((error) => {
@@ -27,6 +40,16 @@ export default function SmsLogEntryList({campaign, message}) {
       })
     }
   }, [message, listItems, setListItems]);
+
+  const handleAddItems = useCallback((items) => {
+    setListItems([...listItems, ...items].sort(sortFunction));
+  }, []);
+
+  if (apiRef) {
+    apiRef.current = {
+      addListItems: handleAddItems
+    }
+  }
 
   const [sortKey, setSortKey] = useState('Created');
   const [sortAscending, setSortAscending] = useState(false);
@@ -84,6 +107,17 @@ export default function SmsLogEntryList({campaign, message}) {
     >
       <thead style={{position: 'sticky', top: 0,}}>
       <tr>
+        {onItemChecked && <th></th>}
+        <th
+          className={'text-nowrap'}
+          role={'button'}
+          onClick={() => sortBy('SMSLogID')}
+        >
+          ID
+          {sortKey === 'SMSLogID' &&
+            <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+          }
+        </th>
         <th
           className={'text-nowrap'}
           role={'button'}
@@ -153,6 +187,16 @@ export default function SmsLogEntryList({campaign, message}) {
           onClick={() => setEditItem(listItem)}
           role={'button'}
         >
+          {onItemChecked && <td onClick={(e) => {
+            e.stopPropagation()
+          }}>
+            <Form.Check
+              onChange={(e) => {
+                onItemChecked(listItem, e.target.checked);
+              }}
+            />
+          </td>}
+          <td>{listItem.SMSLogID}</td>
           <td className={'text-nowrap'}>{Intl.DateTimeFormat('en-US', {
             year: 'numeric',
             month: 'numeric',

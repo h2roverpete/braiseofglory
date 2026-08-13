@@ -25,7 +25,7 @@ function PhoneNumberField({name, id, value}) {
       onChange={(value, country, e, formattedValue) => {
         formData.onDataChanged({
           name: name,
-          value: value
+          value: formattedValue,
         })
       }}
       dropdownClass={'dropdown'}

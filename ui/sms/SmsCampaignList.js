@@ -117,7 +117,7 @@ export default function SmsCampaignList() {
 
   return <>
     {canEdit && listItems && <>
-      {viewCampaign !== null ? <div className="position-relative mt-2">
+      {viewCampaign !== null ? <div className="CampaignList position-relative mt-2">
           <CloseButton
             className={'position-absolute'}
             style={{top:'0px', right:'0px'}}

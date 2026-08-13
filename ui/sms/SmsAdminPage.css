@@ -1,7 +1,7 @@
 div.PageContent {
   height: 100%;
   display: flex;
-  padding-bottom: 0;
+  overflow:hidden;
 }
 
 div.SmsAdmin {
@@ -12,6 +12,7 @@ div.SmsAdmin {
 }
 
 div.CampaignTabPanel {
+  height: 100%;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -19,6 +20,13 @@ div.CampaignTabPanel {
 }
 
 div.CampaignTabPanel div.tab-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+div.CampaignList {
   height: 100%;
   display: flex;
   flex-direction: column;

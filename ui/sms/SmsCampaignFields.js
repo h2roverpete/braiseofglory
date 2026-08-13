@@ -262,8 +262,8 @@ export default function SmsCampaignFields({campaign, onAdd, onUpdate, onDelete, 
               <Form.Control
                 size={'sm'}
                 name={'CampaignOriginationIdentity'}
-                isValid={formData.isTouched('CampaignOriginationIdentity') && formData.edits.CampaignName?.length > 0}
-                isInvalid={formData.isTouched('CampaignOriginationIdentity') && !(formData.edits.CampaignName?.length > 0)}
+                isValid={formData.isTouched('CampaignOriginationIdentity') && formData.edits.CampaignOriginationIdentity?.length > 0}
+                isInvalid={formData.isTouched('CampaignOriginationIdentity') && !(formData.edits.CampaignOriginationIdentity?.length > 0)}
                 value={formData.edits?.CampaignOriginationIdentity || ''}
                 onChange={(e) => formData.onDataChanged({name: 'CampaignOriginationIdentity', value: e.target.value})}
               />
@@ -281,9 +281,9 @@ export default function SmsCampaignFields({campaign, onAdd, onUpdate, onDelete, 
               <Form.Control
                 size={'sm'}
                 name={'CampaignAdminOriginationIdentity'}
-                isValid={formData.isTouched('CampaignAdminOriginationIdentity') && formData.edits.CampaignName?.length > 0}
-                isInvalid={formData.isTouched('CampaignAdminOriginationIdentity') && !(formData.edits.CampaignName?.length > 0)}
-                value={formData.edits?.CampaignOriginationIdentity || ''}
+                isValid={formData.isTouched('CampaignAdminOriginationIdentity') && formData.edits.CampaignAdminOriginationIdentity?.length > 0}
+                isInvalid={formData.isTouched('CampaignAdminOriginationIdentity') && !(formData.edits.CampaignAdminOriginationIdentity?.length > 0)}
+                value={formData.edits?.CampaignAdminOriginationIdentity || ''}
                 onChange={(e) => formData.onDataChanged({
                   name: 'CampaignAdminOriginationIdentity',
                   value: e.target.value

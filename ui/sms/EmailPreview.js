@@ -6,18 +6,37 @@ import './EmailPreview.css';
  * @param {SMSCampaignData} campaign
  * @param {SMSMessageData} message
  * @param {SMSSubscriberData} subscriber
+ * @param {EmailParams} [email]
  * @constructor
  */
-export default function EmailPreview({campaign, message, subscriber}) {
-  return <div className={'email-preview'}>
-    <div><strong>To: {subscriber ? <>{subscriber.SubscriberName} &lt;{subscriber.SubscriberEmail}&gt;</> : <>Subscriber &lt;subscriber@whatever.com&gt;</>}</strong></div>
-    <div className={'mt-2'}><strong>From: {campaign.CampaignName} &lt;{campaign.CampaignEmail}&gt;</strong>
-    </div>
-    <div className={'mt-2'}><strong>Subject: [{campaign.CampaignName}] {message.Title}</strong></div>
-    <div className={'mt-2'} dangerouslySetInnerHTML={{__html: message.Message?.replaceAll('\n', '<br/>')}}></div>
-    <div className={'mt-2'}>You are receiving this email because you opted in to
-      receive {campaign.CampaignName} notifications. <span
-        className={'text-decoration-underline text-dark'}>Click here to unsubscribe.</span>
-    </div>
-  </div>;
+export default function EmailPreview({campaign, message, subscriber, email}) {
+  if (email) {
+    return <div className={'email-preview'}>
+      <div>
+        <strong>To: {email.to}</strong>
+      </div>
+      <div className={'mt-2'}><strong>From: {email.from}</strong>
+      </div>
+      <div className={'mt-2'}><strong>Subject: {email.subject}</strong></div>
+      {email.html?.length > 0 ?
+        <div className={'mt-2'} dangerouslySetInnerHTML={{__html: email.html}}></div>
+        :
+        <div className={'mt-2'}>{email.text}</div>
+      }
+    </div>;
+  } else if (campaign && message) {
+    return <div className={'email-preview'}>
+      <div>
+        <strong>To: {subscriber ? <>{subscriber.SubscriberName} &lt;{subscriber.SubscriberEmail}&gt;</> : <>Subscriber &lt;subscriber@whatever.com&gt;</>}</strong>
+      </div>
+      <div className={'mt-2'}><strong>From: {campaign.CampaignName} &lt;{campaign.CampaignEmail}&gt;</strong>
+      </div>
+      <div className={'mt-2'}><strong>Subject: [{campaign.CampaignName}] {message.Title}</strong></div>
+      <div className={'mt-2'} dangerouslySetInnerHTML={{__html: message.Message?.replaceAll('\n', '<br/>')}}></div>
+      <div className={'mt-2'}>You are receiving this email because you opted in to
+        receive {campaign.CampaignName} notifications. <span
+          className={'text-decoration-underline text-dark'}>Click here to unsubscribe.</span>
+      </div>
+    </div>;
+  } else return <></>;
 }

@@ -85,7 +85,7 @@ function GuestBook({guestBookId, extraData, sectionExtras}) {
   function handleSubmit(e) {
     e.preventDefault();
     console.debug(`Updating guest. data=${JSON.stringify(guestData.edits)}`);
-    GuestBooks.insertOrUpdateGuest(guestBookId, {GuestBookID: guestBookConfig.GuestBookID, ... guestData.edits}).then(data => {
+    GuestBooks.insertOrUpdateGuest(guestBookId, {GuestBookID: guestBookConfig.GuestBookID, ...guestData.edits}).then(data => {
       setSubmitted(true);
       guestData.update(data);
       GuestBooks.insertOrUpdateGuestFeedback(data.GuestID, {GuestID : data.GuestID, ...feedbackData.edits}).then(data => {
