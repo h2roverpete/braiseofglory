@@ -29,7 +29,8 @@ export default function SmsAdminPage() {
         showErrorAlert(err);
       })
     }
-  }, [campaignId, setCampaign, SMS]);
+  }, [campaignId, setCampaign, SMS, showErrorAlert, campaign]);
+
   return <Container
     fluid
     className="PageContent"

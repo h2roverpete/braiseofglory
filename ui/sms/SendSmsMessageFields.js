@@ -36,7 +36,7 @@ export default function SendSmsMessageFields({campaign}) {
     if (!formData.edits.UserID && currentUser?.UserID) {
       formData.edits.UserID = currentUser?.UserID;
     }
-  }, [formData, currentUser]);
+  }, [formData, currentUser, campaign.SMSCampaignID]);
 
   function isDataValid() {
     return formData.edits.Title?.length > 0 && formData.edits.Message?.length > 0 && formData.edits.Message?.match(/[.?!]$/);

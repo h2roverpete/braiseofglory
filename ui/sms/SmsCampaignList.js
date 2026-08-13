@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useState} from "react";
 import {useRestApi} from "framework/api/RestApi";
 import {BsPencil, BsSortDown, BsSortUp} from "react-icons/bs";
-import {Button, CloseButton, Col, Container, OverlayTrigger, Row, Table, Tooltip} from "react-bootstrap";
+import {Button, CloseButton, Col, OverlayTrigger, Row, Table, Tooltip} from "react-bootstrap";
 import FormEditor from "framework/ui/editor/FormEditor";
 import {useAuth} from "framework/auth/AuthProvider";
 import {Permission, Resource} from "framework/auth/Permissions";
@@ -47,7 +47,7 @@ export default function SmsCampaignList() {
         console.error(`Error getting campaigns.`, e);
       })
     }
-  }, [SMS, setListItems, sortFunction, canEdit]);
+  }, [SMS, listItems, setListItems, sortFunction, canEdit]);
 
   useEffect(() => {
     if (listItems) {
@@ -72,7 +72,7 @@ export default function SmsCampaignList() {
     if (listItems) {
       setListItems(prevValue => [...prevValue.sort(sortFunction)]);
     }
-  }, [sortKey, sortAscending, sortFunction]);
+  }, [listItems, sortKey, sortAscending, sortFunction]);
 
   function onSortBy(key) {
     if (sortKey !== key) {

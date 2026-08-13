@@ -40,7 +40,7 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
         showErrorAlert(err);
       })
     }
-  }, [campaignId, campaign, showErrorAlert]);
+  }, [SMS, campaignId, campaign, showErrorAlert]);
 
   return <>{campaign && <div
     className={'Editor CampaignTabPanel'}

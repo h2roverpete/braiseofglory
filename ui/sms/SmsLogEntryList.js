@@ -25,31 +25,6 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, apiRe
 
   const [listItems, setListItems] = useState(/** @type {[SMSLogData]} */ null);
   const [editItem, setEditItem] = useState( /** @type {SMSLogData} */ null);
-  useEffect(() => {
-    if (campaign && message && !listItems) {
-      SMS.getSmsMessageLog(campaign.SMSCampaignID, message.SMSMessageID).then((result) => {
-        setListItems(result.sort(sortFunction));
-      }).catch((error) => {
-        showErrorAlert(error);
-      })
-    } else if (campaign && !listItems) {
-      SMS.getSmsCampaignLog(campaign.SMSCampaignID).then((result) => {
-        setListItems(result.sort(sortFunction));
-      }).catch((error) => {
-        showErrorAlert(error);
-      })
-    }
-  }, [message, listItems, setListItems]);
-
-  const handleAddItems = useCallback((items) => {
-    setListItems([...listItems, ...items].sort(sortFunction));
-  }, []);
-
-  if (apiRef) {
-    apiRef.current = {
-      addListItems: handleAddItems
-    }
-  }
 
   const [sortKey, setSortKey] = useState('Created');
   const [sortAscending, setSortAscending] = useState(false);
@@ -72,6 +47,32 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, apiRe
       return 0
     }
   }, [sortKey, sortAscending]);
+
+  useEffect(() => {
+    if (campaign && message && !listItems) {
+      SMS.getSmsMessageLog(campaign.SMSCampaignID, message.SMSMessageID).then((result) => {
+        setListItems(result.sort(sortFunction));
+      }).catch((error) => {
+        showErrorAlert(error);
+      })
+    } else if (campaign && !listItems) {
+      SMS.getSmsCampaignLog(campaign.SMSCampaignID).then((result) => {
+        setListItems(result.sort(sortFunction));
+      }).catch((error) => {
+        showErrorAlert(error);
+      })
+    }
+  }, [SMS, campaign, showErrorAlert, message, listItems, setListItems, sortFunction]);
+
+  const handleAddItems = useCallback((items) => {
+    setListItems([...listItems, ...items].sort(sortFunction));
+  }, [listItems, sortFunction, setListItems]);
+
+  if (apiRef) {
+    apiRef.current = {
+      addListItems: handleAddItems
+    }
+  }
 
   function arraysAreEqual(a, b) {
     return a && b && a.length === b.length && a.every((v, i) => v === b[i]);

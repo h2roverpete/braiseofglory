@@ -1,7 +1,7 @@
 import {useAuth} from "framework/auth/AuthProvider";
 import {useCallback, useEffect, useState} from "react";
 import {Resource, Permission} from "framework/auth/Permissions";
-import {Button, Col, OverlayTrigger, Row, Table, Tooltip} from "react-bootstrap";
+import {Button, Col, Row, Table} from "react-bootstrap";
 import {useRestApi} from "framework/api/RestApi";
 import {BsSortDown, BsSortUp} from "react-icons/bs";
 import "../css/EditableRow.css";

@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from "react";
+import {useEffect, useState, useCallback} from "react";
 import {useRestApi} from "../../api/RestApi";
 import {Button, Table} from "react-bootstrap";
 import SmsWhitelistEntryModal from "./SmsWhitelistEntryModal";
@@ -30,7 +30,7 @@ export default function SmsWhitelist({campaignId}) {
     }
   }
 
-  function sortFunction(a, b) {
+  const sortFunction = useCallback((a, b) => {
     switch (typeof a[sortKey]) {
       case 'number':
         return sortAscending ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
@@ -39,10 +39,10 @@ export default function SmsWhitelist({campaignId}) {
       default:
         return 0;
     }
-  }
+  }, [sortKey, sortAscending]);
 
   function arraysAreEqual(a, b) {
-     return a && b && a.length === b.length && a.every((v, i) => v === b[i]);
+    return a && b && a.length === b.length && a.every((v, i) => v === b[i]);
   }
 
   useEffect(() => {

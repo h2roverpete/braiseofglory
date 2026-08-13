@@ -18,7 +18,7 @@ export default function SmsSubscriberFields({subscriber}) {
 
   useEffect(() => {
     formData.update(subscriber);
-  }, [subscriber]);
+  }, [subscriber, formData]);
 
   const labelCols = 3;
   return <>

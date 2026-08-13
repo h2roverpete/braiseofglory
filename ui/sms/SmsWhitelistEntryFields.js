@@ -29,7 +29,7 @@ export default function SmsWhitelistEntryFields({entry, onAdd, onDelete, onUpdat
 
   useEffect(() => {
     formData.update(entry);
-  }, [entry]);
+  }, [entry, formData]);
 
   /**
    * Handle validation event from CrudButtons.
