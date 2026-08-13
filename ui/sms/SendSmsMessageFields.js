@@ -4,7 +4,7 @@ import {useEffect, useState} from "react";
 import {useAuth} from "../../auth/AuthProvider";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
-import './SendSmsMessageFields.css';
+import './TextMessagePreview.css';
 import SmsMessagePreview from "./SmsMessagePreview";
 
 /**
@@ -73,7 +73,7 @@ export default function SendSmsMessageFields({campaign}) {
     }
   }, [messageResult])
 
-  return <div className="container-fluid">
+  return <>
     {campaign && <>
       {messageSent ?
         <>
@@ -155,5 +155,5 @@ export default function SendSmsMessageFields({campaign}) {
         </>
       }
     </>}
-  </div>
+  </>
 }

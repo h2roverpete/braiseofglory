@@ -5,7 +5,7 @@ import {Container} from "react-bootstrap";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
 
-export default function SmsAdmin() {
+export default function SmsAdminPage() {
 
   const location = useLocation();
   const {SMS} = useRestApi();
@@ -29,10 +29,15 @@ export default function SmsAdmin() {
         showErrorAlert(err);
       })
     }
-  },[campaignId,setCampaign,SMS]);
-  return <Container fluid className="PageContent">
-    {campaign && <h1>{campaign.CampaignName}</h1>}
-    <SmsCampaignPanel campaignId={campaignId} />
-  </Container>;
+  }, [campaignId, setCampaign, SMS]);
+  return <Container
+    fluid
+    className="PageContent"
+  >
+    <div className="SmsAdmin">
+      {campaign && <h1 className={"PageTitle"}>{campaign.CampaignName} Administration</h1>}
+      <SmsCampaignPanel campaignId={campaignId}/>
+    </div>
+  </Container>
 
 }

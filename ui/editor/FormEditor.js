@@ -1,4 +1,4 @@
-import {createContext, useCallback, useContext, useState} from "react";
+import {createContext, forwardRef, useCallback, useContext, useEffect, useImperativeHandle, useState} from "react";
 import './Editor.css';
 
 const FormEditContext = createContext(null);
@@ -33,9 +33,10 @@ const FormEditContext = createContext(null);
  * @property {function(T)} update
  * @property {DataCallback} onDataChanged
  * @property {T} edits
+ * @property {function(FormDataAPI<T>)} apiRef
  */
 
-export default function FormEditor({children}) {
+export default function FormEditor({apiRef,children}) {
 
   const [originalData, setOriginalData] = useState(null);
   const [edits, setEdits] = useState({});
@@ -65,7 +66,6 @@ export default function FormEditor({children}) {
     }
     setEdits(editsCopy);
     setTouched(touchedCopy);
-    console.debug(`Form edits: ${JSON.stringify(editsCopy)}`);
   }
 
   /**
@@ -135,6 +135,12 @@ export default function FormEditor({children}) {
     onDataChanged: onDataChanged,
     edits: edits,
   }
+
+  useEffect(()=>{
+    if (apiRef) {
+      apiRef(context);
+    }
+  }, [edits,touched]);
 
   return (
     <FormEditContext.Provider value={context}>

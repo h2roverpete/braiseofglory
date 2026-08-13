@@ -56,6 +56,7 @@ export default function SmsCampaignFields({campaign, onAdd, onUpdate, onDelete, 
    */
   function handleUpdate() {
     SMS.insertOrUpdateSmsCampaign(formData.edits).then((result) => {
+      formData.update(result);
       if (campaign.SMSCampaignID > 0) {
         onUpdate?.(result);
       } else {
@@ -165,7 +166,7 @@ export default function SmsCampaignFields({campaign, onAdd, onUpdate, onDelete, 
             <Col className={'col-sm-6'}>
               <Form.Check
                 name={'TextCampaign'}
-                checked={formData.edits?.TextCampaign}
+                checked={formData.edits?.TextCampaign === true}
                 onChange={(e) => formData.onDataChanged({name: 'TextCampaign', value: e.target.checked})}
                 label={'Text Message'}
                 inline
@@ -173,7 +174,7 @@ export default function SmsCampaignFields({campaign, onAdd, onUpdate, onDelete, 
               />
               <Form.Check
                 name={'EmailCampaign'}
-                checked={formData.edits?.EmailCampaign}
+                checked={formData.edits?.EmailCampaign === true}
                 onChange={(e) => formData.onDataChanged({name: 'EmailCampaign', value: e.target.checked})}
                 label={'Email From'}
                 inline

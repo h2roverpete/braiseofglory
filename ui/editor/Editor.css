@@ -27,6 +27,11 @@
   line-height: 1.2em;
 }
 
+.Editor .btn {
+  font-size: 11pt;
+  line-height: 1.2em;
+}
+
 /* Editor checkbox container */
 .Editor div.form-check {
   display: flex;

@@ -166,7 +166,7 @@ export default function SmsMessagePanel({campaign, message}) {
           variant={'primary'}
           disabled={selectedSubscribers.length === 0 || sending}
           onClick={resendMessage}
-          style={{width:'200px'}}
+          style={{width:'300px'}}
         >
           {sending ?
             <Spinner size={"sm"}/>

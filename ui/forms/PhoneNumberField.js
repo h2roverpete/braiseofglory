@@ -4,17 +4,11 @@ import './PhoneNumberField.css'
 import {useFormData} from "../editor/FormEditor";
 
 /**
- * @callback StringCallback
- * @param value{String}
- */
-
-/**
  * Form field for phone number input
  *
  * @param name{String}
  * @param id{String}
  * @param value{String}
- * @param onChange{DataCallback}
  * @constructor
  */
 function PhoneNumberField({name, id, value}) {
@@ -31,7 +25,7 @@ function PhoneNumberField({name, id, value}) {
       onChange={(value, country, e, formattedValue) => {
         formData.onDataChanged({
           name: name,
-          value: formattedValue
+          value: value
         })
       }}
       dropdownClass={'dropdown'}

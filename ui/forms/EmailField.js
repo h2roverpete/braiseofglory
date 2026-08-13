@@ -1,5 +1,4 @@
 import {Form} from "react-bootstrap";
-import {useState} from "react";
 import {isValidEmail} from "../../util/Validators";
 import {useFormData} from "../editor/FormEditor";
 

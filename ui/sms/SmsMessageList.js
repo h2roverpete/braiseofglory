@@ -75,8 +75,7 @@ export default function SmsMessageList({campaign, onViewMessage}) {
       hover
       responsive
       style={{
-        height: 'auto',
-        flexGrow: 1,
+        height: "100%",
         overflowY: 'scroll'
       }}
     >

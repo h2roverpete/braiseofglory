@@ -3,10 +3,18 @@
   content: "";
   position: absolute;
   bottom: -10px; /* Pulls the arrow below the bubble boundary */
-  left: 20px;    /* Offsets it from the left edge */
+  left: 20px; /* Offsets it from the left edge */
   border-width: 10px 10px 0 10px;
   border-style: solid;
   border-color: #606060 transparent transparent transparent; /* Matches bg-light */
+}
+
+.bubble-bottom-left {
+  padding: 15px;
+  background-color: #606060;
+  border-radius: 15px;
+  position: relative;
+  font-size: 10pt;
 }
 
 /* Bottom-right arrow (Sent) */
@@ -14,8 +22,19 @@
   content: "";
   position: absolute;
   bottom: -10px; /* Pulls the arrow below the bubble boundary */
-  right: 20px;   /* Offsets it from the right edge */
+  right: 20px; /* Offsets it from the right edge */
   border-width: 10px 10px 0 10px;
   border-style: solid;
   border-color: #606060 transparent transparent transparent; /* Matches bg-primary */
+}
+
+.bubble-bottom-right {
+  padding: 10px;
+  margin-right: 10px;
+  background-color: #606060;
+  border-radius: 10px;
+  position: relative;
+  font-size: 10pt;
+  line-height:1.4;
+  color: white;
 }

@@ -3,7 +3,7 @@ import {useCallback, useEffect, useState} from "react";
 import {Resource, Permission} from "framework/auth/Permissions";
 import {Button, Col, OverlayTrigger, Row, Table, Tooltip} from "react-bootstrap";
 import {useRestApi} from "framework/api/RestApi";
-import {BsPencil, BsSortDown, BsSortUp} from "react-icons/bs";
+import {BsSortDown, BsSortUp} from "react-icons/bs";
 import "../css/EditableRow.css";
 import FormEditor from "framework/ui/editor/FormEditor";
 import SmsSubscriberModal from "framework/ui/sms/SmsSubscriberModal";
@@ -104,8 +104,7 @@ export default function SmsSubscriberList({campaign}) {
         hover
         responsive
         style={{
-          height: 'auto',
-          flexGrow: 1,
+          height: "100%",
           overflowY: 'scroll'
         }}
       >
@@ -193,9 +192,9 @@ export default function SmsSubscriberList({campaign}) {
         ))}
         </tbody>
       </Table>
-      <Row>
+      <Row className="mt-3">
         <Col>
-          <Button variant="primary" onClick={()=>setEditItem({SMSCampaignID:campaign.SMSCampaignID})}>
+          <Button variant="primary" onClick={() => setEditItem({SMSCampaignID: campaign.SMSCampaignID})}>
             Add Subscriber
           </Button>
         </Col>

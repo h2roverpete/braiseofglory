@@ -36,24 +36,21 @@ export function useGuestBook() {
 /**
  * Guest Book component
  * @property {number} guestBookId         Guest book ID.
- * @property {number} guestId             Guest ID to populate fields with.
- * @property {number} guestFeedbackId     Guest Feedback ID to populate fields with.
- * @property {DataCallback} [onChange]    Receives notification that guest ID or guest feedback ID was updated
  * @returns {JSX.Element}
  * @constructor
  */
-function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbackId, onChange}) {
+function GuestBook({guestBookId, extraData, sectionExtras}) {
 
   // imports
   const {GuestBooks} = useRestApi();
   const {hasPermission} = useAuth();
   const {supportsHover} = useTouchContext();
   const {showErrorAlert} = useSiteContext();
+  const [guestData, setGuestData] = useState(/** @type FormDataAPI<GuestData> */null)
+  const [feedbackData, setFeedbackData] = useState(/** @type FormDataAPI<GuestFeedbackData> */null)
 
   // states
   const [guestBookConfig, setGuestBookConfig] = useState(null);
-  const [guestData, setGuestData] = useState({});
-  const [guestFeedbackData, setGuestFeedbackData] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
 
@@ -81,104 +78,36 @@ function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbac
     }
   }, [GuestBooks, guestBookId, guestBookConfig, showErrorAlert]);
 
-  useEffect(() => {
-    if (!guestData && guestId) {
-      console.debug(`Loading guest data...`);
-      GuestBooks.getGuest(guestId).then(data => {
-        setGuestData(prevData => {
-          return {
-            ...prevData,
-            ...data
-          }
-        });
-        console.debug(`Guest data loaded.`)
-      }).catch(error => {
-        showErrorAlert(`Error getting guest data`, error);
-      });
-    }
-  }, [GuestBooks, guestId, guestBookId, guestData, showErrorAlert])
-
-  useEffect(() => {
-    if (!guestFeedbackData && guestFeedbackId) {
-      console.debug(`Loading guest feedback...`);
-      GuestBooks.getGuestFeedback(guestFeedbackId).then(data => {
-        setGuestFeedbackData(prevData => {
-          return {
-            ...prevData,
-            ...data
-          }
-        });
-        console.debug(`Guest feedback loaded.`)
-      }).catch(error => {
-        showErrorAlert(`Error getting feedback`, error);
-      });
-    }
-  }, [GuestBooks, guestFeedbackId, guestFeedbackData, showErrorAlert])
-
-  /**
-   * Handle changes in response to data entry.
-   *
-   * @param name String
-   * @param value String
-   */
-  function handleGuestChange({name, value}) {
-    setGuestData((prevValue) => {
-      const newValue = {
-        ...prevValue,
-        [name]: value
-      }
-      console.debug(`Guest data updated: ${JSON.stringify(newValue)}`);
-      return newValue;
-    });
-  }
-
-  /**
-   * Handle changes in response to data entry.
-   *
-   * @param name String
-   * @param value String
-   */
-  function handleFeedbackChange({name, value}) {
-    setGuestFeedbackData((prevValue) => {
-      const newValue = {
-        ...prevValue,
-        [name]: value
-      }
-      if (typeof value === 'string' && value.trim().length === 0) {
-        // remove empty string properties
-        delete newValue[name];
-      }
-      console.debug(`Feedback data updated: ${JSON.stringify(newValue)}`);
-      return newValue;
-    });
-  }
-
   /**
    * Handle form submit.
    * @param e
    */
   function handleSubmit(e) {
     e.preventDefault();
-    console.debug(`Updating guest. data=${JSON.stringify(guestData)}`);
-    GuestBooks.insertOrUpdateGuest(guestBookId, guestData).then(data => {
-      console.debug(`Guest update result: ${JSON.stringify(data)}`);
+    console.debug(`Updating guest. data=${JSON.stringify(guestData.edits)}`);
+    GuestBooks.insertOrUpdateGuest(guestBookId, {GuestBookID: guestBookConfig.GuestBookID, ... guestData.edits}).then(data => {
       setSubmitted(true);
-      setGuestData(data);
-      GuestBooks.insertOrUpdateGuestFeedback(data.GuestID, guestFeedbackData).then(data => {
-        console.debug(`Guest feedback update result: ${JSON.stringify(data)}`);
+      guestData.update(data);
+      GuestBooks.insertOrUpdateGuestFeedback(data.GuestID, {GuestID : data.GuestID, ...feedbackData.edits}).then(data => {
+        feedbackData.update(data);
+      }).catch(error => {
+        showErrorAlert(`Error updating guest feedback. `, error);
       })
+    }).catch(error => {
+      showErrorAlert(`Error updating guest. `, error);
     })
   }
 
   function isDataValid() {
     return (
-      guestData?.FirstName?.length > 0 &&
-      guestData?.LastName?.length > 0 &&
-      (guestData?.Email?.length > 0 && isValidEmail(guestData?.Email)) &&
+      guestData &&
+      guestData.edits?.FirstName?.length > 0 &&
+      guestData.edits?.LastName?.length > 0 &&
+      isValidEmail(guestData.edits?.Email) &&
       (guestBookConfig?.ShowLodgingFields ?
-          guestFeedbackData?.ArrivalDate?.length > 0 &&
-          guestFeedbackData?.DepartureDate?.length > 0 &&
-          guestFeedbackData?.NumberOfGuests?.length > 0 :
+          guestData.edits?.ArrivalDate?.length > 0 &&
+          guestData.edits?.DepartureDate?.length > 0 &&
+          guestData.edits?.NumberOfGuests?.length > 0 :
           true
       ) &&
       areCustomFieldsValid()
@@ -189,7 +118,7 @@ function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbac
     for (let i = 1; i <= 8; i++) {
       if (guestBookConfig?.[`Custom${i}Type`]?.length > 0
         && guestBookConfig?.[`Custom${i}Required`] === true
-        && !guestFeedbackData?.[`Custom${i}`]?.length
+        && !guestData.edits?.[`Custom${i}`]?.length
       ) {
         return false;
       }
@@ -204,7 +133,7 @@ function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbac
         setGuestBookConfig: setGuestBookConfig,
       }
     }>
-      {guestBookConfig && (<div
+      {guestBookConfig !== null && <div
         className="GuestBook"
         style={{width: '100%', position: 'relative'}}
         onMouseOver={() => {
@@ -233,7 +162,6 @@ function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbac
               onClick={() => {
                 // clear submit flag and feedback ID to submit again
                 setSubmitted(false);
-                onChange?.({guestFeedbackId: 0});
               }}>
               {guestBookConfig.AgainMessage ? guestBookConfig.AgainMessage : 'Submit Again'}
             </Button>
@@ -242,34 +170,28 @@ function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbac
           <>
             <p
               dangerouslySetInnerHTML={{__html: guestBookConfig.GuestBookMessage ? guestBookConfig.GuestBookMessage : 'Please enter your information below.'}}/>
-            <form
-              encType="multipart/form-data"
-              className="needs-validation"
-              id="GuestBookForm"
-            >
+            <FormEditor apiRef={setGuestData}>
               <GuestFields
                 guestBookConfig={guestBookConfig}
-                guestData={guestData}
-                onChange={handleGuestChange}
                 labelCols={guestBookConfig.LabelCols}
               />
+            </FormEditor>
+            <FormEditor apiRef={setFeedbackData}>
               <GuestFeedbackFields
                 guestBookConfig={guestBookConfig}
-                guestFeedbackData={guestFeedbackData}
-                onChange={handleFeedbackChange}
                 labelCols={guestBookConfig.LabelCols}
               />
-              <div className="form-errors" id="FormErrors"></div>
-              <div className="form-group mt-4">
-                <Button
-                  variant={'primary'}
-                  disabled={!isDataValid()}
-                  onClick={(e) => handleSubmit(e)}
-                >
-                  {guestBookConfig.SubmitButtonName ? guestBookConfig.SubmitButtonName : 'Submit'}
-                </Button>
-              </div>
-            </form>
+            </FormEditor>
+            <div className="form-errors" id="FormErrors"></div>
+            <div className="form-group mt-4">
+              <Button
+                variant={'primary'}
+                disabled={!isDataValid()}
+                onClick={(e) => handleSubmit(e)}
+              >
+                {guestBookConfig.SubmitButtonName ? guestBookConfig.SubmitButtonName : 'Submit'}
+              </Button>
+            </div>
           </>
         )}
         {canEdit && (<>
@@ -278,7 +200,7 @@ function GuestBook({guestBookId, extraData, sectionExtras, guestId, guestFeedbac
           </FormEditor>
           <MoveExtraMenu extraData={extraData} sectionExtras={sectionExtras} buttonRef={menuRef}/>
         </>)}
-      </div>)}
+      </div>}
     </GuestBookContext>
   )
 }

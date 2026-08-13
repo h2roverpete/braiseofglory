@@ -9,3 +9,8 @@ tr.EditableRow svg.EditPencil {
 tr.EditableRow {
   cursor: pointer;
 }
+
+tr.EditableRow td {
+  vertical-align: middle;
+  text-wrap: nowrap;
+}

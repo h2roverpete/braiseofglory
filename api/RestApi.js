@@ -471,6 +471,15 @@ export default function RestApi(props) {
     });
   }, []);
 
+  const getUser = useCallback(async (userId) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.get(`${host}/api/v1/users/${userId}`);
+        return response.data;
+      }
+    });
+  }, []);
+
   const insertOrUpdateUser = useCallback(async (data) => {
     return await adminApiCall(() => {
       return async () => {
@@ -520,8 +529,12 @@ export default function RestApi(props) {
   }, []);
 
   const getSmsCampaigns = useCallback(async () => {
-    const response = await axios.get(`${host}/api/v1/sms/campaigns`);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.get(`${host}/api/v1/sms/campaigns`);
+        return response.data;
+      }
+    });
   }, []);
 
   const getSmsCampaign = useCallback(async (smsCampaignId) => {
@@ -530,18 +543,39 @@ export default function RestApi(props) {
   }, []);
 
   const insertOrUpdateSmsCampaign = useCallback(async (data) => {
-    const response = await axios.post(`${host}/api/v1/sms/campaigns`, data);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.post(`${host}/api/v1/sms/campaigns`, data);
+        return response.data;
+      }
+    });
   }, []);
 
   const deleteSmsCampaign = useCallback(async (campaignId) => {
-    const response = await axios.delete(`${host}/api/v1/sms/campaigns/${campaignId}`);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.delete(`${host}/api/v1/sms/campaigns/${campaignId}`);
+        return response.data;
+      }
+    });
+  }, []);
+
+  const getSmsSubscriber = useCallback(async (campaignId, subscriberId) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/subscribers/${subscriberId}`);
+        return response.data;
+      }
+    });
   }, []);
 
   const getSmsCampaignSubscribers = useCallback(async (campaignId) => {
-    const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/subscribers`);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/subscribers`);
+        return response.data;
+      }
+    });
   }, []);
 
   const insertOrUpdateSmsSubscriber = useCallback(async (data) => {
@@ -550,23 +584,39 @@ export default function RestApi(props) {
   }, []);
 
   const deleteSmsSubscriber = useCallback(async (campaignId, subscriberId) => {
-    const response = await axios.delete(`${host}/api/v1/sms/campaigns/${campaignId}/subscribers/${subscriberId}`);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.delete(`${host}/api/v1/sms/campaigns/${campaignId}/subscribers/${subscriberId}`);
+        return response.data;
+      }
+    });
   }, []);
 
   const getSmsMessages = useCallback(async (campaignId) => {
-    const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/messages`);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/messages`);
+        return response.data;
+      }
+    });
   }, []);
 
   const getSmsMessage = useCallback(async (campaignId, messageId) => {
-    const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/messages/${messageId}`);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/messages/${messageId}`);
+        return response.data;
+      }
+    });
   }, []);
 
   const sendSmsMessage = useCallback(async (data) => {
-    const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/send`, data);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/send`, data);
+        return response.data;
+      }
+    });
   }, []);
 
   /**
@@ -582,33 +632,57 @@ export default function RestApi(props) {
    * @type {function(SMSResendData): Promise<[SMSLogData]>}
    */
   const resendSmsMessage = useCallback(async (data) => {
-    const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/messages/${data.SMSMessageID}/send`, data);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/messages/${data.SMSMessageID}/send`, data);
+        return response.data;
+      }
+    });
   }, []);
 
   const getSmsWhitelist = useCallback(async (campaignId) => {
-    const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/whitelist`);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/whitelist`);
+        return response.data;
+      }
+    });
   }, []);
 
   const insertOrUpdateSmsWhitelistEntry = useCallback(async (data) => {
-    const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/whitelist/`, data);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/whitelist/`, data);
+        return response.data;
+      }
+    });
   }, []);
 
   const deleteSmsWhitelistEntry = useCallback(async (smsCampaignId, entryId) => {
-    const response = await axios.delete(`${host}/api/v1/sms/campaigns/${smsCampaignId}/whitelist/${entryId}`);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.delete(`${host}/api/v1/sms/campaigns/${smsCampaignId}/whitelist/${entryId}`);
+        return response.data;
+      }
+    });
   }, []);
 
   const getSmsCampaignLog = useCallback(async (campaignId) => {
-    const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/log`);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/log`);
+        return response.data;
+      }
+    });
   }, []);
 
   const getSmsMessageLog = useCallback(async (campaignId, messageId) => {
-    const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/messages/${messageId}/log`);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/messages/${messageId}/log`);
+        return response.data;
+      }
+    });
   }, []);
 
   /**
@@ -736,6 +810,7 @@ export default function RestApi(props) {
       },
       Users: {
         getUsers: getUsers,
+        getUser: getUser,
         insertOrUpdateUser: insertOrUpdateUser,
         deleteUser: deleteUser,
       },
@@ -745,6 +820,7 @@ export default function RestApi(props) {
         deleteSmsCampaign: deleteSmsCampaign,
         getSmsCampaignSubscribers: getSmsCampaignSubscribers,
         insertOrUpdateSmsCampaign: insertOrUpdateSmsCampaign,
+        getSmsSubscriber: getSmsSubscriber,
         insertOrUpdateSmsSubscriber: insertOrUpdateSmsSubscriber,
         deleteSmsSubscriber: deleteSmsSubscriber,
         sendSmsMessage: sendSmsMessage,

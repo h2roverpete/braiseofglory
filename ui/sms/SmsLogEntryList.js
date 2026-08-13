@@ -3,6 +3,7 @@ import {Table} from "react-bootstrap";
 import {BsSortDown, BsSortUp} from "react-icons/bs";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
+import SmsLogEntryModal from "./SmsLogEntryModal";
 
 /**
  *
@@ -12,10 +13,11 @@ import {useSiteContext} from "../content/Site";
  */
 export default function SmsLogEntryList({campaign, message}) {
 
-  const [listItems, setListItems] = useState(/** @type {[SMSLogData]} */ null);
   const {SMS} = useRestApi();
   const {showErrorAlert} = useSiteContext();
 
+  const [listItems, setListItems] = useState(/** @type {[SMSLogData]} */ null);
+  const [editItem, setEditItem] = useState( /** @type {SMSLogData} */ null);
   useEffect(() => {
     if (campaign && !listItems) {
       SMS.getSmsCampaignLog(campaign.SMSCampaignID).then((result) => {
@@ -71,99 +73,106 @@ export default function SmsLogEntryList({campaign, message}) {
     }
   }
 
-  return <>{listItems?.length > 0 && <Table
-    hover
-    responsive
-    style={{
-      height: 'auto',
-      flexGrow: 1,
-      overflowY: 'scroll'
-    }}
-  >
-    <thead style={{position: 'sticky', top: 0,}}>
-    <tr>
-      <th
-        className={'text-nowrap'}
-        role={'button'}
-        onClick={() => sortBy('Created')}
-      >
-        Timestamp
-        {sortKey === 'Created' &&
-          <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
-        }
-      </th>
-      <th
-        className={'text-nowrap'}
-        role={'button'}
-        onClick={() => sortBy('Action')}
-      >
-        Action
-        {sortKey === 'Action' &&
-          <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
-        }
-      </th>
-      <th
-        className={'text-nowrap'}
-        role={'button'}
-        onClick={() => sortBy('Subscriber')}
-      >
-        Subscriber
-        {sortKey === 'Subscriber' &&
-          <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
-        }
-      </th>
-      <th
-        className={'text-nowrap'}
-        role={'button'}
-        onClick={() => sortBy('Error')}
-      >
-        Result
-        {sortKey === 'Error' &&
-          <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
-        }
-      </th>
-      <th
-        className={'text-nowrap'}
-        role={'button'}
-        onClick={() => sortBy('UserID')}
-      >
-        User
-        {sortKey === 'UserID' &&
-          <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
-        }
-      </th>
-      <th
-        className={'text-nowrap'}
-        role={'button'}
-        onClick={() => sortBy('SMSMessageID')}
-      >
-        Message
-        {sortKey === 'SMSMessageID' &&
-          <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
-        }
-      </th>
-    </tr>
-    </thead>
-    <tbody>
-    {listItems.map((listItem) =>
-      <tr key={listItem.SMSLogID}>
-        <td className={'text-nowrap'}>{Intl.DateTimeFormat('en-US', {
-          year: 'numeric',
-          month: 'numeric',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: true
-        }).format(Date.parse(listItem.Created))}</td>
-        <td>{listItem.Action}</td>
-        <td>{listItem.Subscriber}</td>
-        <td
-          className={listItem.Error ? 'text-danger' : 'text-success'}>{listItem.Error ? listItem.Error : 'Sent'}</td>
-        <td>{listItem.UserID}</td>
-        <td>{listItem.SMSMessageID}</td>
+  return <>{listItems?.length > 0 && <>
+    <Table
+      hover
+      responsive
+      style={{
+        height: '100%',
+        overflowY: 'scroll'
+      }}
+    >
+      <thead style={{position: 'sticky', top: 0,}}>
+      <tr>
+        <th
+          className={'text-nowrap'}
+          role={'button'}
+          onClick={() => sortBy('Created')}
+        >
+          Timestamp
+          {sortKey === 'Created' &&
+            <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+          }
+        </th>
+        <th
+          className={'text-nowrap'}
+          role={'button'}
+          onClick={() => sortBy('Action')}
+        >
+          Action
+          {sortKey === 'Action' &&
+            <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+          }
+        </th>
+        <th
+          className={'text-nowrap'}
+          role={'button'}
+          onClick={() => sortBy('Subscriber')}
+        >
+          Subscriber
+          {sortKey === 'Subscriber' &&
+            <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+          }
+        </th>
+        <th
+          className={'text-nowrap'}
+          role={'button'}
+          onClick={() => sortBy('Error')}
+        >
+          Result
+          {sortKey === 'Error' &&
+            <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+          }
+        </th>
+        <th
+          className={'text-nowrap'}
+          role={'button'}
+          onClick={() => sortBy('UserID')}
+        >
+          User
+          {sortKey === 'UserID' &&
+            <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+          }
+        </th>
+        <th
+          className={'text-nowrap'}
+          role={'button'}
+          onClick={() => sortBy('SMSMessageID')}
+        >
+          Message
+          {sortKey === 'SMSMessageID' &&
+            <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+          }
+        </th>
       </tr>
-    )}
-    </tbody>
-  </Table>}</>
+      </thead>
+      <tbody>
+      {listItems.map((listItem) =>
+        <tr
+          key={listItem.SMSLogID}
+          onClick={() => setEditItem(listItem)}
+          role={'button'}
+        >
+          <td className={'text-nowrap'}>{Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+          }).format(Date.parse(listItem.Created))}</td>
+          <td>{listItem.Action}</td>
+          <td>{listItem.Subscriber}</td>
+          <td
+            className={listItem.Error ? 'text-danger' : 'text-success'}>{listItem.Error ? listItem.Error : 'Sent'}</td>
+          <td>{listItem.UserID}</td>
+          <td>{listItem.SMSMessageID}</td>
+        </tr>
+      )}
+      </tbody>
+    </Table>
+    <SmsLogEntryModal show={editItem} campaign={campaign} logEntry={editItem} onHide={() => setEditItem(null)}/>
+  </>}
+  </>
 }

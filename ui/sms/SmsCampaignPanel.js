@@ -1,4 +1,4 @@
-import {CloseButton, Row, TabPane, Tabs} from "react-bootstrap";
+import {Row, TabPane, Tabs} from "react-bootstrap";
 import {useAuth} from "../../auth/AuthProvider";
 import {Resource, Permission} from "../../auth/Permissions";
 import {useEffect, useState} from "react";
@@ -11,6 +11,8 @@ import SmsMessagePanel from "./SmsMessagePanel";
 import FormEditor from "../editor/FormEditor";
 import SendSmsMessageFields from "./SendSmsMessageFields";
 import SmsLogEntryList from "./SmsLogEntryList";
+import './SmsAdminPage.css'
+import {BsXLg} from "react-icons/bs";
 
 export default function SmsCampaignPanel({campaignId, campaignData}) {
 
@@ -40,75 +42,97 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
     }
   }, [campaignId, campaign, showErrorAlert]);
 
-  return <>{campaign && <>
+  return <>{campaign && <div
+    className={'Editor CampaignTabPanel'}
+  >
     {hasAdminPermission ?
       <Tabs
         defaultActiveKey={"send"}
-        className="mt-4"
+        className="mt-2"
       >
         <TabPane
           title={'Send'}
           eventKey={"send"}
-          className="p-4 border border-light-subtle border-top-0"
+          className="p-3 border border-top-0"
         >
-          <h4>Send a Message to {campaign.CampaignName} Subscribers</h4>
-          <FormEditor>
-            <SendSmsMessageFields campaign={campaign}/>
-          </FormEditor>
+          <div className={'TabPaneContents'}>
+            <h4>Send a Message to {campaign.CampaignName} Subscribers</h4>
+            <div className={'ScrollY'}>
+              <FormEditor>
+                <SendSmsMessageFields campaign={campaign}/>
+              </FormEditor>
+            </div>
+          </div>
         </TabPane>
         <TabPane
           title={'Subscribers'}
           eventKey={"subscribers"}
-          className="p-4 border border-light-subtle border-top-0"
+          className="p-3 border border-top-0"
         >
-          <h4>{campaign.CampaignName} Subscribers</h4>
-          <SmsSubscriberList campaign={campaign}/>
+          <div className={'TabPaneContents'}>
+            <h4>{campaign.CampaignName} Subscribers</h4>
+            <SmsSubscriberList campaign={campaign}/>
+          </div>
         </TabPane>
         <TabPane
           title={'Messages'}
           eventKey={"messages"}
-          className="p-4 border border-light-subtle border-top-0"
+          className="p-3 border border-top-0"
         >
-          {message ?
-            <div className={'position-relative'}>
-              <CloseButton
-                onClick={() => setMessage(null)}
-                style={{position: "absolute", top: 0, right: 0}}
-              />
-              <h4>Message: {message.Title}</h4>
-              <SmsMessagePanel
-                campaign={campaign}
-                message={message}
-              />
-            </div>
-            : <>
-              <h4>{campaign.CampaignName} Messages</h4>
-              <SmsMessageList
-                campaign={campaign}
-                onViewMessage={(message) => setMessage(message)}
-              />
-            </>
-          }
+          <div className={'TabPaneContents'}>
+            {message ? <>
+                <BsXLg
+                  role={'button'}
+                  size={20}
+                  onClick={() => setMessage(null)}
+                  style={{position: "absolute", top: 0, right: 0}}
+                />
+                <h4>Message: {message.Title}</h4>
+                <div className={'position-relative'}
+                     style={{height: '100%', overflowY: 'scroll', overflowX: 'clip'}}
+                >
+                  <SmsMessagePanel
+                    campaign={campaign}
+                    message={message}
+                  />
+                </div>
+              </>
+              : <>
+                <h4>{campaign.CampaignName} Messages</h4>
+                <SmsMessageList
+                  campaign={campaign}
+                  onViewMessage={(message) => setMessage(message)}
+                />
+              </>
+            }
+          </div>
         </TabPane>
         <TabPane
           title={'Log'}
           eventKey={"log"}
-          className="p-4 border border-light-subtle border-top-0"
+          className="p-3 border border-light-subtle border-top-0"
         >
-          <h4>{campaign.CampaignName} Log</h4>
-          <FormEditor>
-            <SmsLogEntryList campaign={campaign}/>
-          </FormEditor>
+          <div className={'TabPaneContents'}>
+            <h4>{campaign.CampaignName} Log</h4>
+            <FormEditor>
+              <SmsLogEntryList campaign={campaign}/>
+            </FormEditor>
+          </div>
         </TabPane>
         <TabPane
-          title={'Configuration'}
+          title={'Config'}
           eventKey={"config"}
-          className="p-4 border border-light-subtle border-top-0"
+          className="p-3 border border-light-subtle border-top-0"
+          style={{height: '100%', overflowY: 'scroll', overflowX: 'clip'}}
         >
-          <h4>{campaign.CampaignName} Configuration</h4>
-          <FormEditor>
-            <SmsCampaignFields campaign={campaign}/>
-          </FormEditor>
+          <div className={'TabPaneContents'}>
+            <h4>{campaign.CampaignName} Config</h4>
+            <div className={'ScrollY'}>
+              <FormEditor>
+                <SmsCampaignFields campaign={campaign}/>
+              </FormEditor>
+            </div>
+          </div>
         </TabPane>
       </Tabs>
       :
@@ -120,6 +144,9 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
           </FormEditor>
         </Row>
       }
-      </>}
-  </>}</>
+      </>
+    }
+  </div>
+  }
+  </>
 }

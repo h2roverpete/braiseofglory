@@ -14,7 +14,7 @@ import Error404 from "../../util/Error404";
 import SiteUsers from "../../auth/SiteUsers";
 import UserProfilePanel from "../../auth/UserProfilePanel";
 import {Outline} from "framework/util/OutlineUtil"
-import SmsAdmin from "../sms/SmsAdmin";
+import SmsAdminPage from "../sms/SmsAdminPage";
 
 /**
  * @typedef ErrorData
@@ -71,7 +71,7 @@ export default function Site(props) {
   const [MetaPages] = useState([
     {name: 'user', path: '/admin/user', content: <UserProfilePanel/>},
     {name: 'users', path: '/admin/users', content: <SiteUsers/>},
-    {name: 'sms', path: '/admin/sms', content: <SmsAdmin/>},
+    {name: 'sms', path: '/admin/sms', content: <SmsAdminPage/>},
     {name: 'login', path: '/login', content: <Login/>},
     {name: 'logout', path: '/logout', content: <Logout/>},
     {name: 'error', path: '*', content: <Error404/>},
