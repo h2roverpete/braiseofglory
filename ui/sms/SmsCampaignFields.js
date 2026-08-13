@@ -34,13 +34,6 @@ export default function SmsCampaignFields({campaign, onAdd, onUpdate, onDelete, 
     }
   }, [sites, Sites, showErrorAlert]);
 
-  useEffect(() => {
-    if (campaign && campaign.SandboxMode === undefined) {
-      campaign.SandboxMode = true;
-    }
-    formData.update(campaign);
-  }, [campaign, formData])
-
   /**
    * Handle validation event from CrudButtons.
    */

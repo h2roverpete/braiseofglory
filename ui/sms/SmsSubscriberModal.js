@@ -95,14 +95,18 @@ export default function SmsSubscriberModal({subscriber, show, onHide, onUpdate, 
       show={showDeleteConfirmation}
       onHide={() => setShowDeleteConfirmation(false)}
       className={'Editor'}
+      size={'sm'}
     >
-      <Modal.Header><h5>Delete Subscriber</h5></Modal.Header>
-      <Modal.Body>Are you sure you want to delete subscriber '{subscriber?.SubscriberName}'? This action can't be
-        undone.</Modal.Body>
-      <Modal.Footer>
-        <Button size="sm" variant="secondary" onClick={() => setShowDeleteConfirmation(false)}>Cancel</Button>
-        <Button size="sm" variant="danger" onClick={handleDelete}>Delete</Button>
-      </Modal.Footer>
+      <Modal.Body>
+        <h5>Delete Subscriber</h5>
+        <div>Are you sure you want to delete subscriber '{subscriber?.SubscriberName}'? This action can't be
+          undone.
+        </div>
+        <div className="mt-3 d-flex gap-2">
+          <Button size="sm" variant="secondary" onClick={() => setShowDeleteConfirmation(false)}>Cancel</Button>
+          <Button size="sm" variant="danger" onClick={handleDelete}>Delete</Button>
+        </div>
+      </Modal.Body>
     </Modal>
   </>
 }
