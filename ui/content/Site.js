@@ -69,12 +69,12 @@ export default function Site(props) {
   const [canEdit, setCanEdit] = useState(false);
   const [canBrowseProtected, setCanBrowseProtected] = useState(false);
   const [MetaPages] = useState([
-    {name: 'user', path: '/admin/user', content: <UserProfilePanel/>},
-    {name: 'users', path: '/admin/users', content: <SiteUsers/>},
-    {name: 'sms', path: '/admin/sms', content: <SmsAdminPage/>},
-    {name: 'login', path: '/login', content: <Login/>},
-    {name: 'logout', path: '/logout', content: <Logout/>},
-    {name: 'error', path: '*', content: <Error404/>},
+    {name: 'user', title: 'User', path: '/admin/user', content: <UserProfilePanel/>},
+    {name: 'users', title: 'Users', path: '/admin/users', content: <SiteUsers/>},
+    {name: 'sms', title: 'SMS Administration', path: '/admin/sms', content: <SmsAdminPage/>},
+    {name: 'login', title: 'Log In', path: '/login', content: <Login/>},
+    {name: 'logout', title: 'Log Out', path: '/logout', content: <Logout/>},
+    {name: 'error', title: 'Error', path: '*', content: <Error404/>},
   ]);
 
   useEffect(() => {
@@ -108,11 +108,17 @@ export default function Site(props) {
             return;
           }
         }
-        // page not found
+        for (const page of MetaPages) {
+          if (page.path === location.pathname) {
+            setCurrentPage({PageID:0, PageTitle: page.title});
+            return;
+          }
+        }
+        // page not found in outline
         setCurrentPage({PageID:0});
       }
     }
-  }, [location.pathname, outlineData, setCurrentPage, cfmPageId]);
+  }, [location.pathname, MetaPages, outlineData, setCurrentPage, cfmPageId]);
 
   useEffect(() => {
     // Google Analytics, if provided.
