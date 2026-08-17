@@ -1,7 +1,8 @@
 div.PageContent {
   height: 100%;
   display: flex;
-  overflow:scroll;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 div.SmsAdmin {

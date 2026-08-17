@@ -110,7 +110,7 @@ export default function Site(props) {
         }
         for (const page of MetaPages) {
           if (page.path === location.pathname) {
-            setCurrentPage({PageID:0, PageTitle: page.title});
+            setCurrentPage({PageID:0, PageTitle: page.title, RequiresLogin: true});
             return;
           }
         }

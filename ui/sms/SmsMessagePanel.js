@@ -24,6 +24,7 @@ export default function SmsMessagePanel({campaign, message}) {
         Subscribers: selectedSubscribers,
       }).then((result) => {
         listApi.current.addListItems(result);
+        setSelectedSubscribers([]);
         setSending(false);
       }).catch((error) => {
         showErrorAlert(error);

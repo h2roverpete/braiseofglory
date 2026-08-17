@@ -212,9 +212,9 @@ export default function SmsSignupFields({smsCampaignId}) {
             <Col sm={7}>
               <EmailField
                 id={'SubscriberEmail'}
+                name={'SubscriberEmail'}
                 value={formData.edits?.SubscriberEmail || ''}
                 onChange={(e) => formData.onDataChanged({name: 'SubscriberEmail', value: e.target.value})}
-                className={'w-100'}
               />
             </Col>
           </Row>

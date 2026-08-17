@@ -33,19 +33,21 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
   }, [hasPermission, setHasAdminPermission]);
 
   useEffect(() => {
-    if (campaignId && !campaign) {
+    if (campaignData && !campaign) {
+      setCampaign(campaignData);
+    } else if (campaignId && !campaign) {
       SMS.getSmsCampaign(campaignId).then((result) => {
         setCampaign(result);
       }).catch((err) => {
         showErrorAlert(err);
       })
     }
-  }, [SMS, campaignId, campaign, showErrorAlert]);
+  }, [SMS, campaignId, campaign, campaignData, showErrorAlert]);
 
   return <>{campaign && <div
     className={'Editor CampaignTabPanel'}
   >
-    {hasAdminPermission ?
+    {hasAdminPermission ? /* full tab panel for admins */
       <Tabs
         defaultActiveKey={"send"}
         className="mt-2"
@@ -136,7 +138,7 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
         </TabPane>
       </Tabs>
       :
-      <> {hasSendPermission &&
+      <> {hasSendPermission && /* just sending UI for send permissions */
         <Row>
           <h4>Send a Message to {campaign.CampaignName} Subscribers</h4>
           <FormEditor>

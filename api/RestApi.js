@@ -16,6 +16,7 @@ export default function RestApi(props) {
   if (cookies.token) {
     axios.defaults.headers.common["Authorization"] = `Bearer ${cookies.token.access_token}`;
   }
+  axios.defaults.timeout = 5 * 60 * 1000;
 
   const getSites = useCallback(async (data) => {
     return await adminApiCall(() => {
@@ -538,8 +539,12 @@ export default function RestApi(props) {
   }, []);
 
   const getSmsCampaign = useCallback(async (smsCampaignId) => {
-    const response = await axios.get(`${host}/api/v1/sms/campaigns/${smsCampaignId}`);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.get(`${host}/api/v1/sms/campaigns/${smsCampaignId}`);
+        return response.data;
+      }
+    });
   }, []);
 
   const insertOrUpdateSmsCampaign = useCallback(async (data) => {
@@ -579,8 +584,12 @@ export default function RestApi(props) {
   }, []);
 
   const insertOrUpdateSmsSubscriber = useCallback(async (data) => {
-    const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/subscribers`, data);
-    return response.data;
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/subscribers`, data);
+        return response.data;
+      }
+    });
   }, []);
 
   const deleteSmsSubscriber = useCallback(async (campaignId, subscriberId) => {
@@ -610,10 +619,29 @@ export default function RestApi(props) {
     });
   }, []);
 
+  /**
+   * Insert an SMS message and send to all subscribers.
+   *
+   * @type {function(SMSMessageData): Promise<SMSMessageData>}
+   */
   const sendSmsMessage = useCallback(async (data) => {
     return await adminApiCall(() => {
       return async () => {
         const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/send`, data);
+        return response.data;
+      }
+    });
+  }, []);
+
+  /**
+   * Insert or update SMS message without sending.
+   *
+   * @type {function(SMSMessageData): Promise<SMSMessageData>}
+   */
+  const insertOrUpdateSmsMessage = useCallback(async (data) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/messages`, data);
         return response.data;
       }
     });
@@ -823,6 +851,7 @@ export default function RestApi(props) {
         getSmsSubscriber: getSmsSubscriber,
         insertOrUpdateSmsSubscriber: insertOrUpdateSmsSubscriber,
         deleteSmsSubscriber: deleteSmsSubscriber,
+        insertOrUpdateSmsMessage: insertOrUpdateSmsMessage,
         sendSmsMessage: sendSmsMessage,
         resendSmsMessage: resendSmsMessage,
         getSmsWhitelist: getSmsWhitelist,
