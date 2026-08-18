@@ -76,7 +76,7 @@ export default function SmsMessageList({campaign, onViewMessage}) {
       responsive
       style={{
         height: "100%",
-        overflowY: 'scroll'
+        overflowY: 'auto'
       }}
     >
       <thead style={{position: 'sticky', top: 0,}}>

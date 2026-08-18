@@ -4,15 +4,15 @@ import {Resource, Permission} from "../../auth/Permissions";
 import {useEffect, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
-import SmsCampaignFields from "./SmsCampaignFields";
 import SmsSubscriberList from "./SmsSubscriberList";
 import SmsMessageList from "./SmsMessageList";
 import SmsMessagePanel from "./SmsMessagePanel";
 import FormEditor from "../editor/FormEditor";
-import SendSmsMessageFields from "./SendSmsMessageFields";
+import SendSmsMessagePanel from "./SendSmsMessagePanel";
 import SmsLogEntryList from "./SmsLogEntryList";
 import './SmsAdminPage.css'
 import {BsXLg} from "react-icons/bs";
+import SmsCampaignConfig from "./SmsCampaignConfig";
 
 export default function SmsCampaignPanel({campaignId, campaignData}) {
 
@@ -60,9 +60,7 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
           <div className={'TabPaneContents'}>
             <h4>Send a Message to {campaign.CampaignName} Subscribers</h4>
             <div className={'ScrollY'}>
-              <FormEditor>
-                <SendSmsMessageFields campaign={campaign}/>
-              </FormEditor>
+              <SendSmsMessagePanel campaign={campaign}/>
             </div>
           </div>
         </TabPane>
@@ -91,7 +89,7 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
                 />
                 <h4>Message: {message.Title}</h4>
                 <div className={'position-relative'}
-                     style={{height: '100%', overflowY: 'scroll', overflowX: 'clip'}}
+                     style={{height: '100%', overflowY: 'auto', overflowX: 'clip'}}
                 >
                   <SmsMessagePanel
                     campaign={campaign}
@@ -125,14 +123,12 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
           title={'Config'}
           eventKey={"config"}
           className="p-3 border border-light-subtle border-top-0"
-          style={{height: '100%', overflowY: 'scroll', overflowX: 'clip'}}
+          style={{height: '100%', overflowY: 'auto', overflowX: 'clip'}}
         >
           <div className={'TabPaneContents'}>
             <h4>{campaign.CampaignName} Config</h4>
             <div className={'ScrollY'}>
-              <FormEditor>
-                <SmsCampaignFields campaign={campaign}/>
-              </FormEditor>
+                <SmsCampaignConfig campaign={campaign}/>
             </div>
           </div>
         </TabPane>
@@ -142,7 +138,7 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
         <Row>
           <h4>Send a Message to {campaign.CampaignName} Subscribers</h4>
           <FormEditor>
-            <SendSmsMessageFields campaign={campaign}/>
+            <SendSmsMessagePanel campaign={campaign}/>
           </FormEditor>
         </Row>
       }

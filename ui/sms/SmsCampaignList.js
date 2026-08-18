@@ -134,7 +134,7 @@ export default function SmsCampaignList() {
             style={{
               height: 'auto',
               flexGrow: 1,
-              overflowY: 'scroll'
+              overflowY: 'auto'
             }}
           >
             <thead style={{position: 'sticky', top: 0,}}>

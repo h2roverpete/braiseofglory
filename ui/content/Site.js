@@ -110,12 +110,12 @@ export default function Site(props) {
         }
         for (const page of MetaPages) {
           if (page.path === location.pathname) {
-            setCurrentPage({PageID:0, PageTitle: page.title, RequiresLogin: true});
+            setCurrentPage({PageID: 0, PageTitle: page.title, RequiresLogin: true});
             return;
           }
         }
         // page not found in outline
-        setCurrentPage({PageID:0});
+        setCurrentPage({PageID: 0});
       }
     }
   }, [location.pathname, MetaPages, outlineData, setCurrentPage, cfmPageId]);
@@ -144,12 +144,27 @@ export default function Site(props) {
 
   /**
    * Display an error alert.
-   * @param {ErrorData} errorData
+   *
+   * Meant to be a replacement for console.error(text,Error)
+   * or just pass the Error.
+   *
+   * @param {Error | String} error    Prompt string or Error.
+   * @param {Error} exception         Error to show after prompt string.
    */
-  const showErrorAlert = useCallback((text, error) => {
-    // use stringify for deep compare
-    if (alert !== text) {
-      setAlert(`${text} ${error ? error.message : ''}`);
+  const showErrorAlert = useCallback((error, exception) => {
+    let msg;
+    if (typeof error === 'string' || error instanceof String) {
+      if (alert !== error) {
+        msg = `${error} ${exception?.response?.data?.message ? exception.response.data.message : exception.message ? exception.message : ''}`;
+      }
+    } else if (error?.response?.data?.message) {
+      //
+      msg = error.response.data.message;
+    } else if (error.message) {
+      msg = error.message;
+    }
+    if (msg && alert !== msg) {
+      setAlert(msg);
     }
   }, [alert]);
 

@@ -2,7 +2,18 @@
   position: relative;
   background-color: #cccccc;
   padding: 15px;
-  color:black;
-  font-size:10pt;
+  color: black;
+  font-size: 10pt;
   line-height: 1.4;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 200px;
+}
+
+/* bootstrap xs width */
+@media (max-width: 575px) {
+  .email-preview {
+    max-height:100px;
+    overflow-y:auto;
+  }
 }

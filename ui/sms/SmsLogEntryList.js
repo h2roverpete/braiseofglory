@@ -4,27 +4,34 @@ import {BsSortDown, BsSortUp} from "react-icons/bs";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
 import SmsLogEntryModal from "./SmsLogEntryModal";
+import {isValidPhoneNumber} from "../../util/Validators";
+import {formatPhoneNumber} from "../../util/Formatters";
 
 /**
- * @typedef ListAPI
+ * @typedef ListAPI<T>
  *
- * @property {function([SMSLogData])} addListItems
+ * @property {function([T])} addListItems
+ * @property {function(): [T]} getListItems
+ * @property {function(): [T]} getCheckedItems
  */
+
 /**
  *
  * @param {SMSCampaignData} campaign
  * @param {SMSMessageData | null} [message]
- * @param {function(SMSLogData, Boolean)} [onItemChecked]   Callback when a list item is checked or unchecked
- * @param {RefObject<function(ListAPI)>} [apiRef]                 API for accessing list.
+ * @param {function(SMSLogData, Boolean)} [onItemChecked]         Callback when a list item is checked or unchecked
+ * @param {function(Boolean)} [onAllItemsChecked]                 Callback for check all / uncheck all items.
+ * @param {RefObject<function(ListAPI<SMSLogData>)>} [apiRef]      API for accessing list.
  * @constructor
  */
-export default function SmsLogEntryList({campaign, message, onItemChecked, apiRef}) {
+export default function SmsLogEntryList({campaign, message, onItemChecked, onAllItemsChecked, apiRef}) {
 
   const {SMS} = useRestApi();
   const {showErrorAlert} = useSiteContext();
 
   const [listItems, setListItems] = useState(/** @type {[SMSLogData]} */ null);
   const [editItem, setEditItem] = useState( /** @type {SMSLogData} */ null);
+  const [checkedItems, setCheckedItems] = useState( /** @type {[SMSLogData]} */ []);
 
   const [sortKey, setSortKey] = useState('Created');
   const [sortAscending, setSortAscending] = useState(false);
@@ -64,13 +71,18 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, apiRe
     }
   }, [SMS, campaign, showErrorAlert, message, listItems, setListItems, sortFunction]);
 
+  /**
+   * @type {(function([SMSLogData]): void)|*}
+   */
   const handleAddItems = useCallback((items) => {
     setListItems([...listItems, ...items].sort(sortFunction));
   }, [listItems, sortFunction, setListItems]);
 
   if (apiRef) {
     apiRef.current = {
-      addListItems: handleAddItems
+      addListItems: handleAddItems,
+      getListItems: () => listItems,
+      getCheckedItems: () => checkedItems,
     }
   }
 
@@ -97,18 +109,43 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, apiRe
     }
   }
 
+  function handleItemChecked(item, checked) {
+    if (checked && !checkedItems.includes(checked)) {
+      setCheckedItems([...checkedItems, item]);
+    } else if (!checked && checkedItems.includes(item)) {
+      setCheckedItems(checkedItems.filter((v) => v !== item));
+    }
+    onItemChecked?.(item, checked);
+  }
+
+  function handleAllItemsChecked(checked) {
+    if (checked) {
+      setCheckedItems(listItems);
+    } else {
+      setCheckedItems([]);
+    }
+    onAllItemsChecked?.(checked);
+  }
+
   return <>{listItems?.length > 0 && <>
     <Table
       hover
       responsive
       style={{
         height: '100%',
-        overflowY: 'scroll'
+        overflowY: 'auto'
       }}
     >
       <thead style={{position: 'sticky', top: 0,}}>
       <tr>
-        {onItemChecked && <th></th>}
+        {onItemChecked && <th onClick={(e) => {
+          e.stopPropagation()
+        }}>
+          {onAllItemsChecked && <Form.Check
+            role={'button'}
+            onChange={(e) => handleAllItemsChecked(e.target.checked)}
+          />}
+        </th>}
         <th
           className={'text-nowrap'}
           role={'button'}
@@ -159,26 +196,6 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, apiRe
             <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
           }
         </th>
-        <th
-          className={'text-nowrap'}
-          role={'button'}
-          onClick={() => sortBy('UserID')}
-        >
-          User
-          {sortKey === 'UserID' &&
-            <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
-          }
-        </th>
-        <th
-          className={'text-nowrap'}
-          role={'button'}
-          onClick={() => sortBy('SMSMessageID')}
-        >
-          Message
-          {sortKey === 'SMSMessageID' &&
-            <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
-          }
-        </th>
       </tr>
       </thead>
       <tbody>
@@ -192,8 +209,10 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, apiRe
             e.stopPropagation()
           }}>
             <Form.Check
+              role={'button'}
+              checked={checkedItems.includes(listItem)}
               onChange={(e) => {
-                onItemChecked(listItem, e.target.checked);
+                handleItemChecked(listItem, e.target.checked);
               }}
             />
           </td>}
@@ -208,11 +227,10 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, apiRe
             hour12: true
           }).format(Date.parse(listItem.Created))}</td>
           <td>{listItem.Action}</td>
-          <td>{listItem.Subscriber}</td>
+          <td>{isValidPhoneNumber(listItem.Subscriber) ? formatPhoneNumber(listItem.Subscriber) : listItem.Subscriber}</td>
           <td
-            className={listItem.Error ? 'text-danger' : 'text-success'}>{listItem.Error ? listItem.Error : 'Sent'}</td>
-          <td>{listItem.UserID}</td>
-          <td>{listItem.SMSMessageID}</td>
+            className={listItem.Error ? 'text-danger' : 'text-success'}>{listItem.Error ? listItem.Error : 'Sent'}
+          </td>
         </tr>
       )}
       </tbody>

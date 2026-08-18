@@ -38,3 +38,15 @@
   line-height:1.4;
   color: white;
 }
+
+.bubble-content {
+  max-height:200px;
+  overflow-y:auto;
+}
+
+/* bootstrap xs width */
+@media (max-width: 575px) {
+  .bubble-content {
+    max-height:100px;
+  }
+}

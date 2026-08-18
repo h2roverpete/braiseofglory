@@ -1,4 +1,4 @@
-import {useFormData} from "../editor/FormEditor";
+import FormEditor, {useFormData} from "../editor/FormEditor";
 import {Button, Col, Form, Row, Spinner} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import {useAuth} from "../../auth/AuthProvider";
@@ -9,15 +9,14 @@ import SmsMessagePreview from "./SmsMessagePreview";
 
 /**
  * Display the fields for sending an SMS message.
- * NOTE: must be enclosed by a <FormEditor> tag.
  *
  * @param campaign {SMSCampaignData}
  * @returns {JSX.Element}
  * @constructor
  */
-export default function SendSmsMessageFields({campaign}) {
+export default function SendSmsMessagePanel({campaign}) {
 
-  const formData = useFormData();
+  const [formData, setFormData] = useState(/** @type FormDataAPI */ undefined)
   const {currentUser} = useAuth();
   const {SMS} = useRestApi();
   const {showErrorAlert} = useSiteContext();
@@ -30,16 +29,16 @@ export default function SendSmsMessageFields({campaign}) {
   const [showLog, setShowLog] = useState(false);
 
   useEffect(() => {
-    if (!formData.edits.SMSCampaignID) {
+    if (formData && !formData.edits.SMSCampaignID) {
       formData.edits.SMSCampaignID = campaign.SMSCampaignID;
     }
-    if (!formData.edits.UserID && currentUser?.UserID) {
+    if (formData && !formData.edits.UserID && currentUser?.UserID) {
       formData.edits.UserID = currentUser?.UserID;
     }
   }, [formData, currentUser, campaign.SMSCampaignID]);
 
   function isDataValid() {
-    return formData.edits.Title?.length > 0 && formData.edits.Message?.length > 0 && formData.edits.Message?.match(/[.?!]$/);
+    return formData?.edits.Title?.length > 0 && formData.edits.Message?.length > 0 && formData.edits.Message?.match(/[.?!]$/);
   }
 
   function sendMessage() {
@@ -74,7 +73,7 @@ export default function SendSmsMessageFields({campaign}) {
   }, [messageResult])
 
   return <>
-    {campaign && <>
+    {campaign && <FormEditor apiRef={setFormData}>
       {messageSent ?
         <>
           <Row className={'mt-2'}><Col><p>Your message was sent to {successCount} subscriber(s). {failureCount} error(s)
@@ -110,9 +109,9 @@ export default function SendSmsMessageFields({campaign}) {
                 id="Title"
                 size="sm"
                 type="text"
-                value={formData.edits.Title?.length > 0 ? formData.edits.Title : ''}
-                isValid={formData.isTouched('Title') && formData.edits.Title?.length > 0}
-                isInvalid={formData.isTouched('Title') && !(formData.edits.Title?.length > 0)}
+                value={formData?.edits.Title?.length > 0 ? formData.edits.Title : ''}
+                isValid={formData?.isTouched('Title') && formData.edits.Title?.length > 0}
+                isInvalid={formData?.isTouched('Title') && !(formData.edits.Title?.length > 0)}
                 onChange={(e) => formData.onDataChanged({name: 'Title', value: e.target.value})}
               />
             </Col>
@@ -131,16 +130,16 @@ export default function SendSmsMessageFields({campaign}) {
                 rows={3}
                 size={'sm'}
                 name={'Message'}
-                value={formData.edits.Message?.length > 0 ? formData.edits.Message : ''}
-                isValid={formData.isTouched('Message') && formData.edits.Message?.length > 0 && formData.edits.Message?.match(/[.?!]$/)}
-                isInvalid={formData.isTouched('Message') && (!(formData.edits.Message?.length > 0) || !formData.edits.Message?.match(/[.?!]$/))}
+                value={formData?.edits.Message?.length > 0 ? formData.edits.Message : ''}
+                isValid={formData?.isTouched('Message') && formData.edits.Message?.length > 0 && formData.edits.Message?.match(/[.?!]$/)}
+                isInvalid={formData?.isTouched('Message') && (!(formData.edits.Message?.length > 0) || !formData.edits.Message?.match(/[.?!]$/))}
                 onChange={(e) => formData.onDataChanged({name: 'Message', value: e.target.value})}
               />
             </Col>
           </Row>
           <Row><Col className={"small text-secondary"}>End your message with punctuation (.?!) to ensure
             readability.</Col></Row>
-          <SmsMessagePreview campaign={campaign} message={formData.edits} />
+          <SmsMessagePreview campaign={campaign} message={formData?.edits} />
           <Row className={'mt-4'}>
             <Col>
               <Button
@@ -154,6 +153,6 @@ export default function SendSmsMessageFields({campaign}) {
           </Row>
         </>
       }
-    </>}
+    </FormEditor>}
   </>
 }

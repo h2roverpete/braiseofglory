@@ -40,7 +40,7 @@ export default function CrudButtons({data, keyName, type, onUpdate, onCancel, on
         size={'sm'}
         variant="secondary"
         onClick={() => formData.revert()}
-        disabled={!formData.isDataChanged()}
+        disabled={!formData?.isDataChanged()}
       >
         Revert
       </Button>
