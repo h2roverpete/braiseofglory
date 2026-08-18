@@ -10,11 +10,13 @@ import './TextMessagePreview.css'
 export default function TextMessagePreview({campaign, text}) {
   return <>{
     <div className={'bubble-bottom-right'}>
-      {campaign && <>[{campaign.CampaignName}] </>}
-      <span
-        className={'text-light'}
-        dangerouslySetInnerHTML={{__html: text?.replaceAll('\n', '<br/>')}}
-      />
+      <div className={'bubble-content'}>
+        {campaign && <>[{campaign.CampaignName}] </>}
+        <span
+          className={'text-light'}
+          dangerouslySetInnerHTML={{__html: text?.replaceAll('\n', '<br/>')}}
+        />
+      </div>
     </div>
   }</>;
 }

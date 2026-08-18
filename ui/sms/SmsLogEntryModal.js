@@ -136,6 +136,13 @@ export default function SmsLogEntryModal({campaign, logEntry, show, onHide}) {
           </Col>
         </Row>
       }
+      {logEntry?.IncomingMessage &&
+        <Row className="mt-2">
+          <Col>
+            <TextMessagePreview text={JSON.parse(logEntry.IncomingMessage).messageBody}/>
+          </Col>
+        </Row>
+      }
       <Row>
         <Col>
           <Button

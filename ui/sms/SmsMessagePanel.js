@@ -24,6 +24,7 @@ export default function SmsMessagePanel({campaign, message}) {
         Subscribers: selectedSubscribers,
       }).then((result) => {
         listApi.current.addListItems(result);
+        setSelectedSubscribers([]);
         setSending(false);
       }).catch((error) => {
         showErrorAlert(error);
@@ -40,16 +41,35 @@ export default function SmsMessagePanel({campaign, message}) {
     }
   }
 
-  return <>{message && <>
-    <SmsMessagePreview message={message} campaign={campaign} />
-    <h5>Log</h5>
-    <SmsLogEntryList campaign={campaign} message={message} onItemChecked={handleItemChecked} apiRef={listApi} />
-    <div className={"mt-2"}>
+  function handleAllItemsChecked(checked) {
+    if (checked) {
+      let allSubscribers = [];
+      for (const subscriber of listApi.current.getListItems()) {
+        allSubscribers.push(subscriber.SubscriberID);
+      }
+      setSelectedSubscribers(allSubscribers);
+    } else {
+      setSelectedSubscribers([]);
+    }
+  }
+
+  return <>{message && <div style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
+    <div className={'mb-4'}>
+      <SmsMessagePreview message={message} campaign={campaign}/>
+    </div>
+    <SmsLogEntryList
+      campaign={campaign}
+      message={message}
+      onItemChecked={handleItemChecked}
+      onAllItemsChecked={handleAllItemsChecked}
+      apiRef={listApi}
+    />
+    <div className={"mt-4"}>
       <Button
         variant={'primary'}
         disabled={selectedSubscribers.length === 0 || sending}
         onClick={resendMessage}
-        style={{width:'300px'}}
+        style={{width: '300px'}}
       >
         {sending ?
           <Spinner size={"sm"}/>
@@ -58,5 +78,5 @@ export default function SmsMessagePanel({campaign, message}) {
         }
       </Button>
     </div>
-  </>}</>;
+  </div>}</>;
 }

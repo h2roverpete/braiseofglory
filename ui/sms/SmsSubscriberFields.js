@@ -18,7 +18,7 @@ export default function SmsSubscriberFields({subscriber}) {
 
   useEffect(() => {
     formData.update(subscriber);
-  }, [subscriber, formData]);
+  }, [subscriber]);
 
   const labelCols = 3;
   return <>
@@ -84,7 +84,8 @@ export default function SmsSubscriberFields({subscriber}) {
       <Col sm={7}>
         <Form.Check
           id={'Unsubscribed'}
-          checked={formData.edits?.Unsubscribed || false}
+          name={'Unsubscribed'}
+          checked={formData.edits?.Unsubscribed === true || false}
           onChange={(e) => formData.onDataChanged({name: 'Unsubscribed', value: e.target.checked})}
           label={'Unsubscribed'}
         />

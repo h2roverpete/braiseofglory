@@ -4,15 +4,23 @@ import SmsCampaignPanel from "./SmsCampaignPanel";
 import {Container} from "react-bootstrap";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
+import {Resource, Permission} from "../../auth/Permissions";
+import {useAuth} from "../../auth/AuthProvider";
 
 export default function SmsAdminPage() {
 
   const location = useLocation();
   const {SMS} = useRestApi();
   const {showErrorAlert} = useSiteContext();
+  const {hasPermission} = useAuth();
 
   const [campaignId, setCampaignId] = useState(0);
   const [campaign, setCampaign] = useState(/** @type {SMSCampaignData} */ null);
+  const [canView, setCanView] = useState(true);
+
+  useEffect(() => {
+    setCanView(hasPermission(Resource.SMS, Permission.SEND)); // minimum permission for admin panel
+  }, [hasPermission, setCanView]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
@@ -31,14 +39,15 @@ export default function SmsAdminPage() {
     }
   }, [campaignId, setCampaign, SMS, showErrorAlert, campaign]);
 
-  return <Container
-    fluid
-    className="PageContent"
-  >
-    <div className="SmsAdmin">
-      {campaign && <h1 className={"PageTitle"}>{campaign.CampaignName} Administration</h1>}
-      <SmsCampaignPanel campaignId={campaignId}/>
-    </div>
-  </Container>
-
+  return <>{canView ? <Container
+      fluid
+      className="PageContent"
+    >
+      <div className="SmsAdmin">
+        {campaign && <h1 className={"PageTitle"}>{campaign.CampaignName} Administration</h1>}
+        <SmsCampaignPanel campaignData={campaign}/>
+      </div>
+    </Container>
+    :
+    <></>}</>;
 }

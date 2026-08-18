@@ -22,8 +22,8 @@ export default function EmailField(props) {
       autoComplete="email"
       value={props.value || ''}
       onChange={(e) => formData.onDataChanged({name: props.name, value: e.target.value})}
-      isValid={formData.isTouched(props.name) && isValidEmail(props.value)}
-      isInvalid={formData.isTouched(props.name) && !isValidEmail(props.value)}
+      isValid={formData?.isTouched(props.name) && isValidEmail(props.value)}
+      isInvalid={formData?.isTouched(props.name) && !isValidEmail(props.value)}
       className={props.className}
     />
   )

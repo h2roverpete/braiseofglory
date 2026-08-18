@@ -37,11 +37,11 @@ export default function SmsSignupFields({smsCampaignId}) {
     // set up default notification method
     if (smsCampaignConfig && !formData.edits.NotificationMethod) {
       if (smsCampaignConfig?.TextCampaign && smsCampaignConfig.EmailCampaign) {
-        formData.onDataChanged({name:'NotificationMethod', value:'text'}); // default to text
+        formData.onDataChanged({name: 'NotificationMethod', value: 'text'}); // default to text
       } else if (smsCampaignConfig?.EmailCampaign) {
-        formData.onDataChanged({name:'NotificationMethod', value:'email'}); // email only
+        formData.onDataChanged({name: 'NotificationMethod', value: 'email'}); // email only
       } else {
-        formData.onDataChanged({name:'NotificationMethod', value:'text'}); // text only
+        formData.onDataChanged({name: 'NotificationMethod', value: 'text'}); // text only
       }
     }
   }, [smsCampaignConfig, formData]);
@@ -71,12 +71,8 @@ export default function SmsSignupFields({smsCampaignId}) {
       formData.setData(response)
       setSubmitted(true);
       setSubmitting(false);
-    }).catch(() => {
-      if (formData.edits.NotificationMethod !== 'email') {
-        showErrorAlert(`This mobile number is already subscribed.`);
-      } else {
-        showErrorAlert(`This email address is already subscribed.`);
-      }
+    }).catch((err) => {
+      showErrorAlert(err);
       setSubmitting(false);
     });
   }
@@ -141,6 +137,7 @@ export default function SmsSignupFields({smsCampaignId}) {
             <Col className={'d-flex align-items-center'}>
               <Form.Check
                 type={'radio'}
+                role={'button'}
                 label={'Text Message'}
                 value={'text'}
                 id={'NotificationMethod'}
@@ -152,6 +149,7 @@ export default function SmsSignupFields({smsCampaignId}) {
               />
               <Form.Check
                 type={'radio'}
+                role={'button'}
                 label={'Email'}
                 value={'email'}
                 id={'NotificationMethod'}
@@ -188,6 +186,7 @@ export default function SmsSignupFields({smsCampaignId}) {
               <Col xs={1} className={'text-center'}>
                 <Form.Check
                   type={'checkbox'}
+                  role={'button'}
                   name={`Accept`}
                   checked={formData.edits?.Accept || 0}
                   onChange={(e) => formData.onDataChanged({name: 'Accept', value: e.target.checked})}
@@ -212,9 +211,9 @@ export default function SmsSignupFields({smsCampaignId}) {
             <Col sm={7}>
               <EmailField
                 id={'SubscriberEmail'}
+                name={'SubscriberEmail'}
                 value={formData.edits?.SubscriberEmail || ''}
                 onChange={(e) => formData.onDataChanged({name: 'SubscriberEmail', value: e.target.value})}
-                className={'w-100'}
               />
             </Col>
           </Row>

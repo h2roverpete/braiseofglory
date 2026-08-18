@@ -7,6 +7,8 @@ import {BsSortDown, BsSortUp} from "react-icons/bs";
 import "../css/EditableRow.css";
 import FormEditor from "framework/ui/editor/FormEditor";
 import SmsSubscriberModal from "framework/ui/sms/SmsSubscriberModal";
+import {isValidPhoneNumber} from "../../util/Validators";
+import {formatPhoneNumber} from "../../util/Formatters";
 
 export default function SmsSubscriberList({campaign}) {
 
@@ -105,7 +107,7 @@ export default function SmsSubscriberList({campaign}) {
         responsive
         style={{
           height: "100%",
-          overflowY: 'scroll'
+          overflowY: 'auto'
         }}
       >
         <thead style={{position: 'sticky', top: 0,}}>
@@ -178,7 +180,7 @@ export default function SmsSubscriberList({campaign}) {
             <td className={`${subscriber.Unsubscribed ? ' text-danger' : ''}`}>
               {subscriber.SubscriberName}
             </td>
-            <td>{subscriber.SubscriberMobileNumber}</td>
+            <td>{isValidPhoneNumber(subscriber.SubscriberMobileNumber) && formatPhoneNumber(subscriber.SubscriberMobileNumber)}</td>
             <td>{subscriber.SubscriberEmail}</td>
             <td>{Intl.DateTimeFormat('en-US', {
               year: 'numeric',
