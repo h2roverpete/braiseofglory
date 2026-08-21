@@ -1,4 +1,4 @@
-import FormEditor, {useFormData} from "../editor/FormEditor";
+import FormEditor from "../editor/FormEditor";
 import {Button, Col, Form, Row, Spinner} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import {useAuth} from "../../auth/AuthProvider";
@@ -6,6 +6,8 @@ import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
 import './TextMessagePreview.css';
 import SmsMessagePreview from "./SmsMessagePreview";
+import SmsSubscriberList from "./SmsSubscriberList";
+import {useFormData} from "../editor/FormEditor";
 
 /**
  * Display the fields for sending an SMS message.
@@ -16,17 +18,19 @@ import SmsMessagePreview from "./SmsMessagePreview";
  */
 export default function SendSmsMessagePanel({campaign}) {
 
-  const [formData, setFormData] = useState(/** @type FormDataAPI */ undefined)
   const {currentUser} = useAuth();
   const {SMS} = useRestApi();
   const {showErrorAlert} = useSiteContext();
   const [messageSending, setMessageSending] = useState(false);
   const [messageSent, setMessageSent] = useState(false);
-  const [messageResult, setMessageResult] = useState(null);
   const [successCount, setSuccessCount] = useState(0);
-  const [messageLog, setMessageLog] = useState([]);
+  const [messageLog, setMessageLog] = useState(/** @type [SMSLogData]*/[]);
   const [failureCount, setFailureCount] = useState(null);
   const [showLog, setShowLog] = useState(false);
+  const [sendToAll, setSendToAll] = useState(true);
+  const [sendTo, setSendTo] = useState([]);
+
+  const formData = useFormData();
 
   useEffect(() => {
     if (formData && !formData.edits.SMSCampaignID) {
@@ -43,37 +47,70 @@ export default function SendSmsMessagePanel({campaign}) {
 
   function sendMessage() {
     setMessageSending(true);
-    SMS.sendSmsMessage(formData.edits).then((result) => {
-      setMessageSent(true);
-      setMessageSending(false);
-      setMessageResult(result);
-    }).catch((err) => {
-      showErrorAlert(err);
-      setMessageSending(false);
-    })
+    if (sendToAll) {
+      SMS.sendSmsMessage(formData.edits).then((result) => {
+        setMessageSent(true);
+        setMessageSending(false);
+        setMessageLog(JSON.parse(result.Log));
+      }).catch((err) => {
+        showErrorAlert(err);
+        setMessageSending(false);
+      });
+    } else {
+      SMS.insertOrUpdateSmsMessage(formData.edits).then((result) => {
+        formData.update(result);
+        SMS.resendSmsMessage({
+          SMSCampaignID: campaign.SMSCampaignID,
+          SMSMessageID: result.SMSMessageID,
+          Subscribers: sendTo,
+        }).then((result) => {
+          setMessageSent(true);
+          setMessageSending(false);
+          setMessageLog(result);
+        }).catch((err) => {
+          showErrorAlert(err);
+          setMessageSending(false);
+        });
+      }).catch((err) => {
+        showErrorAlert(err);
+        setMessageSending(false);
+      });
+    }
   }
 
   useEffect(() => {
-    if (messageResult && messageResult.Log) {
+    if (messageLog) {
       let successCount = 0;
       let failureCount = 0;
-      /** @type {[SMSMessageResult]} */
-      const log = JSON.parse(messageResult.Log);
-      for (const logEntry of log) {
+      for (const logEntry of messageLog) {
         if (logEntry.Error) {
           failureCount++;
         } else {
           successCount++;
         }
       }
-      setMessageLog(log);
       setSuccessCount(successCount);
       setFailureCount(failureCount);
+    } else {
+      setSuccessCount(0);
+      setFailureCount(0);
     }
-  }, [messageResult])
+  }, [messageLog]);
+
+  function handleSubscriberChecked(subscriber, checked) {
+    if (checked && !sendTo.includes(subscriber.SubscriberID)) {
+      setSendTo([...sendTo, subscriber.SubscriberID]);
+    } else if (!checked && sendTo.includes(subscriber.SubscriberID)) {
+      setSendTo(sendTo.filter((id)=>id!==subscriber.SubscriberID));
+    }
+  }
+
+  function handleAllSubscribersChecked(subscribers) {
+    setSendTo(subscribers.map((subscriber) => subscriber.SubscriberID));
+  }
 
   return <>
-    {campaign && <FormEditor apiRef={setFormData}>
+    {campaign && <>
       {messageSent ?
         <>
           <Row className={'mt-2'}><Col><p>Your message was sent to {successCount} subscriber(s). {failureCount} error(s)
@@ -81,7 +118,7 @@ export default function SendSmsMessagePanel({campaign}) {
           {showLog && <Row className={'mt-2'}>
             <Col>
               {messageLog.map((logEntry) => {
-                return <div
+                return <div key={logEntry.SMSLogID}
                   className={logEntry.Error ? "text-danger" : "text-success"}>{logEntry.Subscriber} {logEntry.Error}</div>
               })}
             </Col>
@@ -109,7 +146,7 @@ export default function SendSmsMessagePanel({campaign}) {
                 id="Title"
                 size="sm"
                 type="text"
-                value={formData?.edits.Title?.length > 0 ? formData.edits.Title : ''}
+                value={formData?.edits.Title || ''}
                 isValid={formData?.isTouched('Title') && formData.edits.Title?.length > 0}
                 isInvalid={formData?.isTouched('Title') && !(formData.edits.Title?.length > 0)}
                 onChange={(e) => formData.onDataChanged({name: 'Title', value: e.target.value})}
@@ -130,7 +167,7 @@ export default function SendSmsMessagePanel({campaign}) {
                 rows={3}
                 size={'sm'}
                 name={'Message'}
-                value={formData?.edits.Message?.length > 0 ? formData.edits.Message : ''}
+                value={formData?.edits.Message || ''}
                 isValid={formData?.isTouched('Message') && formData.edits.Message?.length > 0 && formData.edits.Message?.match(/[.?!]$/)}
                 isInvalid={formData?.isTouched('Message') && (!(formData.edits.Message?.length > 0) || !formData.edits.Message?.match(/[.?!]$/))}
                 onChange={(e) => formData.onDataChanged({name: 'Message', value: e.target.value})}
@@ -139,20 +176,52 @@ export default function SendSmsMessagePanel({campaign}) {
           </Row>
           <Row><Col className={"small text-secondary"}>End your message with punctuation (.?!) to ensure
             readability.</Col></Row>
-          <SmsMessagePreview campaign={campaign} message={formData?.edits} />
+          <SmsMessagePreview campaign={campaign} message={formData?.edits}/>
+          <Row className={'mt-2'}>
+            <Col className={'d-flex'}>
+              <Form.Label
+                xxl={2}
+                column={'sm'}
+                htmlFor={'SendToAll'}
+                className={'me-4'}
+              >
+                Send to:
+              </Form.Label>
+              <Form.Check
+                type='radio'
+                name={'SendToAll'}
+                checked={sendToAll}
+                onChange={() => setSendToAll(!sendToAll)}
+                label={"All subscribers"}
+                inline
+              />
+              <Form.Check
+                type='radio'
+                name={'SendToAll'}
+                checked={!sendToAll}
+                onChange={() => setSendToAll(!sendToAll)}
+                label={"Selected subscribers"}
+                inline
+              />
+            </Col>
+          </Row>
+          <div hidden={sendToAll}>
+            <SmsSubscriberList campaign={campaign} onItemChecked={handleSubscriberChecked}
+                               onAllItemsChecked={handleAllSubscribersChecked}/>
+          </div>
           <Row className={'mt-4'}>
             <Col>
               <Button
                 disabled={!isDataValid() || messageSending}
                 onClick={sendMessage}
-                style={{width: '150px'}}
+                style={{width: '200px'}}
               >
-                {messageSending ? <Spinner animation="border" size="sm"/> : <span>Send Message</span>}
+                {messageSending ? <Spinner animation="border" size="sm"/> : <span>{sendToAll ? <>Send Message</> : <>Send to {sendTo.length} Subscriber{sendTo.length !== 1 && <>s</>}</>}</span>}
               </Button>
             </Col>
           </Row>
         </>
       }
-    </FormEditor>}
+    </>}
   </>
 }

@@ -60,7 +60,9 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
           <div className={'TabPaneContents'}>
             <h4>Send a Message to {campaign.CampaignName} Subscribers</h4>
             <div className={'ScrollY'}>
-              <SendSmsMessagePanel campaign={campaign}/>
+              <FormEditor>
+                <SendSmsMessagePanel campaign={campaign}/>
+              </FormEditor>
             </div>
           </div>
         </TabPane>
@@ -128,7 +130,7 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
           <div className={'TabPaneContents'}>
             <h4>{campaign.CampaignName} Config</h4>
             <div className={'ScrollY'}>
-                <SmsCampaignConfig campaign={campaign}/>
+              <SmsCampaignConfig campaign={campaign}/>
             </div>
           </div>
         </TabPane>

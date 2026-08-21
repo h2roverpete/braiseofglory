@@ -72,7 +72,7 @@ export default function SmsCampaignList() {
     if (listItems) {
       setListItems(prevValue => [...prevValue.sort(sortFunction)]);
     }
-  }, [listItems, sortKey, sortAscending, sortFunction]);
+  }, [setListItems, sortKey, sortAscending, sortFunction]);
 
   function onSortBy(key) {
     if (sortKey !== key) {
@@ -120,7 +120,7 @@ export default function SmsCampaignList() {
       {viewCampaign !== null ? <div className="CampaignList position-relative mt-2">
           <CloseButton
             className={'position-absolute'}
-            style={{top:'0px', right:'0px'}}
+            style={{top: '0px', right: '0px'}}
             onClick={() => setViewCampaign(null)}
           />
           <h4>{viewCampaign.CampaignName}</h4>

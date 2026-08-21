@@ -40,7 +40,7 @@ export default function SmsCampaignFields({campaign, onAdd, onUpdate, onDelete, 
       campaign.SandboxMode = true;
     }
     formData.update(campaign);
-  }, [campaign, formData])
+  }, [campaign])
 
   /**
    * Handle validation event from CrudButtons.
