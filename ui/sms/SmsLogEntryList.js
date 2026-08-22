@@ -6,6 +6,7 @@ import {useSiteContext} from "../content/Site";
 import SmsLogEntryModal from "./SmsLogEntryModal";
 import {isValidPhoneNumber} from "../../util/Validators";
 import {formatPhoneNumber} from "../../util/Formatters";
+import './SmsLogEntryList.css';
 
 /**
  * @typedef ListAPI<T>
@@ -127,14 +128,11 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, onAll
     onAllItemsChecked?.(checked);
   }
 
-  return <>{listItems?.length > 0 && <>
+  return <>{listItems?.length > 0 && <div className={'SmsLogEntryList'}>
     <Table
       hover
       responsive
-      style={{
-        height: '100%',
-        overflowY: 'auto'
-      }}
+      className={'SmsLogEntryList'}
     >
       <thead style={{position: 'sticky', top: 0,}}>
       <tr>
@@ -236,6 +234,6 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, onAll
       </tbody>
     </Table>
     <SmsLogEntryModal show={editItem} campaign={campaign} logEntry={editItem} onHide={() => setEditItem(null)}/>
-  </>}
+  </div>}
   </>
 }

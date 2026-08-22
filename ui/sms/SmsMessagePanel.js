@@ -53,7 +53,7 @@ export default function SmsMessagePanel({campaign, message}) {
     }
   }
 
-  return <>{message && <div style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
+  return <>{message && <div style={{height: '100%', display: 'flex', flexDirection: 'column', overflowY: 'auto', overflowX: 'hidden'}}>
     <div className={'mb-4'}>
       <SmsMessagePreview message={message} campaign={campaign}/>
     </div>

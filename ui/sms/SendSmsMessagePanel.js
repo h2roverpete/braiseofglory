@@ -1,4 +1,3 @@
-import FormEditor from "../editor/FormEditor";
 import {Button, Col, Form, Row, Spinner} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import {useAuth} from "../../auth/AuthProvider";
@@ -8,6 +7,7 @@ import './TextMessagePreview.css';
 import SmsMessagePreview from "./SmsMessagePreview";
 import SmsSubscriberList from "./SmsSubscriberList";
 import {useFormData} from "../editor/FormEditor";
+import './SendSmsMessagePanel.css';
 
 /**
  * Display the fields for sending an SMS message.
@@ -110,7 +110,7 @@ export default function SendSmsMessagePanel({campaign}) {
   }
 
   return <>
-    {campaign && <>
+    {campaign && <div className={'SendSmsMessagePanel'}>
       {messageSent ?
         <>
           <Row className={'mt-2'}><Col><p>Your message was sent to {successCount} subscriber(s). {failureCount} error(s)
@@ -205,11 +205,11 @@ export default function SendSmsMessagePanel({campaign}) {
               />
             </Col>
           </Row>
-          <div hidden={sendToAll}>
+          <div hidden={sendToAll} className={'SmsSubscriberList'}>
             <SmsSubscriberList campaign={campaign} onItemChecked={handleSubscriberChecked}
-                               onAllItemsChecked={handleAllSubscribersChecked}/>
+                               onAllItemsChecked={handleAllSubscribersChecked} showFilter={true}/>
           </div>
-          <Row className={'mt-4'}>
+          <Row className={'mt-3'}>
             <Col>
               <Button
                 disabled={!isDataValid() || messageSending}
@@ -222,6 +222,6 @@ export default function SendSmsMessagePanel({campaign}) {
           </Row>
         </>
       }
-    </>}
+    </div>}
   </>
 }

@@ -7,13 +7,11 @@
   line-height: 1.4;
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: 200px;
 }
 
 /* bootstrap xs width */
 @media (max-width: 575px) {
   .email-preview {
-    max-height:100px;
-    overflow-y:auto;
+    max-height:none;
   }
 }

@@ -1,10 +1,11 @@
 import {useCallback, useEffect, useState} from "react";
-import {Table, Form} from "react-bootstrap";
+import {Table, Form, Button, Row, Col} from "react-bootstrap";
 import {BsSortDown, BsSortUp} from "react-icons/bs";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
 import SmsSubscriberModal from "./SmsSubscriberModal";
 import FormEditor from "../editor/FormEditor";
+import './SmsSubscriberList.css';
 
 /**
  * @typedef ListAPI<T>
@@ -15,14 +16,27 @@ import FormEditor from "../editor/FormEditor";
  */
 
 /**
+ * Display a list of campaign subscribers.
  *
  * @param {SMSCampaignData} campaign
- * @param {function(SMSSubscriberData, Boolean)} [onItemChecked]         Callback when a list item is checked or unchecked
- * @param {function([SMSSubscriberData], Boolean)} [onAllItemsChecked]                       Callback for check all / uncheck all items.
+ * @param {function(SMSSubscriberData, Boolean)} [onItemChecked]          Callback when a list item is checked or unchecked
+ * @param {function([SMSSubscriberData], Boolean)} [onAllItemsChecked]    Callback for check all / uncheck all items.
  * @param {RefObject<function(ListAPI<SMSSubscriberData>)>} [apiRef]      API for accessing list.
+ * @param {Boolean} [canAddSubscribers]                                   Show a button for adding subscribers.
+ * @param {Boolean} [canEditSubscribers]                                  Allow clicks in list to edit subscribers.
+ * @param {Boolean} [showFilter]                                          Show the filter panel.
  * @constructor
  */
-export default function SmsSubscriberList({campaign, onItemChecked, onAllItemsChecked, apiRef}) {
+export default function SmsSubscriberList(
+  {
+    campaign,
+    onItemChecked,
+    onAllItemsChecked,
+    apiRef,
+    canAddSubscribers,
+    canEditSubscribers,
+    showFilter,
+  }) {
 
   const {SMS} = useRestApi();
   const {showErrorAlert} = useSiteContext();
@@ -30,9 +44,9 @@ export default function SmsSubscriberList({campaign, onItemChecked, onAllItemsCh
   const [listItems, setListItems] = useState(/** @type {[SMSSubscriberData]} */ null);
   const [editItem, setEditItem] = useState( /** @type {SMSSubscriberData} */ null);
   const [checkedItems, setCheckedItems] = useState( /** @type {[SMSSubscriberData]} */ []);
-
   const [sortKey, setSortKey] = useState('Created');
   const [sortAscending, setSortAscending] = useState(false);
+  const [filter, setFilter] = useState(/** @type String */ '');
 
   const sortFunction = useCallback((a, b) => {
     if (a[sortKey] !== undefined && b[sortKey] !== undefined) {
@@ -119,114 +133,150 @@ export default function SmsSubscriberList({campaign, onItemChecked, onAllItemsCh
     onAllItemsChecked?.(checked ? listItems : [], checked);
   }
 
+  const filterFunction = useCallback((item) => {
+    if (filter?.length > 0) {
+      return item.SubscriberName?.toLowerCase().includes(filter.toLowerCase())
+        || item.SubscriberEmail?.toLowerCase().includes(filter.toLowerCase())
+        || item.SubscriberMobileNumber?.toLowerCase().includes(filter.toLowerCase());
+    } else {
+      return true;
+    }
+  }, [filter]);
+
   return <>{listItems?.length > 0 && <>
-    <Table
-      hover
-      responsive
-      style={{
-        height: '100%',
-        overflowY: 'auto'
-      }}
-    >
-      <thead style={{position: 'sticky', top: 0,}}>
-      <tr>
-        {onItemChecked && <th onClick={(e) => {
-          e.stopPropagation()
-        }}>
-          {onAllItemsChecked && <Form.Check
-            role={'button'}
-            onChange={(e) => handleAllItemsChecked(e.target.checked)}
-          />}
-        </th>}
-        <th
-          className={'text-nowrap'}
-          role={'button'}
-          onClick={() => sortBy('SubscriberID')}
-        >
-          ID
-          {sortKey === 'SubscriberID' &&
-            <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
-          }
-        </th>
-        <th
-          className={'text-nowrap'}
-          role={'button'}
-          onClick={() => sortBy('SubscriberName')}
-        >
-          Name
-          {sortKey === 'SubscriberName' &&
-            <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
-          }
-        </th>
-        <th
-          className={'text-nowrap'}
-          role={'button'}
-          onClick={() => sortBy('SubscriberMobileNumber')}
-        >
-          Mobile
-          {sortKey === 'SubscriberMobileNumber' &&
-            <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
-          }
-        </th>
-        <th
-          className={'text-nowrap'}
-          role={'button'}
-          onClick={() => sortBy('SubscriberEmail')}
-        >
-          Email
-          {sortKey === 'SubscriberEmail' &&
-            <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
-          }
-        </th>
-        <th
-          className={'text-nowrap'}
-          role={'button'}
-          onClick={() => sortBy('Created')}
-        >
-          Created
-          {sortKey === 'Created' &&
-            <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
-          }
-        </th>
-      </tr>
-      </thead>
-      <tbody>
-      {listItems.map((listItem) =>
-        <tr
-          key={listItem.SubscriberID}
-          onClick={() => setEditItem(listItem)}
-          role={'button'}
-        >
-          {onItemChecked && <td onClick={(e) => {
+    {showFilter && <Row className={'mb-3'}>
+      <Col className={'d-flex text-nowrap align-items-center mt-3'}>
+        <span className={'me-3'}>Filter by:</span>
+        <Form.Control
+          size={'sm'}
+          name={'filter'}
+          value={filter || ''}
+          onChange={(e) => setFilter(e.target.value)}
+        />
+        <Button
+          variant={'secondary'}
+          size={'sm'}
+          className={'ms-3 me-3'}
+          onClick={() => setFilter('')}
+          disabled={!filter}
+        >Clear
+        </Button>
+      </Col>
+    </Row>}
+    <div className={'SmsSubscriberList'}>
+      <Table
+        hover
+        responsive
+        className={"SmsSubscriberList"}
+      >
+        <thead style={{position: 'sticky', top: 0,}}>
+        <tr>
+          {onItemChecked && <th onClick={(e) => {
             e.stopPropagation()
           }}>
-            <Form.Check
+            {onAllItemsChecked && <Form.Check
               role={'button'}
-              checked={checkedItems.includes(listItem)}
-              onChange={(e) => {
-                handleItemChecked(listItem, e.target.checked);
-              }}
-            />
-          </td>}
-          <td>{listItem.SubscriberID}</td>
-          <td>{listItem.SubscriberName}</td>
-          <td>{listItem.SubscriberMobileNumber}</td>
-          <td>{listItem.SubscriberEmail}</td>
-          <td className={'text-nowrap'}>
-            {Intl.DateTimeFormat('en-US', {
-              year: 'numeric',
-              month: 'numeric',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-              hour12: true
-            }).format(Date.parse(listItem.Created))}
-          </td>
+              onChange={(e) => handleAllItemsChecked(e.target.checked)}
+            />}
+          </th>}
+          <th
+            className={'text-nowrap'}
+            role={'button'}
+            onClick={() => sortBy('SubscriberID')}
+          >
+            ID
+            {sortKey === 'SubscriberID' &&
+              <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+            }
+          </th>
+          <th
+            className={'text-nowrap'}
+            role={'button'}
+            onClick={() => sortBy('SubscriberName')}
+          >
+            Name
+            {sortKey === 'SubscriberName' &&
+              <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+            }
+          </th>
+          <th
+            className={'text-nowrap'}
+            role={'button'}
+            onClick={() => sortBy('SubscriberMobileNumber')}
+          >
+            Mobile
+            {sortKey === 'SubscriberMobileNumber' &&
+              <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+            }
+          </th>
+          <th
+            className={'text-nowrap'}
+            role={'button'}
+            onClick={() => sortBy('SubscriberEmail')}
+          >
+            Email
+            {sortKey === 'SubscriberEmail' &&
+              <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+            }
+          </th>
+          <th
+            className={'text-nowrap'}
+            role={'button'}
+            onClick={() => sortBy('Created')}
+          >
+            Created
+            {sortKey === 'Created' &&
+              <span className={'ms-2'}>{sortAscending ? <BsSortDown/> : <BsSortUp/>}</span>
+            }
+          </th>
         </tr>
-      )}
-      </tbody>
-    </Table>
+        </thead>
+        <tbody>
+        {listItems.filter(filterFunction).map((listItem) =>
+          <tr
+            key={listItem.SubscriberID}
+            onClick={() => canEditSubscribers && setEditItem(listItem)}
+            role={'button'}
+          >
+            {onItemChecked && <td onClick={(e) => {
+              e.stopPropagation()
+            }}>
+              <Form.Check
+                role={'button'}
+                checked={checkedItems.includes(listItem)}
+                onChange={(e) => {
+                  handleItemChecked(listItem, e.target.checked);
+                }}
+              />
+            </td>}
+            <td>{listItem.SubscriberID}</td>
+            <td>{listItem.SubscriberName}</td>
+            <td>{listItem.SubscriberMobileNumber}</td>
+            <td>{listItem.SubscriberEmail}</td>
+            <td>
+              {Intl.DateTimeFormat('en-US', {
+                year: '2-digit',
+                month: 'numeric',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+              }).format(Date.parse(listItem.Created))}
+            </td>
+          </tr>
+        )}
+        </tbody>
+      </Table>
+    </div>
+    {canAddSubscribers && <Row className={'mt-3'}><Col>
+      <Button
+        variant={'primary'}
+        onClick={() => setEditItem({SMSCampaignID: campaign.SMSCampaignID})}
+      >
+        Add Subscriber
+      </Button>
+    </Col></Row>}
     <FormEditor>
       <SmsSubscriberModal show={editItem} subscriber={editItem} onHide={() => setEditItem(null)}/>
     </FormEditor>

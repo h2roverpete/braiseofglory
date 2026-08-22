@@ -13,6 +13,7 @@ import SmsLogEntryList from "./SmsLogEntryList";
 import './SmsAdminPage.css'
 import {BsXLg} from "react-icons/bs";
 import SmsCampaignConfig from "./SmsCampaignConfig";
+import './SmsCampaignPanel.css';
 
 export default function SmsCampaignPanel({campaignId, campaignData}) {
 
@@ -73,7 +74,7 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
         >
           <div className={'TabPaneContents'}>
             <h4>{campaign.CampaignName} Subscribers</h4>
-            <SmsSubscriberList campaign={campaign}/>
+            <SmsSubscriberList campaign={campaign} canAddSubscribers={hasAdminPermission} canEditSubscribers={hasAdminPermission} showFilter={true}/>
           </div>
         </TabPane>
         <TabPane

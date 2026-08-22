@@ -8,6 +8,7 @@ import {Permission, Resource} from "framework/auth/Permissions";
 import SmsCampaignModal from "./SmsCampaignModal";
 import '../css/EditableRow.css';
 import SmsCampaignPanel from "./SmsCampaignPanel";
+import './SmsCampaignList.css';
 
 export default function SmsCampaignList() {
 
