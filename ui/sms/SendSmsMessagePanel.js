@@ -8,6 +8,7 @@ import SmsMessagePreview from "./SmsMessagePreview";
 import SmsSubscriberList from "./SmsSubscriberList";
 import {useFormData} from "../editor/FormEditor";
 import './SendSmsMessagePanel.css';
+import {Permission, Resource} from "../../auth/Permissions";
 
 /**
  * Display the fields for sending an SMS message.
@@ -21,6 +22,8 @@ export default function SendSmsMessagePanel({campaign}) {
   const {currentUser} = useAuth();
   const {SMS} = useRestApi();
   const {showErrorAlert} = useSiteContext();
+  const {hasPermission} = useAuth();
+
   const [messageSending, setMessageSending] = useState(false);
   const [messageSent, setMessageSent] = useState(false);
   const [successCount, setSuccessCount] = useState(0);
@@ -29,8 +32,18 @@ export default function SendSmsMessagePanel({campaign}) {
   const [showLog, setShowLog] = useState(false);
   const [sendToAll, setSendToAll] = useState(true);
   const [sendTo, setSendTo] = useState([]);
+  const [hasSendPermission, setHasSendPermission] = useState(false);
+  const [hasAdminPermission, setHasAdminPermission] = useState(false);
 
   const formData = useFormData();
+
+  useEffect(() => {
+    setHasSendPermission(() => hasPermission(Resource.SMS, Permission.SEND));
+  }, [hasPermission, setHasSendPermission]);
+
+  useEffect(() => {
+    setHasAdminPermission(() => hasPermission(Resource.SMS, Permission.ADMIN));
+  }, [hasPermission, setHasAdminPermission]);
 
   useEffect(() => {
     if (formData && !formData.edits.SMSCampaignID) {
@@ -101,7 +114,7 @@ export default function SendSmsMessagePanel({campaign}) {
     if (checked && !sendTo.includes(subscriber.SubscriberID)) {
       setSendTo([...sendTo, subscriber.SubscriberID]);
     } else if (!checked && sendTo.includes(subscriber.SubscriberID)) {
-      setSendTo(sendTo.filter((id)=>id!==subscriber.SubscriberID));
+      setSendTo(sendTo.filter((id) => id !== subscriber.SubscriberID));
     }
   }
 
@@ -110,7 +123,7 @@ export default function SendSmsMessagePanel({campaign}) {
   }
 
   return <>
-    {campaign && <div className={'SendSmsMessagePanel'}>
+    {campaign && hasSendPermission && <div className={'SendSmsMessagePanel'}>
       {messageSent ?
         <>
           <Row className={'mt-2'}><Col><p>Your message was sent to {successCount} subscriber(s). {failureCount} error(s)
@@ -119,7 +132,7 @@ export default function SendSmsMessagePanel({campaign}) {
             <Col>
               {messageLog.map((logEntry) => {
                 return <div key={logEntry.SMSLogID}
-                  className={logEntry.Error ? "text-danger" : "text-success"}>{logEntry.Subscriber} {logEntry.Error}</div>
+                            className={logEntry.Error ? "text-danger" : "text-success"}>{logEntry.Subscriber} {logEntry.Error}</div>
               })}
             </Col>
           </Row>}
@@ -177,38 +190,40 @@ export default function SendSmsMessagePanel({campaign}) {
           <Row><Col className={"small text-secondary"}>End your message with punctuation (.?!) to ensure
             readability.</Col></Row>
           <SmsMessagePreview campaign={campaign} message={formData?.edits}/>
-          <Row className={'mt-2'}>
-            <Col className={'d-flex'}>
-              <Form.Label
-                xxl={2}
-                column={'sm'}
-                htmlFor={'SendToAll'}
-                className={'me-4'}
-              >
-                Send to:
-              </Form.Label>
-              <Form.Check
-                type='radio'
-                name={'SendToAll'}
-                checked={sendToAll}
-                onChange={() => setSendToAll(!sendToAll)}
-                label={"All subscribers"}
-                inline
-              />
-              <Form.Check
-                type='radio'
-                name={'SendToAll'}
-                checked={!sendToAll}
-                onChange={() => setSendToAll(!sendToAll)}
-                label={"Selected subscribers"}
-                inline
-              />
-            </Col>
-          </Row>
-          <div hidden={sendToAll} className={'SmsSubscriberList'}>
-            <SmsSubscriberList campaign={campaign} onItemChecked={handleSubscriberChecked}
-                               onAllItemsChecked={handleAllSubscribersChecked} showFilter={true}/>
-          </div>
+          {hasAdminPermission && <>
+            <Row className={'mt-2'}>
+              <Col className={'d-flex'}>
+                <Form.Label
+                  xxl={2}
+                  column={'sm'}
+                  htmlFor={'SendToAll'}
+                  className={'me-4'}
+                >
+                  Send to:
+                </Form.Label>
+                <Form.Check
+                  type='radio'
+                  name={'SendToAll'}
+                  checked={sendToAll}
+                  onChange={() => setSendToAll(!sendToAll)}
+                  label={"All subscribers"}
+                  inline
+                />
+                <Form.Check
+                  type='radio'
+                  name={'SendToAll'}
+                  checked={!sendToAll}
+                  onChange={() => setSendToAll(!sendToAll)}
+                  label={"Selected subscribers"}
+                  inline
+                />
+              </Col>
+            </Row>
+            <div hidden={sendToAll} className={'SmsSubscriberList'}>
+              <SmsSubscriberList campaign={campaign} onItemChecked={handleSubscriberChecked}
+                                 onAllItemsChecked={handleAllSubscribersChecked} showFilter={true}/>
+            </div>
+          </>}
           <Row className={'mt-3'}>
             <Col>
               <Button
@@ -216,7 +231,9 @@ export default function SendSmsMessagePanel({campaign}) {
                 onClick={sendMessage}
                 style={{width: '200px'}}
               >
-                {messageSending ? <Spinner animation="border" size="sm"/> : <span>{sendToAll ? <>Send Message</> : <>Send to {sendTo.length} Subscriber{sendTo.length !== 1 && <>s</>}</>}</span>}
+                {messageSending ? <Spinner animation="border" size="sm"/> :
+                  <span>{sendToAll ? <>Send Message</> : <>Send
+                    to {sendTo.length} Subscriber{sendTo.length !== 1 && <>s</>}</>}</span>}
               </Button>
             </Col>
           </Row>

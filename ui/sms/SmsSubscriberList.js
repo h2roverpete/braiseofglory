@@ -165,7 +165,7 @@ export default function SmsSubscriberList(
     </Row>}
     <div className={'SmsSubscriberList'}>
       <Table
-        hover
+        hover={canEditSubscribers}
         responsive
         className={"SmsSubscriberList"}
       >
@@ -236,7 +236,7 @@ export default function SmsSubscriberList(
           <tr
             key={listItem.SubscriberID}
             onClick={() => canEditSubscribers && setEditItem(listItem)}
-            role={'button'}
+            role={canEditSubscribers && 'button'}
           >
             {onItemChecked && <td onClick={(e) => {
               e.stopPropagation()
