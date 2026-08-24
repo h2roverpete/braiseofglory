@@ -14,6 +14,8 @@ import './SmsLogEntryList.css';
  * @property {function([T])} addListItems
  * @property {function(): [T]} getListItems
  * @property {function(): [T]} getCheckedItems
+ * @property {function()} clearCheckedItems
+ * @property {function()} refresh
  */
 
 /**
@@ -21,7 +23,7 @@ import './SmsLogEntryList.css';
  * @param {SMSCampaignData} campaign
  * @param {SMSMessageData | null} [message]
  * @param {function(SMSLogData, Boolean)} [onItemChecked]         Callback when a list item is checked or unchecked
- * @param {function(Boolean)} [onAllItemsChecked]                 Callback for check all / uncheck all items.
+ * @param {function([SMSLogData], Boolean)} [onAllItemsChecked]                 Callback for check all / uncheck all items.
  * @param {RefObject<function(ListAPI<SMSLogData>)>} [apiRef]      API for accessing list.
  * @constructor
  */
@@ -84,6 +86,8 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, onAll
       addListItems: handleAddItems,
       getListItems: () => listItems,
       getCheckedItems: () => checkedItems,
+      clearCheckedItems: () => setCheckedItems([]),
+      refresh: () => setListItems(null),
     }
   }
 
@@ -122,10 +126,12 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, onAll
   function handleAllItemsChecked(checked) {
     if (checked) {
       setCheckedItems(listItems);
+      onAllItemsChecked?.(listItems, checked);
     } else {
       setCheckedItems([]);
+      onAllItemsChecked?.([], checked);
     }
-    onAllItemsChecked?.(checked);
+
   }
 
   return <>{listItems?.length > 0 && <div className={'SmsLogEntryList'}>

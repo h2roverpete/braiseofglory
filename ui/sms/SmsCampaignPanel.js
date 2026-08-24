@@ -38,6 +38,15 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
     }
   }, [SMS, campaignId, campaign, campaignData, showErrorAlert]);
 
+  function handleDeleteMessage(msg) {
+    SMS.deleteSmsMessage(msg.SMSCampaignID, msg.SMSMessageID).then((result) => {
+      setMessage(null);
+    }).catch((err) => {
+      showErrorAlert(err)
+      setMessage(null);
+    });
+  }
+
   return <>{campaign && hasSendPermission &&
     <div className={'Editor CampaignTabPanel'}>
       <Tabs
@@ -90,6 +99,7 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
                     <SmsMessagePanel
                       campaign={campaign}
                       message={message}
+                      onDelete={handleDeleteMessage}
                     />
                   </div>
                 </>
@@ -135,5 +145,5 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
         }
       </Tabs>
     </div>
-           }</>
+  }</>
 }

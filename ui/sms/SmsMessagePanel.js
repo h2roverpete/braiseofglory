@@ -1,18 +1,28 @@
 import {useEffect, useRef, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
-import {Button, Spinner} from "react-bootstrap";
+import {Button, Modal, ModalBody, Spinner} from "react-bootstrap";
 import SmsMessagePreview from "./SmsMessagePreview";
 import SmsLogEntryList from "./SmsLogEntryList";
 
-export default function SmsMessagePanel({campaign, message}) {
+/**
+ *
+ * @param {SMSCampaignData} campaign
+ * @param {SMSMessageData} message
+ * @param {function(SMSMessageData)} onDelete
+ * @returns {JSX.Element}
+ * @constructor
+ */
+export default function SmsMessagePanel({campaign, message, onDelete}) {
 
   const {SMS} = useRestApi();
   const {showErrorAlert} = useSiteContext();
 
-  const [selectedSubscribers, setSelectedSubscribers] = useState(/** @type {[Number]} */ []);
   const [sending, setSending] = useState(false);
   const [files, setFiles] = useState(/** @type MMSFileData[] */ []);
+  const [checkedSubscribers, setCheckedSubscribers] = useState([]);
+  const [subscribers, setSubscribers] = useState( /** @type {[SMSSubscriberData]} */ null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   const listApi = useRef(/** @type ListAPI */ null);
 
@@ -22,16 +32,24 @@ export default function SmsMessagePanel({campaign, message}) {
     }).catch((err) => showErrorAlert(err));
   }, [message, SMS, setFiles])
 
+  useEffect(() => {
+    if (!subscribers && message) {
+      SMS.getSmsCampaignSubscribers(message.SMSCampaignID).then((result) => {
+        setSubscribers(result);
+      }).catch((err) => showErrorAlert(err));
+    }
+  }, [message, SMS, subscribers, setSubscribers])
+
   function resendMessage() {
-    if (selectedSubscribers.length > 0) {
+    if (checkedSubscribers.length > 0) {
       setSending(true);
-      SMS.resendSmsMessage({
-        SMSCampaignID: message.SMSCampaignID,
-        SMSMessageID: message.SMSMessageID,
-        Subscribers: selectedSubscribers,
-      }).then((result) => {
-        listApi.current.addListItems(result);
-        setSelectedSubscribers([]);
+      SMS.sendSmsMessage({
+        ...message,
+        Subscribers: checkedSubscribers,
+      }).then(() => {
+        listApi.current?.refresh();
+        listApi.current?.clearCheckedItems();
+        setCheckedSubscribers([]);
         setSending(false);
       }).catch((error) => {
         showErrorAlert(error);
@@ -41,23 +59,32 @@ export default function SmsMessagePanel({campaign, message}) {
   }
 
   function handleItemChecked(item, checked) {
-    if (checked && !selectedSubscribers.includes(item.SubscriberID)) {
-      setSelectedSubscribers([...selectedSubscribers, item.SubscriberID]);
-    } else if (!checked && selectedSubscribers.includes(item.SubscriberID)) {
-      setSelectedSubscribers(selectedSubscribers.filter((n) => n !== item.SubscriberID));
+    const subscriber = subscribers?.find((sub) => sub.SubscriberID === item.SubscriberID);
+    const checkedSubscriber = checkedSubscribers?.find((sub) => sub.SubscriberID === item.SubscriberID);
+    if (checked && subscriber && !checkedSubscriber) {
+      setCheckedSubscribers([...checkedSubscribers, subscriber]);
+    } else if (!checked) {
+      setCheckedSubscribers(checkedSubscribers.filter((sub) => sub.SubscriberID !== item.SubscriberID));
     }
   }
 
-  function handleAllItemsChecked(checked) {
+  function handleAllItemsChecked(items, checked) {
     if (checked) {
-      let allSubscribers = [];
-      for (const subscriber of listApi.current.getListItems()) {
-        allSubscribers.push(subscriber.SubscriberID);
-      }
-      setSelectedSubscribers(allSubscribers);
+      setCheckedSubscribers(
+        items.map((item) => {
+          subscribers.map((sub) => {
+            return sub.SubscriberID === item.SubscriberID && sub;
+          })
+        })
+      );
     } else {
-      setSelectedSubscribers([]);
+      setCheckedSubscribers([]);
     }
+  }
+
+  function handleDelete() {
+    setShowDeleteConfirmation(false);
+    onDelete?.(message);
   }
 
   return <>{message &&
@@ -72,19 +99,36 @@ export default function SmsMessagePanel({campaign, message}) {
         onAllItemsChecked={handleAllItemsChecked}
         apiRef={listApi}
       />
-      <div className={"mt-4"}>
+      <div className={"mt-4 d-flex gap-3"}>
         <Button
           variant={'primary'}
-          disabled={selectedSubscribers.length === 0 || sending}
+          disabled={checkedSubscribers.length === 0 || sending}
           onClick={resendMessage}
           style={{width: '300px'}}
         >
           {sending ?
             <Spinner size={"sm"}/>
             :
-            <>Resend to {selectedSubscribers.length} Subscriber{selectedSubscribers.length !== 1 && 's'}</>
+            <>Resend to {checkedSubscribers.length} Subscriber{checkedSubscribers.length !== 1 && 's'}</>
           }
+
         </Button>
+        {onDelete &&
+          <Button
+            variant={'danger'}
+            onClick={() => setShowDeleteConfirmation(true)}
+          >
+            Delete Message
+          </Button>
+        }
       </div>
+      <Modal className={'Editor'} show={showDeleteConfirmation} onHide={() => setShowDeleteConfirmation(false)}>
+        <ModalBody>
+          <h5>Delete Message</h5>
+          <p>Are you sure you want to delete this message, all logs and related resources?</p>
+          <Button className={"me-3"} variant={'danger'} onClick={handleDelete}>Delete</Button>
+          <Button onClick={() => setShowDeleteConfirmation(false)}>Cancel</Button>
+        </ModalBody>
+      </Modal>
     </div>}</>;
 }

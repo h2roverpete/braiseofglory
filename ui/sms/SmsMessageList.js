@@ -11,6 +11,7 @@ import "../css/EditableRow.css";
  *
  * @param {SMSCampaignData} campaign
  * @param {function(SMSMessageData)} onViewMessage
+ * @param {function(SMSMessageData)} onDeleteMessage
  * @returns {JSX.Element}
  * @constructor
  */

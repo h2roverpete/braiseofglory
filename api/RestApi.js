@@ -622,6 +622,8 @@ export default function RestApi(props) {
   /**
    * Insert or update an SMS message and send to all subscribers.
    *
+   * To limit the recipients to specific subscribers, include a Subscribers array in the message data.
+   *
    * @type {function(SMSMessageData): Promise<SMSMessageData>}
    */
   const sendSmsMessage = useCallback(async (data) => {
@@ -647,22 +649,10 @@ export default function RestApi(props) {
     });
   }, []);
 
-  /**
-   * @typedef SMSResendData
-   * @property {Number} SMSCampaignID
-   * @property {Number} SMSMessageID
-   * @property {[Number]} Subscribers
-   */
-
-  /**
-   * Resend an existing SMS message to selected subscribers.
-   *
-   * @type {function(SMSResendData): Promise<[SMSLogData]>}
-   */
-  const resendSmsMessage = useCallback(async (data) => {
+  const deleteSmsMessage = useCallback(async (campaignId, messageId) => {
     return await adminApiCall(() => {
       return async () => {
-        const response = await axios.post(`${host}/api/v1/sms/campaigns/${data.SMSCampaignID}/messages/${data.SMSMessageID}/send`, data);
+        const response = await axios.delete(`${host}/api/v1/sms/campaigns/${campaignId}/messages/${messageId}`);
         return response.data;
       }
     });
@@ -975,7 +965,7 @@ export default function RestApi(props) {
         uploadMmsFile: uploadMmsFile,
         deleteMmsFile: deleteMmsFile,
         sendSmsMessage: sendSmsMessage,
-        resendSmsMessage: resendSmsMessage,
+        deleteSmsMessage: deleteSmsMessage,
         getSmsWhitelist: getSmsWhitelist,
         insertOrUpdateSmsWhitelistEntry: insertOrUpdateSmsWhitelistEntry,
         deleteSmsWhitelistEntry: deleteSmsWhitelistEntry,
