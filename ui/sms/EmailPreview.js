@@ -1,4 +1,5 @@
 import './EmailPreview.css';
+import {BsX} from "react-icons/bs";
 
 /**
  * Display a <div> containing a message preview.
@@ -7,9 +8,11 @@ import './EmailPreview.css';
  * @param {SMSMessageData} message
  * @param {SMSSubscriberData} subscriber
  * @param {EmailParams} [email]
+ * @param {String[]} [imageUrls]
+ * @param {function(String)} onDeleteImage
  * @constructor
  */
-export default function EmailPreview({campaign, message, subscriber, email}) {
+export default function EmailPreview({campaign, message, subscriber, email, imageUrls, onDeleteImage}) {
   if (email) {
     return <div className={'email-preview'}>
       <div>
@@ -32,6 +35,15 @@ export default function EmailPreview({campaign, message, subscriber, email}) {
       <div className={'mt-2'}><strong>From: {campaign.CampaignName} &lt;{campaign.CampaignEmail}&gt;</strong>
       </div>
       <div className={'mt-2'}><strong>Subject: [{campaign.CampaignName}] {message.Title}</strong></div>
+      {imageUrls?.length > 0 &&
+        <div className={'preview-image-row'}>{imageUrls.map((imageUrl) =>
+          <div className={'preview-image-div'}>
+            <img className={'preview-image'} key={imageUrl} src={imageUrl}/>
+            {onDeleteImage && <BsX className={'preview-image-delete'} role={'button'} size={30}
+                                   onClick={() => onDeleteImage(imageUrl)}/>}
+          </div>)}
+        </div>
+      }
       <div className={'mt-2'} dangerouslySetInnerHTML={{__html: message.Message?.replaceAll('\n', '<br/>')}}></div>
       <div className={'mt-2'}>You are receiving this email because you opted in to
         receive {campaign.CampaignName} notifications. <span

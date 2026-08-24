@@ -620,7 +620,7 @@ export default function RestApi(props) {
   }, []);
 
   /**
-   * Insert an SMS message and send to all subscribers.
+   * Insert or update an SMS message and send to all subscribers.
    *
    * @type {function(SMSMessageData): Promise<SMSMessageData>}
    */
@@ -634,7 +634,7 @@ export default function RestApi(props) {
   }, []);
 
   /**
-   * Insert or update SMS message without sending.
+   * Insert or update SMS message without sending anything.
    *
    * @type {function(SMSMessageData): Promise<SMSMessageData>}
    */
@@ -667,6 +667,125 @@ export default function RestApi(props) {
       }
     });
   }, []);
+
+  const getMmsFiles = useCallback(async (campaignId, messageId) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.get(`${host}/api/v1/sms/campaigns/${campaignId}/messages/${messageId}/files`);
+        return response.data;
+      }
+    });
+  }, []);
+
+  /**
+   * Upload a file and attach to a message.
+   *
+   * @type {function(Number, Number, Number, File): Promise<MMSFileData>}
+   */
+  const uploadMmsFile = useCallback(async (siteId, campaignId, messageId, file) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const data = {
+          SiteID: siteId,
+          SMSCampaignID: campaignId,
+          SMSMessageID: messageId,
+        };
+        if (file.name) {
+          // resize image file to max 1024 pixels
+          const resizedFile = await resizeImageFile(file, 1080, 1920);
+          const parts = file.name.split('.');
+          const prefix = parts[0];
+          resizedFile.name = `${prefix}.jpg`;
+          // upload file to S3 and set name
+          data.MMSFileName = await uploadFileToS3({
+            siteId: siteId,
+            file: resizedFile,
+            path: 'mms/',
+            invalidate: true,
+          });
+          data.MMSFileMimeType = file.type;
+        }
+        const response = await axios.post(`${host}/api/v1/sms/campaigns/${campaignId}/messages/${messageId}/files`, data);
+        return response.data;
+      }
+    });
+  }, []);
+
+  const deleteMmsFile = useCallback(async (campaignId, messageId, fileId) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.delete(`${host}/api/v1/sms/campaigns/${campaignId}/messages/${messageId}/files/${fileId}`);
+        return response.data;
+      }
+    });
+  }, []);
+
+
+  /**
+   * Resizes an image file maintaining aspect ratio.
+   * @param {File} file - The original image file from an input field.
+   * @param {number} maxWidth - The maximum width target.
+   * @param {number} maxHeight - The maximum height target.
+   * @returns {Promise<Blob>} A promise that resolves to the resized Blob.
+   */
+  function resizeImageFile(file, maxWidth, maxHeight) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      // Read file as Data URL (base64 string)
+      reader.readAsDataURL(file);
+
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+
+          // Calculate new dimensions preserving the aspect ratio
+          if (width > height) {
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          // Create an off-screen canvas
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+
+          // Draw the image onto the canvas at new dimensions
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert canvas back to a Blob object (JPEG format, 85% quality)
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                reject(new Error('Canvas to Blob conversion failed.'));
+              }
+            },
+            'image/jpeg',
+            0.85
+          );
+        };
+
+        img.onerror = (err) => reject(err);
+      };
+
+      reader.onerror = (err) => reject(err);
+    });
+  }
+
 
   const getSmsWhitelist = useCallback(async (campaignId) => {
     return await adminApiCall(() => {
@@ -852,6 +971,9 @@ export default function RestApi(props) {
         insertOrUpdateSmsSubscriber: insertOrUpdateSmsSubscriber,
         deleteSmsSubscriber: deleteSmsSubscriber,
         insertOrUpdateSmsMessage: insertOrUpdateSmsMessage,
+        getMmsFiles: getMmsFiles,
+        uploadMmsFile: uploadMmsFile,
+        deleteMmsFile: deleteMmsFile,
         sendSmsMessage: sendSmsMessage,
         resendSmsMessage: resendSmsMessage,
         getSmsWhitelist: getSmsWhitelist,

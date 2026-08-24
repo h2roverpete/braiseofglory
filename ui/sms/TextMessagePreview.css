@@ -39,14 +39,37 @@
   color: white;
 }
 
-.bubble-content {
-  max-height:200px;
+div.bubble-content {
   overflow-y:auto;
+  overflow-x:hidden;
+}
+
+div.bubble-content div.preview-image-row {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+div.bubble-content div.preview-image-div {
+  position: relative;
+}
+
+div.bubble-content img.preview-image {
+  max-height: 100px;
+}
+
+div.bubble-content svg.preview-image-delete {
+  color: white;
+  position: absolute;
+  top: 0;
+  right: 0;
+  filter: drop-shadow(0 0 1px #000000);
 }
 
 /* bootstrap xs width */
 @media (max-width: 575px) {
   .bubble-content {
-    max-height:100px;
+    max-height:none;
   }
 }
