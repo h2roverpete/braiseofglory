@@ -85,7 +85,7 @@ export default function SmsMessageList({campaign, onViewMessage}) {
         <th
           className={'text-nowrap'}
           role={'button'}
-          onClick={() => onSortBy('SubscriberID')}
+          onClick={() => onSortBy('SMSMessageID')}
         >
           ID
           {sortKey === 'SMSMessageID' &&
@@ -95,7 +95,7 @@ export default function SmsMessageList({campaign, onViewMessage}) {
         <th
           className={'text-nowrap'}
           role={'button'}
-          onClick={() => onSortBy('SubscriberName')}
+          onClick={() => onSortBy('Title')}
         >
           Title
           {sortKey === 'Title' &&
