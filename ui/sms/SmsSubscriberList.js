@@ -250,7 +250,7 @@ export default function SmsSubscriberList(
               />
             </td>}
             <td>{listItem.SubscriberID}</td>
-            <td>{listItem.SubscriberName}</td>
+            <td className={listItem.Unsubscribed ? 'text-danger' : ''}>{listItem.SubscriberName}</td>
             <td>{listItem.SubscriberMobileNumber}</td>
             <td>{listItem.SubscriberEmail}</td>
             <td>

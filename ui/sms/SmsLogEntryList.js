@@ -231,9 +231,16 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, onAll
             hour12: true
           }).format(Date.parse(listItem.Created))}</td>
           <td>{listItem.Action}</td>
-          <td>{isValidPhoneNumber(listItem.Subscriber) ? formatPhoneNumber(listItem.Subscriber) : listItem.Subscriber}</td>
+          <td>
+            {isValidPhoneNumber(listItem.Subscriber) ?
+              formatPhoneNumber(listItem.Subscriber) :
+              listItem.Subscriber ?
+                listItem.Subscriber :
+                <>{listItem.IncomingMessage && formatPhoneNumber(JSON.parse(listItem.IncomingMessage).originationNumber)}</>
+            }
+          </td>
           <td
-            className={listItem.Error ? 'text-danger' : 'text-success'}>{listItem.Error ? listItem.Error : 'Sent'}
+            className={listItem.Error ? 'text-danger' : 'text-success'}>{listItem.Error ? listItem.Error : 'OK'}
           </td>
         </tr>
       )}

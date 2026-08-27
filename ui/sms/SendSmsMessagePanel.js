@@ -1,5 +1,5 @@
 import {Button, Col, Form, Row, Spinner} from "react-bootstrap";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {useAuth} from "../../auth/AuthProvider";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
@@ -10,7 +10,6 @@ import {useFormData} from "../editor/FormEditor";
 import './SendSmsMessagePanel.css';
 import {Permission, Resource} from "../../auth/Permissions";
 import FileDropTarget, {DropState} from "../editor/FileDropTarget";
-import {BsX} from "react-icons/bs";
 
 /**
  * Display the fields for sending an SMS message.
@@ -27,6 +26,9 @@ export default function SendSmsMessagePanel({campaign}) {
   const {hasPermission} = useAuth();
   const formData = useFormData();
 
+  const hasSendPermission = useMemo(() => hasPermission(Resource.SMS, Permission.SEND), [hasPermission]);
+  const hasAdminPermission = useMemo(() => hasPermission(Resource.SMS, Permission.ADMIN), [hasPermission]);
+
   const [messageSending, setMessageSending] = useState(false);
   const [messageSent, setMessageSent] = useState(false);
   const [successCount, setSuccessCount] = useState(0);
@@ -35,8 +37,6 @@ export default function SendSmsMessagePanel({campaign}) {
   const [showLog, setShowLog] = useState(false);
   const [sendToAll, setSendToAll] = useState(true);
   const [sendTo, setSendTo] = useState(/** @type SMSSubscriberData[] */ []);
-  const [hasSendPermission, setHasSendPermission] = useState(false);
-  const [hasAdminPermission, setHasAdminPermission] = useState(false);
   const [siteData, setSiteData] = useState(/** @type SiteData */null);
   const [mmsFiles, setMmsFiles] = useState(/** @type MMSFileData[] */[]);
   const [changingImage, setChangingImage] = useState(false);
@@ -45,15 +45,7 @@ export default function SendSmsMessagePanel({campaign}) {
     if (!siteData && campaign) {
       Sites.getSite(campaign.SiteID).then(site => setSiteData(site)).catch(err => showErrorAlert(err));
     }
-  }, [siteData, setSiteData, Sites]);
-
-  useEffect(() => {
-    setHasSendPermission(() => hasPermission(Resource.SMS, Permission.SEND));
-  }, [hasPermission, setHasSendPermission]);
-
-  useEffect(() => {
-    setHasAdminPermission(() => hasPermission(Resource.SMS, Permission.ADMIN));
-  }, [hasPermission, setHasAdminPermission]);
+  }, [siteData, setSiteData, Sites, campaign, showErrorAlert]);
 
   useEffect(() => {
     if (formData && !formData.edits.SMSCampaignID) {
@@ -141,20 +133,28 @@ export default function SendSmsMessagePanel({campaign}) {
         // replace existing file
         SMS.deleteMmsFile(campaign.SMSCampaignID, formData.edits.SMSMessageID, mmsFiles[0].MMSFileID).then((result) => {
           files = files.filter((file) => file.MMSFileID !== result.MMSFileID);
+          SMS.uploadMmsFile(campaign.SiteID, campaign.SMSCampaignID, result.SMSMessageID, file).then((result) => {
+            files = [...files, result];
+            setMmsFiles(files);
+            setChangingImage(false);
+          }).catch((err) => {
+            setChangingImage(false);
+            showErrorAlert(err);
+          });
+        }).catch((err) => {
+          setChangingImage(false);
+          showErrorAlert(err);
+        });
+      } else {
+        SMS.uploadMmsFile(campaign.SiteID, campaign.SMSCampaignID, result.SMSMessageID, file).then((result) => {
+          files = [...files, result];
           setMmsFiles(files);
+          setChangingImage(false);
         }).catch((err) => {
           setChangingImage(false);
           showErrorAlert(err);
         });
       }
-      SMS.uploadMmsFile(campaign.SiteID, campaign.SMSCampaignID, result.SMSMessageID, file).then((result) => {
-        files = [...files, result];
-        setMmsFiles(files);
-        setChangingImage(false);
-      }).catch((err) => {
-        setChangingImage(false);
-        showErrorAlert(err);
-      });
     }).catch((err) => {
       setChangingImage(false);
       showErrorAlert(err);
@@ -196,49 +196,49 @@ export default function SendSmsMessagePanel({campaign}) {
       </> : <>
         <div onDragEnter={(e) => handleDropFile(e)} className="position-relative">
           <Row className={'mt-2'}>
-          <Col>
-            <Form.Label
-              column={'sm'}
-              className={'required'}
-              htmlFor={'Title'}
-            >
-              Title for Email Version
-            </Form.Label>
-            <Form.Control
-              name="Title"
-              id="Title"
-              size="sm"
-              type="text"
-              value={formData?.edits.Title || ''}
-              isValid={formData?.isTouched('Title') && formData.edits.Title?.length > 0}
-              isInvalid={formData?.isTouched('Title') && !(formData.edits.Title?.length > 0)}
-              onChange={(e) => formData.onDataChanged({name: 'Title', value: e.target.value})}
-            />
-          </Col>
-        </Row>
-        <Row className={'mt-2'}>
-          <Col>
-            <Form.Label
-              column={'sm'}
-              className={'required'}
-              htmlFor={'Message'}
-            >
-              Message Text
-            </Form.Label>
-            <Form.Control
-              as='textarea'
-              rows={3}
-              size={'sm'}
-              name={'Message'}
-              value={formData?.edits.Message || ''}
-              isValid={formData?.isTouched('Message') && formData.edits.Message?.length > 0 && formData.edits.Message?.match(/[.?!]$/)}
-              isInvalid={formData?.isTouched('Message') && (!(formData.edits.Message?.length > 0) || !formData.edits.Message?.match(/[.?!]$/))}
-              onChange={(e) => formData.onDataChanged({name: 'Message', value: e.target.value})}
-            />
-          </Col>
-        </Row>
-        <Row><Col className={"small text-secondary"}>End your message with punctuation (.?!) to ensure
-          readability.</Col></Row>
+            <Col>
+              <Form.Label
+                column={'sm'}
+                className={'required'}
+                htmlFor={'Title'}
+              >
+                Title for Email Version
+              </Form.Label>
+              <Form.Control
+                name="Title"
+                id="Title"
+                size="sm"
+                type="text"
+                value={formData?.edits.Title || ''}
+                isValid={formData?.isTouched('Title') && formData.edits.Title?.length > 0}
+                isInvalid={formData?.isTouched('Title') && !(formData.edits.Title?.length > 0)}
+                onChange={(e) => formData.onDataChanged({name: 'Title', value: e.target.value})}
+              />
+            </Col>
+          </Row>
+          <Row className={'mt-2'}>
+            <Col>
+              <Form.Label
+                column={'sm'}
+                className={'required'}
+                htmlFor={'Message'}
+              >
+                Message Text
+              </Form.Label>
+              <Form.Control
+                as='textarea'
+                rows={3}
+                size={'sm'}
+                name={'Message'}
+                value={formData?.edits.Message || ''}
+                isValid={formData?.isTouched('Message') && formData.edits.Message?.length > 0 && formData.edits.Message?.match(/[.?!]$/)}
+                isInvalid={formData?.isTouched('Message') && (!(formData.edits.Message?.length > 0) || !formData.edits.Message?.match(/[.?!]$/))}
+                onChange={(e) => formData.onDataChanged({name: 'Message', value: e.target.value})}
+              />
+            </Col>
+          </Row>
+          <Row><Col className={"small text-secondary"}>End your message with punctuation (.?!) to ensure
+            readability.</Col></Row>
           <Row className={'mt-2'}><Col>
             <Button
               style={{width: '150px'}}
@@ -261,6 +261,10 @@ export default function SendSmsMessagePanel({campaign}) {
               showErrorAlert(err);
               dropRef.current.setDropState(DropState.HIDDEN);
             }}
+            mimeTypes={[
+              'image/jpeg',
+              'image/png',
+              'image/gif']}
           />
         </div>
         {hasAdminPermission && <>

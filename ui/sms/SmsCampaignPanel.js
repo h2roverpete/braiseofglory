@@ -23,8 +23,8 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
   const {showErrorAlert} = useSiteContext();
 
   const {hasPermission} = useAuth();
-  const hasSendPermission = useMemo(() => hasPermission(Resource.SMS, Permission.SEND), []);
-  const hasAdminPermission = useMemo(() => hasPermission(Resource.SMS, Permission.ADMIN), []);
+  const hasSendPermission = useMemo(() => hasPermission(Resource.SMS, Permission.SEND), [hasPermission]);
+  const hasAdminPermission = useMemo(() => hasPermission(Resource.SMS, Permission.ADMIN), [hasPermission]);
 
   useEffect(() => {
     if (campaignData && !campaign) {
@@ -74,11 +74,15 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
         >
           <div className={'TabPaneContents'}>
             <h4>{campaign.CampaignName} Subscribers</h4>
-            <SmsSubscriberList campaign={campaign} canAddSubscribers={hasAdminPermission}
-                               canEditSubscribers={hasAdminPermission} showFilter={true}/>
+            <SmsSubscriberList
+              campaign={campaign}
+              canAddSubscribers={hasAdminPermission}
+              canEditSubscribers={hasAdminPermission}
+              showFilter={true}
+            />
           </div>
         </TabPane>
-        {hasAdminPermission &&
+        {hasSendPermission &&
           <TabPane
             title={'Messages'}
             eventKey={"messages"}

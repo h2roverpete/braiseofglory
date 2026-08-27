@@ -30,7 +30,7 @@ export default function SmsMessagePanel({campaign, message, onDelete}) {
     SMS.getMmsFiles(message.SMSCampaignID, message.SMSMessageID).then((result) => {
       setFiles(result);
     }).catch((err) => showErrorAlert(err));
-  }, [message, SMS, setFiles])
+  }, [message, SMS, setFiles, showErrorAlert])
 
   useEffect(() => {
     if (!subscribers && message) {
@@ -38,7 +38,7 @@ export default function SmsMessagePanel({campaign, message, onDelete}) {
         setSubscribers(result);
       }).catch((err) => showErrorAlert(err));
     }
-  }, [message, SMS, subscribers, setSubscribers])
+  }, [message, SMS, subscribers, setSubscribers, showErrorAlert])
 
   function resendMessage() {
     if (checkedSubscribers.length > 0) {
@@ -72,7 +72,7 @@ export default function SmsMessagePanel({campaign, message, onDelete}) {
     if (checked) {
       setCheckedSubscribers(
         items.map((item) => {
-          subscribers.map((sub) => {
+          return subscribers.map((sub) => {
             return sub.SubscriberID === item.SubscriberID && sub;
           })
         })

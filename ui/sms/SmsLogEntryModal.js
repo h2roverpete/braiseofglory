@@ -5,6 +5,8 @@ import {useSiteContext} from "../content/Site";
 import '../editor/Editor.css'
 import TextMessagePreview from "./TextMessagePreview";
 import EmailPreview from "./EmailPreview";
+import {isValidPhoneNumber} from "../../util/Validators";
+import {formatPhoneNumber} from "../../util/Formatters";
 
 export default function SmsLogEntryModal({campaign, logEntry, show, onHide}) {
 
@@ -94,7 +96,7 @@ export default function SmsLogEntryModal({campaign, logEntry, show, onHide}) {
             {logEntry?.SubscriberID && subscriber &&
               <>{subscriber.SubscriberName} </>
             }
-            &lt;{logEntry.Subscriber}&gt;
+            {isValidPhoneNumber(logEntry.Subscriber) ? formatPhoneNumber(logEntry.Subscriber) : <>&lt;{logEntry.Subscriber}&gt;</>}
           </Col>
         </Row>
       }

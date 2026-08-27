@@ -28,13 +28,13 @@ export default function SmsMessagePreview({campaign, message, files, onDeleteFil
         setSiteData(site)
       }).catch((err) => showErrorAlert(err));
     }
-  }, [files, campaign, Sites])
+  }, [files, campaign, Sites, showErrorAlert, siteData])
 
   useEffect(() => {
-    if (files && siteData && files.length !== imageUrls.length) {
+    if (files && siteData) {
       setImageUrls(files.map((file) => file.MMSFileMimeType === `image/jpeg` && `${siteData.SiteRootUrl}/${file.MMSFileName}`));
     }
-  }, [files, siteData, imageUrls, setImageUrls]);
+  }, [files, siteData, setImageUrls]);
 
   function handleDeleteImage(url) {
     for (const file of files) {

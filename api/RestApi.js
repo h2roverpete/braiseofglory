@@ -683,9 +683,7 @@ export default function RestApi(props) {
         if (file.name) {
           // resize image file to max 1024 pixels
           const resizedFile = await resizeImageFile(file, 1080, 1920);
-          const parts = file.name.split('.');
-          const prefix = parts[0];
-          resizedFile.name = `${prefix}.jpg`;
+          resizedFile.name = `${crypto.randomUUID()}.jpg`;
           // upload file to S3 and set name
           data.MMSFileName = await uploadFileToS3({
             siteId: siteId,

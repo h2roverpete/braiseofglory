@@ -1,5 +1,5 @@
 import {useAuth} from "framework/auth/AuthProvider";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {Resource, Permission} from "framework/auth/Permissions";
 import {Table} from "react-bootstrap";
 import {useRestApi} from "framework/api/RestApi";
@@ -18,20 +18,22 @@ import "../css/EditableRow.css";
 export default function SmsMessageList({campaign, onViewMessage}) {
 
   const {SMS} = useRestApi();
-  const {hasPermission} = useAuth();
+  const {hasPermission, currentUser} = useAuth();
 
-  const [canEdit, setCanEdit] = useState(false);
+  const hasSendPermission = useMemo(() => hasPermission(Resource.SMS, Permission.SEND), [hasPermission]);
+  const hasAdminPermission = useMemo(() => hasPermission(Resource.SMS, Permission.ADMIN), [hasPermission]);
+
   const [messages, setMessages] = useState(null);
   const [sortKey, setSortKey] = useState('Created');
   const [sortAscending, setSortAscending] = useState(false);
 
   useEffect(() => {
-    setCanEdit(hasPermission(Resource.SMS, Permission.ADMIN));
-  }, [hasPermission, setCanEdit]);
-
-  useEffect(() => {
     if (campaign && !messages) {
       SMS.getSmsMessages(campaign.SMSCampaignID).then((result) => {
+        if (!hasAdminPermission) {
+          // user with send permission can only see their own messages
+          result = result.filter((item) => item.UserID === currentUser.UserID);
+        }
         setMessages(result);
       });
     }
@@ -71,7 +73,7 @@ export default function SmsMessageList({campaign, onViewMessage}) {
     }
   }
 
-  return <>{canEdit && messages &&
+  return <>{hasSendPermission && messages &&
     <Table
       hover
       responsive
@@ -115,7 +117,7 @@ export default function SmsMessageList({campaign, onViewMessage}) {
       </tr>
       </thead>
       <tbody>
-      {messages.map((message, index) => (
+      {messages.map((message) => (
         <tr
           className={'EditableRow'}
           key={message.SMSMessageID}

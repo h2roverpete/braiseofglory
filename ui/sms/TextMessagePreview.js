@@ -17,7 +17,7 @@ export default function TextMessagePreview({campaign, text, imageUrls, onDeleteI
         {imageUrls?.length > 0 &&
           <div className={'preview-image-row'}>{imageUrls.map((imageUrl) =>
             <div className={'preview-image-div'}>
-              <img className={'preview-image'} key={imageUrl} src={imageUrl}/>
+              <img className={'preview-image'} key={imageUrl} src={imageUrl}  alt={''}/>
               {onDeleteImage && <BsX className={'preview-image-delete'} role={'button'} size={30}
                                      onClick={() => onDeleteImage(imageUrl)}/>}
             </div>)}
