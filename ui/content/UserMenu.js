@@ -6,7 +6,7 @@ import {Nav} from "react-bootstrap";
 import {Resource, Permission} from "../../auth/Permissions";
 import {useRestApi} from "../../api/RestApi";
 
-export default function UserMenu({buttonRef}) {
+export default function UserMenu({buttonRef, onClose}) {
 
   const {isAuthenticated, currentUser} = useAuth();
   const navigate = useNavigate();
@@ -44,21 +44,32 @@ export default function UserMenu({buttonRef}) {
       </Nav.Link>
       <div className="dropdown-menu dropdown-menu-end" style={{cursor: 'pointer', zIndex: 100}}>
         {isAuthenticated && (
-          <span className="dropdown-item" onClick={() => navigate('/admin/user')}>User Profile</span>
+          <span className="dropdown-item" onClick={() => {
+            navigate('/admin/user');
+            onClose?.();
+          }}>User Profile</span>
         )}
         {hasSmsPermission && campaigns && <>
           {campaigns.map((campaign) =>
             <div key={campaign.SMSCampaignID}>{campaign.SiteID === parseInt(process.env.REACT_APP_SITE_ID) &&
-              <span className="dropdown-item" onClick={() => navigate(`/admin/sms?campaignId=${campaign.SMSCampaignID}`)
-              }>{campaign.CampaignName}</span>}
+              <span className="dropdown-item" onClick={() => {
+                navigate(`/admin/sms?campaignId=${campaign.SMSCampaignID}`);
+                onClose?.();
+              }}>{campaign.CampaignName}</span>}
             </div>
           )}
         </>}
         {!isAuthenticated && (
-          <span className="dropdown-item" onClick={() => navigate('/login')}>Log In</span>
+          <span className="dropdown-item" onClick={() => {
+            navigate('/login');
+            onClose?.();
+          }}>Log In</span>
         )}
         {isAuthenticated && (
-          <span className="dropdown-item" onClick={() => navigate('/logout')}>Log Out</span>
+          <span className="dropdown-item" onClick={() => {
+            navigate('/logout');
+            onClose?.();
+          }}>Log Out</span>
         )}
       </div>
     </div>

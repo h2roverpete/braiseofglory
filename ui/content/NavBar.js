@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from "react";
 import {useSiteContext} from "./Site";
 import Navbar from 'react-bootstrap/Navbar';
-  import {Nav, NavDropdown} from "react-bootstrap";
+import {Nav, NavDropdown} from "react-bootstrap";
 import {useNavigate} from "react-router";
 import {useAuth} from "../../auth/AuthProvider";
 import {useRestApi} from "../../api/RestApi";
@@ -10,6 +10,7 @@ import {useTouchContext} from "../../util/TouchProvider";
 import AddPageButton from "../editor/AddPageButton";
 import {Resource, Permission} from "../../auth/Permissions";
 import UserMenu from "./UserMenu";
+import Collapse from 'bootstrap/js/dist/collapse';
 
 /**
  * @typedef NavBarProps
@@ -44,6 +45,7 @@ export default function NavBar(props) {
   // refs
   const editButtonRef = useRef(null);
   const toggleRef = useRef(null);
+  const collapseRef = useRef(null);
 
   useEffect(() => {
     setCanEdit(hasPermission?.(Resource.SITE, Permission.EDIT));
@@ -249,6 +251,14 @@ export default function NavBar(props) {
     }
   }
 
+  function handleUserMenuClose() {
+    if (collapseRef.current?.classList.contains('show')) {
+      // javascript to collapse the navigation bar when a user menu item is selected
+      const bsCollapse = new Collapse(collapseRef.current, {toggle: false});
+      bsCollapse.toggle();
+    }
+  }
+
   return (
     <Navbar
       expand={props.expand ? props.expand : 'sm'}
@@ -314,6 +324,7 @@ export default function NavBar(props) {
           className="NavbarCollapse"
           id="MainNavigation"
           style={{position: 'relative'}}
+          ref={collapseRef}
           onMouseOver={() => {
             if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = false
           }}
@@ -355,7 +366,7 @@ export default function NavBar(props) {
           </Nav>
           <>{props.showLogin === true && (
             <div className="flex-grow-1 d-flex justify-content-start justify-content-sm-end">
-              <UserMenu/>
+              <UserMenu onClose={handleUserMenuClose}/>
             </div>
           )}</>
         </Navbar.Collapse>
