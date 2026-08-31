@@ -1,9 +1,11 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
 import {Button, Modal, ModalBody, Spinner} from "react-bootstrap";
 import SmsMessagePreview from "./SmsMessagePreview";
 import SmsLogEntryList from "./SmsLogEntryList";
+import {useAuth} from "../../auth/AuthProvider";
+import {Permission, Resource} from "../../auth/Permissions";
 
 /**
  *
@@ -17,6 +19,10 @@ export default function SmsMessagePanel({campaign, message, onDelete}) {
 
   const {SMS} = useRestApi();
   const {showErrorAlert} = useSiteContext();
+  const {hasPermission} = useAuth();
+
+  const hasSendPermission = useMemo(() => hasPermission(Resource.SMS, Permission.SEND), [hasPermission]);
+  const hasAdminPermission = useMemo(() => hasPermission(Resource.SMS, Permission.ADMIN), [hasPermission]);
 
   const [sending, setSending] = useState(false);
   const [files, setFiles] = useState(/** @type MMSFileData[] */ []);
@@ -87,7 +93,7 @@ export default function SmsMessagePanel({campaign, message, onDelete}) {
     onDelete?.(message);
   }
 
-  return <>{message &&
+  return <>{message && hasSendPermission &&
     <div style={{height: '100%', display: 'flex', flexDirection: 'column', overflowY: 'auto', overflowX: 'hidden'}}>
       <div className={'mb-4'}>
         <SmsMessagePreview message={message} campaign={campaign} files={files}/>
@@ -113,7 +119,7 @@ export default function SmsMessagePanel({campaign, message, onDelete}) {
           }
 
         </Button>
-        {onDelete &&
+        {onDelete && hasAdminPermission &&
           <Button
             variant={'danger'}
             onClick={() => setShowDeleteConfirmation(true)}

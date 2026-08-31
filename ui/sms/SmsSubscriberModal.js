@@ -43,9 +43,9 @@ export default function SmsSubscriberModal({subscriber, show, onHide, onUpdate, 
     data.SubscriberMobileNumber = data.SubscriberMobileNumber?.replace(/[^/+0-9]/g, '');
     SMS.insertOrUpdateSmsSubscriber(data).then((result) => {
       if (!data.SubscriberID && result.SubscriberID) {
-        onAdd(result);
+        onAdd?.(result);
       } else {
-        onUpdate(result);
+        onUpdate?.(result);
       }
       onHide();
     }).catch((error) => {
@@ -66,7 +66,7 @@ export default function SmsSubscriberModal({subscriber, show, onHide, onUpdate, 
   function handleDelete() {
     setShowDeleteConfirmation(false);
     SMS.deleteSmsSubscriber(subscriber.SMSCampaignID, subscriber.SubscriberID).then((result) => {
-      onDelete(result);
+      onDelete?.(result);
       onHide();
     }).catch((error) => {
       showErrorAlert(error);

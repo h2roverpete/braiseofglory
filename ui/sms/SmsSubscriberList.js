@@ -143,6 +143,18 @@ export default function SmsSubscriberList(
     }
   }, [filter]);
 
+  function handleDelete(data) {
+    setListItems(listItems.filter((item) => item.SubscriberID !== data.SubscriberID));
+  }
+
+  function handleAdd(data) {
+    setListItems([...listItems, data]);
+  }
+
+  function handleUpdate(data) {
+    setListItems(listItems.map((item) => item.SubscriberID !== data.SubscriberID ? item : data));
+  }
+
   return <>{listItems?.length > 0 && <>
     {showFilter && <Row className={'mb-3'}>
       <Col className={'d-flex text-nowrap align-items-center mt-3'}>
@@ -278,7 +290,14 @@ export default function SmsSubscriberList(
       </Button>
     </Col></Row>}
     <FormEditor>
-      <SmsSubscriberModal show={editItem} subscriber={editItem} onHide={() => setEditItem(null)}/>
+      <SmsSubscriberModal
+        show={editItem}
+        subscriber={editItem}
+        onHide={() => setEditItem(null)}
+        onAdd={handleAdd}
+        onUpdate={handleUpdate}
+        onDelete={handleDelete}
+      />
     </FormEditor>
   </>}
   </>
