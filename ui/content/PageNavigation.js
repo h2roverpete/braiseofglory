@@ -7,7 +7,7 @@ import {useSiteContext} from "./Site";
  * @returns {JSX.Element}
  * @constructor
  */
-export default function PageNavigation() {
+export default function PageNavigation({html}) {
 
   const {nextPage, prevPage} = useSiteContext();
   const navigate = useNavigate();
@@ -19,8 +19,10 @@ export default function PageNavigation() {
         display: "flex",
         flexDirection: "row",
         alignItems: "end",
+        position: "relative",
       }}
     >
+      {html && <div dangerouslySetInnerHTML={{__html: html}} className={'nav-text'}/>}
       {prevPage && (
         <div
           className="nav nav-item nav-link previous"
