@@ -1,31 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.marrowstoneeats.com/home</loc>
-    <lastmod>2026-08-15T18:36:32.368Z</lastmod>
+    <loc>https://www.braiseofglory.com/home</loc>
+    <lastmod>2026-09-18T21:05:18.877Z</lastmod>
   </url>
   <url>
-    <loc>https://www.marrowstoneeats.com/market</loc>
-    <lastmod>2026-08-17T20:57:45.501Z</lastmod>
+    <loc>https://www.braiseofglory.com/menus</loc>
+    <lastmod>2026-09-18T21:10:55.310Z</lastmod>
   </url>
   <url>
-    <loc>https://www.marrowstoneeats.com/links</loc>
-    <lastmod>2026-08-17T21:55:27.770Z</lastmod>
+    <loc>https://www.braiseofglory.com/hotstuff</loc>
+    <lastmod>2026-09-18T21:10:57.115Z</lastmod>
   </url>
   <url>
-    <loc>https://www.marrowstoneeats.com/more</loc>
-    <lastmod>2026-07-02T17:55:20.265Z</lastmod>
+    <loc>https://www.braiseofglory.com/contactus</loc>
+    <lastmod>2026-09-18T21:16:14.566Z</lastmod>
   </url>
   <url>
-    <loc>https://www.marrowstoneeats.com/contact</loc>
-    <lastmod>2026-08-18T04:40:13.195Z</lastmod>
+    <loc>https://www.braiseofglory.com/subscribe</loc>
+    <lastmod>2026-09-18T21:15:55.666Z</lastmod>
   </url>
   <url>
-    <loc>https://www.marrowstoneeats.com/privacy</loc>
-    <lastmod>2026-08-18T04:40:21.773Z</lastmod>
+    <loc>https://www.braiseofglory.com/social</loc>
+    <lastmod>2026-09-18T21:16:05.176Z</lastmod>
   </url>
   <url>
-    <loc>https://www.marrowstoneeats.com/terms</loc>
-    <lastmod>2026-09-05T14:46:25.646Z</lastmod>
+    <loc>https://www.braiseofglory.com/contact</loc>
+    <lastmod>2026-09-18T21:15:55.586Z</lastmod>
+  </url>
+  <url>
+    <loc>https://www.braiseofglory.com/more</loc>
+    <lastmod>2026-09-18T21:16:14.306Z</lastmod>
+  </url>
+  <url>
+    <loc>https://www.braiseofglory.com/privacy</loc>
+    <lastmod>2026-09-18T21:11:06.514Z</lastmod>
+  </url>
+  <url>
+    <loc>https://www.braiseofglory.com/terms</loc>
+    <lastmod>2026-09-18T21:11:06.615Z</lastmod>
   </url>
 </urlset>
