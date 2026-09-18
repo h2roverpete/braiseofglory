@@ -1,0 +1,320 @@
+/*
+ * NOTE: modify index.css to style the appearance of the static
+ * <body> and <div id="root"> tags before JS loads
+ */
+
+/* Outer container and background */
+div.Site {
+  width: 100vw;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+/* Navbar outer container, flex settings help nav items align */
+.NavBar.navbar {
+  width: 100vw;
+  padding: 0;
+  position: fixed;
+  top: 0;
+  z-index: 1030;
+}
+
+/* Navbar inner elements, allows for custom alignment/layout */
+.NavBarContents.container-fluid {
+  width: 100vw;
+  max-width: 768px; /* bootstrap md boundary */
+}
+
+/* Navbar branding */
+.NavBarBrand {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Navbar branding text */
+.NavBarBrandText {
+}
+
+/* Navbar icon */
+.NavBarBrandIcon svg {
+  width: 40px;
+  height: 40px;
+  margin: 10px 10px 10px 0;
+}
+
+/* Navbar toggle button */
+.navbar .navbar-toggler {
+}
+
+/* Navbar dropdown menus */
+.navbar .dropdown-menu {
+  padding: 5px;
+}
+
+/* Navbar navigation links */
+.navbar .navbar-nav .nav-link,
+.navbar .navbar-nav .dropdown-menu .dropdown-item,
+.navbar .navbar-brand {
+}
+
+/* Current page in navigation links and dropdown items */
+.navbar-nav a.nav-link.active,
+.nav-item .dropdown-menu a.dropdown-item.active,
+#nav-dropdown-active {
+}
+
+/* Navbar link and dropdown item hover */
+.navbar-nav a.nav-link:hover,
+.nav-item .dropdown-menu a.dropdown-item:hover,
+#nav-dropdown-active:hover {
+}
+
+.AddPageButton {
+}
+
+/* outer page swipe container, fixed height */
+div.swiper {
+  width: 100vw;
+  max-width: 768px; /* bootstrap md breakpoint */
+  flex: 1;
+  height: 100%;
+}
+
+/* inner swipe slides, fixed height with scrolling */
+div.swiper-slide {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+/* Page container */
+div.Page {
+  position: relative;
+  width: 100vw;
+  max-width: 768px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  margin-top: 55px; /* room for navbar */
+  overflow: auto;
+}
+
+/* Page inner content container, use flex:1 to fill page height */
+div.PageContent {
+  width: 100%;
+  flex: 1;
+  padding: 20px 20px 20px 20px; /* content display margin */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main title */
+h1, h1.PageTitle {
+  font-size: 20pt;
+}
+
+div.PageSection {
+  margin-bottom: 20px;
+}
+
+/* Section titles */
+h2, h2.SectionTitle {
+  font-size: 16pt !important;
+}
+
+h3 {
+  font-size: 14pt;
+}
+
+h4 {
+  font-size: 12pt;
+}
+
+h5 {
+  font-size: 11pt;
+}
+
+/* Text content */
+div.SectionText {
+}
+
+/* Top level list <li> needs margin correction */
+.SectionText li {
+}
+
+/* <ul> needs correction too */
+.SectionText ol,
+.SectionText ul {
+}
+
+/* Links in text */
+.FileExtra a,
+.SectionText a,
+.SectionText a:active,
+.SectionText a:visited {
+  text-decoration: none;
+}
+
+/* Hover over links in text */
+.FileExtra a:hover,
+.SectionText a:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+/* Breadcrumb indicator for navigation */
+ol.breadcrumb {
+}
+
+/* breadcrumb delimiters */
+li.breadcrumb-item::before {
+  content: "»" !important;
+}
+
+/* don't delimit first breadcrumb */
+li.breadcrumb-item:first-child::before {
+  content: "" !important;
+}
+
+/* Next / previous navigation panel */
+.PageNavigation {
+  width: 100%;
+  max-width: 768px;
+  padding: 10px 20px 10px 20px;
+  margin-bottom:0;
+}
+
+/* Next / previous page links */
+.PageNavigation .nav-link {
+  padding: 4px 8px;
+}
+
+/* Branding text centered in page navigation area */
+.PageNavigation .nav-text {
+  color: var(--bs-secondary);
+  position:absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Next / previous page hover */
+.PageNavigation .nav-link:hover {
+  color: var(--bs-light);
+  background-color: var(--bs-primary);
+}
+
+/* nav arrows for previous page */
+.PageNavigation div.nav.nav-item.nav-link.previous::before {
+  content: "« ";
+}
+
+/* nav arrows for next page */
+.PageNavigation div.nav.nav-item.nav-link.next::after {
+  content: " »";
+}
+
+
+/* Copyright notice, can be placed inside or outside page content */
+.Copyright {
+  margin: 0 0 10px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  text-align: center;
+  font-size: 0.8rem;
+  line-height: 120%;
+  color: var(--bs-secondary);
+}
+
+div.Gallery {
+}
+
+.image-grid-container {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  object-fit: cover;
+  object-position: center;
+  width: 100%;
+  height: 100%;
+  max-height: 300px;
+}
+
+.Gallery img.image-gallery-image {
+}
+
+.Gallery img.image-gallery-thumbnail-image {
+}
+
+/* Guest book container */
+div.GuestBook {
+  padding: 0; /* no additional padding */
+}
+
+/* Guest book field labels */
+.GuestBook label {
+}
+
+div.SMSCampaign {
+  padding: 0;
+}
+
+/* Input fields for guest book and login */
+.Login input.form-control,
+.GuestBook li.country,
+.GuestBook input.form-control.phone,
+.GuestBook input.form-control,
+.GuestBook textarea.form-control,
+.GuestBook select.form-control {
+}
+
+/* Submit button for guest book and login */
+.Login button.btn.btn-primary,
+.GuestBook button.btn.btn-primary,
+.GuestBook input.btn.btn-primary {
+}
+
+/* Submit button hover */
+.Login button.btn.btn-primary:hover,
+.GuestBook button.btn.btn-primary:hover,
+.GuestBook input.btn.btn-primary:hover {
+}
+
+/* Submit pressed */
+.Login button.btn.btn-primary:active,
+.GuestBook button.btn.btn-primary:active,
+.GuestBook input.btn.btn-primary:active {
+}
+
+/* bootstrap xs width */
+@media (max-width: 575px) {
+  .PageNavigation .nav-text {
+    visibility: hidden;
+  }
+}
+
+/* bootstrap sm width */
+@media (min-width: 576px) {
+
+}
+
+/* bootstrap md width */
+@media (min-width: 768px) {
+
+}
+
+/* bootstrap lg width */
+@media (min-width: 960px) {
+
+}
+
+/* bootstrap xl width */
+@media (min-width: 1140px) {
+
+}
