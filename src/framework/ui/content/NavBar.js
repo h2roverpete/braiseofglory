@@ -11,6 +11,7 @@ import AddPageButton from "../editor/AddPageButton";
 import {Resource, Permission} from "../../auth/Permissions";
 import UserMenu from "./UserMenu";
 import Collapse from 'bootstrap/js/dist/collapse';
+import collapse from "bootstrap/js/src/collapse";
 
 /**
  * @typedef NavBarProps
@@ -35,7 +36,7 @@ export default function NavBar(props) {
   // imports
   const {siteData, getChildren, Outline, currentPage, breadcrumbs} = useSiteContext();
   const navigate = useNavigate();
-  const {hasPermission} = useAuth();
+  const {hasPermission, isAuthenticated} = useAuth();
   const {Pages} = useRestApi();
   const {supportsHover} = useTouchContext();
 
@@ -364,8 +365,8 @@ export default function NavBar(props) {
               <AddPageButton ref={editButtonRef}/>
             )}
           </Nav>
-          <>{props.showLogin === true && (
-            <div className="flex-grow-1 d-flex justify-content-start justify-content-sm-end">
+          <>{(props.showLogin === true || isAuthenticated) && (
+            <div className={`UserMenuContainer flex-grow-1 d-flex justify-content-start justify-content-${props.expand}-end`}>
               <UserMenu onClose={handleUserMenuClose}/>
             </div>
           )}</>

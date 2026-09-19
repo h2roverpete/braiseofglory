@@ -41,10 +41,9 @@ div.Site {
 }
 
 /* Navbar icon */
-.NavBarBrandIcon svg {
-  width: 40px;
-  height: 40px;
-  margin: 10px 10px 10px 0;
+.NavBarBrandIcon {
+  width: 150px;
+  margin: 0 0 0 10px;
 }
 
 /* Navbar toggle button */
@@ -72,6 +71,17 @@ div.Site {
 .navbar-nav a.nav-link:hover,
 .nav-item .dropdown-menu a.dropdown-item:hover,
 #nav-dropdown-active:hover {
+}
+
+div.next:hover,
+div.previous:hover
+{
+  color: white !important;
+}
+
+div.dropdown-menu {
+  background: rgb(186, 86, 27);
+  border: 1px solid rgb(237, 130, 61);
 }
 
 .AddPageButton {
@@ -102,7 +112,8 @@ div.Page {
   align-items: center;
   flex: 1;
   margin-top: 55px; /* room for navbar */
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Page inner content container, use flex:1 to fill page height */
@@ -296,6 +307,16 @@ div.SMSCampaign {
 @media (max-width: 575px) {
   .PageNavigation .nav-text {
     visibility: hidden;
+  }
+  .NavBarBrandIcon {
+    margin: 0 0 0 0;
+  }
+  div.PageContent {
+    padding: 10px;
+  }
+  .PageNavigation {
+    padding: 5px;
+    font-size: 11pt;
   }
 }
 

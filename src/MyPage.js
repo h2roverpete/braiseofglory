@@ -15,7 +15,7 @@ import PageNavigation from "framework/ui/content/PageNavigation";
  */
 export default function MyPage(props) {
   return (<>
-    <NavBar icon={'/images/favicon.png'} expand={'sm'} showLogin />
+    <NavBar icon={'/images/braise-logo.svg'} expand={'md'} />
     <PageSwiper {...props}>
       <PageContent>
         <PageTitle/>
