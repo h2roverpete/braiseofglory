@@ -20,6 +20,7 @@ div.Site {
   position: fixed;
   top: 0;
   z-index: 1030;
+  box-shadow:  0 1px 5px 0 rgb(20,36,53);
 }
 
 /* Navbar inner elements, allows for custom alignment/layout */
