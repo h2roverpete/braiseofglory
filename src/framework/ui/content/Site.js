@@ -76,6 +76,7 @@ export default function Site(props) {
     {name: 'logout', title: 'Log Out', path: '/logout', content: <Logout/>},
     {name: 'error', title: 'Error', path: '*', content: <Error404/>},
   ]);
+  const [redirect, setRedirect] = useState(0);
 
   useEffect(() => {
     setCanEdit(hasPermission?.(Resource.SITE, Permission.EDIT));
@@ -96,6 +97,20 @@ export default function Site(props) {
     if (outlineData) {
       console.debug(`Update current page.`);
       if (location.pathname === '/') {
+        if (redirect > 0) {
+          // find redirect page
+          for (const page of outlineData) {
+            if (page.PageID === redirect) {
+              setCurrentPage(page);
+              const crumbs = buildBreadcrumbs(outlineData, page.ParentID);
+              setBreadcrumbs(crumbs);
+              console.debug(`Redirect current page to ${page.PageID}.`);
+              return;
+            }
+          }
+          // redirect not found, fall through to home page
+        }
+        // set home page
         setCurrentPage(outlineData[0]);
         console.debug(`Set current page to home page.`);
       } else {
@@ -118,7 +133,7 @@ export default function Site(props) {
         setCurrentPage({PageID: 0});
       }
     }
-  }, [location.pathname, MetaPages, outlineData, setCurrentPage, cfmPageId]);
+  }, [location.pathname, MetaPages, outlineData, setCurrentPage, cfmPageId, redirect]);
 
   useEffect(() => {
     // Google Analytics, if provided.
@@ -213,16 +228,18 @@ export default function Site(props) {
     }
   }, [Sites, outlineData]);
 
-  let redirect;
-  if (props.redirects && window.location.pathname === '/') {
-    // search for page redirect matches
-    for (const item of props.redirects) {
-      if (item.hostname === window.location.hostname) {
-        console.debug(`Redirecting ${item.hostname} to page ${item.pageId}.`);
-        redirect = item;
+  useEffect(() => {
+    if (props.redirects && window.location.pathname === '/') {
+      // search for page redirect matches
+      for (const item of props.redirects) {
+        if (item.hostname === window.location.hostname) {
+          console.debug(`Setting redirect ${item.hostname} to page ${item.pageId}.`);
+          setRedirect(item.pageId)
+        }
       }
     }
-  }
+  }, [props.redirects, setRedirect])
+
 
   useEffect(() => {
     // build next & prev page for navigation
