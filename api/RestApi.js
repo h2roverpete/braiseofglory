@@ -821,6 +821,23 @@ export default function RestApi(props) {
   }, []);
 
   /**
+   * Return paginated log data.
+   *
+   * @param {Number} campaignId   Campaign ID
+   * @param {Object} startKey     Start key, use empty string "" to scan from beginning
+   * @param {Number} limit        Maximum records to return
+   * @return {{Items: [SMSLogData], LastEvaluatedKey: Object}}
+   */
+  const getSmsLogData = useCallback(async (campaignId, startKey, limit) => {
+    return await adminApiCall(() => {
+      return async () => {
+        const response = await axios.post(`${host}/api/v1/sms/campaigns/${campaignId}/log`,{startKey: startKey, limit:limit});
+        return response.data;
+      }
+    });
+  }, []);
+
+  /**
    * @callback RestApiCall
    * @return {Promise<any>}
    */
@@ -971,6 +988,7 @@ export default function RestApi(props) {
         getSmsMessage: getSmsMessage,
         getSmsMessageLog: getSmsMessageLog,
         getSmsCampaignLog: getSmsCampaignLog,
+        getSmsLogData: getSmsLogData,
       }
     }}>
       {props.children}

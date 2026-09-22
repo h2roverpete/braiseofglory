@@ -1,5 +1,5 @@
-import {useCallback, useEffect, useState} from "react";
-import {Table, Form} from "react-bootstrap";
+import {useCallback, useEffect, useRef, useState} from "react";
+import {Table, Form, Button} from "react-bootstrap";
 import {BsSortDown, BsSortUp} from "react-icons/bs";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
@@ -38,6 +38,9 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, onAll
 
   const [sortKey, setSortKey] = useState('Created');
   const [sortAscending, setSortAscending] = useState(false);
+  const [pageKeys, setPageKeys] = useState([]);
+
+  const tableRef = useRef(null);
 
   const sortFunction = useCallback((a, b) => {
     if (a[sortKey] !== undefined && b[sortKey] !== undefined) {
@@ -58,6 +61,8 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, onAll
     }
   }, [sortKey, sortAscending]);
 
+  const itemsPerPage = 100;
+
   useEffect(() => {
     if (campaign && message && !listItems) {
       SMS.getSmsMessageLog(campaign.SMSCampaignID, message.SMSMessageID).then((result) => {
@@ -66,13 +71,40 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, onAll
         showErrorAlert(error);
       })
     } else if (campaign && !listItems) {
-      SMS.getSmsCampaignLog(campaign.SMSCampaignID).then((result) => {
-        setListItems(result.sort(sortFunction));
+      SMS.getSmsLogData(campaign.SMSCampaignID, undefined, itemsPerPage).then((result) => {
+        setPageKeys([result.LastEvaluatedKey]);
+        setListItems(result.Items.sort(sortFunction));
       }).catch((error) => {
         showErrorAlert(error);
       })
     }
-  }, [SMS, campaign, showErrorAlert, message, listItems, setListItems, sortFunction]);
+  }, [SMS, campaign, showErrorAlert, message, listItems, setListItems, sortFunction, setPageKeys]);
+
+  function nextPage() {
+    if (pageKeys.length > 0) {
+      SMS.getSmsLogData(campaign.SMSCampaignID, pageKeys.at(-1), itemsPerPage).then((result) => {
+        pageKeys.push(result.LastEvaluatedKey);
+        setPageKeys([...pageKeys]);
+        setListItems(result.Items.sort(sortFunction));
+        tableRef.current.parentElement.scrollTop = 0;
+        tableRef.current.parentElement.scrollLeft = 0;
+      }).catch((error) => {
+        showErrorAlert(error);
+      })
+    }
+  }
+
+  function prevPage() {
+    SMS.getSmsLogData(campaign.SMSCampaignID, pageKeys.length > 2 ? pageKeys.at(-3) : undefined, itemsPerPage).then((result) => {
+      pageKeys.pop();
+      setPageKeys([...pageKeys]);
+      setListItems(result.Items.sort(sortFunction));
+      tableRef.current.parentElement.scrollTop = 0;
+      tableRef.current.parentElement.scrollLeft = 0;
+    }).catch((error) => {
+      showErrorAlert(error);
+    })
+  }
 
   /**
    * @type {(function([SMSLogData]): void)|*}
@@ -139,6 +171,7 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, onAll
       hover
       responsive
       className={'SmsLogEntryList'}
+      ref={tableRef}
     >
       <thead style={{position: 'sticky', top: 0,}}>
       <tr>
@@ -246,6 +279,15 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, onAll
       )}
       </tbody>
     </Table>
+    {pageKeys.length > 0 &&
+      <div className={'d-flex mt-3'}>
+        {pageKeys.length > 1 &&
+          <div className={'d-flex'}><Button size={'sm'} onClick={prevPage}>&laquo; Previous Page</Button></div>}
+        {pageKeys.length > 0 &&
+          <div className={'d-flex flex-fill justify-content-end'}><Button size={'sm'} onClick={nextPage}>Next
+            Page &raquo;</Button></div>}
+      </div>
+    }
     <SmsLogEntryModal show={editItem} campaign={campaign} logEntry={editItem} onHide={() => setEditItem(null)}/>
   </div>}
   </>
