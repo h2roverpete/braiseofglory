@@ -213,7 +213,7 @@ export default function SmsCampaignFields({campaign, onAdd, onUpdate, onDelete, 
                 id={'CampaignMode'}
                 name={'CampaignMode'}
                 label={'Sandbox'}
-                onChange={(e) => formData.onDataChanged({name: 'SandboxMode', value: true})}
+                onChange={() => formData.onDataChanged({name: 'SandboxMode', value: true})}
                 checked={formData.edits?.SandboxMode === true}
               />
               <Form.Check
@@ -222,7 +222,7 @@ export default function SmsCampaignFields({campaign, onAdd, onUpdate, onDelete, 
                 id={'CampaignMode'}
                 name={'CampaignMode'}
                 label={'Production'}
-                onChange={(e) => formData.onDataChanged({name: 'SandboxMode', value: false})}
+                onChange={() => formData.onDataChanged({name: 'SandboxMode', value: false})}
                 checked={formData.edits?.SandboxMode === false}
               />
             </Col>
@@ -267,6 +267,57 @@ export default function SmsCampaignFields({campaign, onAdd, onUpdate, onDelete, 
                 isInvalid={formData.isTouched('CampaignOriginationIdentity') && !(formData.edits.CampaignOriginationIdentity?.length > 0)}
                 value={formData.edits?.CampaignOriginationIdentity || ''}
                 onChange={(e) => formData.onDataChanged({name: 'CampaignOriginationIdentity', value: e.target.value})}
+              />
+            </Col>
+          </Row>
+          <Row className={'mt-1'}>
+            <Form.Label
+              column={'sm'}
+              sm={labelCols}
+              htmlFor={'CampaignOriginationIsRCS'}
+            >
+              Type
+            </Form.Label>
+            <Col className={'col-sm-4 d-flex'}>
+              <Form.Check
+                type={'radio'}
+                name={'CampaignOriginationIsRCS'}
+                value={0}
+                inline
+                checked={formData.edits.CampaignOriginationIsRCS !== 1}
+                label={'SMS'}
+                onChange={() => formData.onDataChanged({name: 'CampaignOriginationIsRCS', value: 0})}
+              />
+              <Form.Check
+                type={'radio'}
+                name={'CampaignOriginationIsRCS'}
+                value={1}
+                inline
+                checked={formData.edits.CampaignOriginationIsRCS === 1}
+                label={'RCS'}
+                onChange={() => formData.onDataChanged({name: 'CampaignOriginationIsRCS', value: 1})}
+              />
+            </Col>
+          </Row>
+          <Row className={'mt-1'} hidden={formData.edits.CampaignOriginationIsRCS !== 1}>
+            <Form.Label
+              column={'sm'}
+              sm={labelCols}
+              htmlFor={'CampaignFallbackOriginationIdentity'}
+            >
+              Fallback
+            </Form.Label>
+            <Col className={'col-sm-4'}>
+              <Form.Control
+                size={'sm'}
+                name={'CampaignFallbackOriginationIdentity'}
+                isValid={formData.isTouched('CampaignFallbackOriginationIdentity') && formData.edits.CampaignFallbackOriginationIdentity?.length > 0}
+                isInvalid={formData.isTouched('CampaignFallbackOriginationIdentity') && !(formData.edits.CampaignFallbackOriginationIdentity?.length > 0)}
+                value={formData.edits?.CampaignFallbackOriginationIdentity || ''}
+                onChange={(e) => formData.onDataChanged({
+                  name: 'CampaignFallbackOriginationIdentity',
+                  value: e.target.value
+                })}
               />
             </Col>
           </Row>
