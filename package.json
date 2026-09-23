@@ -18,7 +18,7 @@
   },
   "scripts": {
     "start": "gulp buildIndex && react-scripts start",
-    "build": "gulp buildSitemap && gulp buildIndex && react-scripts build",
+    "build": "gulp buildSitemap && gulp buildIndex && react-scripts build && gulp injectCss",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "deploy": "aws s3 sync ./build s3://www.braiseofglory.com && gulp createInvalidation",

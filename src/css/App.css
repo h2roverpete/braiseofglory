@@ -277,13 +277,25 @@ div.SMSCampaign {
   padding: 0;
 }
 
-/* Input fields for guest book and login */
-.Login input.form-control,
-.GuestBook li.country,
-.GuestBook input.form-control.phone,
-.GuestBook input.form-control,
-.GuestBook textarea.form-control,
-.GuestBook select.form-control {
+/* Input fields */
+li.country,
+input.form-control.phone,
+input.form-control,
+textarea.form-control,
+select.form-control {
+  background-color: #192c42 !important;
+  border-color: white !important;
+  color: white !important;
+}
+
+/* prevents autofill from messing with css */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill,
+input:autofill {
+  transition: background-color 600000s ease-in-out 0s, color 600000s ease-in-out 0s;
 }
 
 /* Submit button for guest book and login */
