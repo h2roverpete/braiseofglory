@@ -81,7 +81,7 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, onAll
   }, [SMS, campaign, showErrorAlert, message, listItems, setListItems, sortFunction, setPageKeys]);
 
   function nextPage() {
-    if (pageKeys.length > 0) {
+    if (pageKeys.length > 0 && pageKeys.at(-1)) {
       SMS.getSmsLogData(campaign.SMSCampaignID, pageKeys.at(-1), itemsPerPage).then((result) => {
         pageKeys.push(result.LastEvaluatedKey);
         setPageKeys([...pageKeys]);
@@ -279,11 +279,11 @@ export default function SmsLogEntryList({campaign, message, onItemChecked, onAll
       )}
       </tbody>
     </Table>
-    {pageKeys.length > 0 &&
+    {(pageKeys.length > 1 || (pageKeys.length === 1 && pageKeys.at(0))) &&
       <div className={'d-flex mt-3'}>
         {pageKeys.length > 1 &&
           <div className={'d-flex'}><Button size={'sm'} onClick={prevPage}>&laquo; Previous Page</Button></div>}
-        {pageKeys.length > 0 &&
+        {pageKeys.at(-1) &&
           <div className={'d-flex flex-fill justify-content-end'}><Button size={'sm'} onClick={nextPage}>Next
             Page &raquo;</Button></div>}
       </div>
