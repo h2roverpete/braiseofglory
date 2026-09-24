@@ -15,12 +15,6 @@ export default function PageNavigation({html}) {
   return (
     <div
       className="PageNavigation"
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "end",
-        position: "relative",
-      }}
     >
       {html && <div dangerouslySetInnerHTML={{__html: html}} className={'nav-text'}/>}
       {prevPage && (
