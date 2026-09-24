@@ -4,6 +4,7 @@ import {usePageContext} from "./Page";
 import Login from "../../auth/Login";
 import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
+import {Spinner} from "react-bootstrap";
 
 /**
  * Element to show all the sections on a page
@@ -43,7 +44,7 @@ export default function PageSections({children}) {
       {login ? (<>
         <Login/>
       </>) : (<>
-        {sectionData && (<>
+        {sectionData?.length ? (<>
           {sectionData.map(section => (<Fragment key={section.PageSectionID + "_" + section.Modified}>
             <PageSection
               pageSectionData={section}
@@ -52,7 +53,10 @@ export default function PageSections({children}) {
             />
           </Fragment>))}
           {children}
-        </>)}
+        </>) :
+          <div className="PageLoading">
+            <Spinner></Spinner>
+          </div>}
       </>)}
     </>)}
     </>)
