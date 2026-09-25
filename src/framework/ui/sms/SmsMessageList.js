@@ -37,7 +37,7 @@ export default function SmsMessageList({campaign, onViewMessage}) {
         setMessages(result);
       });
     }
-  }, [SMS, campaign, messages, setMessages]);
+  }, [SMS, campaign, messages, setMessages, currentUser.UserID, hasAdminPermission]);
 
   const sortFunction = useCallback((a, b) => {
     switch (typeof a[sortKey]) {

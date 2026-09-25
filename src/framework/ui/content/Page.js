@@ -4,6 +4,7 @@ import {useRestApi} from "../../api/RestApi";
 import FormEditor from "../editor/FormEditor";
 import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
+import {Spinner} from "react-bootstrap";
 
 const AddExtrasModal = lazy(() => import("../extras/AddExtrasModal"));
 
@@ -56,7 +57,7 @@ export default function Page({children, pageId, content, overflow}) {
         }
       }
       // page not found
-      setPageData({PageID:0, PageTitle: ''});
+      setPageData({PageID: 0, PageTitle: ''});
       setSectionData([]);
     }
   }, [pageId, pageData, outlineData]);
@@ -241,7 +242,7 @@ export default function Page({children, pageId, content, overflow}) {
     >
       {canEdit && showAddExtraModal && (
         <FormEditor>
-          <Suspense fallback={<></>}>
+          <Suspense>
             <AddExtrasModal
               show={showAddExtraModal}
               onHide={() => setShowAddExtraModal(false)}

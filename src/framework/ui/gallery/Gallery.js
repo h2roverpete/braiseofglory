@@ -1,9 +1,7 @@
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import React, {lazy, Suspense, useEffect, useMemo, useRef, useState} from "react";
 import "react-image-gallery/styles/image-gallery.css";
 import ImageGallery from "react-image-gallery";
 import {useRestApi} from "../../api/RestApi";
-import GalleryConfig from "./GalleryConfig";
-import FormEditor from "../editor/FormEditor";
 import './Gallery.css';
 import FileDropTarget, {DropState} from "../editor/FileDropTarget";
 import {useSiteContext} from "../content/Site";
@@ -13,7 +11,10 @@ import {useTouchContext} from "../../util/TouchProvider";
 import {Permission, Resource} from "../../auth/Permissions";
 import {useAuth} from "../../auth/AuthProvider";
 import {useExtrasContext} from "../extras/Extras";
-import DescribePhotoModal from "./DescribePhotoModal";
+
+const GalleryConfig = lazy(() => import("./GalleryConfig"));
+const FormEditor = lazy(() => import("../editor/FormEditor"));
+const DescribePhotoModal = lazy(() => import("./DescribePhotoModal"));
 
 /**
  * Display a photo gallery
@@ -327,7 +328,7 @@ export default function Gallery({galleryId, extraData, sectionExtras}) {
       </div>
     </>)}
     {
-      canAdmin && (<>
+      canAdmin && (<Suspense>
         <FormEditor>
           <GalleryConfig
             galleryConfig={galleryConfig}
@@ -342,7 +343,7 @@ export default function Gallery({galleryId, extraData, sectionExtras}) {
           onUpdate={handlePhotoUpdate}
           photoData={currentPhoto}
         />
-      </>)
+      </Suspense>)
     }
   </div>)
 }

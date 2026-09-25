@@ -1,11 +1,10 @@
-import React, {createContext, useCallback, useContext, useEffect, useState} from 'react';
+import React, {createContext, lazy, Suspense, useCallback, useContext, useEffect, useState} from 'react';
 import ReactGA from 'react-ga4';
 import 'bootstrap/dist/js/bootstrap.bundle.js';
 import {Route, Routes, useLocation, useNavigate} from "react-router";
 import {useRestApi} from "../../api/RestApi";
 import Logout from '../../auth/Logout';
-import SiteEditor from "../editor/SiteEditor";
-import {Alert} from "react-bootstrap";
+import {Alert, Spinner} from "react-bootstrap";
 import Head from "./Head";
 import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
@@ -15,6 +14,8 @@ import SiteUsers from "../../auth/SiteUsers";
 import UserProfilePanel from "../../auth/UserProfilePanel";
 import {Outline} from "framework/util/OutlineUtil"
 import SmsAdminPage from "../sms/SmsAdminPage";
+
+const SiteEditor = lazy(() => import("../editor/SiteEditor"));
 
 /**
  * @typedef ErrorData
@@ -340,12 +341,14 @@ export default function Site(props) {
     return (
       <SiteContext value={siteContext}>
         <Head/>
-        <SiteEditor>
-          <div className="Site" data-testid="Site">
-            {content}
-            {alertElement}
-          </div>
-        </SiteEditor>
+        <Suspense fallback={<div className={'PageLoading'}><Spinner/></div>}>
+          <SiteEditor>
+            <div className="Site" data-testid="Site">
+              {content}
+              {alertElement}
+            </div>
+          </SiteEditor>
+        </Suspense>
       </SiteContext>
     );
   } else {
