@@ -11,7 +11,6 @@ import AddPageButton from "../editor/AddPageButton";
 import {Resource, Permission} from "../../auth/Permissions";
 import UserMenu from "./UserMenu";
 import Collapse from 'bootstrap/js/dist/collapse';
-import collapse from "bootstrap/js/src/collapse";
 
 /**
  * @typedef NavBarProps

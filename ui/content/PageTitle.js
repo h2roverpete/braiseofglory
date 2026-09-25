@@ -1,10 +1,11 @@
 import {usePageContext} from "./Page";
-import {useEffect, useRef, useState} from "react";
+import {lazy, Suspense, useEffect, useRef, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
-import EditableField from "../editor/EditableField";
 import {useSiteContext} from "./Site";
 import {Permission, Resource} from "../../auth/Permissions";
 import {useAuth} from "../../auth/AuthProvider";
+
+const EditableField = lazy(() => import("../editor/EditableField"));
 
 /**
  * Display the page title in an <h1> tag.
@@ -76,7 +77,7 @@ export default function PageTitle({text, alwaysShow}) {
   )
 
   return (<>
-    {canEdit ?
+    {canEdit ? <Suspense>
       <EditableField
         field={title}
         fieldRef={titleRef}
@@ -88,7 +89,7 @@ export default function PageTitle({text, alwaysShow}) {
         alwaysShow={alwaysShow === true}
         canEdit={canEdit}
       />
-      : (<>{title}</>)
+    </Suspense> : (<>{title}</>)
     }
   </>)
 }

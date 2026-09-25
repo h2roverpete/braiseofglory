@@ -1,17 +1,18 @@
-import {useEffect, useState, memo, useContext, createContext, useRef} from "react";
+import {useEffect, useState, memo, useContext, createContext, useRef, Suspense, lazy} from "react";
 import GuestFields from "./GuestFields";
 import GuestFeedbackFields from "./GuestFeedbackFields";
 import '../forms/Forms.css'
 import {useRestApi} from "../../api/RestApi";
 import {Button} from "react-bootstrap";
-import GuestBookConfigPanel from "./GuestBookConfigPanel";
 import {isValidEmail} from "../../util/Validators";
-import FormEditor from "../editor/FormEditor";
 import {useTouchContext} from "../../util/TouchProvider";
 import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
-import MoveExtraMenu from "../extras/MoveExtraMenu";
 import {useSiteContext} from "../content/Site";
+
+const GuestBookConfigPanel = lazy(() => import("./GuestBookConfigPanel"));
+const FormEditor = lazy(() => import("../editor/FormEditor"));
+const MoveExtraMenu = lazy(() => import("../extras/MoveExtraMenu"));
 
 export const GuestBookContext = createContext({
   guestBookConfig: null
@@ -88,7 +89,7 @@ function GuestBook({guestBookId, extraData, sectionExtras}) {
     GuestBooks.insertOrUpdateGuest(guestBookId, {GuestBookID: guestBookConfig.GuestBookID, ...guestData.edits}).then(data => {
       setSubmitted(true);
       guestData.update(data);
-      GuestBooks.insertOrUpdateGuestFeedback(data.GuestID, {GuestID : data.GuestID, ...feedbackData.edits}).then(data => {
+      GuestBooks.insertOrUpdateGuestFeedback(data.GuestID, {GuestID: data.GuestID, ...feedbackData.edits}).then(data => {
         feedbackData.update(data);
       }).catch(error => {
         showErrorAlert(`Error updating guest feedback. `, error);
@@ -194,12 +195,12 @@ function GuestBook({guestBookId, extraData, sectionExtras}) {
             </div>
           </>
         )}
-        {canEdit && (<>
+        {canEdit && (<Suspense>
           <FormEditor>
             <GuestBookConfigPanel extraId={extraData.ExtraID} buttonRef={buttonRef}/>
           </FormEditor>
           <MoveExtraMenu extraData={extraData} sectionExtras={sectionExtras} buttonRef={menuRef}/>
-        </>)}
+        </Suspense>)}
       </div>}
     </GuestBookContext>
   )

@@ -1,10 +1,12 @@
 import {useSiteContext} from "./Site";
-import FileDropTarget, {DropState} from "../editor/FileDropTarget";
-import {useRef} from "react";
+import {lazy, useRef, Suspense} from "react";
 import {useTouchContext} from "../../util/TouchProvider";
-import PageSectionImageMenu from "./PageSectionImageMenu";
 import {motion, useScroll, useTransform} from 'motion/react';
 import {usePageContext} from "./Page";
+
+const FileDropTarget = lazy(() => import("../editor/FileDropTarget"));
+const {DropState} = lazy(() => import("../editor/FileDropTarget"));
+const PageSectionImageMenu = lazy(() => import("./PageSectionImageMenu"));
 
 /**
  * Display a page section image.
@@ -131,7 +133,7 @@ export default function PageSectionImage(
               if (canEdit && supportsHover) editButtonRef.current.hidden = true;
             }}
           />
-          {canEdit && (<>
+          {canEdit && (<Suspense>
             <FileDropTarget
               ref={dropRef}
               onFileSelected={onFileSelected}
@@ -142,7 +144,7 @@ export default function PageSectionImage(
               }}
             />
             <PageSectionImageMenu pageSectionData={pageSectionData} buttonRef={editButtonRef}/>
-          </>)}
+          </Suspense>)}
         </div>) : (<>
         {pageSectionData?.SectionImage && (
           <div
@@ -165,7 +167,7 @@ export default function PageSectionImage(
               ref={imageRef}
             />
 
-            {canEdit && (<>
+            {canEdit && (<Suspense>
               <FileDropTarget
                 ref={dropRef}
                 onFileSelected={onFileSelected}
@@ -176,7 +178,7 @@ export default function PageSectionImage(
                 }}
               />
               <PageSectionImageMenu pageSectionData={pageSectionData} buttonRef={editButtonRef}/>
-            </>)}
+            </Suspense>)}
           </div>
         )}
       </>)}
