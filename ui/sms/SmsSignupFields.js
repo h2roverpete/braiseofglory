@@ -1,12 +1,13 @@
 import {useFormData} from "../editor/FormEditor";
-import {useEffect, useState} from "react";
+import {lazy, Suspense, useEffect, useState} from "react";
 import {Button, Col, Form, Row, Spinner} from "react-bootstrap";
-import PhoneNumberField from "../forms/PhoneNumberField";
 import {useRestApi} from "../../api/RestApi"
 import {useSiteContext} from "../content/Site";
 import './SmsSignupFields.css';
-import EmailField from "../forms/EmailField";
 import {isValidEmail} from "../../util/Validators";
+
+const PhoneNumberField = lazy(()=>import("../forms/PhoneNumberField")) ;
+const EmailField  = lazy(()=>import("../forms/EmailField")) ;
 
 /**
  * Display message that the user doesn't have permission to view the content.
@@ -99,7 +100,7 @@ export default function SmsSignupFields({smsCampaignId}) {
         </p>
       </>
       :
-      <>
+      <Suspense>
         <Row className={'mt-2'}>
           <Col>
             <div className="SectionText" dangerouslySetInnerHTML={{__html: smsCampaignConfig?.CampaignDescription}}/>
@@ -234,6 +235,6 @@ export default function SmsSignupFields({smsCampaignId}) {
             </Button>
           </Col>
         </Row>
-      </>}
+      </Suspense>}
   </div>;
 }

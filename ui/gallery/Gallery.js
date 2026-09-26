@@ -1,9 +1,7 @@
 import React, {lazy, Suspense, useEffect, useMemo, useRef, useState} from "react";
 import "react-image-gallery/styles/image-gallery.css";
-import ImageGallery from "react-image-gallery";
 import {useRestApi} from "../../api/RestApi";
 import './Gallery.css';
-import FileDropTarget, {DropState} from "../editor/FileDropTarget";
 import {useSiteContext} from "../content/Site";
 import {Button} from "react-bootstrap";
 import {BsThreeDotsVertical} from "react-icons/bs";
@@ -12,9 +10,12 @@ import {Permission, Resource} from "../../auth/Permissions";
 import {useAuth} from "../../auth/AuthProvider";
 import {useExtrasContext} from "../extras/Extras";
 
+const ImageGallery = lazy(() => import("react-image-gallery"));
 const GalleryConfig = lazy(() => import("./GalleryConfig"));
 const FormEditor = lazy(() => import("../editor/FormEditor"));
 const DescribePhotoModal = lazy(() => import("./DescribePhotoModal"));
+const FileDropTarget = lazy(() => import("../editor/FileDropTarget"));
+const {DropState} = lazy(() => import("../editor/FileDropTarget"));
 
 /**
  * Display a photo gallery
@@ -270,9 +271,9 @@ export default function Gallery({galleryId, extraData, sectionExtras}) {
       e.stopPropagation()
     }}
   >
-    {images?.length > 0 && (
+    {images?.length > 0 && (<Suspense>
       <ImageGallery items={images} ref={galleryRef} onSlide={onSlide}/>
-    )}
+    </Suspense>)}
     {canAddPhotos && (<>
       {images?.length === 0 && (
         <div className={'Editor EmptyElement'} style={{height: '100px'}}>(Empty Gallery)</div>
