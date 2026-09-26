@@ -25,7 +25,8 @@
     "deploy-code": "aws s3 sync ./build s3://www.braiseofglory.com --exclude 'images/*' &&  gulp createInvalidation",
     "add-framework": "git subtree add --prefix=src/framework https://github.com/h2roverpete/framework.git main",
     "push-framework": "git subtree push --prefix=src/framework https://github.com/h2roverpete/framework.git main",
-    "pull-framework": "git status && git subtree pull --prefix=src/framework https://github.com/h2roverpete/framework.git main"
+    "pull-framework": "git status && git subtree pull --prefix=src/framework https://github.com/h2roverpete/framework.git main",
+    "analyze": "source-map-explorer --no-border-checks 'build/static/js/main.*.js'"
   },
   "eslintConfig": {
     "extends": [
@@ -54,7 +55,8 @@
     "dotenv": "^17.4.2",
     "framework": "^1.4.10",
     "gulp": "^5.0.1",
-    "minimist": "^1.2.8"
+    "minimist": "^1.2.8",
+    "source-map-explorer": "^2.5.3"
   },
   "jest": {
     "transformIgnorePatterns": [
