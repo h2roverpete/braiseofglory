@@ -1,8 +1,9 @@
 import {useSiteContext} from "./Site";
 import {lazy, useRef, Suspense} from "react";
 import {useTouchContext} from "../../util/TouchProvider";
-import {motion, useScroll, useTransform} from 'motion/react';
 import {usePageContext} from "./Page";
+import {LazyMotion, domAnimation, useScroll, useTransform} from "motion/react"
+import * as m from "motion/react-m"
 
 const FileDropTarget = lazy(() => import("../editor/FileDropTarget"));
 const {DropState} = lazy(() => import("../editor/FileDropTarget"));
@@ -105,7 +106,7 @@ export default function PageSectionImage(
 
   return (
     <>
-      {pageSectionData.ImagePosition === 'parallax' ? (
+      {pageSectionData.ImagePosition === 'parallax' ? (<Suspense>
         <div
           style={{position: 'relative'}}
           ref={imageRef}
@@ -115,24 +116,26 @@ export default function PageSectionImage(
           onMouseLeave={() => {
             if (canEdit && supportsHover) editButtonRef.current.hidden = true;
           }}>
-          <motion.div
-            className={`SectionImage col-sm-12 mb-3 parallax`}
-            style={{
-              width: '100%',
-              paddingBottom: '50%',
-              backgroundSize: 'cover',
-              backgroundPositionX: 'center',
-              backgroundPositionY: y,
-              backgroundRepeat: 'no-repeat',
-              backgroundImage: `url(${siteData?.SiteRootUrl}/images/${pageSectionData.SectionImage})`,
-            }}
-            onMouseOver={() => {
-              if (canEdit && supportsHover) editButtonRef.current.hidden = false;
-            }}
-            onMouseLeave={() => {
-              if (canEdit && supportsHover) editButtonRef.current.hidden = true;
-            }}
-          />
+          <LazyMotion features={domAnimation}>
+            <m.div
+              className={`SectionImage col-sm-12 mb-3 parallax`}
+              style={{
+                width: '100%',
+                paddingBottom: '50%',
+                backgroundSize: 'cover',
+                backgroundPositionX: 'center',
+                backgroundPositionY: y,
+                backgroundRepeat: 'no-repeat',
+                backgroundImage: `url(${siteData?.SiteRootUrl}/images/${pageSectionData.SectionImage})`,
+              }}
+              onMouseOver={() => {
+                if (canEdit && supportsHover) editButtonRef.current.hidden = false;
+              }}
+              onMouseLeave={() => {
+                if (canEdit && supportsHover) editButtonRef.current.hidden = true;
+              }}
+            />
+          </LazyMotion>
           {canEdit && (<Suspense>
             <FileDropTarget
               ref={dropRef}
@@ -145,7 +148,8 @@ export default function PageSectionImage(
             />
             <PageSectionImageMenu pageSectionData={pageSectionData} buttonRef={editButtonRef}/>
           </Suspense>)}
-        </div>) : (<>
+        </div>
+      </Suspense>) : (<>
         {pageSectionData?.SectionImage && (
           <div
             style={imageDivStyle}

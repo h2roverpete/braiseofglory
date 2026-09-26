@@ -1,6 +1,4 @@
 import {useEffect, useState, memo, useContext, createContext, useRef, Suspense, lazy} from "react";
-import GuestFields from "./GuestFields";
-import GuestFeedbackFields from "./GuestFeedbackFields";
 import '../forms/Forms.css'
 import {useRestApi} from "../../api/RestApi";
 import {Button} from "react-bootstrap";
@@ -10,6 +8,8 @@ import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
 import {useSiteContext} from "../content/Site";
 
+const GuestFields = lazy(()=>import("./GuestFields"));
+const GuestFeedbackFields = lazy(()=>import("./GuestFeedbackFields"));
 const GuestBookConfigPanel = lazy(() => import("./GuestBookConfigPanel"));
 const FormEditor = lazy(() => import("../editor/FormEditor"));
 const MoveExtraMenu = lazy(() => import("../extras/MoveExtraMenu"));
@@ -168,7 +168,7 @@ function GuestBook({guestBookId, extraData, sectionExtras}) {
             </Button>
           </>
         ) : (
-          <>
+          <Suspense>
             <p
               dangerouslySetInnerHTML={{__html: guestBookConfig.GuestBookMessage ? guestBookConfig.GuestBookMessage : 'Please enter your information below.'}}/>
             <FormEditor apiRef={setGuestData}>
@@ -193,7 +193,7 @@ function GuestBook({guestBookId, extraData, sectionExtras}) {
                 {guestBookConfig.SubmitButtonName ? guestBookConfig.SubmitButtonName : 'Submit'}
               </Button>
             </div>
-          </>
+          </Suspense>
         )}
         {canEdit && (<Suspense>
           <FormEditor>

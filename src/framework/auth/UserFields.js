@@ -1,9 +1,10 @@
 import {useAuth} from "./AuthProvider";
 import {useFormData} from "../ui/editor/FormEditor";
-import {useEffect} from "react";
+import {lazy, Suspense, useEffect} from "react";
 import {Col, Form, Row} from "react-bootstrap";
-import PhoneNumberField from "../ui/forms/PhoneNumberField";
 import {isValidEmail, isValidPassword} from "../util/Validators";
+
+const PhoneNumberField = lazy(()=>import("../ui/forms/PhoneNumberField"));
 
 /**
  * Display message that the user doesn't have permission to view the content.
@@ -27,7 +28,7 @@ export default function UserFields() {
   }, [currentUser, formData]);
 
   const labelCols = 3;
-  return (<>
+  return (<Suspense>
     <Row className={'mt-4'}>
       <Form.Label
         column={'sm'}
@@ -108,5 +109,5 @@ export default function UserFields() {
         />
       </Col>
     </Row>
-  </>);
+  </Suspense>);
 }

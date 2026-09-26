@@ -1,19 +1,20 @@
 import {TabPane, Tabs} from "react-bootstrap";
 import {useAuth} from "../../auth/AuthProvider";
 import {Resource, Permission} from "../../auth/Permissions";
-import {useEffect, useMemo, useState} from "react";
+import {lazy, Suspense, useEffect, useMemo, useState} from "react";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
-import SmsSubscriberList from "./SmsSubscriberList";
-import SmsMessageList from "./SmsMessageList";
-import SmsMessagePanel from "./SmsMessagePanel";
-import FormEditor from "../editor/FormEditor";
-import SendSmsMessagePanel from "./SendSmsMessagePanel";
-import SmsLogEntryList from "./SmsLogEntryList";
-import './SmsAdminPage.css'
 import {BsXLg} from "react-icons/bs";
-import SmsCampaignConfig from "./SmsCampaignConfig";
+import './SmsAdminPage.css'
 import './SmsCampaignPanel.css';
+
+const SmsSubscriberList = lazy(() => import("./SmsSubscriberList"));
+const SmsMessageList = lazy(() => import("./SmsMessageList"));
+const SmsMessagePanel = lazy(() => import("./SmsMessagePanel"));
+const FormEditor = lazy(() => import("../editor/FormEditor"));
+const SendSmsMessagePanel = lazy(() => import("./SendSmsMessagePanel"));
+const SmsLogEntryList = lazy(() => import("./SmsLogEntryList"));
+const SmsCampaignConfig = lazy(() => import("./SmsCampaignConfig"));
 
 export default function SmsCampaignPanel({campaignId, campaignData}) {
 
@@ -47,7 +48,7 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
     });
   }
 
-  return <>{campaign && hasSendPermission &&
+  return <Suspense>{campaign && hasSendPermission &&
     <div className={'Editor CampaignTabPanel'}>
       <Tabs
         defaultActiveKey={"send"}
@@ -149,5 +150,5 @@ export default function SmsCampaignPanel({campaignId, campaignData}) {
         }
       </Tabs>
     </div>
-  }</>
+  }</Suspense>
 }

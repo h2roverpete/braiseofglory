@@ -1,10 +1,10 @@
-import {InstagramEmbed} from "react-social-media-embed";
 import {lazy, Suspense, useEffect, useRef, useState} from "react";
 import {useTouchContext} from "../../../util/TouchProvider";
 
 const MoveExtraMenu = lazy(() => import("../MoveExtraMenu"));
 const InstagramExtraConfig = lazy(() => import("./InstagramExtraConfig"));
 const FormEditor = lazy(() => import("../../editor/FormEditor"));
+const InstagramEmbed = lazy(() => import("react-social-media-embed")[InstagramEmbed]);
 
 /**
  * Embed an Instagram feed.
@@ -49,9 +49,11 @@ export default function InstagramExtra({extraData, sectionExtras, canEdit = fals
       }}
     >
       {data && (
-        <InstagramEmbed
-          url={`https://www.instagram.com/${data.InstagramHandle.replaceAll(/[^a-zA-Z0-9-\-_.]/g, '')}`}
-          width={'100%'}/>
+        <Suspense>
+          <InstagramEmbed
+            url={`https://www.instagram.com/${data.InstagramHandle.replaceAll(/[^a-zA-Z0-9-\-_.]/g, '')}`}
+            width={'100%'}/>
+        </Suspense>
       )}
       {canEdit && (<Suspense>
         <FormEditor>
