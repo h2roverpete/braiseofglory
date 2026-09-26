@@ -14,7 +14,4 @@
   background-position-x: 50%;
   background-position-y: center;
   background-repeat: no-repeat;
-  animation: linear move-background !important;
-  animation-duration: auto !important;
-  animation-timeline: scroll() !important;
 }

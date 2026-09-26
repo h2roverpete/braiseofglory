@@ -115,6 +115,9 @@ export default function PageSectionImage(
             className={`SectionImage col-sm-12 mb-3 parallax-image`}
             style={{
               backgroundImage: `url(${siteData?.SiteRootUrl}/images/${pageSectionData.SectionImage})`,
+              "animation": "linear move-background",
+              "animationDuration": "auto",
+              "animationTimeline": "scroll()"
             }}
             onMouseOver={() => {
               if (canEdit && supportsHover) editButtonRef.current.hidden = false;
