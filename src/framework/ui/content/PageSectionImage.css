@@ -9,12 +9,9 @@
 
 .parallax-image {
   width: 100%;
-  padding-bottom: 50%;
+  padding-bottom: 50%; /* makes image proportions 2:1 */
   background-size: cover;
   background-position-x: 50%;
   background-position-y: center;
   background-repeat: no-repeat;
-  animation: linear move-background;
-  animation-duration: auto;
-  animation-timeline: scroll();
 }
