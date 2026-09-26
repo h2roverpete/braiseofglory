@@ -4,7 +4,7 @@ import {useTouchContext} from "../../../util/TouchProvider";
 const MoveExtraMenu = lazy(() => import("../MoveExtraMenu"));
 const InstagramExtraConfig = lazy(() => import("./InstagramExtraConfig"));
 const FormEditor = lazy(() => import("../../editor/FormEditor"));
-const InstagramEmbed = lazy(() => import("react-social-media-embed")[InstagramEmbed]);
+const InstagramEmbed = lazy(() => import("react-social-media-embed").then((module)=>({default: module.InstagramEmbed})));
 
 /**
  * Embed an Instagram feed.

@@ -1,4 +1,3 @@
-import {YouTubeEmbed} from "react-social-media-embed";
 import "./YouTubeExtra.css"
 import {lazy, Suspense, useRef} from "react";
 import {useTouchContext} from "../../../util/TouchProvider";
@@ -6,6 +5,7 @@ import {useTouchContext} from "../../../util/TouchProvider";
 const FormEditor = lazy(() => import("../../editor/FormEditor"));
 const YouTubeExtraConfig = lazy(() => import("./YouTubeExtraConfig"));
 const MoveExtraMenu = lazy(() => import("../MoveExtraMenu"));
+const YouTubeEmbed = lazy(() => import("react-social-media-embed").then((module)=>({default: module.YouTubeEmbed})));
 
 /**
  * Insert a YouTube video
