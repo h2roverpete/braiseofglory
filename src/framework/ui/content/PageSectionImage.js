@@ -2,6 +2,7 @@ import {useSiteContext} from "./Site";
 import {lazy, useRef, Suspense} from "react";
 import {useTouchContext} from "../../util/TouchProvider";
 import {usePageContext} from "./Page";
+import './PageSectionImage.css';
 
 const FileDropTarget = lazy(() => import("../editor/FileDropTarget"));
 const {DropState} = lazy(() => import("../editor/FileDropTarget"));
@@ -35,6 +36,7 @@ export default function PageSectionImage(
   const {supportsHover} = useTouchContext();
   const {siteData, showErrorAlert} = useSiteContext();
   const {scrollRef} = usePageContext();
+
 
   // refs
   const editButtonRef = useRef(null);
@@ -110,14 +112,8 @@ export default function PageSectionImage(
             if (canEdit && supportsHover) editButtonRef.current.hidden = true;
           }}>
           <div
-            className={`SectionImage col-sm-12 mb-3 parallax`}
+            className={`SectionImage col-sm-12 mb-3 parallax-image`}
             style={{
-              width: '100%',
-              paddingBottom: '50%',
-              backgroundSize: 'cover',
-              backgroundPositionX: 'center',
-              backgroundPositionY: 0,
-              backgroundRepeat: 'no-repeat',
               backgroundImage: `url(${siteData?.SiteRootUrl}/images/${pageSectionData.SectionImage})`,
             }}
             onMouseOver={() => {
