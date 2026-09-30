@@ -1,5 +1,6 @@
 import {useNavigate} from "react-router";
 import {useSiteContext} from "./Site";
+import './PageNavigation.css';
 
 /**
  * Display next/previous page navigation elements.

@@ -8,6 +8,7 @@ import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router";
 import {useAuth} from "../../auth/AuthProvider";
 import {Resource, Permission} from "../../auth/Permissions";
+import './PageSwiper.css';
 
 export default function PageSwiper(props) {
 

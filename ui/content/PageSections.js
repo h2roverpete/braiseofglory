@@ -55,7 +55,7 @@ export default function PageSections({children}) {
           {children}
         </>) :
           <div className="PageLoading">
-            <Spinner></Spinner>
+            <Spinner/>
           </div>}
       </>)}
     </>)}

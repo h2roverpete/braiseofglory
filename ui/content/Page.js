@@ -4,7 +4,7 @@ import {useRestApi} from "../../api/RestApi";
 import FormEditor from "../editor/FormEditor";
 import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
-import {Spinner} from "react-bootstrap";
+import './Page.css';
 
 const AddExtrasModal = lazy(() => import("../extras/AddExtrasModal"));
 

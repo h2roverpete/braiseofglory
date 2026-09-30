@@ -1,0 +1,52 @@
+/* Main title */
+h1, h1.PageTitle {
+  font-size: 20pt;
+}
+
+div.PageSection {
+  margin-bottom: 20px;
+}
+
+/* Section titles */
+h2, h2.SectionTitle {
+  font-size: 16pt !important;
+}
+
+h3 {
+  font-size: 14pt;
+}
+
+h4 {
+  font-size: 12pt;
+}
+
+h5 {
+  font-size: 11pt;
+}
+
+/* Links in text */
+.FileExtra a,
+.SectionText a,
+.SectionText a:active,
+.SectionText a:visited {
+  text-decoration: none;
+}
+
+/* Hover over links in text */
+.FileExtra a:hover,
+.SectionText a:hover {
+  text-decoration: underline;
+}
+
+/* Text content */
+div.SectionText {
+}
+
+/* Top level list <li> needs margin correction */
+.SectionText li {
+}
+
+/* <ul> needs correction too */
+.SectionText ol,
+.SectionText ul {
+}
