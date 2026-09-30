@@ -4,6 +4,12 @@ div.Gallery {
   position: relative;
 }
 
+div.image-gallery-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .image-grid-container {
   display: grid;
   grid-template-columns: auto auto auto;

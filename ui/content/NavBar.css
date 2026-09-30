@@ -13,6 +13,13 @@
   max-width: var(--page-max-width);
 }
 
+/* Navbar icon */
+.NavBarBrandIcon {
+  width: 40px;
+  height: 40px;
+  margin: 5px 10px 5px 5px;
+}
+
 /* Navbar branding */
 .NavBarBrand {
   display: flex;
@@ -54,4 +61,11 @@ div.dropdown-menu.dropdown-menu-end {
 }
 
 .AddPageButton {
+}
+
+/* bootstrap sm width */
+@media (max-width: 576px) {
+  .NavBarBrandIcon {
+    margin-left: 0;
+  }
 }
