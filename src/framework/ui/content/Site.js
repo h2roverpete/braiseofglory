@@ -14,6 +14,7 @@ import SiteUsers from "../../auth/SiteUsers";
 import UserProfilePanel from "../../auth/UserProfilePanel";
 import {Outline} from "framework/util/OutlineUtil"
 import SmsAdminPage from "../sms/SmsAdminPage";
+import './Site.css';
 
 const SiteEditor = lazy(() => import("../editor/SiteEditor"));
 
@@ -59,7 +60,7 @@ export default function Site(props) {
   const {hasPermission} = useAuth();
 
   // states
-  const [siteData, setSiteData] = useState(null);
+  const [siteData, setSiteData] = useState(/** @type SiteData */ null);
   const [outlineData, setOutlineData] = useState(/** @type {[OutlineData]|null} */ null);
   const [error, __setError__] = useState(null); // use public setter, not __setError__
   const [alert, setAlert] = useState('');
