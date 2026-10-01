@@ -33,9 +33,14 @@
   padding: 5px;
 }
 
-/* Last dropdown menu */
+/* dropdown menus */
 div.dropdown-menu {
   margin-bottom: 10px;
+}
+
+/* nested dropdown menu items */
+.dropdown-menu .dropdown-toggle.nav-link {
+  padding: 5px 16px 5px 16px !important;
 }
 
 /* Navbar toggle button */
@@ -68,4 +73,5 @@ div.dropdown-menu {
   .NavBarBrandIcon {
     margin-left: 0;
   }
+
 }
