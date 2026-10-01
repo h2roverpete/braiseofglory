@@ -3,6 +3,7 @@ import {Permission, Resource} from "../../auth/Permissions";
 import {useAuth} from "../../auth/AuthProvider";
 import {usePageContext} from "./Page";
 import RestrictedContent from "../../auth/RestrictedContent";
+import './PageContent.css';
 
 /**
  * Element to show page content

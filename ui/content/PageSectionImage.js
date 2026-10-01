@@ -106,21 +106,24 @@ export default function PageSectionImage(
           style={{position: 'relative'}}
           ref={imageRef}
           onMouseOver={() => {
-            if (canEdit && supportsHover) editButtonRef.current.hidden = false;
+            if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = false;
           }}
           onMouseLeave={() => {
-            if (canEdit && supportsHover) editButtonRef.current.hidden = true;
+            if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = true;
           }}>
           <div
             className={`SectionImage col-sm-12 mb-3 parallax-image`}
             style={{
               backgroundImage: `url(${siteData?.SiteRootUrl}/images/${pageSectionData.SectionImage})`,
+              "animation": "linear move-background",
+              "animationDuration": "auto",
+              "animationTimeline": "scroll()"
             }}
             onMouseOver={() => {
-              if (canEdit && supportsHover) editButtonRef.current.hidden = false;
+              if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = false;
             }}
             onMouseLeave={() => {
-              if (canEdit && supportsHover) editButtonRef.current.hidden = true;
+              if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = true;
             }}
           />
           {canEdit && (<Suspense>
@@ -143,10 +146,10 @@ export default function PageSectionImage(
             className={imageDivClassName}
             data-testid={`SectionImageDiv-${pageSectionData.PageSectionID}`}
             onMouseOver={() => {
-              if (canEdit && supportsHover) editButtonRef.current.hidden = false;
+              if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = false;
             }}
             onMouseLeave={() => {
-              if (canEdit && supportsHover) editButtonRef.current.hidden = true;
+              if (canEdit && supportsHover && editButtonRef.current) editButtonRef.current.hidden = true;
             }}
           >
             <img

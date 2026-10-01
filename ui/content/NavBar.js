@@ -11,6 +11,7 @@ import AddPageButton from "../editor/AddPageButton";
 import {Resource, Permission} from "../../auth/Permissions";
 import UserMenu from "./UserMenu";
 import Collapse from 'bootstrap/js/dist/collapse';
+import './NavBar.css';
 
 /**
  * @typedef NavBarProps
@@ -262,13 +263,13 @@ export default function NavBar(props) {
   return (
     <Navbar
       expand={props.expand ? props.expand : 'sm'}
-      className={`NavBar ${!props.expand ? 'navbar-expand' : ''} bg-primary navbar-dark`}
+      className={`NavBar ${!props.expand ? 'navbar-expand' : ''} bg-primary`}
       fixed={props.fixed ? props.fixed : undefined}
       data-testid="NavBar"
+      variant={siteData?.SiteTheme}
     >
       <div
-        className="NavBarContents
-        container-fluid"
+        className="NavBarContents container-fluid"
         data-testid="NavBarContents"
       >
         <>{(props.brand || props.icon) && (
@@ -284,7 +285,6 @@ export default function NavBar(props) {
                     className="NavBarBrandIcon"
                     src={props.icon}
                     alt={props.brand?.length ? props.brand : siteData?.SiteName}
-                    height={45}
                     onClick={() => {
                       navigateTo('/')
                     }}
@@ -365,7 +365,8 @@ export default function NavBar(props) {
             )}
           </Nav>
           <>{(props.showLogin === true || isAuthenticated) && (
-            <div className={`UserMenuContainer flex-grow-1 d-flex justify-content-start justify-content-${props.expand}-end`}>
+            <div
+              className={`UserMenuContainer flex-grow-1 d-flex justify-content-start justify-content-${props.expand}-end`}>
               <UserMenu onClose={handleUserMenuClose}/>
             </div>
           )}</>

@@ -7,6 +7,7 @@ import {useTouchContext} from "../../util/TouchProvider";
 import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
 import {useSiteContext} from "../content/Site";
+import './Guestbook.css';
 
 const GuestFields = lazy(()=>import("./GuestFields"));
 const GuestFeedbackFields = lazy(()=>import("./GuestFeedbackFields"));

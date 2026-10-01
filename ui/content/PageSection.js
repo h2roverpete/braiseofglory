@@ -5,6 +5,7 @@ import PageSectionImage from "./PageSectionImage";
 import Extras from "../extras/Extras";
 import {useSiteContext} from "./Site";
 import {useTouchContext} from "../../util/TouchProvider";
+import './PageSection.css';
 
 const EditableField = lazy(() => import("../editor/EditableField"));
 const EditSectionMenu = lazy(() => import("../editor/EditSectionMenu"));
