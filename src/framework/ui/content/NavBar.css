@@ -15,7 +15,7 @@
 
 /* Navbar icon */
 .NavBarBrandIcon {
-  width: 40px;
+  width: auto;
   height: 40px;
   margin: 5px 10px 5px 5px;
 }
@@ -34,8 +34,8 @@
 }
 
 /* Last dropdown menu */
-div.dropdown-menu.dropdown-menu-end {
-  margin-bottom: 15px;
+div.dropdown-menu {
+  margin-bottom: 10px;
 }
 
 /* Navbar toggle button */

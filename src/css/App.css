@@ -1,351 +1,106 @@
 /*
+ * Customizations to default site Theme and CSS
+ *
  * NOTE: modify index.css to style the appearance of the static
  * <body> and <div id="root"> tags before JS loads
  */
 
-/* Outer container and background */
-div.Site {
-  width: 100vw;
-  height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  position:relative;
+:root {
+  --navbar-height: 60px; /* height of navigation bar, for positioning scrollable page content below */
+  --page-max-width: 768px; /* max width of page content and navigation */
+  --breadcrumb-delimiter: "»"; /* String between navigation levels in breadcrumb display */
 }
 
-/* Navbar outer container, flex settings help nav items align */
-.NavBar.navbar {
-  width: 100vw;
-  padding: 0;
-  position: fixed;
-  top: 0;
-  z-index: 1030;
-  box-shadow:  0 1px 5px 0 rgb(20,36,53);
+/* hover on content links */
+.PageSection a:hover {
+  color: rgb(255, 207, 176) !important;
 }
 
-/* Navbar inner elements, allows for custom alignment/layout */
-.NavBarContents.container-fluid {
-  width: 100vw;
-  max-width: 768px; /* bootstrap md boundary */
+/* hover on page navigation */
+.PageNavigation :hover {
+  color: rgb(255, 207, 176) !important;
 }
 
-/* Navbar branding */
-.NavBarBrand {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
+/* dropdown menu color & border */
+.NavBar div.dropdown-menu {
+  background: rgb(186, 86, 27);
+  border: 1px solid rgb(237, 130, 61);
 }
 
-/* Navbar branding text */
-.NavBarBrandText {
+/* no background change on menu hover */
+.dropdown-item:hover {
+  background: transparent !important;
 }
 
-/* Navbar icon */
-.NavBarBrandIcon {
-  width: 150px;
-  margin: 0 0 0 10px;
+/* active dropdown item background */
+.dropdown-item:hover .active {
+  background: rgb(237, 130, 61);
 }
 
-/* Navbar toggle button */
-.navbar .navbar-toggler {
+/* no focus shadow on toggler */
+.navbar-toggler:focus {
+  box-shadow: none !important;
 }
 
-/* Navbar dropdown menus */
-.navbar .dropdown-menu {
-  padding: 5px;
+/* toggler expanded color */
+.navbar-toggler {
+  border-color: white !important;
+  background-color: rgb(237, 130, 61) !important;
+}
+
+/* toggler collapsed color */
+.navbar-toggler.collapsed {
+  border-color: rgb(255, 207, 176) !important;
+  background-color: transparent !important;
+}
+
+/* toggler hover color */
+.navbar-toggler:hover {
+  border-color: rgb(255, 207, 176) !important;
+  background-color: rgb(237, 130, 61) !important;
+}
+
+/* expanded toggler icon (change color) */
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* collapsed toggler icon (change color) */
+.navbar-toggler.collapsed .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 207, 176, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
 }
 
 /* Navbar navigation links */
 .navbar .navbar-nav .nav-link,
 .navbar .navbar-nav .dropdown-menu .dropdown-item,
 .navbar .navbar-brand {
+  color: white !important;
 }
 
 /* Current page in navigation links and dropdown items */
 .navbar-nav a.nav-link.active,
 .nav-item .dropdown-menu a.dropdown-item.active,
 #nav-dropdown-active {
+  color: rgb(255, 207, 176) !important;
 }
 
 /* Navbar link and dropdown item hover */
 .navbar-nav a.nav-link:hover,
 .nav-item .dropdown-menu a.dropdown-item:hover,
 #nav-dropdown-active:hover {
+  color: rgb(255, 207, 176) !important;
 }
 
-div.next:hover,
-div.previous:hover
-{
-  color: white !important;
+/* Form controls */
+.form-control {
+  background: var(--bs-body-bg) !important;
+  border: var(--bs-border-color) 1px solid !important;
+  color: var(--bs-body-color) !important;
 }
 
-div.dropdown-menu {
-  background: rgb(186, 86, 27);
-  border: 1px solid rgb(237, 130, 61);
-}
+/* bootstrap sm width */
+@media (max-width: 576px) {
 
-.AddPageButton {
-}
-
-/* outer page swipe container, fixed height */
-div.swiper {
-  width: 100vw;
-  max-width: 768px; /* bootstrap md breakpoint */
-  flex: 1;
-  height: 100%;
-}
-
-/* inner swipe slides, fixed height with scrolling */
-div.swiper-slide {
-  width: 100%;
-  height: 100%;
-  display: flex;
-}
-
-/* Page container */
-div.Page {
-  position: relative;
-  width: 100vw;
-  max-width: 768px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  margin-top: 55px; /* room for navbar */
-}
-
-/* Page inner content container, use flex:1 to fill page height */
-div.PageContent {
-  width: 100%;
-  padding: 20px 20px 40px 20px; /* content display margin */
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-div.PageLoading {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Main title */
-h1, h1.PageTitle {
-  font-size: 20pt;
-}
-
-div.PageSection {
-  margin-bottom: 20px;
-}
-
-/* Section titles */
-h2, h2.SectionTitle {
-  font-size: 16pt !important;
-}
-
-h3 {
-  font-size: 14pt;
-}
-
-h4 {
-  font-size: 12pt;
-}
-
-h5 {
-  font-size: 11pt;
-}
-
-/* Text content */
-div.SectionText {
-}
-
-/* Top level list <li> needs margin correction */
-.SectionText li {
-}
-
-/* <ul> needs correction too */
-.SectionText ol,
-.SectionText ul {
-}
-
-/* Links in text */
-.FileExtra a,
-.SectionText a,
-.SectionText a:active,
-.SectionText a:visited {
-  text-decoration: none;
-}
-
-/* Hover over links in text */
-.FileExtra a:hover,
-.SectionText a:hover {
-  color: white;
-  text-decoration: underline;
-}
-
-/* Breadcrumb indicator for navigation */
-ol.breadcrumb {
-}
-
-/* breadcrumb delimiters */
-li.breadcrumb-item::before {
-  content: "»" !important;
-}
-
-/* don't delimit first breadcrumb */
-li.breadcrumb-item:first-child::before {
-  content: "" !important;
-}
-
-/* Next / previous navigation panel */
-.PageNavigation {
-  width: 100%;
-  max-width: 768px;
-  padding: 40px 20px 10px 20px;
-  margin-bottom:0;
-  position: absolute;
-  bottom: 0;
-  background: linear-gradient(to bottom, #14243500, #142435ff 40%);
-  z-index: 100;
-  display: flex;
-  flex-direction: row;
-  align-items: end;
-}
-
-/* Next / previous page links */
-.PageNavigation .nav-link {
-  padding: 4px 8px;
-}
-
-/* Branding text centered in page navigation area */
-.PageNavigation .nav-text {
-  color: var(--bs-secondary);
-  position:absolute;
-  top: 75%;
-  left: 50%;
-  transform: translate(-50%, -75%);
-}
-
-/* Next / previous page hover */
-.PageNavigation .nav-link:hover {
-  color: var(--bs-light);
-  background-color: var(--bs-primary);
-}
-
-/* nav arrows for previous page */
-.PageNavigation div.nav.nav-item.nav-link.previous::before {
-  content: "« ";
-}
-
-/* nav arrows for next page */
-.PageNavigation div.nav.nav-item.nav-link.next::after {
-  content: " »";
-}
-
-
-/* Copyright notice, can be placed inside or outside page content */
-.Copyright {
-  margin: 0 0 10px 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: end;
-  text-align: center;
-  font-size: 0.8rem;
-  line-height: 120%;
-  color: var(--bs-secondary);
-}
-
-div.Gallery {
-}
-
-.image-grid-container {
-  display: grid;
-  grid-template-columns: auto auto auto;
-  object-fit: cover;
-  object-position: center;
-  width: 100%;
-  height: 100%;
-  max-height: 300px;
-}
-
-.Gallery img.image-gallery-image {
-}
-
-.Gallery img.image-gallery-thumbnail-image {
-}
-
-/* Guest book container */
-div.GuestBook {
-  padding: 0; /* no additional padding */
-}
-
-/* Guest book field labels */
-.GuestBook label {
-}
-
-div.SMSCampaign {
-  padding: 0;
-}
-
-/* Input fields */
-li.country,
-input.form-control.phone,
-input.form-control,
-textarea.form-control,
-select.form-control {
-  background-color: #192c42 !important;
-  border-color: white !important;
-  color: white !important;
-}
-
-/* prevents autofill from messing with css */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-textarea:-webkit-autofill,
-select:-webkit-autofill,
-input:autofill {
-  transition: background-color 600000s ease-in-out 0s, color 600000s ease-in-out 0s;
-}
-
-/* Submit button for guest book and login */
-.Login button.btn.btn-primary,
-.GuestBook button.btn.btn-primary,
-.GuestBook input.btn.btn-primary {
-}
-
-/* Submit button hover */
-.Login button.btn.btn-primary:hover,
-.GuestBook button.btn.btn-primary:hover,
-.GuestBook input.btn.btn-primary:hover {
-}
-
-/* Submit pressed */
-.Login button.btn.btn-primary:active,
-.GuestBook button.btn.btn-primary:active,
-.GuestBook input.btn.btn-primary:active {
-}
-
-/* bootstrap xs width */
-@media (max-width: 575px) {
-  .PageNavigation .nav-text {
-    visibility: hidden;
-  }
-  .NavBarBrandIcon {
-    margin: 0 0 0 0;
-  }
-  div.PageContent {
-    padding: 10px 10px 40px 10px;
-  }
-  .PageNavigation {
-    padding: 30px 5px 5px 5px;
-    font-size: 11pt;
-  }
 }
 
 /* bootstrap sm width */
