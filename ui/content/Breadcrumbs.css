@@ -1,5 +1,6 @@
 /* Breadcrumb indicator for navigation */
 ol.breadcrumb {
+  font-size: calc(0.8rem + 0.5dvw);
 }
 
 /* breadcrumb delimiters */

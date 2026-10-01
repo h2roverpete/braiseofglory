@@ -1,6 +1,6 @@
 /* Main title */
 h1, h1.PageTitle {
-  font-size: 20pt;
+  font-size: calc(1.2rem + 0.9dvw);
 }
 
 div.PageSection {
@@ -9,19 +9,19 @@ div.PageSection {
 
 /* Section titles */
 h2, h2.SectionTitle {
-  font-size: 16pt !important;
+  font-size: calc(1.0rem + 0.9dvw);
 }
 
 h3 {
-  font-size: 14pt;
+  font-size: calc(0.9rem + 0.9dvw);
 }
 
 h4 {
-  font-size: 12pt;
+  font-size: calc(0.8rem + 0.9dvw);
 }
 
 h5 {
-  font-size: 11pt;
+  font-size: calc(0.7rem + 0.9dvw);
 }
 
 /* Links in text */
@@ -39,7 +39,8 @@ h5 {
 }
 
 /* Text content */
-div.SectionText {
+div.PageContent {
+  font-size: calc(0.75rem + min(0.8dvw,calc(var(--page-max-width) / 160)));
 }
 
 /* Top level list <li> needs margin correction */
