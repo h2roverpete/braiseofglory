@@ -9,6 +9,7 @@
   --navbar-height: 60px; /* height of navigation bar, for positioning scrollable page content below */
   --page-max-width: 768px; /* max width of page content and navigation */
   --breadcrumb-delimiter: "»"; /* String between navigation levels in breadcrumb display */
+  --page-background-color: var(--bs-body-bg); /* page content background */
 }
 
 /* hover on content links */
