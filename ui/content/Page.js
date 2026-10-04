@@ -77,7 +77,7 @@ export default function Page({children, pageId, content, overflow}) {
         })
       })
       // clear page until data loads
-      setSectionData([]);
+      setSectionData(null);
     }
   }, [pageId, pageData, Pages, sectionData, Extras]);
 

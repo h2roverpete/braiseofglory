@@ -44,7 +44,7 @@ export default function PageSections({children}) {
       {login ? (<>
         <Login/>
       </>) : (<>
-        {sectionData?.length ? (<>
+        {sectionData !== null ? (<>
           {sectionData.map(section => (<Fragment key={section.PageSectionID + "_" + section.Modified}>
             <PageSection
               pageSectionData={section}
