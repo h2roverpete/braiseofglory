@@ -172,6 +172,15 @@ export default function SiteConfig(props) {
             />
           </Col>
         </Row>
+        <Row>
+          <Col>
+            <Form.Check
+              checked={formData.edits?.NoIndex || ''}
+              label={`Don't index site`}
+              onChange={(e) => formData.onDataChanged({name: 'NoIndex', value: e.target.checked})}
+            />
+          </Col>
+        </Row>
         <CrudButtons
           data={formData.edits}
           keyName={'SiteID'}

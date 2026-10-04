@@ -13,6 +13,7 @@ import axios from "axios";
  * @property {String} Created           Creation date.
  * @property {String} Modified          Modification date.
  * @property {String} GoogleClientID    Google ID for analytics.
+ * @property {Boolean} NoIndex          true to add a meta noindex tag to head sections
  */
 
 /**
