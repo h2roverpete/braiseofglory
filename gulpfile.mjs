@@ -44,13 +44,14 @@ gulp.task("buildIndex", async function () {
       title: page.PageMetaTitle ? page.PageMetaTitle : page.PageTitle,
       SiteStyle: site.SiteStyle,
       SiteTheme: site.SiteTheme,
+      Robots: site.NoIndex ? 'none' : 'index,follow',
     })
-
   } else {
     index = mustache.render(template, {
       title: site.SiteName,
       SiteStyle: site.SiteStyle,
       SiteTheme: site.SiteTheme,
+      Robots: site.NoIndex ? 'none' : 'index,follow',
     })
   }
   fs.writeFileSync(`./public/index.html`, index);

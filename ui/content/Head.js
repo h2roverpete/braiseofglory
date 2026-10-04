@@ -41,9 +41,8 @@ export default function Head() {
         <>
           {currentPage && siteData && (<>
             <title>{currentPage.PageMetaTitle ? currentPage.PageMetaTitle : `${siteData.SiteName} - ${currentPage.PageTitle}`}</title>
-            <meta name="description" content={currentPage.PageMetaDescription}/>
-            <meta name="keywords" content={currentPage.PageMetaKeywords}/>
-            {siteData.NoIndex && <meta name="robots" content="noindex"/>}
+            {currentPage.PageMetaDescription && <meta name="description" content={currentPage.PageMetaDescription}/>}
+            {currentPage.PageMetaKeywords && <meta name="keywords" content={currentPage.PageMetaKeywords}/>}
           </>)}
         </>
       )}</>
