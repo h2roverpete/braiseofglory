@@ -1,4 +1,3 @@
-import PageTitle from "../ui/content/PageTitle";
 import {useEffect, useState} from "react";
 import {Permission, Resource} from "./Permissions";
 import {useAuth} from "./AuthProvider";
@@ -15,11 +14,8 @@ export default function SiteUsers() {
 
   return (<>
     {canView ? (
-      <div className="PageContent">
-        <PageTitle text={`Site Users`}/>
-        <div className="PageSection">
-          (user list here)
-        </div>
+      <div className="PageSection">
+        (user list here)
       </div>
     ) : (
       <RestrictedContent/>

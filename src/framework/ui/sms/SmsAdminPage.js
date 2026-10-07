@@ -1,7 +1,6 @@
 import {useLocation} from "react-router";
 import {useEffect, useState} from "react";
 import SmsCampaignPanel from "./SmsCampaignPanel";
-import {Container} from "react-bootstrap";
 import {useRestApi} from "../../api/RestApi";
 import {useSiteContext} from "../content/Site";
 import {Resource, Permission} from "../../auth/Permissions";
@@ -39,15 +38,11 @@ export default function SmsAdminPage() {
     }
   }, [campaignId, setCampaign, SMS, showErrorAlert, campaign]);
 
-  return <>{canView ? <Container
-      fluid
-      className="PageContent"
-    >
+  return <>{canView ? <>
       <div className="SmsAdmin">
-        {campaign && <h1 className={"PageTitle"}>{campaign.CampaignName} Administration</h1>}
         <SmsCampaignPanel campaignData={campaign}/>
       </div>
-    </Container>
+    </>
     :
     <></>}</>;
 }

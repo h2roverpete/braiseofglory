@@ -1,7 +1,6 @@
 import PageSection from './PageSection';
 import React, {Fragment, useEffect, useState} from "react";
 import {usePageContext} from "./Page";
-import Login from "../../auth/Login";
 import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
 import {Spinner} from "react-bootstrap";
@@ -16,7 +15,7 @@ import {Spinner} from "react-bootstrap";
  */
 export default function PageSections({children}) {
 
-  const {sectionData, login, error} = usePageContext();
+  const {pageData, sectionData} = usePageContext();
   const {hasPermission} = useAuth();
 
   const [canEdit, setCanEdit] = useState(false);
@@ -37,14 +36,9 @@ export default function PageSections({children}) {
     }
   }
 
-  return (
-    <>{error ? (
-      <div className={'PageSection'} dangerouslySetInnerHTML={{__html: error.description}}></div>
-    ) : (<>
-      {login ? (<>
-        <Login/>
-      </>) : (<>
-        {sectionData !== null ? (<>
+  return <>
+    {pageData?.PageContent ? <>{pageData.PageContent}</> : <>
+      {sectionData !== null ? (<>
           {sectionData.map(section => (<Fragment key={section.PageSectionID + "_" + section.Modified}>
             <PageSection
               pageSectionData={section}
@@ -54,10 +48,9 @@ export default function PageSections({children}) {
           </Fragment>))}
           {children}
         </>) :
-          <div className="PageLoading">
-            <Spinner/>
-          </div>}
-      </>)}
-    </>)}
-    </>)
+        <div className="PageLoading">
+          <Spinner/>
+        </div>}
+    </>}
+  </>
 }
