@@ -14,7 +14,7 @@ import {Spinner} from "react-bootstrap";
  * @param props {PageSectionProps}
  * @constructor
  */
-export default function PageSections({children}) {
+export default function PageSections({children, content}) {
 
   const {sectionData, login, error} = usePageContext();
   const {hasPermission} = useAuth();
@@ -37,14 +37,9 @@ export default function PageSections({children}) {
     }
   }
 
-  return (
-    <>{error ? (
-      <div className={'PageSection'} dangerouslySetInnerHTML={{__html: error.description}}></div>
-    ) : (<>
-      {login ? (<>
-        <Login/>
-      </>) : (<>
-        {sectionData !== null ? (<>
+  return <>
+    {content ? <>{content}</> : <>
+      {sectionData !== null ? (<>
           {sectionData.map(section => (<Fragment key={section.PageSectionID + "_" + section.Modified}>
             <PageSection
               pageSectionData={section}
@@ -54,10 +49,9 @@ export default function PageSections({children}) {
           </Fragment>))}
           {children}
         </>) :
-          <div className="PageLoading">
-            <Spinner/>
-          </div>}
-      </>)}
-    </>)}
-    </>)
+        <div className="PageLoading">
+          <Spinner/>
+        </div>}
+    </>}
+  </>
 }

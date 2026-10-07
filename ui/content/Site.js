@@ -62,7 +62,6 @@ export default function Site(props) {
   // states
   const [siteData, setSiteData] = useState(/** @type SiteData */ null);
   const [outlineData, setOutlineData] = useState(/** @type {[OutlineData]|null} */ null);
-  const [error, __setError__] = useState(null); // use public setter, not __setError__
   const [alert, setAlert] = useState('');
   const [currentPage, setCurrentPage] = useState(null);
   const [prevPage, setPrevPage] = useState(null);
@@ -71,12 +70,12 @@ export default function Site(props) {
   const [canEdit, setCanEdit] = useState(false);
   const [canBrowseProtected, setCanBrowseProtected] = useState(false);
   const [MetaPages] = useState([
-    {name: 'user', title: 'User', path: '/admin/user', content: <UserProfilePanel/>},
-    {name: 'users', title: 'Users', path: '/admin/users', content: <SiteUsers/>},
-    {name: 'sms', title: 'SMS Administration', path: '/admin/sms', content: <SmsAdminPage/>},
+    {name: 'user', title: 'User Profile', path: '/admin/user', content: <UserProfilePanel/>},
+    {name: 'users', title: 'Site Users', path: '/admin/users', content: <SiteUsers/>},
+    {name: 'sms', title: 'SMS Campaign Administration', path: '/admin/sms', content: <SmsAdminPage/>},
     {name: 'login', title: 'Log In', path: '/login', content: <Login/>},
     {name: 'logout', title: 'Log Out', path: '/logout', content: <Logout/>},
-    {name: 'error', title: 'Error', path: '*', content: <Error404/>},
+    {name: 'error', title: 'Error 404 - Not Found', path: '*', content: <Error404/>},
   ]);
   const [redirect, setRedirect] = useState(0);
 
@@ -126,7 +125,8 @@ export default function Site(props) {
           }
         }
         for (const page of MetaPages) {
-          if (page.path === location.pathname) {
+          if (page.path === location.pathname || page.path === "*") {
+            // current page or fallback page
             setCurrentPage({PageID: 0, PageTitle: page.title, RequiresLogin: true});
             return;
           }
@@ -143,21 +143,6 @@ export default function Site(props) {
       ReactGA.initialize(siteData.GoogleClientID);
     }
   }, [siteData]);
-
-  /**
-   * Display the site in an error state.
-   * @param {ErrorData} errorData
-   */
-  const setError = useCallback((errorData) => {
-    // use stringify for deep compare
-    if (JSON.stringify(errorData) !== JSON.stringify(error)) {
-      __setError__(errorData);
-      if (errorData) {
-        // if setting non-null error, then redirect navigation
-        navigate('/error');
-      }
-    }
-  }, [navigate, error]);
 
   /**
    * Display an error alert.
@@ -202,13 +187,6 @@ export default function Site(props) {
       {alert}
     </Alert>
     : <></>;
-
-  // set error from props if defined
-  useEffect(() => {
-    if (props.error) {
-      setError(props.error)
-    }
-  }, [props.error, setError]);
 
   useEffect(() => {
     if (!siteData) {
@@ -327,8 +305,6 @@ export default function Site(props) {
       updatePage: (pageData) => setOutlineData(Outline.updatePage(pageData, outlineData))
     },
     outlineData: outlineData,
-    error: error,
-    setError: setError,
     showErrorAlert: showErrorAlert,
     getChildren: (pageId) => Outline.getChildren(pageId, outlineData, false, canBrowseProtected),
     currentPage: currentPage,

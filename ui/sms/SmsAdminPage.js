@@ -39,15 +39,11 @@ export default function SmsAdminPage() {
     }
   }, [campaignId, setCampaign, SMS, showErrorAlert, campaign]);
 
-  return <>{canView ? <Container
-      fluid
-      className="PageContent"
-    >
+  return <>{canView ? <>
       <div className="SmsAdmin">
-        {campaign && <h1 className={"PageTitle"}>{campaign.CampaignName} Administration</h1>}
         <SmsCampaignPanel campaignData={campaign}/>
       </div>
-    </Container>
+    </>
     :
     <></>}</>;
 }

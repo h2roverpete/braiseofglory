@@ -24,7 +24,7 @@ export const PageContext = createContext(
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Page({children, pageId, content, overflow}) {
+export default function Page({children, pageId}) {
 
   // imports
   const {outlineData, buildBreadcrumbs} = useSiteContext();
@@ -38,9 +38,6 @@ export default function Page({children, pageId, content, overflow}) {
   const [showAddExtraModal, setShowAddExtraModal] = useState(false);
   const [extraPageSectionId, setExtraPageSectionId] = useState(0);
   const [canEdit, setCanEdit] = useState(false);
-
-  // refs
-  const scrollRef = useRef();
 
   useEffect(() => {
     setCanEdit(hasPermission?.(Resource.PAGE, Permission.EDIT));
@@ -237,7 +234,6 @@ export default function Page({children, pageId, content, overflow}) {
         updateExtra: updateExtra,
         moveExtraUp: moveExtraUp,
         moveExtraDown: moveExtraDown,
-        scrollRef: scrollRef,
       }}
     >
       {canEdit && showAddExtraModal && (
@@ -251,8 +247,7 @@ export default function Page({children, pageId, content, overflow}) {
           </Suspense>
         </FormEditor>
       )}
-      <div className="Page" data-testid="Page" ref={scrollRef}>
-        {content}
+      <div className="Page" data-testid="Page">
         {children}
       </div>
     </PageContext>

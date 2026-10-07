@@ -39,8 +39,7 @@ export default function UserProfilePanel() {
 
   return (<>
     {isAuthenticated ? (
-      <Container fluid className="PageContent">
-        <PageTitle text={"User Profile"}/>
+      <Container className="PageSection">
         <FormEditor>
           <form>
             <UserFields/>
