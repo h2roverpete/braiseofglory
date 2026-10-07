@@ -15,11 +15,8 @@ export default function SiteUsers() {
 
   return (<>
     {canView ? (
-      <div className="PageContent">
-        <PageTitle text={`Site Users`}/>
-        <div className="PageSection">
-          (user list here)
-        </div>
+      <div className="PageSection">
+        (user list here)
       </div>
     ) : (
       <RestrictedContent/>
