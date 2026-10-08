@@ -1,7 +1,7 @@
 import React, {createContext, lazy, Suspense, useCallback, useContext, useEffect, useState} from 'react';
 import ReactGA from 'react-ga4';
 import 'bootstrap/dist/js/bootstrap.bundle.js';
-import {Route, Routes, useLocation, useNavigate} from "react-router";
+import {Route, Routes, useLocation} from "react-router";
 import {useRestApi} from "../../api/RestApi";
 import Logout from '../../auth/Logout';
 import {Alert, Spinner} from "react-bootstrap";
@@ -54,7 +54,6 @@ export const SiteContext = createContext({});
 export default function Site(props) {
 
   // imports
-  const navigate = useNavigate();
   const location = useLocation();
   const {Sites} = useRestApi();
   const {hasPermission} = useAuth();
@@ -62,7 +61,6 @@ export default function Site(props) {
   // states
   const [siteData, setSiteData] = useState(/** @type SiteData */ null);
   const [outlineData, setOutlineData] = useState(/** @type {[OutlineData]|null} */ null);
-  const [error, __setError__] = useState(null); // use public setter, not __setError__
   const [alert, setAlert] = useState('');
   const [currentPage, setCurrentPage] = useState(null);
   const [prevPage, setPrevPage] = useState(null);
@@ -70,13 +68,13 @@ export default function Site(props) {
   const [breadcrumbs, setBreadcrumbs] = useState([]);
   const [canEdit, setCanEdit] = useState(false);
   const [canBrowseProtected, setCanBrowseProtected] = useState(false);
-  const [MetaPages] = useState([
-    {name: 'user', title: 'User', path: '/admin/user', content: <UserProfilePanel/>},
-    {name: 'users', title: 'Users', path: '/admin/users', content: <SiteUsers/>},
-    {name: 'sms', title: 'SMS Administration', path: '/admin/sms', content: <SmsAdminPage/>},
-    {name: 'login', title: 'Log In', path: '/login', content: <Login/>},
-    {name: 'logout', title: 'Log Out', path: '/logout', content: <Logout/>},
-    {name: 'error', title: 'Error', path: '*', content: <Error404/>},
+  const [metaPages] = useState([
+    {name: 'user', id: -1, title: 'User Profile', path: '/admin/user', content: <UserProfilePanel/>},
+    {name: 'users', id: -2, title: 'Site Users', path: '/admin/users', content: <SiteUsers/>},
+    {name: 'sms', id: -3, title: 'SMS Campaign Administration', path: '/admin/sms', content: <SmsAdminPage/>},
+    {name: 'login', id: -4, title: 'Log In', path: '/login', content: <Login/>},
+    {name: 'logout', id: -5, title: 'Log Out', path: '/logout', content: <Logout/>},
+    {name: 'error', id: -6, title: 'Error 404 - Not Found', path: '*', content: <Error404/>},
   ]);
   const [redirect, setRedirect] = useState(0);
 
@@ -125,17 +123,18 @@ export default function Site(props) {
             return;
           }
         }
-        for (const page of MetaPages) {
-          if (page.path === location.pathname) {
-            setCurrentPage({PageID: 0, PageTitle: page.title, RequiresLogin: true});
+        for (const page of metaPages) {
+          if (page.path === location.pathname || page.path === "*") {
+            // current page or fallback page
+            setCurrentPage({PageID: page.id, PageTitle: page.title, PageContent: page.content});
             return;
           }
         }
-        // page not found in outline
+        // page not found in outline or meta pages
         setCurrentPage({PageID: 0});
       }
     }
-  }, [location.pathname, MetaPages, outlineData, setCurrentPage, cfmPageId, redirect]);
+  }, [location.pathname, metaPages, outlineData, setCurrentPage, cfmPageId, redirect]);
 
   useEffect(() => {
     // Google Analytics, if provided.
@@ -143,21 +142,6 @@ export default function Site(props) {
       ReactGA.initialize(siteData.GoogleClientID);
     }
   }, [siteData]);
-
-  /**
-   * Display the site in an error state.
-   * @param {ErrorData} errorData
-   */
-  const setError = useCallback((errorData) => {
-    // use stringify for deep compare
-    if (JSON.stringify(errorData) !== JSON.stringify(error)) {
-      __setError__(errorData);
-      if (errorData) {
-        // if setting non-null error, then redirect navigation
-        navigate('/error');
-      }
-    }
-  }, [navigate, error]);
 
   /**
    * Display an error alert.
@@ -202,13 +186,6 @@ export default function Site(props) {
       {alert}
     </Alert>
     : <></>;
-
-  // set error from props if defined
-  useEffect(() => {
-    if (props.error) {
-      setError(props.error)
-    }
-  }, [props.error, setError]);
 
   useEffect(() => {
     if (!siteData) {
@@ -296,10 +273,10 @@ export default function Site(props) {
             element={<props.pageElement pageId={page.PageID}/>}
           />
         ))}
-        {MetaPages.map((meta) => (
+        {metaPages.map((meta) => (
           <Route
             path={meta.path}
-            element={<props.pageElement content={meta.content} pageId={0}/>}
+            element={<props.pageElement pageId={meta.id}/>}
           />
         ))}
       </>)}
@@ -327,8 +304,7 @@ export default function Site(props) {
       updatePage: (pageData) => setOutlineData(Outline.updatePage(pageData, outlineData))
     },
     outlineData: outlineData,
-    error: error,
-    setError: setError,
+    metaPages: metaPages,
     showErrorAlert: showErrorAlert,
     getChildren: (pageId) => Outline.getChildren(pageId, outlineData, false, canBrowseProtected),
     currentPage: currentPage,

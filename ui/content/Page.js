@@ -1,4 +1,4 @@
-import {createContext, lazy, Suspense, useCallback, useContext, useEffect, useRef, useState} from "react";
+import {createContext, lazy, Suspense, useCallback, useContext, useEffect, useState} from "react";
 import {useSiteContext} from "./Site";
 import {useRestApi} from "../../api/RestApi";
 import FormEditor from "../editor/FormEditor";
@@ -18,16 +18,15 @@ export const PageContext = createContext(
  * Provides page related data in a PageContext to children.
  *
  * @property {[JSX.Element]} children   Child elements.
- * @property {JSX.Element} [content]    Display provided content instead of children.
  * @property {number} [pageId]          Specific page ID to display.
  *
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Page({children, pageId, content, overflow}) {
+export default function Page({children, pageId}) {
 
   // imports
-  const {outlineData, buildBreadcrumbs} = useSiteContext();
+  const {metaPages, outlineData, buildBreadcrumbs} = useSiteContext();
   const {Pages, Extras} = useRestApi();
   const {hasPermission} = useAuth();
 
@@ -39,16 +38,13 @@ export default function Page({children, pageId, content, overflow}) {
   const [extraPageSectionId, setExtraPageSectionId] = useState(0);
   const [canEdit, setCanEdit] = useState(false);
 
-  // refs
-  const scrollRef = useRef();
-
   useEffect(() => {
     setCanEdit(hasPermission?.(Resource.PAGE, Permission.EDIT));
   }, [setCanEdit, hasPermission]);
 
   useEffect(() => {
-    // extract this page from outline data, don't load from DynamoDB
-    if (pageId !== pageData?.PageID && outlineData) {
+    if (outlineData && pageId > 0 && pageId !== pageData?.PageID) {
+      // page ID > 0 is a content page, refresh from outline data
       for (const page of outlineData) {
         if (page.PageID === pageId) {
           setPageData(page);
@@ -56,11 +52,17 @@ export default function Page({children, pageId, content, overflow}) {
           return;
         }
       }
-      // page not found
-      setPageData({PageID: 0, PageTitle: ''});
-      setSectionData([]);
+    } else if (metaPages && pageId < 0 && pageId !== pageData?.PageID) {
+      // page ID < 0 is a meta page, refresh from metas list
+      for (const page of metaPages) {
+        if (page.id === pageId) {
+          setPageData({PageID: page.id, PageTitle: page.title, PageContent: page.content});
+          console.debug(`Loaded meta-page ${pageId} data.`);
+          return;
+        }
+      }
     }
-  }, [pageId, pageData, outlineData]);
+  }, [pageId, pageData, metaPages, outlineData]);
 
   useEffect(() => {
     // load page sections from DynamoDB
@@ -237,7 +239,6 @@ export default function Page({children, pageId, content, overflow}) {
         updateExtra: updateExtra,
         moveExtraUp: moveExtraUp,
         moveExtraDown: moveExtraDown,
-        scrollRef: scrollRef,
       }}
     >
       {canEdit && showAddExtraModal && (
@@ -251,8 +252,7 @@ export default function Page({children, pageId, content, overflow}) {
           </Suspense>
         </FormEditor>
       )}
-      <div className="Page" data-testid="Page" ref={scrollRef}>
-        {content}
+      <div className="Page" data-testid="Page">
         {children}
       </div>
     </PageContext>
