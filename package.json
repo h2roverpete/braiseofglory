@@ -5,17 +5,6 @@
   "workspaces": [
     "src/framework"
   ],
-  "dependencies": {
-    "bootstrap": "^5.3.8",
-    "react": "^19.3.0",
-    "react-bootstrap": "^2.10.10",
-    "react-dom": "^19.3.0",
-    "react-router": "7.12.0",
-    "react-router-dom": "^7.18.4",
-    "react-scripts": "5.0.1",
-    "sass": "^1.105.1",
-    "web-vitals": "^2.1.4"
-  },
   "scripts": {
     "start": "gulp buildIndex && react-scripts start",
     "build": "gulp buildSitemap && gulp buildIndex && react-scripts build && gulp injectCss",
@@ -46,6 +35,10 @@
       "last 1 safari version"
     ]
   },
+  "dependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
   "devDependencies": {
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^6.9.1",
@@ -56,7 +49,9 @@
     "framework": "^1.4.11",
     "gulp": "^5.0.1",
     "minimist": "^1.2.8",
-    "source-map-explorer": "^2.5.3"
+    "react-scripts": "5.0.1",
+    "source-map-explorer": "^2.5.3",
+    "web-vitals": "^2.1.4"
   },
   "jest": {
     "transformIgnorePatterns": [
