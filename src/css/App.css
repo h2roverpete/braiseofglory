@@ -18,7 +18,7 @@
 }
 
 /* hover on page navigation */
-.PageNavigation :hover {
+.PageNavigation .nav-link:hover {
   color: rgb(255, 207, 176) !important;
 }
 
