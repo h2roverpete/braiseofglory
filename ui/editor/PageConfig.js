@@ -90,7 +90,7 @@ export default function PageConfig({onPageUpdated, onPageDeleted, modalRef}) {
   }
 
   function isValidRoute(route) {
-    return route?.match(/^\/[a-z0-9]+/) && !routes.includes(route);
+    return route?.match(/^\/[a-z0-9/]+/) && !routes.includes(route);
   }
 
   return (<>
@@ -193,6 +193,29 @@ export default function PageConfig({onPageUpdated, onPageDeleted, modalRef}) {
           id={'RequiresLogin'}
           label={'Requires user login'}
           onChange={(e) => formData.onDataChanged({name: 'RequiresLogin', value: e.target.checked})}
+        />
+      </Col>
+    </Row>
+    <Row>
+      <Col sm={3} style={{maxWidth: '225px'}}>
+        <Form.Check
+          className={'form-control-sm'}
+          checked={formData.edits?.RequiresPassword || false}
+          id={'RequiresPassword'}
+          label={'Requires password'}
+          onChange={(e) => formData.onDataChanged({name: 'RequiresPassword', value: e.target.checked})}
+          inline
+        />
+      </Col>
+      <Col>
+        <Form.Control
+          type={'password'}
+          size={'sm'}
+          sm={4}
+          id={'RequiresPassword'}
+          value={formData.edits?.PagePassword || ''}
+          disabled={!formData.edits?.RequiresPassword}
+          onChange={(e) => formData.onDataChanged({name: 'PagePassword', value: e.target.value})}
         />
       </Col>
     </Row>

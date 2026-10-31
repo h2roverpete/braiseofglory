@@ -19,6 +19,7 @@ export default function PageSections({children}) {
   const {hasPermission} = useAuth();
 
   const [canEdit, setCanEdit] = useState(false);
+
   useEffect(() => {
     setCanEdit(hasPermission?.(Resource.PAGE, Permission.EDIT));
   }, [setCanEdit, hasPermission]);
