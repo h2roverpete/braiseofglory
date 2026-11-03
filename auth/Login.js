@@ -28,15 +28,16 @@ export default function Login() {
   const [searchParams] = useSearchParams();
   const {token, setToken} = useAuth();
   const navigate = useNavigate();
-  const [cookies, setCookie] = useCookies();
+  const [cookies, setCookie, removeCookie] = useCookies();
   const [loginResponse, setLoginResponse] = useState(/** @type {Boolean} */ null);
+  const [loginState, setLoginState] = useState(/** @type {String} */ null);
 
   useEffect(() => {
-    if (!cookies.loginState) {
-      const state = generateState();
-      setCookie("loginState", state);
+    if (!loginState) {
+      // generate a new login state to send to oauth server
+      setLoginState(generateState());
     }
-  }, [cookies.loginState, setCookie]);
+  }, [loginState, setLoginState]);
 
   useEffect(() => {
     if (token) {
@@ -51,13 +52,13 @@ export default function Login() {
 
   const fetchingToken = useRef(false); // prevent double fetch of token
   useEffect(() => {
-    // process login response
     if (loginResponse && !token && !fetchingToken.current) {
+      // process login response
       fetchingToken.current = true;
       // check received state against state originally sent
       if (cookies.loginState !== searchParams.get('state')) {
         showErrorAlert("Couldn't verify login state.");
-        setCookie("loginState", null);
+        removeCookie("loginState");
       } else {
         Auth.getAuthToken(
           window.location.host,
@@ -66,10 +67,12 @@ export default function Login() {
         ).then((token) => {
             // successful token retrieval
             setToken(token);
+            removeCookie("loginState");
             navigate('/');
           }
         ).catch((error) => {
             showErrorAlert(`Couldn't retrieve token. Code=${error.code}`);
+            removeCookie("loginState");
           }
         );
       }
@@ -85,12 +88,16 @@ export default function Login() {
         {loginResponse === false &&
           // display login form
           <div className="Login container-fluid">
-            <form method="POST" action={`${process.env.REACT_APP_BACKEND_HOST}/oauth/login`}>
+            <form
+              method="POST"
+              action={`${process.env.REACT_APP_BACKEND_HOST}/oauth/login`}
+              onSubmit={() => setCookie('loginState', loginState)}
+            >
               <input type="hidden" name="response_type" value="code"/>
               <input type="hidden" name="client_id" value={window.location.host}/>
               <input type="hidden" name="redirect_uri"
                      value={`${window.location.protocol}//${window.location.host}/login`}/>
-              <input type="hidden" name="state" value={cookies.loginState ? cookies.loginState : ''}/>
+              <input type="hidden" name="state" value={loginState || ''}/>
               <input type="hidden" name="scope" value={scope}/>
               <Row className="mt-4">
                 <Form.Label className={'required'} htmlFor="email" column={true} sm={3}>

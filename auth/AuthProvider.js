@@ -8,7 +8,7 @@ export const AuthContext = createContext({});
 
 export default function AuthProvider(props) {
 
-  const [cookies, setCookie] = useCookies();
+  const [cookies, setCookie, removeCookie] = useCookies();
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const {Auth} = useRestApi();
@@ -51,12 +51,13 @@ export default function AuthProvider(props) {
   const setToken = useCallback((newToken) => {
     console.debug(`Set token: ${JSON.stringify(newToken)}`);
     // update token value
-    setCookie('token', newToken);
     if (newToken) {
+      setCookie('token', newToken);
       // decode token and set user
       const decoded = jwtDecode(newToken.access_token);
       setUser(decoded);
     } else {
+      removeCookie('token', newToken);
       // clear user
       setUser(null);
     }
