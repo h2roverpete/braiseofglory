@@ -77,7 +77,7 @@ export default function SiteConfig(props) {
   return (<>
     {siteData && (
       <div
-        className={`SiteConfig ${props.className ? props.className : ''}`}
+        className={`SiteConfig`}
         style={props.style}
       >
         <h5>Site Properties</h5>
