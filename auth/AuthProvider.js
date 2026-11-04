@@ -38,22 +38,18 @@ export default function AuthProvider(props) {
    * @returns {boolean} True if the user is logged in and has permission.
    */
   const hasPermission = useCallback((resource, permission) => {
-    console.debug(`Check permission '${resource}:${permission}' for current user.`);
     if (currentUser) {
       if (currentUser.SiteID !== 0 && currentUser.SiteID !== siteId) {
-        console.error(`User not authorized for this site.`);
         return false;
       } else {
         return checkPermission(currentUser, resource, permission);
       }
     } else {
-      console.debug(`User not logged in.`);
       return false;
     }
   }, [currentUser, siteId]);
 
   const setToken = useCallback((newToken) => {
-    console.debug(`Set token: ${JSON.stringify(newToken)}`);
     // update token value
     if (newToken) {
       setCookie('token', newToken);
@@ -72,7 +68,6 @@ export default function AuthProvider(props) {
    */
   const refreshAuthToken = useCallback(async () => {
     if (cookies.token?.refresh_token) {
-      console.debug(`Refreshing auth token...`);
       const newToken = await Auth.refreshToken(cookies.token.refresh_token, window.location.host);
       setToken(newToken);
       return newToken;
@@ -83,11 +78,9 @@ export default function AuthProvider(props) {
 
   const validateToken = useCallback(async () => {
     try {
-      console.debug(`Validating access token...`);
       await Auth.checkToken();
       const decoded = jwtDecode(cookies.token.access_token);
       setCurrentUser(decoded);
-      console.debug(`Access token is valid, setting user.`);
     } catch (error) {
       if (error.status === 401) {
         try {
