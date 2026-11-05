@@ -3,20 +3,23 @@ import ReactGA from 'react-ga4';
 import 'bootstrap/dist/js/bootstrap.bundle.js';
 import {Route, Routes, useLocation} from "react-router";
 import {useRestApi} from "../../api/RestApi";
-import Logout from '../../auth/Logout';
 import {Alert, Spinner} from "react-bootstrap";
 import Head from "./Head";
 import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
-import Login from "../../auth/Login";
-import Error404 from "../../util/Error404";
-import SiteUsers from "../../auth/SiteUsers";
-import UserProfilePanel from "../../auth/UserProfilePanel";
 import {Outline} from "framework/util/OutlineUtil"
-import SmsAdminPage from "../sms/SmsAdminPage";
 import './Site.css';
 
 const SiteEditor = lazy(() => import("../editor/SiteEditor"));
+const UserProfilePanel = lazy(() => import("../../auth/UserProfilePanel"));
+const UserAdminPage = lazy(() => import("../../auth/UserAdminPage"));
+const Login = lazy(() => import("../../auth/Login"));
+const Logout = lazy(() => import("../../auth/Logout"));
+const Error404 = lazy(() => import("../../util/Error404"));
+const SmsAdminPage = lazy(() => import("../sms/SmsAdminPage"));
+const LivestreamAdminPage = lazy(() => import("../livestream/LivestreamAdminPage"));
+const GuestBookAdminPage = lazy(() => import("../guestbook/GuestBookAdminPage"));
+const GalleryAdminPage = lazy(() => import("../gallery/GalleryAdminPage"));
 
 /**
  * @typedef ErrorData
@@ -65,16 +68,48 @@ export default function Site(props) {
   const [currentPage, setCurrentPage] = useState(null);
   const [prevPage, setPrevPage] = useState(null);
   const [nextPage, setNextPage] = useState(null);
-  const [breadcrumbs, setBreadcrumbs] = useState([]);
   const [canEdit, setCanEdit] = useState(false);
   const [canBrowseProtected, setCanBrowseProtected] = useState(false);
   const [metaPages] = useState([
-    {name: 'user', id: -1, title: 'User Profile', path: '/admin/user', content: <UserProfilePanel/>},
-    {name: 'users', id: -2, title: 'Site Users', path: '/admin/users', content: <SiteUsers/>},
-    {name: 'sms', id: -3, title: 'SMS Campaign Administration', path: '/admin/sms', content: <SmsAdminPage/>},
-    {name: 'login', id: -4, title: 'Log In', path: '/login', content: <Login/>},
-    {name: 'logout', id: -5, title: 'Log Out', path: '/logout', content: <Logout/>},
-    {name: 'error', id: -6, title: 'Error 404 - Not Found', path: '*', content: <Error404/>},
+    {
+      name: 'user',
+      id: -1,
+      title: 'User Profile',
+      path: '/admin/user',
+      content: <Suspense><UserProfilePanel/></Suspense>
+    },
+    {name: 'users', id: -2, title: 'Site Users', path: '/admin/users', content: <Suspense><UserAdminPage/></Suspense>},
+    {
+      name: 'sms',
+      id: -3,
+      title: 'Messaging Campaigns',
+      path: '/admin/sms',
+      content: <Suspense><SmsAdminPage/></Suspense>
+    },
+    {name: 'login', id: -4, title: 'Log In', path: '/login', content: <Suspense><Login/></Suspense>},
+    {name: 'logout', id: -5, title: 'Log Out', path: '/logout', content: <Suspense><Logout/></Suspense>},
+    {
+      name: 'galleries',
+      id: -6,
+      title: 'Photo Galleries',
+      path: '/admin/galleries',
+      content: <Suspense><GalleryAdminPage siteId={siteData?.SiteID}/></Suspense>
+    },
+    {
+      name: 'livestreams',
+      id: -7,
+      title: 'Livestreams',
+      path: '/admin/livestreams',
+      content: <Suspense><LivestreamAdminPage siteId={siteData?.SiteID}/></Suspense>
+    },
+    {
+      name: 'guestbooks',
+      id: -8,
+      title: 'Guest Books',
+      path: '/admin/guestbooks',
+      content: <Suspense><GuestBookAdminPage siteId={siteData?.SiteID}/></Suspense>
+    },
+    {name: 'error', id: -9, title: 'Error 404 - Not Found', path: '*', content: <Suspense><Error404/></Suspense>}
   ]);
   const [redirect, setRedirect] = useState(0);
 
@@ -93,18 +128,14 @@ export default function Site(props) {
   }, [siteData]);
 
   useEffect(() => {
-    // get current page and breadcrumbs from new pathname
+    // get current page from new pathname
     if (outlineData) {
-      console.debug(`Update current page.`);
       if (location.pathname === '/') {
         if (redirect > 0) {
           // find redirect page
           for (const page of outlineData) {
             if (page.PageID === redirect) {
               setCurrentPage(page);
-              const crumbs = buildBreadcrumbs(outlineData, page.ParentID);
-              setBreadcrumbs(crumbs);
-              console.debug(`Redirect current page to ${page.PageID}.`);
               return;
             }
           }
@@ -112,14 +143,10 @@ export default function Site(props) {
         }
         // set home page
         setCurrentPage(outlineData[0]);
-        console.debug(`Set current page to home page.`);
       } else {
         for (const page of outlineData) {
           if (page.PageRoute === location.pathname || page.PageID === cfmPageId) {
             setCurrentPage(page);
-            const crumbs = buildBreadcrumbs(outlineData, page.ParentID);
-            setBreadcrumbs(crumbs);
-            console.debug(`Set current page to ${page.PageID}.`);
             return;
           }
         }
@@ -156,7 +183,7 @@ export default function Site(props) {
     let msg;
     if (typeof error === 'string' || error instanceof String) {
       if (alert !== error) {
-        msg = `${error} ${exception?.response?.data?.message ? exception.response.data.message : exception.message ? exception.message : ''}`;
+        msg = `${error} ${exception?.response?.data?.message ? exception.response.data.message : exception?.message ? exception.message : ''}`;
       }
     } else if (error?.response?.data?.message) {
       //
@@ -191,7 +218,6 @@ export default function Site(props) {
     if (!siteData) {
       // load site data
       Sites.getSite().then((data) => {
-        console.debug(`Loaded site ${data.SiteID}.`);
         setSiteData(data);
       }).catch(err => console.error(`Error loading site.`, err));
     }
@@ -201,7 +227,6 @@ export default function Site(props) {
     if (!outlineData) {
       // load site outline
       Sites.getSiteOutline().then((data) => {
-        console.debug(`Loaded site outline.`);
         setOutlineData(buildOutline(data));
       }).catch(err => console.error(`Error loading outline.`, err));
     }
@@ -212,7 +237,6 @@ export default function Site(props) {
       // search for page redirect matches
       for (const item of props.redirects) {
         if (item.hostname === window.location.hostname) {
-          console.debug(`Setting redirect ${item.hostname} to page ${item.pageId}.`);
           setRedirect(item.pageId)
         }
       }
@@ -310,8 +334,6 @@ export default function Site(props) {
     currentPage: currentPage,
     prevPage: prevPage,
     nextPage: nextPage,
-    breadcrumbs: breadcrumbs,
-    buildBreadcrumbs: buildBreadcrumbs,
   };
 
   if (canEdit) {
@@ -383,21 +405,3 @@ function setCharAt(str, index, chr) {
   return str.substring(0, index) + chr + str.substring(index + 1);
 }
 
-/**
- * Build breadcrumb array from site outline.
- *
- * @param outlineData {[OutlineData]}
- * @param parentId {number}
- */
-function buildBreadcrumbs(outlineData, parentId) {
-  const breadcrumbs = [];
-  if (outlineData && parentId) {
-    for (let i = outlineData.length - 1; i >= 0; i--) {
-      if (outlineData[i].PageID === parentId) {
-        breadcrumbs.push(outlineData[i]);
-        parentId = outlineData[i].ParentID;
-      }
-    }
-  }
-  return breadcrumbs.reverse();
-}

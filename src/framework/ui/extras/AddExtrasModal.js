@@ -11,6 +11,7 @@ import InstagramExtraFields from "./instagram/InstagramExtraFields";
 import FileExtraFields from "./file/FileExtraFields";
 import {useAuth} from "../../auth/AuthProvider";
 import {Permission, Resource} from "../../auth/Permissions";
+import LivestreamExtraFields from "../livestream/LivestreamExtraFields";
 
 /**
  * @callback Callback
@@ -31,7 +32,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
 
   const {siteData, showErrorAlert} = useSiteContext();
   const {pageData, addExtraToPage} = usePageContext();
-  const {GuestBooks, Galleries, Extras, SMS} = useRestApi();
+  const {GuestBooks, Galleries, Extras, SMS, Livestreams} = useRestApi();
   const {hasPermission} = useAuth();
 
   /** @type FormDataAPI<ExtraData> */
@@ -62,7 +63,6 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
             siteGalleries.push(gallery);
           }
         }
-        console.debug(`List of ${siteGalleries.length} galleries loaded.`);
         setGalleryList(siteGalleries);
       }).catch((err) => {
         showErrorAlert(`Error getting gallery list.`, err);
@@ -80,7 +80,6 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
             siteGuestBooks.push(guestBook);
           }
         }
-        console.debug(`List of ${siteGuestBooks.length} guest books loaded.`);
         setGuestBookList(siteGuestBooks);
       }).catch((err) => {
         showErrorAlert(`Error getting guest book list.`, err);
@@ -98,10 +97,9 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
             siteCampaigns.push(campaign);
           }
         }
-        console.debug(`List of ${siteCampaigns.length} SMS campaigns loaded.`);
         setSmsCampaignsList(siteCampaigns);
       }).catch((err) => {
-        showErrorAlert(`Error getting SMS campaigns list.`, err);
+        showErrorAlert(`Error getting campaigns list.`, err);
       })
     }
   }, [canEdit, siteData, Galleries, showErrorAlert, SMS]);
@@ -116,7 +114,6 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
     switch (formData.edits.ExtraType) {
       case 'gallery':
         if (formData.edits.GalleryID) {
-          console.debug(`Adding gallery extra.`);
           Extras.insertOrUpdateExtra({
             ExtraType: formData.edits.ExtraType,
             SiteID: siteData.SiteID,
@@ -124,7 +121,6 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
             PageSectionID: pageSectionId,
             GalleryID: formData.edits.GalleryID
           }).then((extra) => {
-            console.debug(`Extra added.`);
             onExtraAdded(extra);
           }).catch((err) => {
             showErrorAlert(`Error adding extra.`, err);
@@ -134,7 +130,6 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
             SiteID: siteData.SiteID,
             GalleryName: formData.edits.GalleryName,
           }).then((result) => {
-            console.debug(`Gallery added.`);
             Extras.insertOrUpdateExtra({
               ExtraType: formData.edits.ExtraType,
               SiteID: siteData.SiteID,
@@ -142,7 +137,6 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
               PageSectionID: pageSectionId,
               GalleryID: result.GalleryID
             }).then((extra) => {
-              console.debug(`Extra added.`);
               onExtraAdded(extra);
             }).catch((err) => {
               showErrorAlert(`Error adding extra.`, err);
@@ -163,7 +157,6 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
             ShowPhone: true,
             ShowFeedback: true
           }).then((result) => {
-            console.debug(`Guest book added.`);
             Extras.insertOrUpdateExtra({
               ExtraType: formData.edits.ExtraType,
               SiteID: siteData.SiteID,
@@ -171,7 +164,6 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
               PageSectionID: pageSectionId,
               GuestBookID: result.GuestBookID
             }).then((extra) => {
-              console.debug(`Extra added.`);
               onExtraAdded(extra);
             }).catch((err) => {
               showErrorAlert(`Error adding extra.`, err);
@@ -188,7 +180,6 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
             PageSectionID: pageSectionId,
             GuestBookID: formData.edits.GuestBookID
           }).then((extra) => {
-            console.debug(`Extra added.`);
             onExtraAdded(extra);
           }).catch((err) => {
             showErrorAlert(`Error adding extra.`, err);
@@ -197,7 +188,25 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
         break;
       case 'sms':
         if (!formData.edits.SMSCampaignID) {
-          // TODO create new SMS campaign
+          SMS.insertOrUpdateSmsCampaign({
+            CampaignName: formData.edits.CampaignName,
+            SiteID: siteData.SiteID,
+            CampaignAdminEmail: formData.edits.CampaignAdminEmail,
+            CampaignEmail: formData.edits.CampaignEmail,
+            EmailCampaign: true,
+          }).then((result) => {
+            Extras.insertOrUpdateExtra({
+              ExtraType: formData.edits.ExtraType,
+              SiteID: siteData.SiteID,
+              PageID: pageData.PageID,
+              PageSectionID: pageSectionId,
+              SMSCampaignID: result.SMSCampaignID
+            }).then((extra) => {
+              onExtraAdded(extra);
+            }).catch((err) => {
+              showErrorAlert(`Error adding extra.`, err);
+            });
+          }).catch((err) => showErrorAlert(`Error adding CampaignID ${err}`));
         } else {
           // create an Extra for an existing SMS campaign
           Extras.insertOrUpdateExtra({
@@ -207,7 +216,42 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
             PageSectionID: pageSectionId,
             SMSCampaignID: formData.edits.SMSCampaignID
           }).then((extra) => {
-            console.debug(`Extra added.`);
+            onExtraAdded(extra);
+          }).catch((err) => {
+            showErrorAlert(`Error adding extra.`, err);
+          });
+        }
+        break;
+      case 'livestream':
+        if (!formData.edits.LivestreamID) {
+          // create a new livestream
+          Livestreams.insertOrUpdateLivestream({
+            LivestreamName: formData.edits.LivestreamName,
+            SiteID: siteData.SiteID,
+          })
+            .then(result => {
+              // create an Extra for an existing SMS campaign
+              Extras.insertOrUpdateExtra({
+                ExtraType: formData.edits.ExtraType,
+                SiteID: siteData.SiteID,
+                PageID: pageData.PageID,
+                PageSectionID: pageSectionId,
+                LivestreamID: result.LivestreamID
+              }).then((extra) => {
+                onExtraAdded(extra);
+              }).catch((err) => {
+                showErrorAlert(`Error adding extra.`, err);
+              });
+            }).catch((err) => showErrorAlert(`Error adding livestream.`, err));
+        } else {
+          // create an Extra for an existing SMS campaign
+          Extras.insertOrUpdateExtra({
+            ExtraType: formData.edits.ExtraType,
+            SiteID: siteData.SiteID,
+            PageID: pageData.PageID,
+            PageSectionID: pageSectionId,
+            LivestreamID: formData.edits.LivestreamID
+          }).then((extra) => {
             onExtraAdded(extra);
           }).catch((err) => {
             showErrorAlert(`Error adding extra.`, err);
@@ -218,14 +262,12 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
       case 'instagram':
       case 'youtube':
         uploadingRef.current?.classList.remove('d-none');
-        console.debug(`Adding extra.`);
         Extras.insertOrUpdateExtra({
           ...formData.edits,
           SiteID: siteData.SiteID,
           PageID: pageData.PageID,
           PageSectionID: pageSectionId,
         }).then((extra) => {
-          console.debug(`Extra added.`);
           onExtraAdded(extra);
         }).catch((err) => showErrorAlert(`Error adding extra.`, err));
         break;
@@ -262,6 +304,8 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
         return formData.edits.ExtraFile !== null
       case 'sms':
         return formData.edits.SMSCampaignID > 0 || formData.edits.CampaignName?.length > 0
+      case 'livestream':
+        return formData.edits.LivestreamID > 0 || formData.edits.LivestreamName?.length > 0
       default:
         return false;
     }
@@ -276,8 +320,8 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
 
   return (
     <Modal show={show}>
-      <Modal.Header><h5>Add an Extra</h5></Modal.Header>
       <Modal.Body>
+        <h5>Add an Extra</h5>
         <Row>
           <Form.Label
             className='required'
@@ -300,7 +344,8 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
               <option value='instagram'>Instagram Gallery</option>
               <option value='youtube'>YouTube Video</option>
               <option value='file'>File</option>
-              <option value='sms'>SMS Campaign</option>
+              <option value='sms'>Messaging Campaign</option>
+              <option value='livestream'>Livestream</option>
             </Form.Select>
           </Col>
         </Row>
@@ -504,7 +549,7 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
                 </Form.Select>
               </Col>
             </Row>
-          ) : (
+          ) : ( <>
             <Row className="mt-2">
               <Form.Label className='required' column={'sm'} htmlFor={'CampaignName'} sm={labelCols}>
                 Campaign Name</Form.Label>
@@ -520,8 +565,35 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
                 />
               </Col>
             </Row>
-          )}
+            <Row className="mt-2">
+              <Form.Label className='required' column={'sm'} htmlFor={'CampaignAdminEmail'} sm={labelCols}>
+                Admin Email</Form.Label>
+              <Col>
+                <EmailField
+                  id="CampaignAdminEmail"
+                  name="CampaignAdminEmail"
+                  size="sm"
+                  value={formData.edits.CampaignAdminEmail || ''}
+                />
+              </Col>
+            </Row>
+            <Row className="mt-2">
+              <Form.Label className='required' column={'sm'} htmlFor={'CampaignEmail'} sm={labelCols}>
+                 Campaign Email</Form.Label>
+              <Col>
+                <EmailField
+                  id="CampaignEmail"
+                  name="CampaignEmail"
+                  size="sm"
+                  value={formData.edits.CampaignEmail || ''}
+                />
+              </Col>
+            </Row>
+          </>)}
         </>)}
+        {formData.edits.ExtraType === 'livestream' && (
+          <LivestreamExtraFields/>
+        )}
         {formData.edits.ExtraType === 'instagram' && (
           <InstagramExtraFields/>
         )}
@@ -531,25 +603,26 @@ export default function AddExtrasModal({show, onHide, onSubmit, pageSectionId}) 
         {formData.edits.ExtraType === 'file' && (
           <FileExtraFields/>
         )}
-      </Modal.Body>
-      <Modal.Footer>
-        <div
-          ref={uploadingRef}
-          className="d-flex align-items-center justify-content-start small flex-grow-1 d-none"
-        >
-          <Spinner animation="border" role="status" className='me-2'/> Uploading...<br/>
+        <div className="d-flex align-items-center justify-content-end gap-3 mt-3">
+          <div
+            ref={uploadingRef}
+            className="d-flex align-items-center justify-content-start small flex-grow-1 d-none"
+          >
+            <Spinner animation="border" role="status" className='me-2'/> Uploading...<br/>
+          </div>
+          <Button size="sm" variant="secondary" onClick={onCancel} ref={cancelRef}>Cancel</Button>
+          <Button
+            size="sm"
+            variant="primary"
+            disabled={!isDataValid()}
+            onClick={() => {
+              onAddExtra();
+            }}
+            ref={submitRef}
+          >Add Extra</Button>
         </div>
-        <Button size="sm" variant="secondary" onClick={onCancel} ref={cancelRef}>Cancel</Button>
-        <Button
-          size="sm"
-          variant="primary"
-          disabled={!isDataValid()}
-          onClick={() => {
-            onAddExtra();
-          }}
-          ref={submitRef}
-        >Add Extra</Button>
-      </Modal.Footer>
+      </Modal.Body>
+
     </Modal>
   );
 

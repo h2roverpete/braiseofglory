@@ -7,10 +7,10 @@ import {useSiteContext} from "./Site";
 import {useTouchContext} from "../../util/TouchProvider";
 import './PageSection.css';
 
-const EditableField = lazy(() => import("../editor/EditableField"));
 const EditSectionMenu = lazy(() => import("../editor/EditSectionMenu"));
+const EditableField = lazy(() => import("../editor/EditableField"));
+const DropState = lazy(() => import("../editor/FileDropTarget").DropState);
 const FileDropTarget = lazy(() => import("../editor/FileDropTarget"));
-const {DropState} = lazy(() => import("../editor/FileDropTarget"));
 
 /**
  * Display a page section.

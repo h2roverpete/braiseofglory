@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {useRestApi} from "framework/api/RestApi";
 import {BsPencil, BsSortDown, BsSortUp} from "react-icons/bs";
 import {Button, CloseButton, Col, OverlayTrigger, Row, Table, Tooltip} from "react-bootstrap";
@@ -9,24 +9,32 @@ import SmsCampaignModal from "./SmsCampaignModal";
 import '../css/EditableRow.css';
 import SmsCampaignPanel from "./SmsCampaignPanel";
 import './SmsCampaignList.css';
+import {usePageContext} from "../content/Page";
 
-export default function SmsCampaignList() {
+export default function SmsCampaignList({siteId, pageId}) {
 
   // imports
   const {SMS} = useRestApi();
   const {hasPermission} = useAuth();
+  const {pageData} = usePageContext();
 
   // states
   const [listItems, setListItems] = useState(/** @type {[SMSCampaignData]} */ null);
   const [sortKey, setSortKey] = useState('SMSCampaignID');
   const [sortAscending, setSortAscending] = useState(true);
-  const [canEdit, setCanEdit] = useState(false);
   const [editCampaign, setEditCampaign] = useState(/** @type {SMSCampaignData} */null);
   const [viewCampaign, setViewCampaign] = useState(/** @type {SMSCampaignData} */null);
 
-  useEffect(() => {
-    setCanEdit(hasPermission?.(Resource.SITE, Permission.ADMIN));
-  }, [setCanEdit, hasPermission]);
+  const canSend = hasPermission(Resource.SMS, Permission.SEND);
+  const canEdit = hasPermission(Resource.SMS, Permission.ADMIN);
+  const show = useMemo(()=>{
+    // restrict display to a specific page ID
+    if (pageId) {
+      return pageData?.PageID === pageId;
+    } else {
+      return true;
+    }
+  },[pageId, pageData])
 
   const sortFunction = useCallback((a, b) => {
     switch (typeof a[sortKey]) {
@@ -40,15 +48,24 @@ export default function SmsCampaignList() {
   }, [sortKey, sortAscending]);
 
   useEffect(() => {
-    if (!listItems && canEdit) {
-      SMS.getSmsCampaigns().then(result => {
-        result.sort(sortFunction);
-        setListItems(result);
-      }).catch(e => {
-        console.error(`Error getting campaigns.`, e);
-      })
+    if (!listItems) {
+      if (siteId) {
+        SMS.getSmsCampaignsForSite(siteId).then(result => {
+          result.sort(sortFunction);
+          setListItems(result);
+        }).catch(e => {
+          console.error(`Error getting campaigns.`, e);
+        })
+      } else {
+        SMS.getSmsCampaigns().then(result => {
+          result.sort(sortFunction);
+          setListItems(result);
+        }).catch(e => {
+          console.error(`Error getting campaigns.`, e);
+        })
+      }
     }
-  }, [SMS, listItems, setListItems, sortFunction, canEdit]);
+  }, [SMS, listItems, setListItems, sortFunction]);
 
   useEffect(() => {
     if (listItems) {
@@ -117,7 +134,7 @@ export default function SmsCampaignList() {
   }
 
   return <>
-    {canEdit && listItems && <>
+    {show && canSend && <>
       {viewCampaign !== null ? <div className="CampaignList position-relative mt-2">
           <CloseButton
             className={'position-absolute'}
@@ -194,19 +211,21 @@ export default function SmsCampaignList() {
                   {campaign.SMSCampaignID}
                 </td>
                 <td className={'d-flex align-items-center position-relative'}>
-                  <OverlayTrigger
-                    delay={{show: 1000, hide: 500}}
-                    overlay={<Tooltip>Edit campaign</Tooltip>}
-                  >
-                    <BsPencil
-                      className={'EditPencil me-2 position-absolute'}
-                      style={{left: '-20px'}}
-                      onClick={(e) => {
-                        setEditCampaign(campaign);
-                        e.stopPropagation();
-                      }}
-                    />
-                  </OverlayTrigger>
+                  {canEdit &&
+                    <OverlayTrigger
+                      delay={{show: 1000, hide: 500}}
+                      overlay={<Tooltip>Edit campaign</Tooltip>}
+                    >
+                      <BsPencil
+                        className={'EditPencil me-2 position-absolute'}
+                        style={{left: '-20px'}}
+                        onClick={(e) => {
+                          setEditCampaign(campaign);
+                          e.stopPropagation();
+                        }}
+                      />
+                    </OverlayTrigger>
+                  }
                   {campaign.CampaignName}
                 </td>
                 <td>
@@ -219,27 +238,29 @@ export default function SmsCampaignList() {
             ))}
             </tbody>
           </Table>
-          <Row className="mt-2">
-            <Col>
-              <Button
-                size="sm"
-                variant="primary"
-                onClick={() => setEditCampaign({})}
-              >
-                Add Campaign
-              </Button>
-            </Col>
-          </Row>
-          <FormEditor>
-            <SmsCampaignModal
-              campaign={editCampaign}
-              show={editCampaign !== null}
-              onHide={() => setEditCampaign(null)}
-              onAdd={handleAdd}
-              onUpdate={handleUpdate}
-              onDelete={handleDelete}
-            />
-          </FormEditor>
+          {canEdit && <>
+            <Row className="mt-2">
+              <Col>
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => setEditCampaign({})}
+                >
+                  Add Campaign
+                </Button>
+              </Col>
+            </Row>
+            <FormEditor>
+              <SmsCampaignModal
+                campaign={editCampaign}
+                show={editCampaign !== null}
+                onHide={() => setEditCampaign(null)}
+                onAdd={handleAdd}
+                onUpdate={handleUpdate}
+                onDelete={handleDelete}
+              />
+            </FormEditor>
+          </>}
         </>}
     </>}
   </>;

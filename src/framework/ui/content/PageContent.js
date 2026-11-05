@@ -1,9 +1,14 @@
-import {useEffect, useState} from "react";
+import React, {lazy, Suspense, useEffect, useRef, useState} from "react";
 import {Permission, Resource} from "../../auth/Permissions";
 import {useAuth} from "../../auth/AuthProvider";
 import {usePageContext} from "./Page";
-import RestrictedContent from "../../auth/RestrictedContent";
 import './PageContent.css';
+import {Button, Spinner} from "react-bootstrap";
+import {useRestApi} from "../../api/RestApi";
+import {useSiteContext} from "./Site";
+
+const RestrictedContent = lazy(() => import("../../auth/RestrictedContent"));
+const PagePassword = lazy(() => import("./PagePassword"));
 
 /**
  * Element to show page content
@@ -16,20 +21,76 @@ import './PageContent.css';
 export default function PageContent({children}) {
 
   const {hasPermission} = useAuth();
-  const {pageData} = usePageContext();
+  const {siteData, showErrorAlert} = useSiteContext();
+  const {pageData, sectionData, setSectionData} = usePageContext();
+  const passwordApi = useRef(null);
+  const [canView, setCanView] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const {PageSections} = useRestApi();
 
-  const [canView, setCanView] = useState(true);
   useEffect(() => {
-    setCanView(!pageData?.RequiresLogin || hasPermission(Resource.PAGE, Permission.BROWSE_PROTECTED));
-  }, [pageData, hasPermission, setCanView]);
+    if (!canView && pageData && hasPermission) {
+      if (pageData.RequiresPassword) {
+        // check if user is logged in with admin permission
+        if (hasPermission(Resource.PAGE, Permission.BROWSE_PROTECTED)) {
+          setCanView(true);
+        } else if (passwordApi.current) {
+          // not admin, check page password
+          passwordApi.current.canView().then((result) => {
+            setCanView(result);
+          });
+        }
+      } else if (pageData.RequiresLogin) {
+        // check if user is logged in with browse permission
+        setCanView(hasPermission(Resource.PAGE, Permission.BROWSE_PROTECTED));
+      } else {
+        // no protection
+        setCanView(true);
+      }
+    }
+    setCanEdit(hasPermission(Resource.PAGE, Permission.EDIT));
+  }, [pageData, hasPermission, setCanView, setCanEdit, canView]);
+
+  function addPageSection() {
+    setBusy(true);
+    PageSections.insertOrUpdatePageSection({
+      PageID: pageData.PageID,
+      PageSectionSeq: 1,
+    }).then((newSection) => {
+      setSectionData([newSection]);
+      setBusy(false);
+    }).catch(error => {
+      showErrorAlert(`Error adding section.`, error);
+      setBusy(false);
+    });
+  }
 
   return (<>
-    {canView ? (
-      <div className="PageContent container-fluid" data-testid="PageContent">
-        {children}
-      </div>
-    ) : (
-      <RestrictedContent/>
-    )}
+    {pageData && <>
+      {canView ?
+        <div className="PageContent container-fluid" data-testid="PageContent">
+          {children}
+          {canEdit && sectionData?.length === 0 && pageData.PageID > 0 &&
+            <div className={'w-100'}>
+              <Button
+                variant={siteData?.SiteTheme}
+                className={'mt-3 mb-3'}
+                style={{width: '150px'}}
+                size={'sm'}
+                onClick={addPageSection}
+              >
+                {busy ? <Spinner size={'sm'}></Spinner> : <>Add Page Section</>}
+              </Button>
+            </div>
+          }
+        </div>
+        :
+        pageData?.RequiresPassword ?
+          <Suspense><PagePassword onSuccess={() => setCanView(true)} pageData={pageData} apiRef={passwordApi}/></Suspense>
+          : pageData?.RequiresLogin &&
+          <Suspense><RestrictedContent/></Suspense>
+      }
+    </>}
   </>);
 }
